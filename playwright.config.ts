@@ -82,8 +82,10 @@ const baseConfig: BaseConfigType = {
 };
 
 if (process.env.USE_DOCKER === "true") {
+  const isWindows = process.platform === "win32";
+  const dockerScript = isWindows ? "start-docker.bat" : "./start-docker.sh";
   baseConfig.webServer = {
-    command: "./start-docker.sh",
+    command: dockerScript,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
   };
