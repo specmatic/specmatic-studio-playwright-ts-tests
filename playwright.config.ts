@@ -7,16 +7,11 @@ const isCI = !!process.env.CI;
 const envName = process.env.ENV_NAME || (isCI ? "ci" : "local");
 const envFile = path.resolve(__dirname, `env/.env.${envName}`);
 
-// Load if available (in CI, .env.ci should exist because it's checked in)
 if (fs.existsSync(envFile)) {
   dotenv.config({ path: envFile });
   console.log(`[env] Loaded ${envFile}`);
 } else {
-  // In CI, you probably *do* want to fail if .env.ci is missing
-  if (isCI) {
-    throw new Error(`❌ Could not load required CI env file: ${envFile}`);
-  }
-  console.log(`[env] Not found: ${envFile}. Using process.env values.`);
+  throw new Error(`❌ Could not load required CI env file: ${envFile}`);
 }
 
 const baseURL =
@@ -86,7 +81,7 @@ const baseConfig: BaseConfigType = {
   globalTeardown: require.resolve("./utils/teardown.js"),
 };
 
-if (["local", "ci"].includes(envName)) {
+if (process.env.USE_DOCKER === "true") {
   baseConfig.webServer = {
     command: "./start-docker.sh",
     url: baseURL,
