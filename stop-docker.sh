@@ -5,3 +5,4 @@
 REPO_NAME=$(basename "$PWD")
 
 docker compose -p "$REPO_NAME" -f specmatic-studio-demo/docker-compose.yaml down
+echo Docker containers for project %REPO_NAME% have been stopped and removed.

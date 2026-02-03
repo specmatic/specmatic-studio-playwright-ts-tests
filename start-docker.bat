@@ -3,7 +3,7 @@ REM Start the docker containers defined in the docker-compose.yaml with a unique
 
 FOR %%I IN ("%CD%") DO SET REPO_NAME=%%~nxI
 
-docker compose -p %REPO_NAME% -f specmatic-studio-demo/docker-compose.yaml up -d
+docker-compose -p %REPO_NAME% -f specmatic-studio-demo\docker-compose.yaml up -d
 
 REM Wait until the service is accessible
 SET BASE_URL=http://localhost:9000/_specmatic/studio
