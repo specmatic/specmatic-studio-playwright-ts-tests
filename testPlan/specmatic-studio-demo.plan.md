@@ -1,5 +1,5 @@
 
-# Specmatic Studio Demo - Declarative Test Plan
+# Specmatic Studio Demo - Test Plan
 
 ## Application Overview
 
