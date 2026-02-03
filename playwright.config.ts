@@ -2,6 +2,8 @@ import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
+import http from "http";
+import { execSync } from "child_process";
 
 const isCI = !!process.env.CI;
 // Decide which env file to load
@@ -20,7 +22,40 @@ if (fs.existsSync(envFile)) {
   console.log(`[env] Not found: ${envFile}. Using process.env values.`);
 }
 
-const baseURL = process.env.BASE_URL || "http://localhost:5500";
+const baseURL =
+  process.env.BASE_URL || "http://localhost:9000/_specmatic/studio";
+
+// Utility to check if baseURL is accessible
+function checkBaseURLAccessible(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    try {
+      const req = http.get(url, (res) => {
+        resolve(res.statusCode === 200);
+      });
+      req.on("error", () => resolve(false));
+      req.setTimeout(2000, () => {
+        req.destroy();
+        resolve(false);
+      });
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
+(async () => {
+  const accessible = await checkBaseURLAccessible(baseURL);
+  if (!accessible && ["local", "ci"].includes(envName)) {
+    console.log(
+      `[startup] baseURL ${baseURL} not accessible. Starting docker...`,
+    );
+    try {
+      execSync("./start-docker.sh", { stdio: "inherit" });
+    } catch (e) {
+      console.error("[startup] Failed to start docker:", e);
+    }
+  }
+})();
 
 /**
  * Read environment variables from file.
