@@ -29,6 +29,7 @@ const baseURL =
  */
 interface BaseConfigType {
   testDir: string;
+  testMatch: string[];
   fullyParallel: boolean;
   forbidOnly: boolean;
   retries: number;
@@ -45,7 +46,8 @@ interface BaseConfigType {
 }
 
 const baseConfig: BaseConfigType = {
-  testDir: "./tests",
+  testDir: "./",
+  testMatch: ["tests/**/*.spec.ts", "specs/**/*.spec.ts"],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 0 : 0,
