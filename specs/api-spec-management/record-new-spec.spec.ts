@@ -1,60 +1,17 @@
 import { test, expect } from "@playwright/test";
-import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { ORDER_API_URL, PROXY_PORT } from "../specNames";
-
+import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
 test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy",
     { tag: ["@apiSpecManagement", "@slow"] },
     async ({ page }, testInfo) => {
-      await page.goto("/");
-      await takeAndAttachScreenshot(
-        page,
-        "app-loaded",
-        testInfo.title,
-        "app-loaded-screenshot",
-      );
-
-      const recordBtn = page.getByRole("button", {
-        name: /Record a specification/i,
-      });
-      await recordBtn.click({ force: true });
-      await takeAndAttachScreenshot(
-        page,
-        "clicked-record-spec",
-        testInfo.title,
-        "clicked-record-spec-screenshot",
-      );
-
-      const targetUrlInput = page.getByPlaceholder(
-        "e.g. https://example.com:3000",
-      );
-      await targetUrlInput.fill(ORDER_API_URL);
-      await takeAndAttachScreenshot(
-        page,
-        "filled-target-url",
-        testInfo.title,
-        "filled-target-url-screenshot",
-      );
-
-      const proxyPortInput = page.getByRole("spinbutton");
-      await proxyPortInput.fill(PROXY_PORT);
-      await takeAndAttachScreenshot(
-        page,
-        "filled-proxy-port",
-        testInfo.title,
-        "filled-proxy-port-screenshot",
-      );
-
-      const startBtn = page.locator("#startProxy");
-      await startBtn.click({ force: true });
-      await takeAndAttachScreenshot(
-        page,
-        "clicked-start",
-        testInfo.title,
-        "clicked-start-screenshot",
-      );
-
+      const studio = new SpecmaticStudioPage(page, testInfo);
+      await studio.goto();
+      await studio.clickRecordSpec();
+      await studio.fillTargetUrl(ORDER_API_URL);
+      await studio.fillProxyPort(PROXY_PORT);
+      await studio.clickStartProxy();
       page.once("dialog", async (dialog) => {
         const allowedMessages = [
           "Proxy started successfully",
@@ -65,21 +22,7 @@ test.describe("API Specification Management", () => {
         expect(allowedMessages).toContain(msg);
         await dialog.accept();
       });
-      await takeAndAttachScreenshot(
-        page,
-        "clicked-start",
-        testInfo.title,
-        "clicked-start-screenshot",
-      );
-
-      const stopBtn = page.locator("#stopProxy");
-      await stopBtn.click({ force: true });
-      await takeAndAttachScreenshot(
-        page,
-        "clicked-start",
-        testInfo.title,
-        "clicked-start-screenshot",
-      );
+      await studio.clickStopProxy();
     },
   );
 });
