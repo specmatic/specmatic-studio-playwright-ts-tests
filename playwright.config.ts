@@ -1,5 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
+dotenv.config();
 import path from "path";
 import fs from "fs";
 const isCI = !!process.env.CI;
@@ -37,6 +38,7 @@ interface BaseConfigType {
   reporter: string;
   use: any;
   projects: any[];
+  globalSetup: string;
   globalTeardown: string;
   webServer?: {
     command: string;
@@ -80,7 +82,8 @@ const baseConfig: BaseConfigType = {
     //   use: { ...devices["Desktop Chrome"], channel: "chrome" },
     // },
   ],
-  globalTeardown: require.resolve("./utils/teardown.js"),
+  globalSetup: path.resolve(__dirname, "./utils/global-setup.ts"),
+  globalTeardown: path.resolve(__dirname, "./utils/global-teardown.ts"),
 };
 
 if (process.env.USE_DOCKER === "true") {

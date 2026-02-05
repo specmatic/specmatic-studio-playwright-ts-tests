@@ -1,31 +1,38 @@
-import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { Page, Locator, expect, type TestInfo } from "@playwright/test";
+
 import { SideBarPage } from "./side-bar-page";
+import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class ServiceSpecConfigPage {
   readonly page: Page;
   readonly sideBar: SideBarPage;
   readonly specTree: Locator;
   readonly testInfo?: TestInfo;
+  readonly eyes?: any;
 
-  constructor(page: Page, testInfo?: TestInfo) {
+  constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
     this.sideBar = new SideBarPage(page);
     this.specTree = page.locator("#spec-tree");
     this.testInfo = testInfo;
+    this.eyes = eyes;
   }
 
   async goto() {
     await this.page.goto("/");
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "app-loaded-screenshot");
+      await takeAndAttachScreenshot(
+        this.page,
+        "app-loaded-screenshot",
+        this.eyes,
+      );
     }
   }
 
   async ensureSidebarOpen() {
     await this.sideBar.ensureSidebarOpen();
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar-screenshot");
+      await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
     }
   }
 
@@ -34,7 +41,11 @@ export class ServiceSpecConfigPage {
     const configLocator = this.specTree.locator("text=" + configName);
     await configLocator.click({ force: true });
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "selected-config-screenshot");
+      await takeAndAttachScreenshot(
+        this.page,
+        "selected-config-screenshot",
+        this.eyes,
+      );
     }
     return configLocator;
   }
@@ -46,6 +57,7 @@ export class ServiceSpecConfigPage {
       await takeAndAttachScreenshot(
         this.page,
         "clicked-edit-config-screenshot",
+        this.eyes,
       );
     }
     return editBtn;
@@ -60,6 +72,7 @@ export class ServiceSpecConfigPage {
       await takeAndAttachScreenshot(
         this.page,
         "clicked-update-spec-screenshot",
+        this.eyes,
       );
     }
     return updateTab;
@@ -69,7 +82,11 @@ export class ServiceSpecConfigPage {
     const saveBtn = this.page.locator('button[data-validate="/openapi"]');
     await saveBtn.click({ force: true });
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "save-clicked-screenshot");
+      await takeAndAttachScreenshot(
+        this.page,
+        "save-clicked-screenshot",
+        this.eyes,
+      );
     }
     return saveBtn;
   }
