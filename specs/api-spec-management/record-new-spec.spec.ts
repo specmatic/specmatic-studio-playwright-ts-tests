@@ -5,8 +5,7 @@
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 // Use Playwright baseURL from config
-const TARGET_URL = "http://order-api:8090";
-const PROXY_PORT = "9090";
+import { ORDER_API_URL, PROXY_PORT } from "../specNames";
 
 test.describe("API Specification Management", () => {
   test("Record New API Specification via Proxy", async ({ page }, testInfo) => {
@@ -34,7 +33,7 @@ test.describe("API Specification Management", () => {
     const targetUrlInput = page.getByPlaceholder(
       "e.g. https://example.com:3000",
     );
-    await targetUrlInput.fill(TARGET_URL);
+    await targetUrlInput.fill(ORDER_API_URL);
     await takeAndAttachScreenshot(
       page,
       "filled-target-url",

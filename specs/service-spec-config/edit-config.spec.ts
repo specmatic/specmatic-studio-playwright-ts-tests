@@ -5,8 +5,8 @@
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
+import { SPECMATIC_CONFIG } from "../specNames";
 // Use Playwright baseURL from config
-const CONFIG_NAME = "specmatic.yaml";
 
 test.describe("Service Spec & Config Update", () => {
   test("Edit Specmatic Configuration", async ({ page }, testInfo) => {

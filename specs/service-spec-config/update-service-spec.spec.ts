@@ -6,9 +6,8 @@ import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import type { Page, TestInfo } from "@playwright/test";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
-
+import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 // Use Playwright baseURL from config
-const SPEC_NAME = "product_search_bff_v5.yaml";
 
 test.describe("Service Spec & Config Update", () => {
   test("Update Service Specification", async ({ page }, testInfo) => {
@@ -32,7 +31,7 @@ test.describe("Service Spec & Config Update", () => {
     );
 
     // Select API spec
-    const specLocator = specTree.locator("text=" + SPEC_NAME);
+    const specLocator = specTree.locator("text=" + PRODUCT_SEARCH_BFF_SPEC);
     await specLocator.click({ force: true });
     await takeAndAttachScreenshot(
       page,

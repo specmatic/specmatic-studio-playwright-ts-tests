@@ -6,10 +6,8 @@ import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import type { Page, TestInfo } from "@playwright/test";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
-
+import { PRODUCT_SEARCH_BFF_SPEC, MOCK_SERVER_PORT } from "../specNames";
 // Use Playwright baseURL from config
-const SPEC_NAME = "product_search_bff_v5.yaml";
-const MOCK_SERVER_PORT = "8081";
 
 test.describe("API Mocking", () => {
   test("Run Mock Server for API Spec", async ({ page }, testInfo) => {
@@ -39,7 +37,7 @@ test.describe("API Mocking", () => {
     );
 
     // Select API spec
-    const specLocator = specTree.locator("text=" + SPEC_NAME);
+    const specLocator = specTree.locator("text=" + PRODUCT_SEARCH_BFF_SPEC);
     await expect(specLocator).toBeVisible({ timeout: 4000 });
     await specLocator.click({ force: true });
     await takeAndAttachScreenshot(

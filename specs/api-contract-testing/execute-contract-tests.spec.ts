@@ -4,9 +4,10 @@
 
 import { test, expect } from "@playwright/test";
 import type { Page, TestInfo } from "@playwright/test";
+
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 // Use Playwright baseURL from config
-const SPEC_NAME = "product_search_bff_v5.yaml";
 
 test.describe("API Contract Testing", () => {
   test("Execute Contract Tests for API Spec", async ({ page }, testInfo) => {
@@ -53,7 +54,7 @@ test.describe("API Contract Testing", () => {
     );
 
     // Select API spec only within #spec-tree
-    const specLocator = specTree.locator("text=" + SPEC_NAME);
+    const specLocator = specTree.locator("text=" + PRODUCT_SEARCH_BFF_SPEC);
     await expect(specLocator).toBeVisible({ timeout: 4000 });
     await specLocator.click({ force: true });
     await takeAndAttachScreenshot(

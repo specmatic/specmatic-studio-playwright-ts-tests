@@ -5,8 +5,8 @@
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 // Use Playwright baseURL from config
-const SPEC_NAME = "product_search_bff_v5.yaml";
 
 test.describe("Example Generation", () => {
   test("Generate Valid Examples from API Spec", async ({ page }, testInfo) => {
@@ -36,7 +36,7 @@ test.describe("Example Generation", () => {
     );
 
     // Select API spec
-    const specLocator = specTree.locator("text=" + SPEC_NAME);
+    const specLocator = specTree.locator("text=" + PRODUCT_SEARCH_BFF_SPEC);
     await specLocator.click({ force: true });
     await takeAndAttachScreenshot(
       page,

@@ -5,7 +5,7 @@
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 // Use Playwright baseURL from config
-const SPEC_NAME = "product_search_bff_v5.yaml";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
 
 test.describe("API Specification Management", () => {
@@ -37,13 +37,13 @@ test.describe("API Specification Management", () => {
     );
 
     // Step 2: Find and select the API spec (force click)
-    const specLocator = specTree.locator("text=" + SPEC_NAME);
+    const specLocator = specTree.locator("text=" + PRODUCT_SEARCH_BFF_SPEC);
     await specLocator.click({ force: true });
     await takeAndAttachScreenshot(
       page,
-      `select-spec-${SPEC_NAME}`,
+      `select-spec-${PRODUCT_SEARCH_BFF_SPEC}`,
       testInfo.title,
-      `select-spec-${SPEC_NAME}-screenshot`,
+      `select-spec-${PRODUCT_SEARCH_BFF_SPEC}-screenshot`,
     );
 
     // Step 3: Verify spec details are displayed
