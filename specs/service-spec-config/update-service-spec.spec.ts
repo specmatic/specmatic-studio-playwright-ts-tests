@@ -54,7 +54,7 @@ test.describe("Service Spec & Config Update", () => {
     );
 
     const saveBtn = page.locator('button[data-validate="/openapi"]');
-    await saveBtn.click();
+    await saveBtn.click({ force: true });
     await takeAndAttachScreenshot(
       page,
       "save-clicked",
