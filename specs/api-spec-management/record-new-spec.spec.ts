@@ -4,7 +4,7 @@ import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
 test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy",
-    { tag: ["@apiSpecManagement", "@slow"] },
+    { tag: ["@apiSpecManagement"] },
     async ({ page }, testInfo) => {
       const studio = new SpecmaticStudioPage(page, testInfo);
       await studio.goto();
