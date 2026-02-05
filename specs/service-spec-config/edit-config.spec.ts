@@ -6,6 +6,7 @@ import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
 import { SPECMATIC_CONFIG } from "../specNames";
+const CONFIG_NAME = SPECMATIC_CONFIG;
 // Use Playwright baseURL from config
 
 test.describe("Service Spec & Config Update", () => {
