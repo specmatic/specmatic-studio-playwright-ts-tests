@@ -14,10 +14,12 @@ export async function takeAndAttachScreenshot(
   testId?: string,
   attachmentName?: string,
 ): Promise<void> {
-  const screenshotBuffer = await page.screenshot({ type: "png" });
+  const screenshotBuffer = await page.screenshot({
+    type: "png",
+    animations: "disabled",
+  });
   test.info().attach(attachmentName || "Screenshot", {
     body: screenshotBuffer,
     contentType: "image/png",
   });
 }
-
