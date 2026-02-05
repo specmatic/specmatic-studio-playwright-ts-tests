@@ -2,9 +2,8 @@
 // suite: Service Spec & Config Update
 // scenario: Update Service Specification
 
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
-import type { Page, TestInfo } from "@playwright/test";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 // Use Playwright baseURL from config

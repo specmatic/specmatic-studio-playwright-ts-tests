@@ -2,9 +2,8 @@
 // suite: API Mocking
 // scenario: Run Mock Server for API Spec
 
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
-import type { Page, TestInfo } from "@playwright/test";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
 import { PRODUCT_SEARCH_BFF_SPEC, MOCK_SERVER_PORT } from "../specNames";
 // Use Playwright baseURL from config

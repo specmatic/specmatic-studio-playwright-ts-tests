@@ -2,9 +2,7 @@
 // suite: API Contract Testing
 // scenario: Execute Contract Tests for API Spec
 
-import { test, expect } from "@playwright/test";
-import type { Page, TestInfo } from "@playwright/test";
-
+import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 // Use Playwright baseURL from config

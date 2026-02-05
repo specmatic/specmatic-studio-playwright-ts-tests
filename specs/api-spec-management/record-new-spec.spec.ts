@@ -4,7 +4,6 @@
 
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
-// Use Playwright baseURL from config
 import { ORDER_API_URL, PROXY_PORT } from "../specNames";
 
 test.describe("API Specification Management", () => {

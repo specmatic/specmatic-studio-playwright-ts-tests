@@ -4,7 +4,6 @@
 
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
-// Use Playwright baseURL from config
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
 
