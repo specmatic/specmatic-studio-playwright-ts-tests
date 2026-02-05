@@ -1,11 +1,7 @@
-// suite: Example Generation
-// scenario: Generate Valid Examples from API Spec
-
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
-// Use Playwright baseURL from config
 
 test.describe("Example Generation", () => {
   test(
@@ -37,7 +33,6 @@ test.describe("Example Generation", () => {
         "spec-tree-visible-screenshot",
       );
 
-      // Select API spec
       const specLocator = specTree.locator("text=" + PRODUCT_SEARCH_BFF_SPEC);
       await specLocator.click({ force: true });
       await takeAndAttachScreenshot(
@@ -47,7 +42,6 @@ test.describe("Example Generation", () => {
         "selected-spec-screenshot",
       );
 
-      // Click 'Generate valid examples' button
       const examplesBtn = page.getByText(/Generate valid examples/i);
       await examplesBtn.click({ force: true });
       await takeAndAttachScreenshot(

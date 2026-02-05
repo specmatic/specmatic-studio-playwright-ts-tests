@@ -1,10 +1,6 @@
-// suite: API Contract Testing
-// scenario: Execute Contract Tests for API Spec
-
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
-// Use Playwright baseURL from config
 
 test.describe("API Contract Testing", () => {
   test(
@@ -19,7 +15,6 @@ test.describe("API Contract Testing", () => {
         "app-loaded-screenshot",
       );
 
-      // Ensure left sidebar is open
       const leftSidebar = page.locator("#left-sidebar");
       const sidebarToggleBtn = page.locator("button#left-sidebar-toggle");
       const isExpanded = await leftSidebar.getAttribute("aria-expanded");
@@ -43,7 +38,6 @@ test.describe("API Contract Testing", () => {
         );
       }
 
-      // Wait for spec list to load
       const specTree = page.locator("#spec-tree");
       await expect(specTree).toBeVisible({ timeout: 4000 });
       await takeAndAttachScreenshot(
@@ -53,7 +47,6 @@ test.describe("API Contract Testing", () => {
         "spec-tree-visible-screenshot",
       );
 
-      // Select API spec only within #spec-tree
       const specLocator = specTree.locator("text=" + PRODUCT_SEARCH_BFF_SPEC);
       await expect(specLocator).toBeVisible({ timeout: 4000 });
       await specLocator.click({ force: true });
@@ -64,7 +57,6 @@ test.describe("API Contract Testing", () => {
         "selected-spec-screenshot",
       );
 
-      // Click 'Execute contract tests' button
       const testBtn = page.getByText(/Execute contract tests/i);
       await expect(testBtn).toBeVisible({ timeout: 4000 });
       await testBtn.click({ force: true });

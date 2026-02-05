@@ -1,11 +1,7 @@
-// suite: Service Spec & Config Update
-// scenario: Update Service Specification
-
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { ensureSidebarOpen } from "../../utils/sideBarUtils";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
-// Use Playwright baseURL from config
 
 test.describe("Service Spec & Config Update", () => {
   test(
@@ -31,7 +27,6 @@ test.describe("Service Spec & Config Update", () => {
         "spec-tree-visible-screenshot",
       );
 
-      // Select API spec
       const specLocator = specTree.locator("text=" + PRODUCT_SEARCH_BFF_SPEC);
       await specLocator.click({ force: true });
       await takeAndAttachScreenshot(
@@ -41,7 +36,6 @@ test.describe("Service Spec & Config Update", () => {
         "selected-spec-screenshot",
       );
 
-      // Click 'Update service spec' button
       const updateTab = page.locator('li.tab[data-type="spec"]').first();
       if ((await updateTab.getAttribute("data-active")) !== "true") {
         await updateTab.click({ force: true });
@@ -62,7 +56,6 @@ test.describe("Service Spec & Config Update", () => {
         "save-clicked-screenshot",
       );
 
-      // Expect confirmation message
       page.once("dialog", async (dialog) => {
         expect(dialog.message()).toContain("Contents saved successfully");
         await dialog.dismiss();

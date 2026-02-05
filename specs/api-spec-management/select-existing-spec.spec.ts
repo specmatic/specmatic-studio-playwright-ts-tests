@@ -1,6 +1,3 @@
-// suite: API Specification Management
-// scenario: Select Existing API Specification
-
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
@@ -11,7 +8,6 @@ test.describe("API Specification Management", () => {
     "Select Existing API Specification",
     { tag: ["@apiSpecManagement"] },
     async ({ page }, testInfo) => {
-      // Step 1: Navigate to Specmatic Studio
       await page.goto("/");
       await takeAndAttachScreenshot(
         page,
@@ -37,7 +33,6 @@ test.describe("API Specification Management", () => {
         "spec-tree-visible-screenshot",
       );
 
-      // Step 2: Find and select the API spec (force click)
       const specLocator = specTree.locator("text=" + PRODUCT_SEARCH_BFF_SPEC);
       await specLocator.click({ force: true });
       await takeAndAttachScreenshot(
@@ -47,7 +42,6 @@ test.describe("API Specification Management", () => {
         `select-spec-${PRODUCT_SEARCH_BFF_SPEC}-screenshot`,
       );
 
-      // Step 3: Verify spec details are displayed
       const updateTab = page.locator('li.tab[data-type="spec"]').first();
       if ((await updateTab.getAttribute("data-active")) !== "true") {
         await updateTab.click({ force: true });

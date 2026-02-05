@@ -15,7 +15,6 @@ test.describe("API Specification Management", () => {
         "app-loaded-screenshot",
       );
 
-      // Click 'Record Record a specification' button
       const recordBtn = page.getByRole("button", {
         name: /Record a specification/i,
       });
@@ -27,7 +26,6 @@ test.describe("API Specification Management", () => {
         "clicked-record-spec-screenshot",
       );
 
-      // Fill Target Service URL
       const targetUrlInput = page.getByPlaceholder(
         "e.g. https://example.com:3000",
       );
@@ -39,7 +37,6 @@ test.describe("API Specification Management", () => {
         "filled-target-url-screenshot",
       );
 
-      // Fill Proxy Port
       const proxyPortInput = page.getByRole("spinbutton");
       await proxyPortInput.fill(PROXY_PORT);
       await takeAndAttachScreenshot(
@@ -49,7 +46,6 @@ test.describe("API Specification Management", () => {
         "filled-proxy-port-screenshot",
       );
 
-      // Click Start
       const startBtn = page.locator("#startProxy");
       await startBtn.click({ force: true });
       await takeAndAttachScreenshot(
@@ -76,7 +72,6 @@ test.describe("API Specification Management", () => {
         "clicked-start-screenshot",
       );
 
-      // Click Stop
       const stopBtn = page.locator("#stopProxy");
       await stopBtn.click({ force: true });
       await takeAndAttachScreenshot(
