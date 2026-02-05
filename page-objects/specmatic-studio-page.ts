@@ -1,10 +1,12 @@
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { Page, Locator, type TestInfo } from "@playwright/test";
 import { BasePage } from "./base-page";
+import { SideBarPage } from "./side-bar-page";
 
 export class SpecmaticStudioPage extends BasePage {
   readonly leftSidebar: Locator;
   readonly sidebarToggleBtn: Locator;
+  readonly sideBar: SideBarPage;
   readonly specTree: Locator;
   readonly testInfo?: TestInfo;
 
@@ -14,6 +16,7 @@ export class SpecmaticStudioPage extends BasePage {
     this.sidebarToggleBtn = page.locator("button#left-sidebar-toggle");
     this.specTree = page.locator("#spec-tree");
     this.testInfo = testInfo;
+    this.sideBar = new SideBarPage(page, testInfo);
   }
 
   async goto() {
@@ -23,21 +26,9 @@ export class SpecmaticStudioPage extends BasePage {
     }
   }
 
-  async ensureSidebarOpen() {
-    const isExpanded = await this.leftSidebar.getAttribute("aria-expanded");
-    if (isExpanded === "false") {
-      await this.sidebarToggleBtn.click();
-    }
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar-screenshot");
-    }
-  }
-
-  async waitForSpecTree() {
-    await this.specTree.waitFor({ state: "visible", timeout: 4000 });
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "spec-tree-visible-screenshot");
-    }
+  // Removed ensureSidebarOpen. Use openSidebarAndWaitForSpecTree instead.
+  async openSidebarAndWaitForSpecTree() {
+    await this.sideBar.ensureSidebarOpen();
   }
 
   async selectSpec(specName: string) {

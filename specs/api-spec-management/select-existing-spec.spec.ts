@@ -9,8 +9,7 @@ test.describe("API Specification Management", () => {
     async ({ page }, testInfo) => {
       const studioPage = new SpecmaticStudioPage(page, testInfo);
       await studioPage.goto();
-      await studioPage.ensureSidebarOpen();
-      await studioPage.waitForSpecTree();
+      await studioPage.openSidebarAndWaitForSpecTree();
       await studioPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
       await studioPage.openSpecDetailsTab();
     },
