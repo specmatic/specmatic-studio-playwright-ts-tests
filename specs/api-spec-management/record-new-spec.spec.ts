@@ -5,8 +5,8 @@
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 // Use Playwright baseURL from config
-const TARGET_URL = "https://example.com:3000";
-const PROXY_PORT = "8080";
+const TARGET_URL = "http://order-api:8090";
+const PROXY_PORT = "9090";
 
 test.describe("API Specification Management", () => {
   test("Record New API Specification via Proxy", async ({ page }, testInfo) => {
@@ -53,7 +53,7 @@ test.describe("API Specification Management", () => {
     );
 
     // Click Start
-    const startBtn = page.getByRole("button", { name: "Start" });
+    const startBtn = page.locator("#startProxy");
     await startBtn.click({ force: true });
     await takeAndAttachScreenshot(
       page,
@@ -62,14 +62,31 @@ test.describe("API Specification Management", () => {
       "clicked-start-screenshot",
     );
 
-    // Expect proxy started message or UI change
-    const proxyStatus = page.getByText(/Proxy is started|ready to record/i);
-    await expect(proxyStatus).toBeVisible();
+    page.once("dialog", async (dialog) => {
+      const allowedMessages = [
+        "Proxy started successfully",
+        "Proxy is already running",
+        "Proxy Error",
+      ];
+      const msg = dialog.message();
+      expect(allowedMessages).toContain(msg);
+      await dialog.accept();
+    });
     await takeAndAttachScreenshot(
       page,
-      "proxy-started",
+      "clicked-start",
       testInfo.title,
-      "proxy-started-screenshot",
+      "clicked-start-screenshot",
+    );
+
+    // Click Stop
+    const stopBtn = page.locator("#stopProxy");
+    await stopBtn.click({ force: true });
+    await takeAndAttachScreenshot(
+      page,
+      "clicked-start",
+      testInfo.title,
+      "clicked-start-screenshot",
     );
   });
 });

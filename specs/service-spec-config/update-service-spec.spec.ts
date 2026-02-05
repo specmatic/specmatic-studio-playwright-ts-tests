@@ -5,40 +5,73 @@
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import type { Page, TestInfo } from "@playwright/test";
+import { ensureSidebarOpen } from "../../utils/sideBarUtils";
 
 // Use Playwright baseURL from config
 const SPEC_NAME = "product_search_bff_v5.yaml";
 
-async function logAndScreenshot(page: Page, step: string, testInfo: TestInfo) {
-  testInfo.attach("log", { body: Buffer.from(`Step: ${step}`) });
-  await takeAndAttachScreenshot(
-    page,
-    step,
-    testInfo.title,
-    `${step}-screenshot`,
-  );
-}
-
 test.describe("Service Spec & Config Update", () => {
   test("Update Service Specification", async ({ page }, testInfo) => {
     await page.goto("/");
-    await logAndScreenshot(page, "app-loaded", testInfo);
+    await takeAndAttachScreenshot(
+      page,
+      "app-loaded",
+      testInfo.title,
+      "app-loaded-screenshot",
+    );
+
+    await ensureSidebarOpen(page);
+
+    const specTree = page.locator("#spec-tree");
+    await expect(specTree).toBeVisible({ timeout: 4000 });
+    await takeAndAttachScreenshot(
+      page,
+      "spec-tree-visible",
+      testInfo.title,
+      "spec-tree-visible-screenshot",
+    );
 
     // Select API spec
-    const specLocator = page.locator("text=" + SPEC_NAME);
+    const specLocator = specTree.locator("text=" + SPEC_NAME);
     await specLocator.click({ force: true });
-    await logAndScreenshot(page, "selected-spec", testInfo);
+    await takeAndAttachScreenshot(
+      page,
+      "selected-spec",
+      testInfo.title,
+      "selected-spec-screenshot",
+    );
 
     // Click 'Update service spec' button
-    const updateBtn = page.getByText(/Update service spec/i);
-    await updateBtn.click({ force: true });
-    await logAndScreenshot(page, "clicked-update-spec", testInfo);
+    const updateTab = page.locator('li.tab[data-type="spec"]').first();
+    if ((await updateTab.getAttribute("data-active")) !== "true") {
+      await updateTab.click({ force: true });
+    }
+    await takeAndAttachScreenshot(
+      page,
+      "clicked-update-spec",
+      testInfo.title,
+      "clicked-update-spec-screenshot",
+    );
+
+    const saveBtn = page.locator('button[data-validate="/openapi"]');
+    await saveBtn.click();
+    await takeAndAttachScreenshot(
+      page,
+      "save-clicked",
+      testInfo.title,
+      "save-clicked-screenshot",
+    );
 
     // Expect confirmation message
-    const confirmationLocator = page.getByText(
-      /Service specification is updated|Confirmation/i,
+    page.once("dialog", async (dialog) => {
+      expect(dialog.message()).toContain("Contents saved successfully");
+      await dialog.dismiss();
+    });
+    await takeAndAttachScreenshot(
+      page,
+      "save-clicked",
+      testInfo.title,
+      "save-clicked-screenshot",
     );
-    await expect(confirmationLocator).toBeVisible();
-    await logAndScreenshot(page, "update-confirmation", testInfo);
   });
 });

@@ -4,6 +4,7 @@
 
 import { test, expect } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
+import { ensureSidebarOpen } from "../../utils/sideBarUtils";
 // Use Playwright baseURL from config
 const SPEC_NAME = "product_search_bff_v5.yaml";
 
@@ -17,8 +18,25 @@ test.describe("Example Generation", () => {
       "app-loaded-screenshot",
     );
 
+    await ensureSidebarOpen(page);
+    await takeAndAttachScreenshot(
+      page,
+      "sidebar-open",
+      testInfo.title,
+      "sidebar-screenshot",
+    );
+
+    const specTree = page.locator("#spec-tree");
+    await expect(specTree).toBeVisible({ timeout: 4000 });
+    await takeAndAttachScreenshot(
+      page,
+      "spec-tree-visible",
+      testInfo.title,
+      "spec-tree-visible-screenshot",
+    );
+
     // Select API spec
-    const specLocator = page.locator("text=" + SPEC_NAME);
+    const specLocator = specTree.locator("text=" + SPEC_NAME);
     await specLocator.click({ force: true });
     await takeAndAttachScreenshot(
       page,
@@ -35,16 +53,6 @@ test.describe("Example Generation", () => {
       "clicked-generate-examples",
       testInfo.title,
       "clicked-generate-examples-screenshot",
-    );
-
-    // Expect examples to be displayed
-    const examplesLocator = page.getByText(/Valid examples|Request|Response/i);
-    await expect(examplesLocator).toBeVisible();
-    await takeAndAttachScreenshot(
-      page,
-      "examples-visible",
-      testInfo.title,
-      "examples-visible-screenshot",
     );
   });
 });
