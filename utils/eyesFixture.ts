@@ -23,6 +23,9 @@ export const test = base.extend<{ eyes: Eyes }>({
     config.setAppName("Specmatic Studio");
     config.setForceFullPageScreenshot(true);
     config.setIsDisabled(process.env.ENABLE_VISUAL !== "true");
+    if (process.env.APPLITOOLS_API_KEY) {
+      config.setApiKey(process.env.APPLITOOLS_API_KEY);
+    }
     config.addBrowsers(
       { name: "chrome", width: 800, height: 600 },
       { name: "firefox", width: 1600, height: 1200 },
