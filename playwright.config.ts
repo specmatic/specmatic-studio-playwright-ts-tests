@@ -1,3 +1,10 @@
+// Generate a unique batch ID and sequence name ONCE before any workers start
+if (!process.env.BATCH_ID) {
+  process.env.BATCH_ID = `specmatic-studio-playwright-tests-${Date.now()}`;
+}
+if (!process.env.BATCH_SEQUENCE_NAME) {
+  process.env.BATCH_SEQUENCE_NAME = `Run - ${new Date().toISOString()}`;
+}
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 dotenv.config();
@@ -61,7 +68,7 @@ const baseConfig: BaseConfigType = {
     screenshot: "on" as const,
     video: "on" as const,
     launchOptions: {
-      headless: process.env.HEADLESS !== "false",
+      headless: process.env.HEADLESS !== "true",
     },
   },
   projects: [
