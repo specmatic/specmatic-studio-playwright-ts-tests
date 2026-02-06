@@ -13,7 +13,8 @@
     "test:staging": "cross-env ENV_NAME=staging playwright test",
     "test:prod": "cross-env ENV_NAME=prod playwright test",
     "test:ci": "cross-env ENV_NAME=ci playwright test",
-    "test:tag": "playwright test --grep"
+    "test:tag": "playwright test --grep",
+    "test:headed:tag": "playwright test --headed --grep"
   },
   "repository": {
     "type": "git",
