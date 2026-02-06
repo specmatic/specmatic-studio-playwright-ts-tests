@@ -4,15 +4,17 @@ import { SideBarPage } from "./side-bar-page";
 
 export class ApiContractPage {
   readonly page: Page;
-  readonly sideBar: SideBarPage;
   readonly specTree: Locator;
+  readonly sideBar: SideBarPage;
+  readonly testBtn: Locator;
   readonly testInfo?: TestInfo;
   readonly eyes?: any;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
-    this.sideBar = new SideBarPage(page);
     this.specTree = page.locator("#spec-tree");
+    this.sideBar = new SideBarPage(page);
+    this.testBtn = page.getByText(/Execute contract tests/i);
     this.testInfo = testInfo;
     this.eyes = eyes;
   }
@@ -49,14 +51,13 @@ export class ApiContractPage {
   }
 
   async clickExecuteContractTests() {
-    const testBtn = this.page.getByText(/Execute contract tests/i);
-    await expect(testBtn).toBeVisible({ timeout: 4000 });
-    await testBtn.click({ force: true });
+    await expect(this.testBtn).toBeVisible({ timeout: 4000 });
+    await this.testBtn.click({ force: true });
     await takeAndAttachScreenshot(
       this.page,
       "clicked-execute-tests-screenshot",
       this.eyes,
     );
-    return testBtn;
+    return this.testBtn;
   }
 }

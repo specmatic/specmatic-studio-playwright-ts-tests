@@ -4,15 +4,25 @@ import { SideBarPage } from "./side-bar-page";
 
 export class ExampleGenerationPage {
   readonly page: Page;
-  readonly sideBar: SideBarPage;
   readonly specTree: Locator;
+  readonly sideBar: SideBarPage;
+  readonly exampleGenerationTab: Locator;
+  readonly generateExamplesBtn: Locator;
+  readonly validExamplesTable: Locator;
+  readonly invalidExamplesTable: Locator;
+  readonly downloadExamplesBtn: Locator;
   readonly testInfo?: TestInfo;
   readonly eyes?: any;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
-    this.sideBar = new SideBarPage(page);
     this.specTree = page.locator("#spec-tree");
+    this.sideBar = new SideBarPage(page);
+    this.exampleGenerationTab = page.locator("#example-generation-tab");
+    this.generateExamplesBtn = page.locator("button#generate-examples");
+    this.validExamplesTable = page.locator("#valid-examples-table");
+    this.invalidExamplesTable = page.locator("#invalid-examples-table");
+    this.downloadExamplesBtn = page.locator("button#download-examples");
     this.testInfo = testInfo;
     this.eyes = eyes;
   }
