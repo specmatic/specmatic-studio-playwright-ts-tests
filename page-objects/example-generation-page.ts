@@ -19,9 +19,11 @@ export class ExampleGenerationPage {
 
   async goto() {
     await this.page.goto("/");
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "app-loaded-screenshot", this.eyes);
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "app-loaded-screenshot",
+      this.eyes,
+    );
   }
 
   async ensureSidebarOpen() {

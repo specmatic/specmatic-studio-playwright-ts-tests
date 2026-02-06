@@ -19,16 +19,16 @@ export class MockServerPage {
 
   async goto() {
     await this.page.goto("/");
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "app-loaded-screenshot", this.eyes);
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "app-loaded-screenshot",
+      this.eyes,
+    );
   }
 
   async ensureSidebarOpen() {
     await this.sideBar.ensureSidebarOpen();
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
-    }
+    await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
   }
 
   async selectSpec(specName: string) {
@@ -45,9 +45,11 @@ export class MockServerPage {
   async clickRunMockServer() {
     const mockBtn = this.page.getByText(/Run mock server/i);
     await mockBtn.click({ force: true });
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "clicked-run-mock-screenshot", this.eyes);
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "clicked-run-mock-screenshot",
+      this.eyes,
+    );
     return mockBtn;
   }
 }

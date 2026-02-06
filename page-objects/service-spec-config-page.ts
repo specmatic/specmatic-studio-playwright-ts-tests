@@ -19,46 +19,38 @@ export class ServiceSpecConfigPage {
 
   async goto() {
     await this.page.goto("/");
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(
-        this.page,
-        "app-loaded-screenshot",
-        this.eyes,
-      );
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "app-loaded-screenshot",
+      this.eyes,
+    );
   }
 
   async ensureSidebarOpen() {
     await this.sideBar.ensureSidebarOpen();
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
-    }
+    await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
   }
 
   async selectConfig(configName: string) {
     await expect(this.specTree).toBeVisible({ timeout: 4000 });
     const configLocator = this.specTree.locator("text=" + configName);
     await configLocator.click({ force: true });
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(
-        this.page,
-        "selected-config-screenshot",
-        this.eyes,
-      );
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "selected-config-screenshot",
+      this.eyes,
+    );
     return configLocator;
   }
 
   async clickEditConfig() {
     const editBtn = this.page.getByText(/Edit specmatic.yaml/i);
     await editBtn.click({ force: true });
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(
-        this.page,
-        "clicked-edit-config-screenshot",
-        this.eyes,
-      );
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "clicked-edit-config-screenshot",
+      this.eyes,
+    );
     return editBtn;
   }
 
@@ -67,26 +59,22 @@ export class ServiceSpecConfigPage {
     if ((await updateTab.getAttribute("data-active")) !== "true") {
       await updateTab.click({ force: true });
     }
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(
-        this.page,
-        "clicked-update-spec-screenshot",
-        this.eyes,
-      );
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "clicked-update-spec-screenshot",
+      this.eyes,
+    );
     return updateTab;
   }
 
   async clickSaveOpenApi() {
     const saveBtn = this.page.locator('button[data-validate="/openapi"]');
     await saveBtn.click({ force: true });
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(
-        this.page,
-        "save-clicked-screenshot",
-        this.eyes,
-      );
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "save-clicked-screenshot",
+      this.eyes,
+    );
     return saveBtn;
   }
 }

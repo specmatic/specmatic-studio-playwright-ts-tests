@@ -19,16 +19,20 @@ export class ApiContractPage {
 
   async goto() {
     await this.page.goto("/");
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "app-loaded-screenshot", this.eyes);
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "app-loaded-screenshot",
+      this.eyes,
+    );
   }
 
   async ensureSidebarOpen() {
     await this.sideBar.ensureSidebarOpen();
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar-opened-screenshot", this.eyes);
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "sidebar-opened-screenshot",
+      this.eyes,
+    );
   }
 
   async selectSpec(specName: string) {
@@ -36,9 +40,11 @@ export class ApiContractPage {
     const specLocator = this.specTree.locator("text=" + specName);
     await expect(specLocator).toBeVisible({ timeout: 4000 });
     await specLocator.click({ force: true });
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "selected-spec-screenshot", this.eyes);
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "selected-spec-screenshot",
+      this.eyes,
+    );
     return specLocator;
   }
 
@@ -46,13 +52,11 @@ export class ApiContractPage {
     const testBtn = this.page.getByText(/Execute contract tests/i);
     await expect(testBtn).toBeVisible({ timeout: 4000 });
     await testBtn.click({ force: true });
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(
-        this.page,
-        "clicked-execute-tests-screenshot",
-        this.eyes,
-      );
-    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "clicked-execute-tests-screenshot",
+      this.eyes,
+    );
     return testBtn;
   }
 }
