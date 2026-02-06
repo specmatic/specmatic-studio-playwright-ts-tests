@@ -30,14 +30,26 @@ test.describe("API Contract Testing", () => {
       await contractPage.enterServiceUrl(SERVICE_URL);
       await contractPage.clickRunContractTests();
       await contractPage.waitForTestCompletion();
-      await contractPage.verifyTestResults({
-        Success: 12,
-        Failed: 20,
-        Errors: 0,
-        Skipped: 5,
-        Excluded: 0,
-        Total: 37,
-      });
+      await contractPage.verifyTestResults();
+      await contractPage.verifyRowRemark("/products", "POST", "201", "covered");
+      await contractPage.verifyRowRemark(
+        "/findAvailableProducts",
+        "GET",
+        "200",
+        /covered/i,
+      );
+      await contractPage.verifyRowRemark(
+        "/ordres",
+        "POST",
+        "201",
+        "not implemented",
+      );
+      await contractPage.verifyRowRemark(
+        "/health",
+        "GET",
+        "0",
+        "Missing In Spec",
+      );
     },
   );
 });

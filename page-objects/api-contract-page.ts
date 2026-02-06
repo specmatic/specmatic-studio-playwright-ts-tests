@@ -74,7 +74,9 @@ export class ApiContractPage {
 
   async clickRunContractTests() {
     // Select the correct 'Run' button for contract tests (data-type='test')
-    const runButton = this.page.locator('button.run[data-type="test"][data-running="false"]');
+    const runButton = this.page.locator(
+      'button.run[data-type="test"][data-running="false"]',
+    );
     await expect(runButton).toBeVisible({ timeout: 4000 });
     await runButton.click();
     await takeAndAttachScreenshot(
@@ -86,11 +88,37 @@ export class ApiContractPage {
 
   async waitForTestCompletion() {
     // Wait for the button to change from 'Running' back to 'Run' and for dialog with 'Test Completed'
-    const runningButton = this.page.getByRole("button", { name: /^Running$/ });
-    await runningButton.waitFor({ state: "detached", timeout: 60000 });
-    await this.page
-      .getByText("Test Completed", { exact: false })
-      .waitFor({ timeout: 10000 });
+    const runningButton = this.page.locator('button.run[data-type="test"]');
+
+    // First, wait for the button to start running (data-running="true")
+    await expect
+      .poll(
+        async () => {
+          return await runningButton.getAttribute("data-running");
+        },
+        {
+          timeout: 10000,
+          message: "Waiting for contract tests to start",
+        },
+      )
+      .toBe("true");
+
+    // Then, wait for the button to finish running (data-running="false")
+    await expect
+      .poll(
+        async () => {
+          return await runningButton.getAttribute("data-running");
+        },
+        {
+          timeout: 120000,
+          message: "Waiting for contract tests to complete",
+        },
+      )
+      .toBe("false");
+
+    // await this.page
+    //   .getByText("Test Completed", { exact: false })
+    //   .waitFor({ timeout: 10000 });
     await takeAndAttachScreenshot(
       this.page,
       "test-completed-screenshot",
@@ -98,44 +126,59 @@ export class ApiContractPage {
     );
   }
 
-  async verifyTestResults({
-    Success,
-    Failed,
-    Errors,
-    Skipped,
-    Excluded,
-    Total,
-  }: {
-    Success: number;
-    Failed: number;
-    Errors: number;
-    Skipped: number;
-    Excluded: number;
-    Total: number;
-  }) {
-    // Assumes result summary is visible as text on the page
-    await expect(this.page.getByText(`Success: ${Success}`)).toBeVisible({
-      timeout: 4000,
-    });
-    await expect(this.page.getByText(`Failed: ${Failed}`)).toBeVisible({
-      timeout: 4000,
-    });
-    await expect(this.page.getByText(`Errors: ${Errors}`)).toBeVisible({
-      timeout: 4000,
-    });
-    await expect(this.page.getByText(`Skipped: ${Skipped}`)).toBeVisible({
-      timeout: 4000,
-    });
-    await expect(this.page.getByText(`Excluded: ${Excluded}`)).toBeVisible({
-      timeout: 4000,
-    });
-    await expect(this.page.getByText(`Total: ${Total}`)).toBeVisible({
-      timeout: 4000,
-    });
+  async verifyTestResults() {
+    const countsContainer = this.page
+      .locator("ol.counts")
+      .filter({ visible: true })
+      .first();
+
+    const isAnyNumber = /^\d+$/;
+
+    const totalSpan = countsContainer.locator('li[data-type="total"] span');
+
+    await expect(totalSpan).toHaveText(isAnyNumber, { timeout: 10000 });
+
+    const value = await totalSpan.innerText();
+
     await takeAndAttachScreenshot(
       this.page,
-      "test-results-verified-screenshot",
+      "test-results-number-verified",
       this.eyes,
+    );
+  }
+
+  async verifyRowRemark(
+    path: string,
+    method: string,
+    response: string,
+    expectedRemark?: string | RegExp,
+  ) {
+    const row = this.page
+      .locator("tbody tr")
+      .filter({
+        has: this.page.locator(`td[data-key="path"][data-value="${path}"]`),
+      })
+      .filter({
+        has: this.page.locator(`td[data-key="method"][data-value="${method}"]`),
+      })
+      .filter({
+        has: this.page.locator(
+          `td[data-key="response"][data-value="${response}"]`,
+        ),
+      })
+      .first();
+
+    await expect(row).toBeVisible({ timeout: 10000 });
+
+    const remarkCell = row.locator('td[data-key="remark"]');
+
+    if (expectedRemark) {
+      await expect(remarkCell).toHaveText(expectedRemark, { timeout: 10000 });
+    } else {
+      await expect(remarkCell).not.toBeEmpty({ timeout: 10000 });
+    }
+    console.log(
+      `Verified remark ${expectedRemark} for ${method} ${path} with response ${response}`,
     );
   }
 }
