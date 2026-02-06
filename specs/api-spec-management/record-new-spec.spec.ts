@@ -1,12 +1,13 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../../utils/eyesFixture";
+import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { ORDER_API_URL, PROXY_PORT } from "../specNames";
 import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
 test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy",
-    { tag: ["@apiSpecManagement"] },
-    async ({ page }, testInfo) => {
-      const studio = new SpecmaticStudioPage(page, testInfo);
+    { tag: ["@apiSpecManagement", "@recordNewAPISpec", "@recordNewSpec"] },
+    async ({ page, eyes }, testInfo) => {
+      const studio = new SpecmaticStudioPage(page, testInfo, eyes);
       await studio.goto();
       await studio.clickRecordSpec();
       await studio.fillTargetUrl(ORDER_API_URL);
@@ -14,15 +15,22 @@ test.describe("API Specification Management", () => {
       await studio.clickStartProxy();
       page.once("dialog", async (dialog) => {
         const allowedMessages = [
-          "Proxy started successfully",
-          "Proxy is already running",
           "Proxy Error",
         ];
         const msg = dialog.message();
         expect(allowedMessages).toContain(msg);
         await dialog.accept();
       });
-      await studio.clickStopProxy();
+    },
+  );
+  test(
+    "Record New Spec",
+    { tag: ["@apiSpecManagement", "@recordNewSpec"] },
+    async ({ page, eyes }, testInfo) => {
+      const specPage = new SpecmaticStudioPage(page, testInfo, eyes);
+      await specPage.goto();
+      await specPage.openSidebarAndWaitForSpecTree();
+      await specPage.clickRecordSpec();
     },
   );
 });

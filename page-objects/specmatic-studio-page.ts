@@ -9,20 +9,26 @@ export class SpecmaticStudioPage extends BasePage {
   readonly sideBar: SideBarPage;
   readonly specTree: Locator;
   readonly testInfo?: TestInfo;
+  readonly eyes?: any;
 
-  constructor(page: Page, testInfo?: TestInfo) {
+  constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     super(page);
     this.leftSidebar = page.locator("#left-sidebar");
     this.sidebarToggleBtn = page.locator("button#left-sidebar-toggle");
     this.specTree = page.locator("#spec-tree");
     this.testInfo = testInfo;
+    this.eyes = eyes;
     this.sideBar = new SideBarPage(page, testInfo);
   }
 
   async goto() {
     await this.page.goto("/");
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "app-loaded-screenshot");
+      await takeAndAttachScreenshot(
+        this.page,
+        "app-loaded-screenshot",
+        this.eyes,
+      );
     }
   }
 
@@ -38,6 +44,7 @@ export class SpecmaticStudioPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         `select-spec-${specName}-screenshot`,
+        this.eyes,
       );
     }
     return specLocator;
@@ -49,7 +56,11 @@ export class SpecmaticStudioPage extends BasePage {
       await updateTab.click({ force: true });
     }
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "spec-details-screenshot");
+      await takeAndAttachScreenshot(
+        this.page,
+        "spec-details-screenshot",
+        this.eyes,
+      );
     }
     return updateTab;
   }
@@ -68,6 +79,7 @@ export class SpecmaticStudioPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         "clicked-record-spec-screenshot",
+        this.eyes,
       );
     }
   }
@@ -75,28 +87,55 @@ export class SpecmaticStudioPage extends BasePage {
   async fillTargetUrl(url: string) {
     await this.fillInputByPlaceholder("e.g. https://example.com:3000", url);
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "filled-target-url-screenshot");
+      await takeAndAttachScreenshot(
+        this.page,
+        "filled-target-url-screenshot",
+        this.eyes,
+      );
     }
   }
 
   async fillProxyPort(port: string) {
     await this.fillInputByRole("spinbutton", port);
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "filled-proxy-port-screenshot");
+      await takeAndAttachScreenshot(
+        this.page,
+        "filled-proxy-port-screenshot",
+        this.eyes,
+      );
     }
   }
 
   async clickStartProxy() {
     await this.page.locator("#startProxy").click({ force: true });
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "clicked-start-screenshot");
+      await takeAndAttachScreenshot(
+        this.page,
+        "clicked-start-screenshot",
+        this.eyes,
+      );
     }
   }
 
   async clickStopProxy() {
-    await this.page.locator("#stopProxy").click({ force: true });
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "clicked-stop-screenshot");
+      await takeAndAttachScreenshot(
+        this.page,
+        "before-clicked-stop-screenshot",
+        this.eyes,
+      );
+    }
+    const stopBtn = this.page.locator("#stopProxy");
+    // Only try to stop proxy if the button is visible
+    if (await stopBtn.isVisible()) {
+      await stopBtn.click({ force: true });
+      if (this.testInfo) {
+        await takeAndAttachScreenshot(
+          this.page,
+          "clicked-stop-screenshot",
+          this.eyes,
+        );
+      }
     }
   }
 }

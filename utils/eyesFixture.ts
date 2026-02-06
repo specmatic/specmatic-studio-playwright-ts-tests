@@ -11,10 +11,10 @@ export const test = base.extend<{ eyes: Eyes }>({
       // Increase timeout to 2 minutes for visual tests
       testInfo.setTimeout(120000);
     }
-    console.log(`Configuring Eyes for test: '${testInfo.title}'`);
+    // console.log(`Configuring Eyes for test: '${testInfo.title}'`);
     const eyes = new Eyes(Runner);
     const config = new Configuration();
-    console.log(`\tBatch Name in eyes fixture: ${Batch.getName()}`);
+    // console.log(`\tBatch Name in eyes fixture: ${Batch.getName()}`);
     // console.log(`\tBatch ID in eyes fixture: ${Batch.getId()}`);
     // console.log(
     //   `\tBatch Sequence Name in eyes fixture: ${Batch.getSequenceName()}`,

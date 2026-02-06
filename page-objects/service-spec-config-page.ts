@@ -1,5 +1,4 @@
 import { Page, Locator, expect, type TestInfo } from "@playwright/test";
-
 import { SideBarPage } from "./side-bar-page";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 

@@ -7,25 +7,27 @@ export class ApiContractPage {
   readonly sideBar: SideBarPage;
   readonly specTree: Locator;
   readonly testInfo?: TestInfo;
+  readonly eyes?: any;
 
-  constructor(page: Page, testInfo?: TestInfo) {
+  constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
     this.sideBar = new SideBarPage(page);
     this.specTree = page.locator("#spec-tree");
     this.testInfo = testInfo;
+    this.eyes = eyes;
   }
 
   async goto() {
     await this.page.goto("/");
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "app-loaded-screenshot");
+      await takeAndAttachScreenshot(this.page, "app-loaded-screenshot", this.eyes);
     }
   }
 
   async ensureSidebarOpen() {
     await this.sideBar.ensureSidebarOpen();
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar-opened-screenshot");
+      await takeAndAttachScreenshot(this.page, "sidebar-opened-screenshot", this.eyes);
     }
   }
 
@@ -35,7 +37,7 @@ export class ApiContractPage {
     await expect(specLocator).toBeVisible({ timeout: 4000 });
     await specLocator.click({ force: true });
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "selected-spec-screenshot");
+      await takeAndAttachScreenshot(this.page, "selected-spec-screenshot", this.eyes);
     }
     return specLocator;
   }
@@ -48,6 +50,7 @@ export class ApiContractPage {
       await takeAndAttachScreenshot(
         this.page,
         "clicked-execute-tests-screenshot",
+        this.eyes,
       );
     }
     return testBtn;
