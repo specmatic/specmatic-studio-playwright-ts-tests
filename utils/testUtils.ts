@@ -9,7 +9,7 @@ export async function assertVisible(
 ) {
   await expect(locatorOrElement).toBeVisible();
   if (name && testInfo) {
-    await takeAndAttachScreenshot(page, name, testInfo.title);
+    await takeAndAttachScreenshot(page, name);
   }
 }
 
@@ -21,6 +21,6 @@ export async function assertText(
 ) {
   await expect(page.getByText(text)).toBeVisible();
   if (name && testInfo) {
-    await takeAndAttachScreenshot(page, name, testInfo.title);
+    await takeAndAttachScreenshot(page, name);
   }
 }

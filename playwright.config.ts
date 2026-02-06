@@ -1,5 +1,13 @@
+// Generate a unique batch ID and sequence name ONCE before any workers start
+if (!process.env.BATCH_ID) {
+  process.env.BATCH_ID = `specmatic-studio-playwright-tests-${Date.now()}`;
+}
+if (!process.env.BATCH_SEQUENCE_NAME) {
+  process.env.BATCH_SEQUENCE_NAME = `Run - ${new Date().toISOString()}`;
+}
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
+dotenv.config();
 import path from "path";
 import fs from "fs";
 const isCI = !!process.env.CI;
@@ -29,6 +37,7 @@ const baseURL =
  */
 interface BaseConfigType {
   testDir: string;
+  testMatch: string[];
   fullyParallel: boolean;
   forbidOnly: boolean;
   retries: number;
@@ -36,6 +45,7 @@ interface BaseConfigType {
   reporter: string;
   use: any;
   projects: any[];
+  globalSetup: string;
   globalTeardown: string;
   webServer?: {
     command: string;
@@ -45,7 +55,8 @@ interface BaseConfigType {
 }
 
 const baseConfig: BaseConfigType = {
-  testDir: "./tests",
+  testDir: "./",
+  testMatch: ["tests/**/*.spec.ts", "specs/**/*.spec.ts"],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 0 : 0,
@@ -57,7 +68,7 @@ const baseConfig: BaseConfigType = {
     screenshot: "on" as const,
     video: "on" as const,
     launchOptions: {
-      headless: process.env.HEADLESS !== "false",
+      headless: process.env.HEADLESS !== "true",
     },
   },
   projects: [
@@ -78,7 +89,8 @@ const baseConfig: BaseConfigType = {
     //   use: { ...devices["Desktop Chrome"], channel: "chrome" },
     // },
   ],
-  globalTeardown: require.resolve("./utils/teardown.js"),
+  globalSetup: path.resolve(__dirname, "./utils/global-setup.ts"),
+  globalTeardown: path.resolve(__dirname, "./utils/global-teardown.ts"),
 };
 
 if (process.env.USE_DOCKER === "true") {

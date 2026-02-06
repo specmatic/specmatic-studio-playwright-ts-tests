@@ -4,7 +4,7 @@ This project contains automated end-to-end tests using [Playwright](https://play
 
 ## Project Structure
 
-- `tests/` - Contains Playwright test specs (e.g., `example.spec.ts`).
+- `specs/` - Contains Playwright test specs (e.g., `example.spec.ts`).
 - `playwright.config.ts` - Playwright configuration file.
 - `package.json` - Project dependencies and scripts.
 - `playwright-report/` - Generated Playwright HTML reports.

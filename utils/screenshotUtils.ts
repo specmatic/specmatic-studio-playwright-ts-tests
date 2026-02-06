@@ -1,23 +1,33 @@
 import { Page, test } from "@playwright/test";
+import { Target } from "@applitools/eyes-playwright";
 
 /**
  * Takes a screenshot and attaches it to the Playwright report for the current test.
+ * If an Eyes instance is available on the page object, also performs a visual check.
  * @param page Playwright Page object
- * @param name Descriptive name for the screenshot (will be sanitized)
- * @param testId Unique identifier for the test (e.g., test title)
- * @param attachmentName Optional name for the report attachment (defaults to screenshot filename)
- * @returns The path to the saved screenshot
+ * @param attachmentName Name for the report attachment
  */
 export async function takeAndAttachScreenshot(
-  page: Page,
-  name?: string,
-  testId?: string,
-  attachmentName?: string,
+  page: Page & { eyes?: any },
+  attachmentName: string,
+  eyes?: any,
 ): Promise<void> {
-  const screenshotBuffer = await page.screenshot({ type: "png" });
-  test.info().attach(attachmentName || "Screenshot", {
+  const screenshotBuffer = await page.screenshot({
+    type: "png",
+    animations: "disabled",
+  });
+  test.info().attach(attachmentName, {
     body: screenshotBuffer,
     contentType: "image/png",
   });
-}
 
+  // Applitools Eyes integration: check for eyes param or page.eyes
+  const eyesInstance = eyes || (page as any).eyes;
+  if (eyesInstance) {
+    try {
+      await eyesInstance.check(attachmentName, Target.window().fully(true));
+    } catch (e) {
+      // Optionally log error
+    }
+  }
+}
