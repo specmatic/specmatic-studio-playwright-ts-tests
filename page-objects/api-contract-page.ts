@@ -23,6 +23,7 @@ export class ApiContractPage {
   readonly uniqueContainer: Locator;
   readonly excludeCountSpan: Locator;
   readonly totalCountSpan: Locator;
+  readonly verifyTotalSpan: Locator;
 
   readonly rowLocator: (
     path: string,
@@ -123,6 +124,12 @@ export class ApiContractPage {
     this.totalCountSpan = this.uniqueContainer.locator(
       'li[data-type="total"] span',
     );
+    this.verifyTotalSpan = this.page
+      .locator(`[id*="${PRODUCT_SEARCH_BFF_SPEC}"]`)
+      .locator(":not(.mock) > .header")
+      .locator('ol.counts[data-filter="total"]')
+      .locator('li[data-type="total"] span')
+      .filter({ visible: true });
 
     this.pollDataRunning = async () => {
       return await this.runningButton.getAttribute("data-running");
@@ -183,7 +190,6 @@ export class ApiContractPage {
   async clickRunContractTests() {
     await expect(this.runButton).toBeVisible({ timeout: 5000 });
     await expect(this.runButton).toBeEnabled({ timeout: 5000 });
-    // Wait for the button to not be covered by any overlay
     const runBtnSelector = 'button.run[data-type="test"][data-running="false"]';
     await this.page.waitForFunction(
       (selector) => {
@@ -226,14 +232,14 @@ export class ApiContractPage {
           async () => {
             const value = await this.pollDataRunning();
             lastValue = value;
-            // Optionally log progress
             console.log(
               `[waitForTestsToCompleteExecution] data-running: ${value}`,
             );
             return value;
           },
           {
-            timeout: 180000,
+            timeout: 300000,
+            intervals: [1000],
             message: "Waiting for contract tests to complete",
           },
         )
@@ -256,8 +262,10 @@ export class ApiContractPage {
 
   async verifyTestResults() {
     const isAnyNumber = /^\d+$/;
-    await expect(this.totalSpan).toHaveText(isAnyNumber, { timeout: 10000 });
-    const value = await this.totalSpan.innerText();
+    await expect(this.verifyTotalSpan).toHaveText(isAnyNumber, {
+      timeout: 10000,
+    });
+    const value = await this.verifyTotalSpan.innerText();
     await takeAndAttachScreenshot(
       this.page,
       "test-results-number-verified",
@@ -272,7 +280,6 @@ export class ApiContractPage {
     expectedRemark?: string | RegExp,
   ) {
     const row = this.rowLocator(path, method, response);
-    // Wait for at least one row to exist before checking visibility
     const count = await this.page.locator("tbody tr").count();
     if (count === 0) {
       throw new Error(

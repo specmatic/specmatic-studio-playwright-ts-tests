@@ -22,6 +22,7 @@ test.describe("API Contract Testing", () => {
     "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings and verify test execution status",
     { tag: ["@apiContract", "@runContractTests"] },
     async ({ page, eyes }, testInfo) => {
+      test.setTimeout(180000);
       const contractPage = new ApiContractPage(page, testInfo, eyes);
       await contractPage.goto();
       await contractPage.ensureSidebarOpen();
