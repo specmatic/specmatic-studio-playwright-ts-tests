@@ -70,7 +70,13 @@ export class ExampleGenerationPage {
     const iframe = await this.waitForExamplesIFrame();
     const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[(@aria-label="Generate" or @aria-label="Generate More") and not(contains(@class, 'hidden')) and not(contains(@style, 'display: none'))]`;
     const generateBtns = iframe.locator(xpath);
-    // Only click the first visible button
+    // Wait for at least one button to exist before checking visibility
+    const count = await generateBtns.count();
+    if (count === 0) {
+      throw new Error(
+        `No generate button found for endpoint: ${endpoint}, responseCode: ${responseCode}`,
+      );
+    }
     await expect(generateBtns.first()).toBeVisible({ timeout: 4000 });
     await generateBtns.first().click();
     await takeAndAttachScreenshot(

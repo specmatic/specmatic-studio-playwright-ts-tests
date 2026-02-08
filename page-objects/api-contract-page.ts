@@ -118,7 +118,23 @@ export class ApiContractPage {
   }
 
   async clickRunContractTests() {
-    await expect(this.runButton).toBeVisible({ timeout: 4000 });
+    await expect(this.runButton).toBeVisible({ timeout: 5000 });
+    await expect(this.runButton).toBeEnabled({ timeout: 5000 });
+    // Wait for the button to not be covered by any overlay
+    const runBtnSelector = 'button.run[data-type="test"][data-running="false"]';
+    await this.page.waitForFunction(
+      (selector) => {
+        const el = document.querySelector(selector);
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const elementAtPoint = document.elementFromPoint(x, y);
+        return elementAtPoint === el || el.contains(elementAtPoint);
+      },
+      runBtnSelector,
+      { timeout: 5000 },
+    );
     await this.runButton.click();
     await takeAndAttachScreenshot(
       this.page,
@@ -175,6 +191,13 @@ export class ApiContractPage {
     expectedRemark?: string | RegExp,
   ) {
     const row = this.rowLocator(path, method, response);
+    // Wait for at least one row to exist before checking visibility
+    const count = await this.page.locator("tbody tr").count();
+    if (count === 0) {
+      throw new Error(
+        `No rows found in table for path: ${path}, method: ${method}, response: ${response}`,
+      );
+    }
     await expect(row).toBeVisible({ timeout: 10000 });
     const remarkCell = this.remarkCellLocator(row);
     if (expectedRemark) {

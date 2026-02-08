@@ -72,6 +72,23 @@ export class ServiceSpecConfigPage {
   }
 
   async clickSaveOpenApi() {
+    await expect(this.saveBtn).toBeVisible({ timeout: 5000 });
+    await expect(this.saveBtn).toBeEnabled({ timeout: 5000 });
+    // Wait for the button to not be covered by any overlay
+    const saveBtnSelector = 'button[data-validate="/openapi"]';
+    await this.page.waitForFunction(
+      (selector) => {
+        const el = document.querySelector(selector);
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const elementAtPoint = document.elementFromPoint(x, y);
+        return elementAtPoint === el || el.contains(elementAtPoint);
+      },
+      saveBtnSelector,
+      { timeout: 5000 },
+    );
     await this.saveBtn.click({ force: true });
     await takeAndAttachScreenshot(
       this.page,
