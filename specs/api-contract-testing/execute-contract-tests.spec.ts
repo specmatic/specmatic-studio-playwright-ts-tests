@@ -52,4 +52,31 @@ test.describe("API Contract Testing", () => {
       );
     },
   );
+
+  test(
+    "Exclude specific tests and verify excluded tests are not executed",
+    { tag: ["@apiContract", "@testExclusion"] },
+    async ({ page, eyes }, testInfo) => {
+      test.setTimeout(180000);
+      const contractPage = new ApiContractPage(page, testInfo, eyes);
+      await contractPage.goto();
+      await contractPage.ensureSidebarOpen();
+      await contractPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+      await contractPage.clickExecuteContractTests();
+      await contractPage.enterServiceUrl(SERVICE_URL);
+
+      await contractPage.selectTestForExclusion("/products", "POST", "201");
+      await contractPage.selectTestForExclusion("/products", "POST", "202");
+
+      await contractPage.clickExcludeButton();
+
+      await contractPage.clickRunContractTests();
+      await contractPage.waitForTestCompletion();
+
+      await contractPage.verifyFinalCounts({
+        Excluded: 2,
+        Total: 15,
+      });
+    },
+  );
 });

@@ -1,6 +1,7 @@
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { Page, Locator, expect, type TestInfo } from "@playwright/test";
 import { SideBarPage } from "./side-bar-page";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../specs/specNames";
 
 export class ApiContractPage {
   readonly page: Page;
@@ -15,6 +16,14 @@ export class ApiContractPage {
   readonly runningButton: Locator;
   readonly countsContainer: Locator;
   readonly totalSpan: Locator;
+  readonly excludeButton: Locator;
+
+  readonly pathHeader: Locator;
+  readonly responseHeader: Locator;
+  readonly uniqueContainer: Locator;
+  readonly excludeCountSpan: Locator;
+  readonly totalCountSpan: Locator;
+
   readonly rowLocator: (
     path: string,
     method: string,
@@ -22,6 +31,11 @@ export class ApiContractPage {
   ) => Locator;
   readonly remarkCellLocator: (row: Locator) => Locator;
   readonly pollDataRunning: () => Promise<string | null>;
+  readonly exclusionCheckboxLocator: (
+    path: string,
+    method: string,
+    response: string,
+  ) => Locator;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
@@ -37,10 +51,21 @@ export class ApiContractPage {
     );
     this.runningButton = page.locator('button.run[data-type="test"]');
     this.countsContainer = page
-      .locator("ol.counts")
-      .filter({ visible: true })
-      .first();
+      .locator('ol.counts[data-filter="total"]')
+      .filter({ visible: true });
     this.totalSpan = this.countsContainer.locator('li[data-type="total"] span');
+
+    this.pathHeader = page
+      .locator("table")
+      .filter({ visible: true })
+      .locator('th[data-key="path"]')
+      .first();
+    this.responseHeader = page
+      .locator("table")
+      .filter({ visible: true })
+      .locator('th[data-key="response"]')
+      .first();
+
     this.rowLocator = (path: string, method: string, response: string) =>
       page
         .locator("tbody tr")
@@ -60,6 +85,44 @@ export class ApiContractPage {
         .first();
     this.remarkCellLocator = (row: Locator) =>
       row.locator('td[data-key="remark"]');
+
+    this.exclusionCheckboxLocator = (
+      path: string,
+      method: string,
+      response: string,
+    ) =>
+      page
+        .locator("tbody tr")
+        .filter({
+          has: page.locator(`td[data-key=\"path\"][data-value=\"${path}\"]`),
+        })
+        .filter({
+          has: page.locator(
+            `td[data-key=\"method\"][data-value=\"${method}\"]`,
+          ),
+        })
+        .filter({
+          has: page.locator(
+            `td[data-key=\"response\"][data-value=\"${response}\"]`,
+          ),
+        })
+        .first()
+        .locator('input[type="checkbox"]');
+
+    this.excludeButton = page.getByRole("button", { name: /Exclude/i });
+
+    this.uniqueContainer = this.page
+      .locator(`[id*="${PRODUCT_SEARCH_BFF_SPEC}"]`)
+      .locator('ol.counts[data-filter="total"]')
+      .filter({ visible: true })
+      .filter({ has: this.page.locator("li[data-active=true]") });
+
+    this.excludeCountSpan = this.uniqueContainer.locator(
+      'li[data-type="excluded"] span',
+    );
+    this.totalCountSpan = this.uniqueContainer.locator(
+      'li[data-type="total"] span',
+    );
 
     this.pollDataRunning = async () => {
       return await this.runningButton.getAttribute("data-running");
@@ -223,8 +286,51 @@ export class ApiContractPage {
     } else {
       await expect(remarkCell).not.toBeEmpty({ timeout: 10000 });
     }
-    console.log(
-      `Verified remark ${expectedRemark} for ${method} ${path} with response ${response}`,
+  }
+
+  async selectTestForExclusion(path: string, method: string, response: string) {
+    const checkbox = this.exclusionCheckboxLocator(path, method, response);
+    await expect(checkbox).toBeVisible({ timeout: 10000 });
+    const isChecked = await checkbox.isChecked();
+    if (!isChecked) {
+      await checkbox.click();
+    }
+  }
+
+  async clickExcludeButton() {
+    await expect(this.excludeButton).toBeVisible({ timeout: 10000 });
+    await this.excludeButton.click();
+    await takeAndAttachScreenshot(
+      this.page,
+      "exclude-button-clicked",
+      this.eyes,
+    );
+  }
+
+  async verifyTestExclusion() {
+    const excludedCount = this.countsContainer.locator(
+      'li[data-type="excluded"] span',
+    );
+    await expect(excludedCount).toBeVisible({ timeout: 10000 });
+    await takeAndAttachScreenshot(
+      this.page,
+      "test-exclusion-verified",
+      this.eyes,
+    );
+  }
+
+  async verifyFinalCounts(expected: { Excluded: number; Total: number }) {
+    await expect(this.excludeCountSpan.last()).toHaveText(
+      String(expected.Excluded),
+      {
+        timeout: 10000,
+      },
+    );
+    await expect(this.totalCountSpan.last()).toHaveText(
+      String(expected.Total),
+      {
+        timeout: 10000,
+      },
     );
   }
 }
