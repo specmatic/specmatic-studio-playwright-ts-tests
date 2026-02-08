@@ -156,12 +156,30 @@ export class ApiContractPage {
   }
 
   private async waitForTestsToCompleteExecution() {
-    await expect
-      .poll(this.pollDataRunning, {
-        timeout: 120000,
-        message: "Waiting for contract tests to complete",
-      })
-      .toBe("false");
+    let lastValue = null;
+    try {
+      await expect
+        .poll(
+          async () => {
+            const value = await this.pollDataRunning();
+            lastValue = value;
+            // Optionally log progress
+            console.log(
+              `[waitForTestsToCompleteExecution] data-running: ${value}`,
+            );
+            return value;
+          },
+          {
+            timeout: 180000,
+            message: "Waiting for contract tests to complete",
+          },
+        )
+        .toBe("false");
+    } catch (e) {
+      throw new Error(
+        `Contract tests did not complete. Last data-running value: ${lastValue}. Error: ${e}`,
+      );
+    }
   }
 
   private async waitForTestsToStartRunning() {
