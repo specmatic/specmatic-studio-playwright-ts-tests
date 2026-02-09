@@ -5,18 +5,6 @@ import { ApiContractPage } from "../../page-objects/api-contract-page";
 
 test.describe("API Contract Testing", () => {
   test(
-    "Execute Contract Tests for API Spec",
-    { tag: ["@apiContract"] },
-    async ({ page, eyes }, testInfo) => {
-      const contractPage = new ApiContractPage(page, testInfo, eyes);
-      await contractPage.goto();
-      await contractPage.ensureSidebarOpen();
-      await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-      await contractPage.openExecuteContractTestsTab();
-    },
-  );
-
-  test(
     "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings and verify test execution status",
     { tag: ["@apiContract", "@runContractTests"] },
     async ({ page, eyes }, testInfo) => {
