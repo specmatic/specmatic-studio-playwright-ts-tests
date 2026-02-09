@@ -1,8 +1,10 @@
+import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
 import { Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 
 export class ServiceSpecConfigPage extends BasePage {
+  private readonly openApiTabPage: OpenAPISpecTabPage;
   readonly specTree: Locator;
   readonly specBtn: Locator;
   readonly editBtn: Locator;
@@ -16,6 +18,10 @@ export class ServiceSpecConfigPage extends BasePage {
     this.editBtn = page.getByText(/Edit specmatic.yaml/i);
     this.updateTab = page.locator('li.tab[data-type="spec"]').first();
     this.saveBtn = page.locator('button[data-validate="/openapi"]');
+    this.openApiTabPage = new OpenAPISpecTabPage(this);
+  }
+  async openSpecTab() {
+    return this.openApiTabPage.openSpecTab();
   }
 
   async clickEditConfig() {

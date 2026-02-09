@@ -1,7 +1,10 @@
 import { test, Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
+import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
+
 export class ApiContractPage extends BasePage {
+  private readonly openApiTabPage: OpenAPISpecTabPage;
   readonly specTree: Locator;
   readonly testBtn: Locator;
   readonly serviceUrlInput: Locator;
@@ -74,7 +77,6 @@ export class ApiContractPage extends BasePage {
       .first();
     this.uniqueContainer = page.locator("#unique-container");
     this.excludeButton = page.getByRole("button", { name: /exclude/i });
-    // No legacy span aliases needed; use excludedCountSpan and totalSpan directly
     this.rowLocator = (path: string, method: string, response: string) =>
       page.locator(
         `table#test > tbody > tr:has(td[data-key="path"][data-value="${path}"]):has(td[data-key="method"][data-value="${method}"]):has(td[data-key="response"][data-value="${response}"])`,
@@ -82,7 +84,6 @@ export class ApiContractPage extends BasePage {
     this.remarkCellLocator = (row: Locator) =>
       row.locator('td[data-key="remark"]');
     this.pollDataRunning = async () => {
-      // Only consider [data-running][data-type='test'] elements
       const result = await page.evaluate(() => {
         const els = Array.from(
           document.querySelectorAll("[data-running][data-type='test']"),
@@ -103,6 +104,10 @@ export class ApiContractPage extends BasePage {
       page.locator(
         `table#test > tbody > tr:has(td[data-key="path"][data-value="${path}"]):has(td[data-key="method"][data-value="${method}"]):has(td[data-key="response"][data-value="${response}"]) input[type='checkbox']`,
       );
+    this.openApiTabPage = new OpenAPISpecTabPage(this);
+  }
+  async openExecuteContractTestsTab() {
+    return this.openApiTabPage.openExecuteContractTestsTab();
   }
 
   async enterServiceUrl(serviceUrl: string) {

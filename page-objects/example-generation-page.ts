@@ -1,8 +1,10 @@
+import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
 import { Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 
 export class ExampleGenerationPage extends BasePage {
+  private readonly openApiTabPage: OpenAPISpecTabPage;
   readonly specTree: Locator;
   readonly generateExamplesBtn: Locator;
   readonly validExamplesTable: Locator;
@@ -16,6 +18,10 @@ export class ExampleGenerationPage extends BasePage {
     this.validExamplesTable = page.locator("#valid-examples-table");
     this.invalidExamplesTable = page.locator("#invalid-examples-table");
     this.downloadExamplesBtn = page.locator("button#download-examples");
+    this.openApiTabPage = new OpenAPISpecTabPage(this);
+  }
+  async openExampleGenerationTab() {
+    return this.openApiTabPage.openExampleGenerationTab();
   }
 
   async clickGenerateButton(endpoint: string, responseCode: number) {

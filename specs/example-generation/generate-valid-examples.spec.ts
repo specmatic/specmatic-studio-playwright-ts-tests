@@ -1,5 +1,4 @@
 import { test, expect } from "../../utils/eyesFixture";
-import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 import { ExampleGenerationPage } from "../../page-objects/example-generation-page";
 

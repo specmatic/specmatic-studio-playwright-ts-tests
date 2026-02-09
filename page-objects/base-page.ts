@@ -106,44 +106,4 @@ export class BasePage {
       return tabLocator;
     });
   }
-
-  /**
-   * Opens the spec details tab (header tab) if not already open, and takes a screenshot.
-   * Optionally accepts a custom locator for the tab.
-   */
-  async openSpecTab(tabLocator?: Locator) {
-    const locator =
-      tabLocator ?? ((this as any).specBtn as Locator | undefined);
-    return this.openTab(locator, "spec-details-screenshot");
-  }
-
-  /**
-   * Clicks the Generate Examples button/tab if not already active, and takes a screenshot.
-   * Requires the page object to have a generateExamplesBtn property, or pass a locator.
-   */
-  async openExampleGenerationTab(tabLocator?: Locator) {
-    const locator =
-      tabLocator ?? ((this as any).generateExamplesBtn as Locator | undefined);
-    return this.openTab(locator, "clicked-generate-examples-screenshot");
-  }
-
-  /**
-   * Clicks the Run Mock Server tab/button if not already active, and takes a screenshot.
-   * Requires the page object to have a runMockServerTab property, or pass a locator.
-   */
-  async openRunMockServerTab(tabLocator?: Locator) {
-    const locator =
-      tabLocator ?? ((this as any).runMockServerTab as Locator | undefined);
-    return this.openTab(locator, "run-mock-server-tab-screenshot");
-  }
-
-  /**
-   * Clicks the Execute Contract Tests button/tab if not already active, and takes a screenshot.
-   * Requires the page object to have a testBtn property, or pass a locator.
-   */
-  async openExecuteContractTestsTab(tabLocator?: Locator) {
-    const locator =
-      tabLocator ?? ((this as any).testBtn as Locator | undefined);
-    return this.openTab(locator, "clicked-execute-tests-screenshot");
-  }
 }
