@@ -13,7 +13,13 @@ export { ENABLE_VISUAL };
 export { expect } from "@playwright/test";
 
 import { test as base } from "@playwright/test";
-import { Eyes, Configuration } from "@applitools/eyes-playwright";
+import path from "path";
+import fs from "fs";
+import {
+  Eyes,
+  Configuration,
+  FileLogHandler,
+} from "@applitools/eyes-playwright";
 import { Batch, Runner } from "./global-setup";
 import { captureBrowserConsole } from "./browser-console-logger";
 
@@ -27,7 +33,24 @@ export const test = base.extend<{ eyes: Eyes }>({
       testInfo.setTimeout(120000);
     }
 
+    // Configure Applitools log file location per test
+    const logDir = path.resolve(
+      process.cwd(),
+      "playwright-report",
+      "applitools-logs",
+    );
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+    // Use test id and retry to ensure uniqueness
+    const logFile = path.join(
+      logDir,
+      `${testInfo.file?.replace(/[^a-zA-Z0-9-_]/g, "_") || "unknown"}--${testInfo.title.replace(/[^a-zA-Z0-9-_]/g, "_")}${testInfo.retry ? `-retry${testInfo.retry}` : ""}.log`,
+    );
+
     const eyes = new Eyes(Runner);
+    eyes.setLogHandler(new FileLogHandler(true, logFile)); // true = verbose
+
     const config = new Configuration();
 
     config.setBatch(Batch);
@@ -69,6 +92,13 @@ export const test = base.extend<{ eyes: Eyes }>({
     } finally {
       // ✅ Always attach console logs to Playwright report
       await consoleCapture.attach();
+      // Attach Applitools log file to Playwright report
+      if (fs.existsSync(logFile)) {
+        await testInfo.attach("applitools-log", {
+          path: logFile,
+          contentType: "text/plain",
+        });
+      }
     }
   },
 });
