@@ -1,6 +1,6 @@
 import { test, expect } from "../../utils/eyesFixture";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC, ORDER_BFF_SERVICE_URL } from "../specNames";
 import { ServiceSpecConfigPage } from "../../page-objects/service-spec-config-page";
 
 test.describe("Service Spec & Config Update", () => {
@@ -10,16 +10,9 @@ test.describe("Service Spec & Config Update", () => {
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(page, testInfo, eyes);
       await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-        await test.step("Open sidebar", async () => {
-          await configPage.goto();
-          await configPage.ensureSidebarOpen();
-        });
-        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-          await configPage.selectConfig(PRODUCT_SEARCH_BFF_SPEC);
-        });
-        await test.step("Go to Spec", async () => {
-          await configPage.clickUpdateSpec();
-        });
+        await configPage.gotoHomeAndOpenSidebar();
+        await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await configPage.openSpecTab();
       });
       await test.step("Save updated Service Spec", async () => {
         await configPage.clickSaveOpenApi();

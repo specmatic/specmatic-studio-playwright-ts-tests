@@ -12,16 +12,9 @@ test.describe("Service Spec & Config Update", () => {
       const configPage = new ServiceSpecConfigPage(page, testInfo, eyes);
 
       await test.step(`Go to Spec page for Service Spec: '${CONFIG_NAME}'`, async () => {
-        await test.step("Open sidebar", async () => {
-          await configPage.goto();
-          await configPage.ensureSidebarOpen();
-        });
-        await test.step(`Navigate to Service Spec: '${CONFIG_NAME}'`, async () => {
-          await configPage.selectConfig(CONFIG_NAME);
-        });
-        await test.step("Go to Spec", async () => {
-          await configPage.clickUpdateSpec();
-        });
+          await configPage.gotoHomeAndOpenSidebar();
+          await configPage.sideBar.selectSpec(CONFIG_NAME);
+          await configPage.openSpecTab();
       });
 
       await test.step("Edit Config", async () => {

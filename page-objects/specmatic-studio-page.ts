@@ -21,36 +21,6 @@ export class SpecmaticStudioPage extends BasePage {
     this.sideBar = new SideBarPage(page, testInfo, eyes);
   }
 
-  async selectSpec(specName: string) {
-    const specLocator = this.specTree.locator("text=" + specName);
-    await specLocator.click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      `select-spec-${specName}-screenshot`,
-      this.eyes,
-    );
-    return specLocator;
-  }
-
-  async openSpecDetailsTab() {
-    const updateTab = this.page.locator('li.tab[data-type="spec"]').first();
-    if ((await updateTab.getAttribute("data-active")) !== "true") {
-      await updateTab.click({ force: true });
-    }
-    await takeAndAttachScreenshot(
-      this.page,
-      "spec-details-screenshot",
-      this.eyes,
-    );
-    return updateTab;
-  }
-
-  async selectSpecByName(specName: string) {
-    const specLocator = this.specTree.locator("text=" + specName);
-    await specLocator.click({ force: true });
-    return specLocator;
-  }
-
   async clickRecordSpec() {
     await this.page
       .getByRole("button", { name: /Record a specification/i })

@@ -1,12 +1,16 @@
-import { Locator, expect, type TestInfo, Page } from "@playwright/test";
+import { Locator, test, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
-import { BasePage } from "./base-page";
 
-export class SideBarPage extends BasePage {
+export class SideBarPage {
+  readonly page: Page;
+  readonly testInfo?: TestInfo;
+  readonly eyes?: any;
   readonly leftSidebar: Locator;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
-    super(page, testInfo, eyes);
+    this.page = page;
+    this.testInfo = testInfo;
+    this.eyes = eyes;
     this.leftSidebar = page.locator("#left-sidebar");
   }
 
@@ -27,5 +31,32 @@ export class SideBarPage extends BasePage {
     if (this.testInfo) {
       await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
     }
+  }
+
+  /**
+   * Ensures the sidebar is open, then selects the given spec from the spec tree.
+   */
+  async selectSpec(specName: string): Promise<Locator> {
+    let specLocator: Locator;
+    await test.step(`Navigate to Service Spec: '${specName}'`, async () => {
+      await this.ensureSidebarOpen();
+      const specTree = this.page.locator("#spec-tree");
+      await expect(specTree).toBeVisible({ timeout: 4000 });
+      specLocator = specTree.locator(`text=${specName}`);
+      await expect(specLocator).toBeVisible({ timeout: 4000 });
+      try {
+        await specLocator.click({ force: true, timeout: 3000 });
+      } catch (e) {
+        await specLocator.click({ force: true, timeout: 3000 });
+      }
+      if (this.testInfo) {
+        await takeAndAttachScreenshot(
+          this.page,
+          "selected-spec-screenshot",
+          this.eyes,
+        );
+      }
+    });
+    return specLocator!;
   }
 }

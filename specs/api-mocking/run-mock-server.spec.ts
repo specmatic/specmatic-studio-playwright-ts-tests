@@ -11,16 +11,9 @@ test.describe("API Mocking", () => {
       const mockPage = new MockServerPage(page, testInfo, eyes);
 
       await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-        await test.step("Open sidebar", async () => {
-          await mockPage.goto();
-          await mockPage.ensureSidebarOpen();
-        });
-        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-          await mockPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-        });
-        await test.step("Go to Mock Server", async () => {
-          await mockPage.clickRunMockServer();
-        });
+        await mockPage.gotoHomeAndOpenSidebar();
+        await mockPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await mockPage.openRunMockServerTab();
       });
     },
   );

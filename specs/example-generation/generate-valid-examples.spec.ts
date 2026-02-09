@@ -10,16 +10,9 @@ test.describe("Example Generation", () => {
     async ({ page, eyes }, testInfo) => {
       const examplePage = new ExampleGenerationPage(page, testInfo, eyes);
       await test.step("Go to Example Generation page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'", async () => {
-        await test.step("Open sidebar", async () => {
-          await examplePage.goto();
-          await examplePage.ensureSidebarOpen();
-        });
-        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-          await examplePage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-        });
-        await test.step("Go to Examples", async () => {
-          await examplePage.clickGenerateExamples();
-        });
+        await examplePage.gotoHomeAndOpenSidebar();
+        await examplePage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await examplePage.openExampleGenerationTab();
       });
 
       const endpoint = "findAvailableProducts";

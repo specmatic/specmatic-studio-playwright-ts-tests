@@ -37,10 +37,7 @@ test.describe("API Specification Management", () => {
     async ({ page, eyes }, testInfo) => {
       const specPage = new SpecmaticStudioPage(page, testInfo, eyes);
 
-      await test.step(`Go to Proxy's Record Spec`, async () => {
-        await specPage.goto();
-        await specPage.ensureSidebarOpen();
-      });
+      await specPage.gotoHomeAndOpenSidebar();
       await test.step("Record Spec", async () => {
         await specPage.clickRecordSpec();
       });

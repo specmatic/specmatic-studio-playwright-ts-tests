@@ -1,4 +1,4 @@
-import { Locator, expect, type TestInfo, Page } from "@playwright/test";
+import { test, Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 
@@ -79,62 +79,45 @@ export class ApiContractPage extends BasePage {
       );
   }
 
-  async selectSpec(specName: string) {
-    await expect(this.specTree).toBeVisible({ timeout: 4000 });
-    const specLocator = this.specTree.locator("text=" + specName);
-    await expect(specLocator).toBeVisible({ timeout: 4000 });
-    await specLocator.click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      "selected-spec-screenshot",
-      this.eyes,
-    );
-    return specLocator;
-  }
-
-  async clickExecuteContractTests() {
-    await expect(this.testBtn).toBeVisible({ timeout: 4000 });
-    await this.testBtn.click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-execute-tests-screenshot",
-      this.eyes,
-    );
-    return this.testBtn;
-  }
   async enterServiceUrl(serviceUrl: string) {
-    await expect(this.serviceUrlInput).toBeVisible({ timeout: 4000 });
-    await this.serviceUrlInput.fill(serviceUrl);
-    await takeAndAttachScreenshot(
-      this.page,
-      "service-url-entered-screenshot",
-      this.eyes,
-    );
+    await test.step(`Enter service URL: '${serviceUrl}'`, async () => {
+      await expect(this.serviceUrlInput).toBeVisible({ timeout: 4000 });
+      await this.serviceUrlInput.fill(serviceUrl);
+      await takeAndAttachScreenshot(
+        this.page,
+        "service-url-entered-screenshot",
+        this.eyes,
+      );
+    });
   }
 
   async clickRunContractTests() {
-    await expect(this.runButton).toBeVisible({ timeout: 5000 });
-    await expect(this.runButton).toBeEnabled({ timeout: 5000 });
-    const runBtnSelector = 'button.run[data-type="test"][data-running="false"]';
-    await this.page.waitForFunction(
-      (selector) => {
-        const el = document.querySelector(selector);
-        if (!el) return false;
-        const rect = el.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
-        const elementAtPoint = document.elementFromPoint(x, y);
-        return elementAtPoint === el || el.contains(elementAtPoint);
-      },
-      runBtnSelector,
-      { timeout: 5000 },
-    );
-    await this.runButton.click();
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-run-contract-tests-screenshot",
-      this.eyes,
-    );
+    await test.step("Run Contract Tests", async () => {
+      await expect(this.runButton).toBeVisible({ timeout: 5000 });
+      await expect(this.runButton).toBeEnabled({ timeout: 5000 });
+      const runBtnSelector =
+        'button.run[data-type="test"][data-running="false"]';
+      await this.page.waitForFunction(
+        (selector) => {
+          const el = document.querySelector(selector);
+          if (!el) return false;
+          const rect = el.getBoundingClientRect();
+          const x = rect.left + rect.width / 2;
+          const y = rect.top + rect.height / 2;
+          const elementAtPoint = document.elementFromPoint(x, y);
+          return elementAtPoint === el || el.contains(elementAtPoint);
+        },
+        runBtnSelector,
+        { timeout: 5000 },
+      );
+      await this.runButton.click();
+      await takeAndAttachScreenshot(
+        this.page,
+        "clicked-run-contract-tests-screenshot",
+        this.eyes,
+      );
+      await this.waitForTestCompletion();
+    });
   }
 
   async waitForTestCompletion() {

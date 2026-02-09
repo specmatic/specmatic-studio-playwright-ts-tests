@@ -16,18 +16,6 @@ export class ServiceSpecConfigPage extends BasePage {
     this.saveBtn = page.locator('button[data-validate="/openapi"]');
   }
 
-  async selectConfig(configName: string) {
-    await expect(this.specTree).toBeVisible({ timeout: 4000 });
-    const configLocator = this.specTree.locator("text=" + configName);
-    await configLocator.click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      "selected-config-screenshot",
-      this.eyes,
-    );
-    return configLocator;
-  }
-
   async clickEditConfig() {
     await this.editBtn.click({ force: true });
     await takeAndAttachScreenshot(
@@ -36,18 +24,6 @@ export class ServiceSpecConfigPage extends BasePage {
       this.eyes,
     );
     return this.editBtn;
-  }
-
-  async clickUpdateSpec() {
-    if ((await this.updateTab.getAttribute("data-active")) !== "true") {
-      await this.updateTab.click({ force: true });
-    }
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-update-spec-screenshot",
-      this.eyes,
-    );
-    return this.updateTab;
   }
 
   async clickSaveOpenApi() {

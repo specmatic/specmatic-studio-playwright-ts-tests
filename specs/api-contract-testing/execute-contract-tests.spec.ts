@@ -1,8 +1,6 @@
 import { test, expect } from "../../utils/eyesFixture";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
-
-const SERVICE_URL = "http://order-bff:8080";
+import { PRODUCT_SEARCH_BFF_SPEC, ORDER_BFF_SERVICE_URL } from "../specNames";
 import { ApiContractPage } from "../../page-objects/api-contract-page";
 
 test.describe("API Contract Testing", () => {
@@ -13,8 +11,8 @@ test.describe("API Contract Testing", () => {
       const contractPage = new ApiContractPage(page, testInfo, eyes);
       await contractPage.goto();
       await contractPage.ensureSidebarOpen();
-      await contractPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-      await contractPage.clickExecuteContractTests();
+      await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+      await contractPage.openExecuteContractTestsTab();
     },
   );
 
@@ -26,26 +24,14 @@ test.describe("API Contract Testing", () => {
       const contractPage = new ApiContractPage(page, testInfo, eyes);
 
       await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-        await test.step("Open sidebar", async () => {
-          await contractPage.goto();
-          await contractPage.ensureSidebarOpen();
-        });
-        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-          await contractPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-        });
-        await test.step("Go to Test", async () => {
-          await contractPage.clickExecuteContractTests();
-        });
+        await contractPage.gotoHomeAndOpenSidebar();
+        await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await contractPage.openExecuteContractTestsTab();
       });
 
       await test.step("Enter service URL and run contract tests", async () => {
-        await test.step(`Enter service URL: '${SERVICE_URL}'`, async () => {
-          await contractPage.enterServiceUrl(SERVICE_URL);
-        });
-        await test.step("Run Contract Tests", async () => {
-          await contractPage.clickRunContractTests();
-          await contractPage.waitForTestCompletion();
-        });
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+        await contractPage.clickRunContractTests();
       });
       await test.step("Verify test results and remarks for executed contract tests", async () => {
         await contractPage.verifyTestResults();
@@ -83,23 +69,27 @@ test.describe("API Contract Testing", () => {
     async ({ page, eyes }, testInfo) => {
       test.setTimeout(180000);
       const contractPage = new ApiContractPage(page, testInfo, eyes);
-      await contractPage.goto();
-      await contractPage.ensureSidebarOpen();
-      await contractPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-      await contractPage.clickExecuteContractTests();
-      await contractPage.enterServiceUrl(SERVICE_URL);
+      await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
+        await contractPage.gotoHomeAndOpenSidebar();
+        await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await contractPage.openExecuteContractTestsTab();
+      });
+      await test.step("Enter service URL, exclude tests and run contract tests", async () => {
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
 
-      await contractPage.selectTestForExclusion("/products", "POST", "201");
-      await contractPage.selectTestForExclusion("/products", "POST", "202");
+        await contractPage.selectTestForExclusion("/products", "POST", "201");
+        await contractPage.selectTestForExclusion("/products", "POST", "202");
 
-      await contractPage.clickExcludeButton();
+        await contractPage.clickExcludeButton();
 
-      await contractPage.clickRunContractTests();
-      await contractPage.waitForTestCompletion();
+        await contractPage.clickRunContractTests();
+      });
 
-      await contractPage.verifyFinalCounts({
-        Excluded: 2,
-        Total: 15,
+      await test.step("Verify test results and remarks for executed contract tests", async () => {
+        await contractPage.verifyFinalCounts({
+          Excluded: 2,
+          Total: 15,
+        });
       });
     },
   );

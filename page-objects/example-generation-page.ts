@@ -20,30 +20,6 @@ export class ExampleGenerationPage extends BasePage {
     this.downloadExamplesBtn = page.locator("button#download-examples");
   }
 
-  async selectSpec(specName: string) {
-    await expect(this.specTree).toBeVisible({ timeout: 4000 });
-    const specLocator = this.specTree.locator("text=" + specName);
-    await expect(specLocator).toBeVisible({ timeout: 4000 });
-    await specLocator.click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      "selected-spec-screenshot",
-      this.eyes,
-    );
-    return specLocator;
-  }
-
-  async clickGenerateExamples() {
-    const examplesBtn = this.page.getByText(/Generate valid examples/i);
-    await examplesBtn.click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-generate-examples-screenshot",
-      this.eyes,
-    );
-    return examplesBtn;
-  }
-
   async clickGenerateButton(endpoint: string, responseCode: number) {
     // Use XPath inside the iframe to find the visible Generate button for the correct endpoint row
     const iframe = await this.waitForExamplesIFrame();
