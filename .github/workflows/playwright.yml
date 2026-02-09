@@ -21,25 +21,7 @@ jobs:
         run: mkdir -p playwright-report
 
       - name: Run Playwright tests
-        run: npx playwright test --reporter=list,json
-
-      - name: Add Playwright test summary to GitHub Actions
-        if: always()
-        run: |
-          REPORT_FILE="playwright-report/test-results.json"
-          if [ -f "$REPORT_FILE" ]; then
-            TOTAL=$(jq '.suites[].specs | length' "$REPORT_FILE" | awk '{s+=$1} END {print s}')
-            PASSED=$(jq '[.suites[].specs[] | select(.tests[].results[].status=="passed")] | length' "$REPORT_FILE")
-            FAILED=$(jq '[.suites[].specs[] | select(.tests[].results[].status=="failed")] | length' "$REPORT_FILE")
-            SKIPPED=$(jq '[.suites[].specs[] | select(.tests[].results[].status=="skipped")] | length' "$REPORT_FILE")
-            echo "### Playwright Test Summary" >> $GITHUB_STEP_SUMMARY
-            echo "- Total: $TOTAL" >> $GITHUB_STEP_SUMMARY
-            echo "- Passed: $PASSED" >> $GITHUB_STEP_SUMMARY
-            echo "- Failed: $FAILED" >> $GITHUB_STEP_SUMMARY
-            echo "- Skipped: $SKIPPED" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "No summary file found." >> $GITHUB_STEP_SUMMARY
-          fi
+        run: npx playwright test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
