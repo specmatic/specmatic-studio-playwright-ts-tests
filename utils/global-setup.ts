@@ -26,10 +26,18 @@ if (!process.env.BRANCH_NAME) {
 
 // Set OS, USERNAME, and MACHINE_NAME as environment variables
 if (!process.env.OS_TYPE) {
-  process.env.OS_TYPE = os.type();
+  const rawType = os.type();
+  let prettyType = rawType;
+  if (rawType === "Darwin") {
+    prettyType = "Mac OS";
+  } else if (rawType === "Windows_NT") {
+    prettyType = "Windows";
+  } else if (rawType === "Linux") {
+    prettyType = "Linux";
+  }
+  process.env.OS_TYPE = prettyType;
 }
 if (!process.env.LOGGED_IN_USER) {
-  // Try to get username from env or os.userInfo
   process.env.LOGGED_IN_USER =
     process.env.USER || process.env.USERNAME || os.userInfo().username;
 }
