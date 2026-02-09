@@ -18,7 +18,24 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npx playwright test --reporter=list,json-summary,json-summary-summary=playwright-report/summary.json
+
+      - name: Add Playwright test summary to GitHub Actions
+        if: always()
+        run: |
+          if [ -f playwright-report/summary.json ]; then
+            PASSED=$(jq '.passed' playwright-report/summary.json)
+            FAILED=$(jq '.failed' playwright-report/summary.json)
+            SKIPPED=$(jq '.skipped' playwright-report/summary.json)
+            TOTAL=$(jq '.total' playwright-report/summary.json)
+            echo "### Playwright Test Summary" >> $GITHUB_STEP_SUMMARY
+            echo "- Total: $TOTAL" >> $GITHUB_STEP_SUMMARY
+            echo "- Passed: $PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "- Failed: $FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "- Skipped: $SKIPPED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No summary file found." >> $GITHUB_STEP_SUMMARY
+          fi
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
