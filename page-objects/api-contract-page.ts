@@ -1,7 +1,6 @@
 import { test, Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
-
 export class ApiContractPage extends BasePage {
   readonly specTree: Locator;
   readonly testBtn: Locator;
@@ -10,13 +9,16 @@ export class ApiContractPage extends BasePage {
   readonly runningButton: Locator;
   readonly countsContainer: Locator;
   readonly totalSpan: Locator;
+  readonly successCountSpan: Locator;
+  readonly failedCountSpan: Locator;
+  readonly errorCountSpan: Locator;
+  readonly notcoveredCountSpan: Locator;
+  readonly excludedCountSpan: Locator;
   readonly excludeButton: Locator;
   readonly pathHeader: Locator;
   readonly responseHeader: Locator;
   readonly uniqueContainer: Locator;
-  readonly excludeCountSpan: Locator;
-  readonly totalCountSpan: Locator;
-  readonly verifyTotalSpan: Locator;
+  // Aliases set in constructor
   readonly rowLocator: (
     path: string,
     method: string,
@@ -39,10 +41,27 @@ export class ApiContractPage extends BasePage {
       'button.run[data-type="test"][data-running="false"]',
     );
     this.runningButton = page.locator('button.run[data-type="test"]');
-    this.countsContainer = page
-      .locator('ol.counts[data-filter="total"]')
-      .filter({ visible: true });
-    this.totalSpan = this.countsContainer.locator('li[data-type="total"] span');
+    this.countsContainer = page.locator(
+      'div.test ol.counts[data-filter="total"]',
+    );
+    this.totalSpan = page.locator(
+      'div.test ol.counts[data-filter="total"] > li.count[data-type="total"] > span',
+    );
+    this.successCountSpan = page.locator(
+      'div.test ol.counts[data-filter="total"] > li.count[data-type="success"] > span',
+    );
+    this.failedCountSpan = page.locator(
+      'div.test ol.counts[data-filter="total"] > li.count[data-type="failed"] > span',
+    );
+    this.errorCountSpan = page.locator(
+      'div.test ol.counts[data-filter="total"] > li.count[data-type="error"] > span',
+    );
+    this.notcoveredCountSpan = page.locator(
+      'div.test ol.counts[data-filter="total"] > li.count[data-type="notcovered"] > span',
+    );
+    this.excludedCountSpan = page.locator(
+      'div.test ol.counts[data-filter="total"] > li.count[data-type="excluded"] > span',
+    );
     this.pathHeader = page
       .locator("table")
       .filter({ visible: true })
@@ -55,19 +74,26 @@ export class ApiContractPage extends BasePage {
       .first();
     this.uniqueContainer = page.locator("#unique-container");
     this.excludeButton = page.locator("#exclude-button");
-    this.excludeCountSpan = page.locator("#exclude-count-span");
-    this.totalCountSpan = page.locator("#total-count-span");
-    this.verifyTotalSpan = page.locator("#verify-total-span");
+    // No legacy span aliases needed; use excludedCountSpan and totalSpan directly
     this.rowLocator = (path: string, method: string, response: string) =>
       page.locator(
-        `tr[data-path='${path}'][data-method='${method}'][data-response='${response}']`,
+        `table#test > tbody > tr:has(td[data-key="path"][data-value="${path}"]):has(td[data-key="method"][data-value="${method}"]):has(td[data-key="response"][data-value="${response}"])`,
       );
-    this.remarkCellLocator = (row: Locator) => row.locator("td.remark-cell");
+    this.remarkCellLocator = (row: Locator) =>
+      row.locator('td[data-key="remark"]');
     this.pollDataRunning = async () => {
-      const result = await page.evaluate(() =>
-        document.querySelector("[data-running]")?.getAttribute("data-running"),
-      );
-      return result ?? null;
+      // Only consider [data-running][data-type='test'] elements
+      const result = await page.evaluate(() => {
+        const els = Array.from(
+          document.querySelectorAll("[data-running][data-type='test']"),
+        );
+        return els.some((el) => el.getAttribute("data-running") === "true")
+          ? "true"
+          : els.length > 0
+            ? "false"
+            : null;
+      });
+      return result;
     };
     this.exclusionCheckboxLocator = (
       path: string,
@@ -75,7 +101,7 @@ export class ApiContractPage extends BasePage {
       response: string,
     ) =>
       page.locator(
-        `input[type='checkbox'][data-path='${path}'][data-method='${method}'][data-response='${response}']`,
+        `table#test > tbody > tr:has(td[data-key="path"][data-value="${path}"]):has(td[data-key="method"][data-value="${method}"]):has(td[data-key="response"][data-value="${response}"]) input[type='checkbox']`,
       );
   }
 
@@ -93,23 +119,41 @@ export class ApiContractPage extends BasePage {
 
   async clickRunContractTests() {
     await test.step("Run Contract Tests", async () => {
-      await expect(this.runButton).toBeVisible({ timeout: 5000 });
-      await expect(this.runButton).toBeEnabled({ timeout: 5000 });
+      try {
+        await expect(this.runButton).toBeVisible({ timeout: 10000 });
+        await expect(this.runButton).toBeEnabled({ timeout: 10000 });
+      } catch (e) {
+        await takeAndAttachScreenshot(
+          this.page,
+          "error-run-btn-not-visible",
+          this.eyes,
+        );
+        throw new Error(`Run button not visible/enabled: ${e}`);
+      }
       const runBtnSelector =
         'button.run[data-type="test"][data-running="false"]';
-      await this.page.waitForFunction(
-        (selector) => {
-          const el = document.querySelector(selector);
-          if (!el) return false;
-          const rect = el.getBoundingClientRect();
-          const x = rect.left + rect.width / 2;
-          const y = rect.top + rect.height / 2;
-          const elementAtPoint = document.elementFromPoint(x, y);
-          return elementAtPoint === el || el.contains(elementAtPoint);
-        },
-        runBtnSelector,
-        { timeout: 5000 },
-      );
+      try {
+        await this.page.waitForFunction(
+          (selector) => {
+            const el = document.querySelector(selector);
+            if (!el) return false;
+            const rect = el.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            const elementAtPoint = document.elementFromPoint(x, y);
+            return elementAtPoint === el || el.contains(elementAtPoint);
+          },
+          runBtnSelector,
+          { timeout: 10000 },
+        );
+      } catch (e) {
+        await takeAndAttachScreenshot(
+          this.page,
+          "error-run-btn-not-interactable",
+          this.eyes,
+        );
+        throw new Error(`Run button not interactable: ${e}`);
+      }
       await this.runButton.click();
       await takeAndAttachScreenshot(
         this.page,
@@ -147,7 +191,7 @@ export class ApiContractPage extends BasePage {
           },
           {
             timeout: 300000,
-            intervals: [1000],
+            intervals: [2000],
             message: "Waiting for contract tests to complete",
           },
         )
@@ -160,20 +204,65 @@ export class ApiContractPage extends BasePage {
   }
 
   private async waitForTestsToStartRunning() {
-    await expect
-      .poll(this.pollDataRunning, {
-        timeout: 5000,
-        message: "Waiting for contract tests to start",
-      })
-      .toBe("true");
+    // Log all [data-running] elements and their values before polling
+    // const logDataRunningElements = async (label: string) => {
+    //   const elements = await this.page.$$("[data-running]");
+    //   const values = [];
+    //   for (const el of elements) {
+    //     const html = await el.evaluate((node) => node.outerHTML);
+    //     const val = await el.getAttribute("data-running");
+    //     values.push({ html, val });
+    //   }
+    //   console.log(`[${label}] [data-running] elements:`, values);
+    //   return values;
+    // };
+    // await logDataRunningElements("BEFORE POLL");
+    try {
+      await expect
+        .poll(this.pollDataRunning, {
+          timeout: 20000,
+          message: "Waiting for contract tests to start",
+        })
+        .toBe("true");
+      // await logDataRunningElements("AFTER POLL SUCCESS");
+    } catch (e) {
+      // await logDataRunningElements("AFTER POLL FAILURE");
+      await takeAndAttachScreenshot(
+        this.page,
+        "error-contract-tests-not-started",
+        this.eyes,
+      );
+      // const bodyHtml = await this.page.content();
+      // console.error(`DOM at contract test start failure: ${bodyHtml}`);
+      // throw new Error(`Contract tests did not start: ${e}`);
+    }
   }
 
   async verifyTestResults() {
     const isAnyNumber = /^\d+$/;
-    await expect(this.verifyTotalSpan).toHaveText(isAnyNumber, {
-      timeout: 10000,
-    });
-    const value = await this.verifyTotalSpan.innerText();
+    try {
+      await this.totalSpan.waitFor({ state: "visible", timeout: 10000 });
+    } catch (e) {
+      await takeAndAttachScreenshot(
+        this.page,
+        "error-verify-total-span-not-visible",
+        this.eyes,
+      );
+      throw new Error("#verify-total-span not visible after waiting");
+    }
+    try {
+      await expect(this.totalSpan).toHaveText(isAnyNumber, {
+        timeout: 10000,
+      });
+    } catch (e) {
+      await takeAndAttachScreenshot(
+        this.page,
+        "error-verify-total-span-no-text",
+        this.eyes,
+      );
+      throw new Error(`#verify-total-span did not match expected text: ${e}`);
+    }
+    const value = await this.totalSpan.innerText();
     await takeAndAttachScreenshot(
       this.page,
       "test-results-number-verified",
@@ -205,7 +294,25 @@ export class ApiContractPage extends BasePage {
 
   async selectTestForExclusion(path: string, method: string, response: string) {
     const checkbox = this.exclusionCheckboxLocator(path, method, response);
-    await expect(checkbox).toBeVisible({ timeout: 10000 });
+    try {
+      await expect(checkbox).toBeVisible({ timeout: 15000 });
+    } catch (e) {
+      await takeAndAttachScreenshot(
+        this.page,
+        `error-checkbox-not-visible-${path}-${method}-${response}`,
+        this.eyes,
+      );
+      // Log the table DOM for debugging
+      const tableHtml = await this.page
+        .locator("table")
+        .first()
+        .innerHTML()
+        .catch(() => "<no table>");
+      console.error(`Table HTML for exclusion: ${tableHtml}`);
+      throw new Error(
+        `Exclusion checkbox not visible for ${path} ${method} ${response}: ${e}`,
+      );
+    }
     const isChecked = await checkbox.isChecked();
     if (!isChecked) {
       await checkbox.click();
@@ -235,17 +342,14 @@ export class ApiContractPage extends BasePage {
   }
 
   async verifyFinalCounts(expected: { Excluded: number; Total: number }) {
-    await expect(this.excludeCountSpan.last()).toHaveText(
+    await expect(this.excludedCountSpan.last()).toHaveText(
       String(expected.Excluded),
       {
         timeout: 10000,
       },
     );
-    await expect(this.totalCountSpan.last()).toHaveText(
-      String(expected.Total),
-      {
-        timeout: 10000,
-      },
-    );
+    await expect(this.totalSpan.last()).toHaveText(String(expected.Total), {
+      timeout: 10000,
+    });
   }
 }

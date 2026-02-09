@@ -67,9 +67,43 @@ export class BasePage {
   ): Promise<Locator> {
     return await test.step(`Open tab: ${screenshotName}`, async () => {
       if (!tabLocator) {
+        await takeAndAttachScreenshot(
+          this.page,
+          `error-missing-locator-${screenshotName}`,
+          this.eyes,
+        );
         throw new Error(`Tab locator is not defined for ${screenshotName}`);
       }
-      if ((await tabLocator.getAttribute("data-active")) !== "true") {
+      // Wait for the element to be visible before interacting
+      try {
+        await tabLocator.waitFor({ state: "visible", timeout: 10000 });
+      } catch (e) {
+        await takeAndAttachScreenshot(
+          this.page,
+          `error-not-visible-${screenshotName}`,
+          this.eyes,
+        );
+        throw new Error(`Tab/Button for ${screenshotName} not visible: ${e}`);
+      }
+      // If the locator is a tab (has data-active or role=tab), check data-active, else just click
+      let isTab = false;
+      try {
+        const role = await tabLocator.getAttribute("role");
+        const dataType = await tabLocator.getAttribute("data-type");
+        if (
+          role === "tab" ||
+          dataType === "spec" ||
+          dataType === "example-generation"
+        ) {
+          isTab = true;
+        }
+      } catch {}
+      if (isTab) {
+        if ((await tabLocator.getAttribute("data-active")) !== "true") {
+          await tabLocator.click({ force: true });
+        }
+      } else {
+        // For buttons, just click if enabled
         await tabLocator.click({ force: true });
       }
       await takeAndAttachScreenshot(this.page, screenshotName, this.eyes);
