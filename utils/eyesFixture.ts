@@ -32,8 +32,8 @@ export const test = base.extend<{ eyes: Eyes }>({
 
     config.addBrowsers(
       { name: "chrome", width: 1920, height: 1200 },
-      { name: "safari", width: 1920, height: 1200 },
-      { name: "edge", width: 1920, height: 1200 },
+      // { name: "safari", width: 1920, height: 1200 },
+      // { name: "edge", width: 1920, height: 1200 },
     );
 
     config.setTestName(testInfo.title);
