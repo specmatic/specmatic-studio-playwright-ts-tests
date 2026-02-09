@@ -8,7 +8,7 @@ test.describe("Example Generation", () => {
     { tag: ["@exampleGeneration", "@findAvailableProducts"] },
     async ({ page, eyes }, testInfo) => {
       const examplePage = new ExampleGenerationPage(page, testInfo, eyes);
-      await test.step("Go to Example Generation page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'", async () => {
+      await test.step(`Go to Example Generation page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
         await examplePage.gotoHomeAndOpenSidebar();
         await examplePage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
         await examplePage.openExampleGenerationTab();
