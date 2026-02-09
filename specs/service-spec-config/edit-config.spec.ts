@@ -10,10 +10,23 @@ test.describe("Service Spec & Config Update", () => {
     { tag: ["@serviceSpecConfig"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(page, testInfo, eyes);
-      await configPage.goto();
-      await configPage.ensureSidebarOpen();
-      await configPage.selectConfig(CONFIG_NAME);
-      await configPage.clickEditConfig();
+
+      await test.step(`Go to Spec page for Service Spec: '${CONFIG_NAME}'`, async () => {
+        await test.step("Open sidebar", async () => {
+          await configPage.goto();
+          await configPage.ensureSidebarOpen();
+        });
+        await test.step(`Navigate to Service Spec: '${CONFIG_NAME}'`, async () => {
+          await configPage.selectConfig(CONFIG_NAME);
+        });
+        await test.step("Go to Spec", async () => {
+          await configPage.clickUpdateSpec();
+        });
+      });
+
+      await test.step("Edit Config", async () => {
+        await configPage.clickEditConfig();
+      });
     },
   );
 });

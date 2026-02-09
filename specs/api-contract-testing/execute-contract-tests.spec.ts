@@ -25,12 +25,12 @@ test.describe("API Contract Testing", () => {
       test.setTimeout(180000);
       const contractPage = new ApiContractPage(page, testInfo, eyes);
 
-      await test.step("Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'", async () => {
+      await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
         await test.step("Open sidebar", async () => {
           await contractPage.goto();
           await contractPage.ensureSidebarOpen();
         });
-        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}' and click Generate Examples`, async () => {
+        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
           await contractPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
         });
         await test.step("Go to Test", async () => {

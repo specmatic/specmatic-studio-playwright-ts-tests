@@ -9,20 +9,19 @@ test.describe("API Specification Management", () => {
     { tag: ["@apiSpecManagement", "@selectExistingAPISpec"] },
     async ({ page, eyes }, testInfo) => {
       const studioPage = new SpecmaticStudioPage(page, testInfo, eyes);
-      await studioPage.goto();
-      await studioPage.openSidebarAndWaitForSpecTree();
-      await studioPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-      await studioPage.openSpecDetailsTab();
-    },
-  );
-  test(
-    "Select Existing Spec",
-    { tag: ["@apiSpecManagement", "@selectExistingSpec"] },
-    async ({ page, eyes }, testInfo) => {
-      const specPage = new SpecmaticStudioPage(page, testInfo, eyes);
-      await specPage.goto();
-      await specPage.openSidebarAndWaitForSpecTree();
-      await specPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+
+      await test.step("Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'", async () => {
+        await test.step("Open sidebar", async () => {
+          await studioPage.goto();
+          await studioPage.openSidebarAndWaitForSpecTree();
+        });
+        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
+          await studioPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        });
+        await test.step("Go to SpecDetails", async () => {
+          await studioPage.openSpecDetailsTab();
+        });
+      });
     },
   );
 });

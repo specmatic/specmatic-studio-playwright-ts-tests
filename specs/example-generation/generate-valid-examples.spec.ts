@@ -14,7 +14,7 @@ test.describe("Example Generation", () => {
           await examplePage.goto();
           await examplePage.ensureSidebarOpen();
         });
-        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}' and click Generate Examples`, async () => {
+        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
           await examplePage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
         });
         await test.step("Go to Examples", async () => {

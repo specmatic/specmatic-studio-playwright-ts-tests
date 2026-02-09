@@ -9,12 +9,12 @@ test.describe("Service Spec & Config Update", () => {
     { tag: ["@serviceSpecConfig"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(page, testInfo, eyes);
-      await test.step("Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'", async () => {
+      await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
         await test.step("Open sidebar", async () => {
           await configPage.goto();
           await configPage.ensureSidebarOpen();
         });
-        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}' and click Generate Examples`, async () => {
+        await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
           await configPage.selectConfig(PRODUCT_SEARCH_BFF_SPEC);
         });
         await test.step("Go to Spec", async () => {
