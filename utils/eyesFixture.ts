@@ -1,5 +1,14 @@
 // Read ENABLE_VISUAL from environment (set by playwright.config.ts loading the correct .env file)
-export const ENABLE_VISUAL = process.env.ENABLE_VISUAL === "true";
+let ENABLE_VISUAL = process.env.ENABLE_VISUAL === "true";
+const ENV_NAME = process.env.ENV_NAME;
+const BRANCH_NAME = process.env.BRANCH_NAME;
+const OS_TYPE = process.env.OS_TYPE;
+const LOGGED_IN_USER = process.env.LOGGED_IN_USER;
+const MACHINE_NAME = process.env.MACHINE_NAME;
+if (ENV_NAME === "ci" && BRANCH_NAME && BRANCH_NAME !== "main") {
+  ENABLE_VISUAL = false;
+}
+export { ENABLE_VISUAL };
 
 export { expect } from "@playwright/test";
 
@@ -24,7 +33,7 @@ export const test = base.extend<{ eyes: Eyes }>({
     config.setBatch(Batch);
     config.setAppName("Specmatic Studio");
     config.setForceFullPageScreenshot(true);
-    config.setIsDisabled(process.env.ENABLE_VISUAL !== "true");
+    config.setIsDisabled(!ENABLE_VISUAL);
 
     if (process.env.APPLITOOLS_API_KEY) {
       config.setApiKey(process.env.APPLITOOLS_API_KEY);
@@ -37,6 +46,13 @@ export const test = base.extend<{ eyes: Eyes }>({
     );
 
     config.setTestName(testInfo.title);
+
+    config.addProperty("environment", ENV_NAME || "local");
+    config.addProperty("branch", BRANCH_NAME || "unknown");
+    config.addProperty("os", OS_TYPE || "unknown");
+    config.addProperty("user", LOGGED_IN_USER || "unknown");
+    config.addProperty("machine", MACHINE_NAME || "unknown");
+
     eyes.setConfiguration(config);
 
     await eyes.open(page);
