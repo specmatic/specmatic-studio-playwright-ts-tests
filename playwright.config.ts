@@ -71,7 +71,7 @@ const baseConfig: BaseConfigType = {
     screenshot: "on" as const,
     video: "on" as const,
     launchOptions: {
-      headless: process.env.HEADLESS !== "true",
+      headless: process.env.CI ? true : process.env.HEADLESS === "true",
     },
   },
   projects: [
@@ -81,7 +81,7 @@ const baseConfig: BaseConfigType = {
         browserName: "chromium",
         viewport: null,
         launchOptions: {
-          headless: process.env.HEADLESS === "true" ? true : false,
+          headless: process.env.CI ? true : process.env.HEADLESS === "true",
           args: ["--start-maximized"],
         },
       },
