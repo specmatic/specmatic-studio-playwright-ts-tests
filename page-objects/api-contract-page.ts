@@ -114,11 +114,7 @@ export class ApiContractPage extends BasePage {
     await test.step(`Enter service URL: '${serviceUrl}'`, async () => {
       await expect(this.serviceUrlInput).toBeVisible({ timeout: 4000 });
       await this.serviceUrlInput.fill(serviceUrl);
-      await takeAndAttachScreenshot(
-        this.page,
-        "service-url-entered",
-        this.eyes,
-      );
+      await takeAndAttachScreenshot(this.page, "service-url-entered");
     });
   }
 
@@ -131,7 +127,6 @@ export class ApiContractPage extends BasePage {
         await takeAndAttachScreenshot(
           this.page,
           "error-run-btn-not-visible",
-          this.eyes,
         );
         throw new Error(`Run button not visible/enabled: ${e}`);
       }
@@ -155,7 +150,6 @@ export class ApiContractPage extends BasePage {
         await takeAndAttachScreenshot(
           this.page,
           "error-run-btn-not-interactable",
-          this.eyes,
         );
         throw new Error(`Run button not interactable: ${e}`);
       }
@@ -216,7 +210,6 @@ export class ApiContractPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         "error-contract-tests-not-started",
-        this.eyes,
       );
     }
   }
@@ -229,7 +222,6 @@ export class ApiContractPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         "error-verify-total-span-not-visible",
-        this.eyes,
       );
       throw new Error("#verify-total-span not visible after waiting");
     }
@@ -241,7 +233,6 @@ export class ApiContractPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         "error-verify-total-span-no-text",
-        this.eyes,
       );
       throw new Error(`#verify-total-span did not match expected text: ${e}`);
     }
@@ -249,7 +240,6 @@ export class ApiContractPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       "test-results-number-verified",
-      this.eyes,
     );
   }
 
@@ -283,7 +273,6 @@ export class ApiContractPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         `error-checkbox-not-visible-${path}-${method}-${response}`,
-        this.eyes,
       );
       // Log the table DOM for debugging
       const tableHtml = await this.page
@@ -317,17 +306,17 @@ export class ApiContractPage extends BasePage {
     );
   }
 
-  async verifyTestExclusion() {
-    const excludedCount = this.countsContainer.locator(
-      'li[data-type="excluded"] span',
-    );
-    await expect(excludedCount).toBeVisible({ timeout: 10000 });
-    await takeAndAttachScreenshot(
-      this.page,
-      "test-exclusion-verified",
-      this.eyes,
-    );
-  }
+  // async verifyTestExclusion() {
+  //   const excludedCount = this.countsContainer.locator(
+  //     'li[data-type="excluded"] span',
+  //   );
+  //   await expect(excludedCount).toBeVisible({ timeout: 10000 });
+  //   await takeAndAttachScreenshot(
+  //     this.page,
+  //     "test-exclusion-verified",
+  //     this.eyes,
+  //   );
+  // }
 
   async verifyFinalCounts(expected: { Excluded: number; Total: number }) {
     await expect(this.excludedCountSpan.last()).toHaveText(

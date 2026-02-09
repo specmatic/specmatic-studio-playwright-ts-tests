@@ -29,7 +29,7 @@ export class SideBarPage {
       await expect(this.leftSidebar).toHaveAttribute("aria-expanded", "true");
     }
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar", this.eyes);
+      await takeAndAttachScreenshot(this.page, "sidebar");
     }
   }
 

@@ -30,12 +30,12 @@ export class SpecmaticStudioPage extends BasePage {
 
   async fillTargetUrl(url: string) {
     await this.fillInputByPlaceholder("e.g. https://example.com:3000", url);
-    await takeAndAttachScreenshot(this.page, "filled-target-url", this.eyes);
+    await takeAndAttachScreenshot(this.page, "filled-target-url");
   }
 
   async fillProxyPort(port: string) {
     await this.fillInputByRole("spinbutton", port);
-    await takeAndAttachScreenshot(this.page, "filled-proxy-port", this.eyes);
+    await takeAndAttachScreenshot(this.page, "filled-proxy-port");
   }
 
   async clickStartProxy() {

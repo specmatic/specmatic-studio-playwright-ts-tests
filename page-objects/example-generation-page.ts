@@ -69,13 +69,16 @@ export class ExampleGenerationPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `example-file-name-visible-${endpoint}-${responseCode}`,
-      this.eyes,
     );
   }
 
   async verifyValidateButtonVisible(endpoint: string, responseCode: number) {
     // Use iframe context and XPath to find the Validate button for the correct endpoint and response code
     const iframe = await this.waitForExamplesIFrame();
+    await takeAndAttachScreenshot(
+      this.page,
+      `validate-button-visible-${endpoint}-${responseCode}`,
+    );
     const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[@aria-label="Validate"]`;
     const validateBtn = iframe.locator(xpath);
     await expect(validateBtn).toBeVisible({ timeout: 4000 });

@@ -27,7 +27,7 @@ export class BasePage {
 
   async goto() {
     await this.page.goto("/");
-    await takeAndAttachScreenshot(this.page, "app-loaded", this.eyes);
+    await takeAndAttachScreenshot(this.page, "app-loaded");
   }
 
   async clickButtonByText(text: string) {
@@ -62,7 +62,6 @@ export class BasePage {
         await takeAndAttachScreenshot(
           this.page,
           `error-missing-locator-${screenshotName}`,
-          this.eyes,
         );
         throw new Error(`Tab locator is not defined for ${screenshotName}`);
       }
