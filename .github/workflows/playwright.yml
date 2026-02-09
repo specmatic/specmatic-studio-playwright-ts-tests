@@ -17,6 +17,9 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      - name: Ensure playwright-report directory exists
+        run: mkdir -p playwright-report
+
       - name: Run Playwright tests
         run: npx playwright test --reporter=list,json
 
@@ -38,7 +41,7 @@ jobs:
             echo "No summary file found." >> $GITHUB_STEP_SUMMARY
           fi
       - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+        if: always()
         with:
           name: playwright-report
           path: playwright-report/

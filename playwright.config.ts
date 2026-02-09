@@ -61,7 +61,10 @@ const baseConfig: BaseConfigType = {
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 0 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  reporter: [
+    ["html"],
+    ["json", { outputFile: "playwright-report/test-results.json" }],
+  ],
   use: {
     baseURL,
     trace: "on-first-retry",
