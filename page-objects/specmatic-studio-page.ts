@@ -25,55 +25,31 @@ export class SpecmaticStudioPage extends BasePage {
     await this.page
       .getByRole("button", { name: /Record a specification/i })
       .click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-record-spec-screenshot",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "clicked-record-spec", this.eyes);
   }
 
   async fillTargetUrl(url: string) {
     await this.fillInputByPlaceholder("e.g. https://example.com:3000", url);
-    await takeAndAttachScreenshot(
-      this.page,
-      "filled-target-url-screenshot",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "filled-target-url", this.eyes);
   }
 
   async fillProxyPort(port: string) {
     await this.fillInputByRole("spinbutton", port);
-    await takeAndAttachScreenshot(
-      this.page,
-      "filled-proxy-port-screenshot",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "filled-proxy-port", this.eyes);
   }
 
   async clickStartProxy() {
     await this.page.locator("#startProxy").click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-start-screenshot",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "clicked-start", this.eyes);
   }
 
   async clickStopProxy() {
-    await takeAndAttachScreenshot(
-      this.page,
-      "before-clicked-stop-screenshot",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "before-clicked-stop", this.eyes);
     const stopBtn = this.page.locator("#stopProxy");
     // Only try to stop proxy if the button is visible
     if (await stopBtn.isVisible()) {
       await stopBtn.click({ force: true });
-      await takeAndAttachScreenshot(
-        this.page,
-        "clicked-stop-screenshot",
-        this.eyes,
-      );
+      await takeAndAttachScreenshot(this.page, "clicked-stop", this.eyes);
     }
   }
 }

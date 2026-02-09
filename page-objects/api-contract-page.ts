@@ -116,7 +116,7 @@ export class ApiContractPage extends BasePage {
       await this.serviceUrlInput.fill(serviceUrl);
       await takeAndAttachScreenshot(
         this.page,
-        "service-url-entered-screenshot",
+        "service-url-entered",
         this.eyes,
       );
     });
@@ -162,7 +162,7 @@ export class ApiContractPage extends BasePage {
       await this.runButton.click();
       await takeAndAttachScreenshot(
         this.page,
-        "clicked-run-contract-tests-screenshot",
+        "clicked-run-contract-tests",
         this.eyes,
       );
       await this.waitForTestCompletion();
@@ -174,11 +174,7 @@ export class ApiContractPage extends BasePage {
 
     await this.waitForTestsToCompleteExecution();
 
-    await takeAndAttachScreenshot(
-      this.page,
-      "test-completed-screenshot",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "test-completed", this.eyes);
   }
 
   private async waitForTestsToCompleteExecution() {

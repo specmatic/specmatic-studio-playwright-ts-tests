@@ -26,11 +26,7 @@ export class ServiceSpecConfigPage extends BasePage {
 
   async clickEditConfig() {
     await this.editBtn.click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-edit-config-screenshot",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "clicked-edit-config", this.eyes);
     return this.editBtn;
   }
 
@@ -53,11 +49,7 @@ export class ServiceSpecConfigPage extends BasePage {
       { timeout: 5000 },
     );
     await this.saveBtn.click({ force: true });
-    await takeAndAttachScreenshot(
-      this.page,
-      "save-clicked-screenshot",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "save-clicked", this.eyes);
     return this.saveBtn;
   }
 }

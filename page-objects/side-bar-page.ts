@@ -29,7 +29,7 @@ export class SideBarPage {
       await expect(this.leftSidebar).toHaveAttribute("aria-expanded", "true");
     }
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
+      await takeAndAttachScreenshot(this.page, "sidebar", this.eyes);
     }
   }
 
@@ -50,11 +50,7 @@ export class SideBarPage {
         await specLocator.click({ force: true, timeout: 3000 });
       }
       if (this.testInfo) {
-        await takeAndAttachScreenshot(
-          this.page,
-          "selected-spec-screenshot",
-          this.eyes,
-        );
+        await takeAndAttachScreenshot(this.page, "selected-spec", this.eyes);
       }
     });
     return specLocator!;

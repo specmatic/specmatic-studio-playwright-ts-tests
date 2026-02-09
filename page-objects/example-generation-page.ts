@@ -40,7 +40,7 @@ export class ExampleGenerationPage extends BasePage {
     await generateBtns.first().click();
     await takeAndAttachScreenshot(
       this.page,
-      `clicked-generate-${endpoint}-${responseCode}-screenshot`,
+      `clicked-generate-${endpoint}-${responseCode}`,
       this.eyes,
     );
   }
@@ -68,7 +68,7 @@ export class ExampleGenerationPage extends BasePage {
     expect(fileNameText).toContain(String(responseCode));
     await takeAndAttachScreenshot(
       this.page,
-      `example-file-name-visible-${endpoint}-${responseCode}-screenshot`,
+      `example-file-name-visible-${endpoint}-${responseCode}`,
       this.eyes,
     );
   }
@@ -91,7 +91,7 @@ export class ExampleGenerationPage extends BasePage {
     await viewDetailsSpan.click();
     await takeAndAttachScreenshot(
       this.page,
-      `view-details-${endpoint}-${responseCode}-screenshot`,
+      `view-details-${endpoint}-${responseCode}`,
       this.eyes,
     );
   }
@@ -105,7 +105,7 @@ export class ExampleGenerationPage extends BasePage {
     await goBackBtn.click();
     await takeAndAttachScreenshot(
       this.page,
-      `go-back-${endpoint}-${responseCode}-screenshot`,
+      `go-back-${endpoint}-${responseCode}`,
       this.eyes,
     );
   }
@@ -119,7 +119,7 @@ export class ExampleGenerationPage extends BasePage {
     await validateBtn.click();
     await takeAndAttachScreenshot(
       this.page,
-      `clicked-validate-${endpoint}-${responseCode}-screenshot`,
+      `clicked-validate-${endpoint}-${responseCode}`,
       this.eyes,
     );
   }

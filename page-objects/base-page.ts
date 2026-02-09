@@ -27,11 +27,7 @@ export class BasePage {
 
   async goto() {
     await this.page.goto("/");
-    await takeAndAttachScreenshot(
-      this.page,
-      "app-loaded-screenshot",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "app-loaded", this.eyes);
   }
 
   async clickButtonByText(text: string) {

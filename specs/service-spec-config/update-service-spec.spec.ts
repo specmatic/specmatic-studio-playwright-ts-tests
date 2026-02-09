@@ -16,11 +16,7 @@ test.describe("Service Spec & Config Update", () => {
       });
       await test.step("Save updated Service Spec", async () => {
         await configPage.clickSaveOpenApi();
-        // page.once("dialog", async (dialog) => {
-        //   expect(dialog.message()).toContain("Contents saved successfully");
-        //   await dialog.dismiss();
-        // });
-        await takeAndAttachScreenshot(page, "save-clicked-screenshot", eyes);
+        await takeAndAttachScreenshot(page, "save-clicked", eyes);
       });
     },
   );
