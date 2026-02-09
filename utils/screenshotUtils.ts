@@ -12,6 +12,10 @@ export async function takeAndAttachScreenshot(
   attachmentName: string,
   eyes?: any,
 ): Promise<void> {
+  // Wait for network to be idle and page to be stable
+  await page.waitForLoadState("networkidle");
+  await page.waitForTimeout(500); // Optional: small delay for visual stability
+
   const screenshotBuffer = await page.screenshot({
     type: "png",
     animations: "disabled",
