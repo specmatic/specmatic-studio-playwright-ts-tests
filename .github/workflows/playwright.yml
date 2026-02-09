@@ -28,3 +28,20 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      - name: Capture Docker logs
+        if: always()
+        run: |
+          mkdir -p docker-logs
+          for cname in studio order-bff order-api inventory-api; do
+            if docker ps -a -q -f name="^/${cname}$" | grep .; then
+              docker logs "$cname" > "docker-logs/${cname}.log" 2>&1 || true
+            fi
+          done
+
+      - name: Upload Docker logs as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: docker-logs/
