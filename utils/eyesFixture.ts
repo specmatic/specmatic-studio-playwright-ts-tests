@@ -57,6 +57,9 @@ export const test = base.extend<{ eyes: Eyes }>({
     config.setAppName("Specmatic Studio");
     config.setForceFullPageScreenshot(true);
     config.setIsDisabled(!ENABLE_VISUAL);
+    config.setIgnoreDisplacements(true);
+    config.setBranchName(BRANCH_NAME || "unknown");
+    config.setEnvironmentName(ENV_NAME || "local");
 
     if (process.env.APPLITOOLS_API_KEY) {
       config.setApiKey(process.env.APPLITOOLS_API_KEY);
