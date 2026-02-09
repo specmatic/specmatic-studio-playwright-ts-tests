@@ -1,4 +1,4 @@
-import { Page, expect, Locator, type TestInfo } from "@playwright/test";
+import { Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class SideBarPage {

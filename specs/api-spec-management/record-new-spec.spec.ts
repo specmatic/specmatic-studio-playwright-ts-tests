@@ -39,7 +39,7 @@ test.describe("API Specification Management", () => {
 
       await test.step(`Go to Proxy's Record Spec`, async () => {
         await specPage.goto();
-        await specPage.openSidebarAndWaitForSpecTree();
+        await specPage.ensureSidebarOpen();
       });
       await test.step("Record Spec", async () => {
         await specPage.clickRecordSpec();

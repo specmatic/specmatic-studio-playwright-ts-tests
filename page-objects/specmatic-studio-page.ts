@@ -1,7 +1,7 @@
-import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
-import { Page, Locator, type TestInfo } from "@playwright/test";
+import { Locator, type TestInfo, Page } from "@playwright/test";
 import { BasePage } from "./base-page";
 import { SideBarPage } from "./side-bar-page";
+import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class SpecmaticStudioPage extends BasePage {
   readonly leftSidebar: Locator;
@@ -19,19 +19,6 @@ export class SpecmaticStudioPage extends BasePage {
     this.testInfo = testInfo;
     this.eyes = eyes;
     this.sideBar = new SideBarPage(page, testInfo, eyes);
-  }
-
-  async goto() {
-    await this.page.goto("/");
-    await takeAndAttachScreenshot(
-      this.page,
-      "app-loaded-screenshot",
-      this.eyes,
-    );
-  }
-
-  async openSidebarAndWaitForSpecTree() {
-    await this.sideBar.ensureSidebarOpen();
   }
 
   async selectSpec(specName: string) {

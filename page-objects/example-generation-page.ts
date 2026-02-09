@@ -1,6 +1,6 @@
-import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
-import { Page, Locator, expect, type TestInfo } from "@playwright/test";
+import { Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { SideBarPage } from "./side-bar-page";
+import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class ExampleGenerationPage {
   readonly page: Page;
@@ -25,19 +25,6 @@ export class ExampleGenerationPage {
     this.downloadExamplesBtn = page.locator("button#download-examples");
     this.testInfo = testInfo;
     this.eyes = eyes;
-  }
-
-  async goto() {
-    await this.page.goto("/");
-    await takeAndAttachScreenshot(
-      this.page,
-      "app-loaded-screenshot",
-      this.eyes,
-    );
-  }
-
-  async ensureSidebarOpen() {
-    await this.sideBar.ensureSidebarOpen();
   }
 
   async selectSpec(specName: string) {

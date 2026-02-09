@@ -13,7 +13,7 @@ test.describe("API Specification Management", () => {
       await test.step("Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'", async () => {
         await test.step("Open sidebar", async () => {
           await studioPage.goto();
-          await studioPage.openSidebarAndWaitForSpecTree();
+          await studioPage.ensureSidebarOpen();
         });
         await test.step(`Navigate to Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
           await studioPage.selectSpec(PRODUCT_SEARCH_BFF_SPEC);

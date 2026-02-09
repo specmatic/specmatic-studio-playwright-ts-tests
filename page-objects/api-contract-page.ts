@@ -1,7 +1,6 @@
-import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
-import { Page, Locator, expect, type TestInfo } from "@playwright/test";
+import { Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { SideBarPage } from "./side-bar-page";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../specs/specNames";
+import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class ApiContractPage {
   readonly page: Page;
@@ -134,19 +133,6 @@ export class ApiContractPage {
     this.pollDataRunning = async () => {
       return await this.runningButton.getAttribute("data-running");
     };
-  }
-
-  async goto() {
-    await this.page.goto("/");
-    await takeAndAttachScreenshot(
-      this.page,
-      "app-loaded-screenshot",
-      this.eyes,
-    );
-  }
-
-  async ensureSidebarOpen() {
-    await this.sideBar.ensureSidebarOpen();
   }
 
   async selectSpec(specName: string) {

@@ -1,6 +1,6 @@
-import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
-import { Page, Locator, expect, type TestInfo } from "@playwright/test";
+import { Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { SideBarPage } from "./side-bar-page";
+import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class ServiceSpecConfigPage {
   readonly page: Page;
@@ -21,19 +21,6 @@ export class ServiceSpecConfigPage {
     this.saveBtn = page.locator('button[data-validate="/openapi"]');
     this.testInfo = testInfo;
     this.eyes = eyes;
-  }
-
-  async goto() {
-    await this.page.goto("/");
-    await takeAndAttachScreenshot(
-      this.page,
-      "app-loaded-screenshot",
-      this.eyes,
-    );
-  }
-
-  async ensureSidebarOpen() {
-    await this.sideBar.ensureSidebarOpen();
   }
 
   async selectConfig(configName: string) {
