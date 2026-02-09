@@ -1,30 +1,23 @@
 import { Locator, expect, type TestInfo, Page } from "@playwright/test";
-import { SideBarPage } from "./side-bar-page";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
+import { BasePage } from "./base-page";
 
-export class ExampleGenerationPage {
-  readonly page: Page;
+export class ExampleGenerationPage extends BasePage {
   readonly specTree: Locator;
-  readonly sideBar: SideBarPage;
   readonly exampleGenerationTab: Locator;
   readonly generateExamplesBtn: Locator;
   readonly validExamplesTable: Locator;
   readonly invalidExamplesTable: Locator;
   readonly downloadExamplesBtn: Locator;
-  readonly testInfo?: TestInfo;
-  readonly eyes?: any;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
-    this.page = page;
+    super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
-    this.sideBar = new SideBarPage(page, testInfo, eyes);
     this.exampleGenerationTab = page.locator("#example-generation-tab");
     this.generateExamplesBtn = page.locator("button#generate-examples");
     this.validExamplesTable = page.locator("#valid-examples-table");
     this.invalidExamplesTable = page.locator("#invalid-examples-table");
     this.downloadExamplesBtn = page.locator("button#download-examples");
-    this.testInfo = testInfo;
-    this.eyes = eyes;
   }
 
   async selectSpec(specName: string) {

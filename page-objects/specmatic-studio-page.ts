@@ -1,7 +1,7 @@
-import { Locator, type TestInfo, Page } from "@playwright/test";
+import { Locator, expect, type TestInfo, Page } from "@playwright/test";
+import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { SideBarPage } from "./side-bar-page";
-import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class SpecmaticStudioPage extends BasePage {
   readonly leftSidebar: Locator;

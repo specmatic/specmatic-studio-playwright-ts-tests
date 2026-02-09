@@ -1,26 +1,19 @@
 import { Locator, expect, type TestInfo, Page } from "@playwright/test";
-import { SideBarPage } from "./side-bar-page";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
+import { BasePage } from "./base-page";
 
-export class ServiceSpecConfigPage {
-  readonly page: Page;
+export class ServiceSpecConfigPage extends BasePage {
   readonly specTree: Locator;
-  readonly sideBar: SideBarPage;
   readonly editBtn: Locator;
   readonly updateTab: Locator;
   readonly saveBtn: Locator;
-  readonly testInfo?: TestInfo;
-  readonly eyes?: any;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
-    this.page = page;
+    super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
-    this.sideBar = new SideBarPage(page, testInfo, eyes);
     this.editBtn = page.getByText(/Edit specmatic.yaml/i);
     this.updateTab = page.locator('li.tab[data-type="spec"]').first();
     this.saveBtn = page.locator('button[data-validate="/openapi"]');
-    this.testInfo = testInfo;
-    this.eyes = eyes;
   }
 
   async selectConfig(configName: string) {

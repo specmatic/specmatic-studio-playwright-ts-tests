@@ -1,17 +1,13 @@
 import { Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
+import { BasePage } from "./base-page";
 
-export class SideBarPage {
-  readonly page: Page;
+export class SideBarPage extends BasePage {
   readonly leftSidebar: Locator;
-  readonly testInfo?: TestInfo;
-  readonly eyes?: any;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
-    this.page = page;
+    super(page, testInfo, eyes);
     this.leftSidebar = page.locator("#left-sidebar");
-    this.testInfo = testInfo;
-    this.eyes = eyes;
   }
 
   /**

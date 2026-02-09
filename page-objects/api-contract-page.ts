@@ -1,29 +1,22 @@
 import { Locator, expect, type TestInfo, Page } from "@playwright/test";
-import { SideBarPage } from "./side-bar-page";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
+import { BasePage } from "./base-page";
 
-export class ApiContractPage {
-  readonly page: Page;
+export class ApiContractPage extends BasePage {
   readonly specTree: Locator;
-  readonly sideBar: SideBarPage;
   readonly testBtn: Locator;
-  readonly testInfo?: TestInfo;
-  readonly eyes?: any;
-
   readonly serviceUrlInput: Locator;
   readonly runButton: Locator;
   readonly runningButton: Locator;
   readonly countsContainer: Locator;
   readonly totalSpan: Locator;
   readonly excludeButton: Locator;
-
   readonly pathHeader: Locator;
   readonly responseHeader: Locator;
   readonly uniqueContainer: Locator;
   readonly excludeCountSpan: Locator;
   readonly totalCountSpan: Locator;
   readonly verifyTotalSpan: Locator;
-
   readonly rowLocator: (
     path: string,
     method: string,
@@ -38,13 +31,9 @@ export class ApiContractPage {
   ) => Locator;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
-    this.page = page;
+    super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
-    this.sideBar = new SideBarPage(page, testInfo, eyes);
     this.testBtn = page.getByText(/Execute contract tests/i);
-    this.testInfo = testInfo;
-    this.eyes = eyes;
-
     this.serviceUrlInput = page.getByPlaceholder("Service URL");
     this.runButton = page.locator(
       'button.run[data-type="test"][data-running="false"]',
@@ -54,7 +43,6 @@ export class ApiContractPage {
       .locator('ol.counts[data-filter="total"]')
       .filter({ visible: true });
     this.totalSpan = this.countsContainer.locator('li[data-type="total"] span');
-
     this.pathHeader = page
       .locator("table")
       .filter({ visible: true })
@@ -65,74 +53,30 @@ export class ApiContractPage {
       .filter({ visible: true })
       .locator('th[data-key="response"]')
       .first();
-
+    this.uniqueContainer = page.locator("#unique-container");
+    this.excludeButton = page.locator("#exclude-button");
+    this.excludeCountSpan = page.locator("#exclude-count-span");
+    this.totalCountSpan = page.locator("#total-count-span");
+    this.verifyTotalSpan = page.locator("#verify-total-span");
     this.rowLocator = (path: string, method: string, response: string) =>
-      page
-        .locator("tbody tr")
-        .filter({
-          has: page.locator(`td[data-key=\"path\"][data-value=\"${path}\"]`),
-        })
-        .filter({
-          has: page.locator(
-            `td[data-key=\"method\"][data-value=\"${method}\"]`,
-          ),
-        })
-        .filter({
-          has: page.locator(
-            `td[data-key=\"response\"][data-value=\"${response}\"]`,
-          ),
-        })
-        .first();
-    this.remarkCellLocator = (row: Locator) =>
-      row.locator('td[data-key="remark"]');
-
+      page.locator(
+        `tr[data-path='${path}'][data-method='${method}'][data-response='${response}']`,
+      );
+    this.remarkCellLocator = (row: Locator) => row.locator("td.remark-cell");
+    this.pollDataRunning = async () => {
+      const result = await page.evaluate(() =>
+        document.querySelector("[data-running]")?.getAttribute("data-running"),
+      );
+      return result ?? null;
+    };
     this.exclusionCheckboxLocator = (
       path: string,
       method: string,
       response: string,
     ) =>
-      page
-        .locator("tbody tr")
-        .filter({
-          has: page.locator(`td[data-key=\"path\"][data-value=\"${path}\"]`),
-        })
-        .filter({
-          has: page.locator(
-            `td[data-key=\"method\"][data-value=\"${method}\"]`,
-          ),
-        })
-        .filter({
-          has: page.locator(
-            `td[data-key=\"response\"][data-value=\"${response}\"]`,
-          ),
-        })
-        .first()
-        .locator('input[type="checkbox"]');
-
-    this.excludeButton = page.getByRole("button", { name: /Exclude/i });
-
-    this.uniqueContainer = this.page
-      .locator(`[id*="${PRODUCT_SEARCH_BFF_SPEC}"]`)
-      .locator('ol.counts[data-filter="total"]')
-      .filter({ visible: true })
-      .filter({ has: this.page.locator("li[data-active=true]") });
-
-    this.excludeCountSpan = this.uniqueContainer.locator(
-      'li[data-type="excluded"] span',
-    );
-    this.totalCountSpan = this.uniqueContainer.locator(
-      'li[data-type="total"] span',
-    );
-    this.verifyTotalSpan = this.page
-      .locator(`[id*="${PRODUCT_SEARCH_BFF_SPEC}"]`)
-      .locator(":not(.mock) > .header")
-      .locator('ol.counts[data-filter="total"]')
-      .locator('li[data-type="total"] span')
-      .filter({ visible: true });
-
-    this.pollDataRunning = async () => {
-      return await this.runningButton.getAttribute("data-running");
-    };
+      page.locator(
+        `input[type='checkbox'][data-path='${path}'][data-method='${method}'][data-response='${response}']`,
+      );
   }
 
   async selectSpec(specName: string) {

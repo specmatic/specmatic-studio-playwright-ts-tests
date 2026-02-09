@@ -1,20 +1,13 @@
 import { Locator, expect, type TestInfo, Page } from "@playwright/test";
-import { SideBarPage } from "./side-bar-page";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
+import { BasePage } from "./base-page";
 
-export class MockServerPage {
-  readonly page: Page;
-  readonly sideBar: SideBarPage;
+export class MockServerPage extends BasePage {
   readonly specTree: Locator;
-  readonly testInfo?: TestInfo;
 
-  readonly eyes?: any;
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
-    this.page = page;
-    this.sideBar = new SideBarPage(page, testInfo, eyes);
+    super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
-    this.testInfo = testInfo;
-    this.eyes = eyes;
   }
 
   async selectSpec(specName: string) {
