@@ -11,7 +11,7 @@ export class MockServerPage {
   readonly eyes?: any;
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
-    this.sideBar = new SideBarPage(page);
+    this.sideBar = new SideBarPage(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
     this.testInfo = testInfo;
     this.eyes = eyes;
@@ -28,7 +28,6 @@ export class MockServerPage {
 
   async ensureSidebarOpen() {
     await this.sideBar.ensureSidebarOpen();
-    await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
   }
 
   async selectSpec(specName: string) {

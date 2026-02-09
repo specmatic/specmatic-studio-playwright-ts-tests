@@ -15,7 +15,7 @@ export class ServiceSpecConfigPage {
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
     this.specTree = page.locator("#spec-tree");
-    this.sideBar = new SideBarPage(page);
+    this.sideBar = new SideBarPage(page, testInfo, eyes);
     this.editBtn = page.getByText(/Edit specmatic.yaml/i);
     this.updateTab = page.locator('li.tab[data-type="spec"]').first();
     this.saveBtn = page.locator('button[data-validate="/openapi"]');
@@ -34,7 +34,6 @@ export class ServiceSpecConfigPage {
 
   async ensureSidebarOpen() {
     await this.sideBar.ensureSidebarOpen();
-    await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
   }
 
   async selectConfig(configName: string) {

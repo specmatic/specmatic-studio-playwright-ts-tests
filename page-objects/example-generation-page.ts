@@ -17,7 +17,7 @@ export class ExampleGenerationPage {
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
     this.specTree = page.locator("#spec-tree");
-    this.sideBar = new SideBarPage(page);
+    this.sideBar = new SideBarPage(page, testInfo, eyes);
     this.exampleGenerationTab = page.locator("#example-generation-tab");
     this.generateExamplesBtn = page.locator("button#generate-examples");
     this.validExamplesTable = page.locator("#valid-examples-table");
@@ -38,7 +38,6 @@ export class ExampleGenerationPage {
 
   async ensureSidebarOpen() {
     await this.sideBar.ensureSidebarOpen();
-    await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
   }
 
   async selectSpec(specName: string) {

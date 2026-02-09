@@ -41,7 +41,7 @@ export class ApiContractPage {
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
     this.specTree = page.locator("#spec-tree");
-    this.sideBar = new SideBarPage(page);
+    this.sideBar = new SideBarPage(page, testInfo, eyes);
     this.testBtn = page.getByText(/Execute contract tests/i);
     this.testInfo = testInfo;
     this.eyes = eyes;
@@ -147,11 +147,6 @@ export class ApiContractPage {
 
   async ensureSidebarOpen() {
     await this.sideBar.ensureSidebarOpen();
-    await takeAndAttachScreenshot(
-      this.page,
-      "sidebar-opened-screenshot",
-      this.eyes,
-    );
   }
 
   async selectSpec(specName: string) {

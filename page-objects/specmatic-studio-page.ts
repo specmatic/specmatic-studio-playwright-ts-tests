@@ -18,7 +18,7 @@ export class SpecmaticStudioPage extends BasePage {
     this.specTree = page.locator("#spec-tree");
     this.testInfo = testInfo;
     this.eyes = eyes;
-    this.sideBar = new SideBarPage(page, testInfo);
+    this.sideBar = new SideBarPage(page, testInfo, eyes);
   }
 
   async goto() {
@@ -30,7 +30,6 @@ export class SpecmaticStudioPage extends BasePage {
     );
   }
 
-  // Removed ensureSidebarOpen. Use openSidebarAndWaitForSpecTree instead.
   async openSidebarAndWaitForSpecTree() {
     await this.sideBar.ensureSidebarOpen();
   }

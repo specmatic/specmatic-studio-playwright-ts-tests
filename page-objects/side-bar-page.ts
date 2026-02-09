@@ -5,11 +5,13 @@ export class SideBarPage {
   readonly page: Page;
   readonly leftSidebar: Locator;
   readonly testInfo?: TestInfo;
+  readonly eyes?: any;
 
-  constructor(page: Page, testInfo?: TestInfo) {
+  constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
     this.leftSidebar = page.locator("#left-sidebar");
     this.testInfo = testInfo;
+    this.eyes = eyes;
   }
 
   /**
@@ -27,7 +29,7 @@ export class SideBarPage {
       await expect(this.leftSidebar).toHaveAttribute("aria-expanded", "true");
     }
     if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar-screenshot");
+      await takeAndAttachScreenshot(this.page, "sidebar-screenshot", this.eyes);
     }
   }
 }
