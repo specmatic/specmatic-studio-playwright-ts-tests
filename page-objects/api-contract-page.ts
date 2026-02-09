@@ -73,7 +73,7 @@ export class ApiContractPage extends BasePage {
       .locator('th[data-key="response"]')
       .first();
     this.uniqueContainer = page.locator("#unique-container");
-    this.excludeButton = page.locator("#exclude-button");
+    this.excludeButton = page.getByRole('button', { name: /exclude/i });
     // No legacy span aliases needed; use excludedCountSpan and totalSpan directly
     this.rowLocator = (path: string, method: string, response: string) =>
       page.locator(
@@ -204,19 +204,6 @@ export class ApiContractPage extends BasePage {
   }
 
   private async waitForTestsToStartRunning() {
-    // Log all [data-running] elements and their values before polling
-    // const logDataRunningElements = async (label: string) => {
-    //   const elements = await this.page.$$("[data-running]");
-    //   const values = [];
-    //   for (const el of elements) {
-    //     const html = await el.evaluate((node) => node.outerHTML);
-    //     const val = await el.getAttribute("data-running");
-    //     values.push({ html, val });
-    //   }
-    //   console.log(`[${label}] [data-running] elements:`, values);
-    //   return values;
-    // };
-    // await logDataRunningElements("BEFORE POLL");
     try {
       await expect
         .poll(this.pollDataRunning, {
@@ -224,17 +211,12 @@ export class ApiContractPage extends BasePage {
           message: "Waiting for contract tests to start",
         })
         .toBe("true");
-      // await logDataRunningElements("AFTER POLL SUCCESS");
     } catch (e) {
-      // await logDataRunningElements("AFTER POLL FAILURE");
       await takeAndAttachScreenshot(
         this.page,
         "error-contract-tests-not-started",
         this.eyes,
       );
-      // const bodyHtml = await this.page.content();
-      // console.error(`DOM at contract test start failure: ${bodyHtml}`);
-      // throw new Error(`Contract tests did not start: ${e}`);
     }
   }
 

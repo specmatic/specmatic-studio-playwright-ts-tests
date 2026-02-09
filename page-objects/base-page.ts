@@ -34,10 +34,6 @@ export class BasePage {
     );
   }
 
-  async ensureSidebarOpen() {
-    await this.sideBar.ensureSidebarOpen();
-  }
-
   async clickButtonByText(text: string) {
     const btn = this.page.getByText(new RegExp(text, "i"));
     await btn.click({ force: true });
@@ -120,16 +116,6 @@ export class BasePage {
       tabLocator ?? this.page.locator('li.tab[data-type="spec"]').first();
     return this.openTab(locator, "spec-details-screenshot");
   }
-
-  // /**
-  //  * Opens the Example Generation tab if not already open, and takes a screenshot.
-  //  * Requires the page object to have an exampleGenerationTab property, or pass a locator.
-  //  */
-  // async openExampleGenerationTab(tabLocator?: Locator) {
-  //   const locator =
-  //     tabLocator ?? ((this as any).exampleGenerationTab as Locator | undefined);
-  //   return this.openTab(locator, "example-generation-tab-screenshot");
-  // }
 
   /**
    * Clicks the Generate Examples button/tab if not already active, and takes a screenshot.
