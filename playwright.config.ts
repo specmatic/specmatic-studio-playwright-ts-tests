@@ -77,7 +77,14 @@ const baseConfig: BaseConfigType = {
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        browserName: "chromium",
+        viewport: null,
+        launchOptions: {
+          headless: process.env.HEADLESS === "true" ? true : false,
+          args: ["--start-maximized"],
+        },
+      },
     },
     // {
     //   name: "firefox",
