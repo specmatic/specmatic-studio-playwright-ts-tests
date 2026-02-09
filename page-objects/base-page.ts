@@ -113,7 +113,7 @@ export class BasePage {
    */
   async openSpecTab(tabLocator?: Locator) {
     const locator =
-      tabLocator ?? this.page.locator('li.tab[data-type="spec"]').first();
+      tabLocator ?? ((this as any).specBtn as Locator | undefined);
     return this.openTab(locator, "spec-details-screenshot");
   }
 

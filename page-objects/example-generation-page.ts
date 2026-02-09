@@ -4,7 +4,6 @@ import { BasePage } from "./base-page";
 
 export class ExampleGenerationPage extends BasePage {
   readonly specTree: Locator;
-  readonly exampleGenerationTab: Locator;
   readonly generateExamplesBtn: Locator;
   readonly validExamplesTable: Locator;
   readonly invalidExamplesTable: Locator;
@@ -13,8 +12,7 @@ export class ExampleGenerationPage extends BasePage {
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
-    this.exampleGenerationTab = page.locator("#example-generation-tab");
-    this.generateExamplesBtn = page.locator("button#generate-examples");
+    this.generateExamplesBtn = page.getByText(/Generate valid examples/i);
     this.validExamplesTable = page.locator("#valid-examples-table");
     this.invalidExamplesTable = page.locator("#invalid-examples-table");
     this.downloadExamplesBtn = page.locator("button#download-examples");

@@ -4,6 +4,7 @@ import { BasePage } from "./base-page";
 
 export class ServiceSpecConfigPage extends BasePage {
   readonly specTree: Locator;
+  readonly specBtn: Locator;
   readonly editBtn: Locator;
   readonly updateTab: Locator;
   readonly saveBtn: Locator;
@@ -11,6 +12,7 @@ export class ServiceSpecConfigPage extends BasePage {
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
+    this.specBtn = page.locator('li.tab[data-type="spec"]').first();
     this.editBtn = page.getByText(/Edit specmatic.yaml/i);
     this.updateTab = page.locator('li.tab[data-type="spec"]').first();
     this.saveBtn = page.locator('button[data-validate="/openapi"]');

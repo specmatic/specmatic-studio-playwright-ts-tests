@@ -73,7 +73,7 @@ export class ApiContractPage extends BasePage {
       .locator('th[data-key="response"]')
       .first();
     this.uniqueContainer = page.locator("#unique-container");
-    this.excludeButton = page.getByRole('button', { name: /exclude/i });
+    this.excludeButton = page.getByRole("button", { name: /exclude/i });
     // No legacy span aliases needed; use excludedCountSpan and totalSpan directly
     this.rowLocator = (path: string, method: string, response: string) =>
       page.locator(
@@ -299,6 +299,11 @@ export class ApiContractPage extends BasePage {
     if (!isChecked) {
       await checkbox.click();
     }
+    await takeAndAttachScreenshot(
+      this.page,
+      "excluded-test-" + `${path}-${method}-${response}`,
+      this.eyes,
+    );
   }
 
   async clickExcludeButton() {
