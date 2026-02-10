@@ -81,4 +81,72 @@ test.describe("API Contract Testing", () => {
       });
     },
   );
+
+  test(
+    "Verify contract test header counts for each column",
+    { tag: ["@apiContract", "@summaryValidation"] },
+    async ({ page, eyes }, testInfo) => {
+      test.setTimeout(180000);
+      const contractPage = new ApiContractPage(page, testInfo, eyes);
+
+      await test.step("Setup: Navigate and Run Tests", async () => {
+        await contractPage.gotoHomeAndOpenSidebar();
+        await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await contractPage.openExecuteContractTestsTab();
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+        await contractPage.clickRunContractTests();
+
+        const tableHeaderTotals = await contractPage.getAllHeaderTotals();
+        const actualRows = await contractPage.getActualRowCount();
+
+        expect(
+          tableHeaderTotals.response,
+          "Response header should match total rows",
+        ).toBe(actualRows);
+
+        expect(
+          tableHeaderTotals.path,
+          "Path header should match unique paths in table",
+        ).toBe(await contractPage.getUniqueValuesInColumn(2));
+      });
+    },
+  );
+
+  test(
+    "Verify Header counts match aggregate table data",
+    { tag: ["@apiContract", "@headerResultValidation"] },
+    async ({ page, eyes }, testInfo) => {
+      const contractPage = new ApiContractPage(page, testInfo, eyes);
+
+      await test.step("Setup and Run", async () => {
+        await contractPage.gotoHomeAndOpenSidebar();
+        await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await contractPage.openExecuteContractTestsTab();
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+        await contractPage.clickRunContractTests();
+      });
+
+      await test.step("Validate Results Summary", async () => {
+        const tableTotals = await contractPage.getAggregateTableResults();
+
+        const headerSuccess =
+          await contractPage.getSummaryHeaderValue("success");
+        const headerFailed = await contractPage.getSummaryHeaderValue("failed");
+        const headerTotal = await contractPage.getSummaryHeaderValue("total");
+
+        expect(
+          tableTotals.success,
+          `Header Success (${headerSuccess}) should match table sum`,
+        ).toBe(headerSuccess);
+        expect(
+          tableTotals.failed,
+          `Header Failed (${headerFailed}) should match table sum`,
+        ).toBe(headerFailed);
+        expect(
+          tableTotals.total,
+          `Header Total (${headerTotal}) should match table sum`,
+        ).toBe(headerTotal);
+      });
+    },
+  );
 });
