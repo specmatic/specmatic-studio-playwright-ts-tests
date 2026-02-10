@@ -44,7 +44,9 @@ export const test = base.extend<{ eyes: Eyes }>({
     }
     // Use a random string for uniqueness
     function randomString(length = 8) {
-      return Math.random().toString(36).substr(2, length);
+      return Math.random()
+        .toString(36)
+        .slice(2, 2 + length);
     }
     const logFile = path.join(
       logDir,
