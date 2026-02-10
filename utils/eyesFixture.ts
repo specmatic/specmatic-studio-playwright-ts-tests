@@ -42,10 +42,13 @@ export const test = base.extend<{ eyes: Eyes }>({
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
     }
-    // Use test id and retry to ensure uniqueness
+    // Use a random string for uniqueness
+    function randomString(length = 8) {
+      return Math.random().toString(36).substr(2, length);
+    }
     const logFile = path.join(
       logDir,
-      `${testInfo.file?.replace(/[^a-zA-Z0-9-_]/g, "_") || "unknown"}--${testInfo.title.replace(/[^a-zA-Z0-9-_]/g, "_")}${testInfo.retry ? `-retry${testInfo.retry}` : ""}.log`,
+      `applitools_log_${randomString()}${testInfo.retry ? `-retry${testInfo.retry}` : ""}.log`,
     );
 
     const eyes = new Eyes(Runner);
