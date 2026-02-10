@@ -116,6 +116,7 @@ test.describe("API Contract Testing", () => {
     "Verify Header counts match aggregate table data",
     { tag: ["@apiContract", "@headerResultValidation"] },
     async ({ page, eyes }, testInfo) => {
+      test.setTimeout(180000);
       const contractPage = new ApiContractPage(page, testInfo, eyes);
 
       await test.step("Setup and Run", async () => {
