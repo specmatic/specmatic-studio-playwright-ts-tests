@@ -407,8 +407,10 @@ export class ApiContractPage extends BasePage {
       this.eyes,
     );
 
-    const rows = this.resultCell;
-    const count = await rows.count();
+    // Get all result cells in the visible table
+    const resultCells = await this.page
+      .locator('table#test:visible td[data-key="result"]')
+      .all();
 
     const totals = {
       success: 0,
@@ -419,24 +421,55 @@ export class ApiContractPage extends BasePage {
       total: 0,
     };
 
-    for (let i = 0; i < count; i++) {
-      const row = rows.nth(i);
+    for (const cell of resultCells) {
+      // Fetch all data-values for this row in parallel
+      const [s, f, e, n, ex, t] = await Promise.all([
+        cell.locator('span[data-key="success"]').getAttribute("data-value"),
+        cell.locator('span[data-key="failed"]').getAttribute("data-value"),
+        cell.locator('span[data-key="error"]').getAttribute("data-value"),
+        cell.locator('span[data-key="notcovered"]').getAttribute("data-value"),
+        cell.locator('span[data-key="excluded"]').getAttribute("data-value"),
+        cell.locator('span[data-key="total"]').getAttribute("data-value"),
+      ]);
 
-      const getVal = async (key: string) =>
-        parseInt(
-          (await row
-            .locator(`span[data-key="${key}"]`)
-            .getAttribute("data-value")) || "0",
-          10,
-        );
-
-      totals.success += await getVal("success");
-      totals.failed += await getVal("failed");
-      totals.error += await getVal("error");
-      totals.notcovered += await getVal("notcovered");
-      totals.total += await getVal("total");
-      totals.excluded += await getVal("excluded");
+      totals.success += parseInt(s || "0", 10);
+      totals.failed += parseInt(f || "0", 10);
+      totals.error += parseInt(e || "0", 10);
+      totals.notcovered += parseInt(n || "0", 10);
+      totals.excluded += parseInt(ex || "0", 10);
+      totals.total += parseInt(t || "0", 10);
     }
+
     return totals;
+  }
+
+  async getSummaryHeaderTotals() {
+    await takeAndAttachScreenshot(
+      this.page,
+      "calculating table results",
+      this.eyes,
+    );
+
+    const keys = [
+      "success",
+      "failed",
+      "error",
+      "notcovered",
+      "excluded",
+      "total",
+    ] as const;
+
+    const values = await Promise.all(
+      keys.map((key) => this.getSummaryHeaderValue(key)),
+    );
+
+    return {
+      success: values[0],
+      failed: values[1],
+      error: values[2],
+      notcovered: values[3],
+      excluded: values[4],
+      total: values[5],
+    };
   }
 }

@@ -149,63 +149,16 @@ async function validateSummaryAndTableCounts(
     excluded: number;
   },
 ) {
-  // 1. Fetch data from POM
   const tableTotals = await contractPage.getAggregateTableResults();
-  const headerSuccess = await contractPage.getSummaryHeaderValue("success");
-  const headerFailed = await contractPage.getSummaryHeaderValue("failed");
-  const headerTotal = await contractPage.getSummaryHeaderValue("total");
-  const headerError = await contractPage.getSummaryHeaderValue("error");
-  const headerSkip = await contractPage.getSummaryHeaderValue("notcovered");
-  const headerExclude = await contractPage.getSummaryHeaderValue("excluded");
+  const headerTotals = await contractPage.getSummaryHeaderTotals();
 
   expect(
-    tableTotals.success,
-    `Table Sum (${tableTotals.success}) should match Header Success (${headerSuccess})`,
-  ).toBe(headerSuccess);
+    tableTotals,
+    "Internal Check: Table sum must match Header counts",
+  ).toStrictEqual(headerTotals);
 
   expect(
-    tableTotals.failed,
-    `Table Sum (${tableTotals.failed}) should match Header Failed (${headerFailed})`,
-  ).toBe(headerFailed);
-
-  expect(
-    tableTotals.total,
-    `Table Sum (${tableTotals.total}) should match Header Total (${headerTotal})`,
-  ).toBe(headerTotal);
-
-  expect(
-    tableTotals.error,
-    `Table Sum (${tableTotals.error}) should match Header Error (${headerError})`,
-  ).toBe(headerError);
-
-  expect(
-    tableTotals.notcovered,
-    `Table Sum (${tableTotals.notcovered}) should match Header Error (${headerError})`,
-  ).toBe(headerSkip);
-
-  expect(
-    tableTotals.excluded,
-    `Table Sum (${tableTotals.excluded}) should match Header Error (${headerError})`,
-  ).toBe(headerExclude);
-
-  // 3. External Assertions: Actual vs Expected
-  expect(headerSuccess, `Header Success should be ${expected.success}`).toBe(
-    expected.success,
-  );
-  expect(headerFailed, `Header Failed should be ${expected.failed}`).toBe(
-    expected.failed,
-  );
-  expect(headerTotal, `Header Total should be ${expected.total}`).toBe(
-    expected.total,
-  );
-
-  expect(headerError, `Header Total should be ${expected.error}`).toBe(
-    expected.error,
-  );
-  expect(headerSkip, `Header Total should be ${expected.notcovered}`).toBe(
-    expected.notcovered,
-  );
-  expect(headerExclude, `Header Total should be ${expected.excluded}`).toBe(
-    expected.excluded,
-  );
+    headerTotals,
+    "Business Check: Header counts must match expected values",
+  ).toStrictEqual(expected);
 }
