@@ -392,7 +392,7 @@ export class ApiContractPage extends BasePage {
   }
 
   async getSummaryHeaderValue(
-    type: "success" | "failed" | "error" | "notcovered" | "total",
+    type: "success" | "failed" | "error" | "notcovered" | "excluded" | "total",
   ): Promise<number> {
     const value = await this.summaryCount(type)
       .first()
@@ -415,6 +415,7 @@ export class ApiContractPage extends BasePage {
       failed: 0,
       error: 0,
       notcovered: 0,
+      excluded: 0,
       total: 0,
     };
 
@@ -434,6 +435,7 @@ export class ApiContractPage extends BasePage {
       totals.error += await getVal("error");
       totals.notcovered += await getVal("notcovered");
       totals.total += await getVal("total");
+      totals.excluded += await getVal("excluded");
     }
     return totals;
   }

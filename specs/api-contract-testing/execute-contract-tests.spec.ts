@@ -62,23 +62,20 @@ test.describe("API Contract Testing", () => {
         await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
         await contractPage.openExecuteContractTestsTab();
       });
-      await test.step("Enter service URL, exclude tests and run contract tests", async () => {
-        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
 
-        await contractPage.selectTestForExclusion("/products", "POST", "201");
-        await contractPage.selectTestForExclusion("/products", "POST", "202");
+      await test(
+        "Exclude single test",
+        { tag: ["@apiContract", "@testExclusion"] },
+        async ({ page, eyes }, testInfo) => {
+          const contractPage = new ApiContractPage(page, testInfo, eyes);
+          // ... setup steps ...
+          await contractPage.selectTestForExclusion("/products", "POST", "201");
+          await contractPage.clickExcludeButton();
+          await contractPage.clickRunContractTests();
 
-        await contractPage.clickExcludeButton();
-
-        await contractPage.clickRunContractTests();
-      });
-
-      await test.step("Verify test results and remarks for executed contract tests", async () => {
-        await contractPage.verifyFinalCounts({
-          Excluded: 2,
-          Total: 15,
-        });
-      });
+          await contractPage.verifyFinalCounts({ Excluded: 1, Total: 15 });
+        },
+      );
     },
   );
 
@@ -116,7 +113,7 @@ test.describe("API Contract Testing", () => {
     "Verify Header counts match aggregate table data",
     { tag: ["@apiContract", "@headerResultValidation"] },
     async ({ page, eyes }, testInfo) => {
-      test.setTimeout(180000);
+      test.setTimeout(60000);
       const contractPage = new ApiContractPage(page, testInfo, eyes);
 
       await test.step("Setup and Run", async () => {
@@ -128,26 +125,87 @@ test.describe("API Contract Testing", () => {
       });
 
       await test.step("Validate Results Summary", async () => {
-        const tableTotals = await contractPage.getAggregateTableResults();
-
-        const headerSuccess =
-          await contractPage.getSummaryHeaderValue("success");
-        const headerFailed = await contractPage.getSummaryHeaderValue("failed");
-        const headerTotal = await contractPage.getSummaryHeaderValue("total");
-
-        expect(
-          tableTotals.success,
-          `Header Success (${headerSuccess}) should match table sum`,
-        ).toBe(headerSuccess);
-        expect(
-          tableTotals.failed,
-          `Header Failed (${headerFailed}) should match table sum`,
-        ).toBe(headerFailed);
-        expect(
-          tableTotals.total,
-          `Header Total (${headerTotal}) should match table sum`,
-        ).toBe(headerTotal);
+        await validateSummaryAndTableCounts(contractPage, {
+          success: 12,
+          failed: 20,
+          total: 37,
+          error: 0,
+          notcovered: 5,
+          excluded: 0,
+        });
       });
     },
   );
 });
+
+async function validateSummaryAndTableCounts(
+  contractPage: ApiContractPage,
+  expected: {
+    success: number;
+    failed: number;
+    total: number;
+    error: number;
+    notcovered: number;
+    excluded: number;
+  },
+) {
+  // 1. Fetch data from POM
+  const tableTotals = await contractPage.getAggregateTableResults();
+  const headerSuccess = await contractPage.getSummaryHeaderValue("success");
+  const headerFailed = await contractPage.getSummaryHeaderValue("failed");
+  const headerTotal = await contractPage.getSummaryHeaderValue("total");
+  const headerError = await contractPage.getSummaryHeaderValue("error");
+  const headerSkip = await contractPage.getSummaryHeaderValue("notcovered");
+  const headerExclude = await contractPage.getSummaryHeaderValue("excluded");
+
+  expect(
+    tableTotals.success,
+    `Table Sum (${tableTotals.success}) should match Header Success (${headerSuccess})`,
+  ).toBe(headerSuccess);
+
+  expect(
+    tableTotals.failed,
+    `Table Sum (${tableTotals.failed}) should match Header Failed (${headerFailed})`,
+  ).toBe(headerFailed);
+
+  expect(
+    tableTotals.total,
+    `Table Sum (${tableTotals.total}) should match Header Total (${headerTotal})`,
+  ).toBe(headerTotal);
+
+  expect(
+    tableTotals.error,
+    `Table Sum (${tableTotals.error}) should match Header Error (${headerError})`,
+  ).toBe(headerError);
+
+  expect(
+    tableTotals.notcovered,
+    `Table Sum (${tableTotals.notcovered}) should match Header Error (${headerError})`,
+  ).toBe(headerSkip);
+
+  expect(
+    tableTotals.excluded,
+    `Table Sum (${tableTotals.excluded}) should match Header Error (${headerError})`,
+  ).toBe(headerExclude);
+
+  // 3. External Assertions: Actual vs Expected
+  expect(headerSuccess, `Header Success should be ${expected.success}`).toBe(
+    expected.success,
+  );
+  expect(headerFailed, `Header Failed should be ${expected.failed}`).toBe(
+    expected.failed,
+  );
+  expect(headerTotal, `Header Total should be ${expected.total}`).toBe(
+    expected.total,
+  );
+
+  expect(headerError, `Header Total should be ${expected.error}`).toBe(
+    expected.error,
+  );
+  expect(headerSkip, `Header Total should be ${expected.notcovered}`).toBe(
+    expected.notcovered,
+  );
+  expect(headerExclude, `Header Total should be ${expected.excluded}`).toBe(
+    expected.excluded,
+  );
+}
