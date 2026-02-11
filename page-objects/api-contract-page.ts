@@ -21,6 +21,7 @@ export class ApiContractPage extends BasePage {
   readonly pathHeader: Locator;
   readonly responseHeader: Locator;
   readonly uniqueContainer: Locator;
+
   // Aliases set in constructor
   readonly rowLocator: (
     path: string,
@@ -34,6 +35,12 @@ export class ApiContractPage extends BasePage {
     method: string,
     response: string,
   ) => Locator;
+
+  readonly tableHeader: (key: string) => Locator;
+  readonly tableRows: Locator;
+
+  readonly summaryCount: (type: string) => Locator;
+  readonly resultCell: Locator;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
@@ -105,7 +112,22 @@ export class ApiContractPage extends BasePage {
         `table#test > tbody > tr:has(td[data-key="path"][data-value="${path}"]):has(td[data-key="method"][data-value="${method}"]):has(td[data-key="response"][data-value="${response}"]) input[type='checkbox']`,
       );
     this.openApiTabPage = new OpenAPISpecTabPage(this);
+
+    //Table Locators
+    this.tableHeader = (key: string) =>
+      page.locator(`table#test thead th[data-key="${key}"]`);
+    this.tableRows = page.locator("table#test tbody tr");
+
+    //Header Locators
+    this.summaryCount = (type: string) =>
+      page.locator(
+        `ol.counts:visible li[data-type="${type}"] span[data-value]`,
+      );
+
+    this.resultCell = page.locator('td[data-key="result"]');
   }
+
+  //Function Beginning
   async openExecuteContractTestsTab() {
     return this.openApiTabPage.openExecuteContractTestsTab();
   }
@@ -124,10 +146,7 @@ export class ApiContractPage extends BasePage {
         await expect(this.runButton).toBeVisible({ timeout: 10000 });
         await expect(this.runButton).toBeEnabled({ timeout: 10000 });
       } catch (e) {
-        await takeAndAttachScreenshot(
-          this.page,
-          "error-run-btn-not-visible",
-        );
+        await takeAndAttachScreenshot(this.page, "error-run-btn-not-visible");
         throw new Error(`Run button not visible/enabled: ${e}`);
       }
       const runBtnSelector =
@@ -237,10 +256,7 @@ export class ApiContractPage extends BasePage {
       throw new Error(`#verify-total-span did not match expected text: ${e}`);
     }
     const value = await this.totalSpan.innerText();
-    await takeAndAttachScreenshot(
-      this.page,
-      "test-results-number-verified",
-    );
+    await takeAndAttachScreenshot(this.page, "test-results-number-verified");
   }
 
   async verifyRowRemark(
@@ -328,5 +344,132 @@ export class ApiContractPage extends BasePage {
     await expect(this.totalSpan.last()).toHaveText(String(expected.Total), {
       timeout: 10000,
     });
+  }
+
+  /**
+   * Retrieves the 'data-total' attribute value for a specific header key
+   * @param key 'path' | 'method' | 'response'
+   */
+  async getTableHeaderCount(key: string): Promise<number> {
+    await takeAndAttachScreenshot(this.page, `header-count-${key}`, this.eyes);
+
+    const enabledCount =
+      await this.tableHeader(key).getAttribute("data-enabled");
+    return parseInt(enabledCount || "0", 10);
+  }
+
+  /**
+   * Scrapes the table and returns the count of unique values in a specific column
+   * @param columnIndex 0-based index (e.g., Path might be 2, Method might be 3)
+   */
+  async getUniqueValuesInColumn(columnIndex: number): Promise<number> {
+    const rows = this.tableRows;
+    const count = await rows.count();
+    const uniqueValues = new Set();
+
+    for (let i = 0; i < count; i++) {
+      const cellText = await rows
+        .nth(i)
+        .locator("td")
+        .nth(columnIndex)
+        .innerText();
+      uniqueValues.add(cellText.trim());
+    }
+
+    return uniqueValues.size;
+  }
+
+  async getAllHeaderTotals() {
+    return {
+      path: await this.getTableHeaderCount("path"),
+      method: await this.getTableHeaderCount("method"),
+      response: await this.getTableHeaderCount("response"),
+    };
+  }
+
+  async getActualRowCount(): Promise<number> {
+    return await this.tableRows.count();
+  }
+
+  async getSummaryHeaderValue(
+    type: "success" | "failed" | "error" | "notcovered" | "excluded" | "total",
+  ): Promise<number> {
+    const value = await this.summaryCount(type)
+      .first()
+      .getAttribute("data-value");
+    return parseInt(value || "0", 10);
+  }
+
+  async getAggregateTableResults() {
+    await takeAndAttachScreenshot(
+      this.page,
+      "calculating table results",
+      this.eyes,
+    );
+
+    // Get all result cells in the visible table
+    const resultCells = await this.page
+      .locator('table#test:visible td[data-key="result"]')
+      .all();
+
+    const totals = {
+      success: 0,
+      failed: 0,
+      error: 0,
+      notcovered: 0,
+      excluded: 0,
+      total: 0,
+    };
+
+    for (const cell of resultCells) {
+      // Fetch all data-values for this row in parallel
+      const [s, f, e, n, ex, t] = await Promise.all([
+        cell.locator('span[data-key="success"]').getAttribute("data-value"),
+        cell.locator('span[data-key="failed"]').getAttribute("data-value"),
+        cell.locator('span[data-key="error"]').getAttribute("data-value"),
+        cell.locator('span[data-key="notcovered"]').getAttribute("data-value"),
+        cell.locator('span[data-key="excluded"]').getAttribute("data-value"),
+        cell.locator('span[data-key="total"]').getAttribute("data-value"),
+      ]);
+
+      totals.success += parseInt(s || "0", 10);
+      totals.failed += parseInt(f || "0", 10);
+      totals.error += parseInt(e || "0", 10);
+      totals.notcovered += parseInt(n || "0", 10);
+      totals.excluded += parseInt(ex || "0", 10);
+      totals.total += parseInt(t || "0", 10);
+    }
+
+    return totals;
+  }
+
+  async getSummaryHeaderTotals() {
+    await takeAndAttachScreenshot(
+      this.page,
+      "calculating table results",
+      this.eyes,
+    );
+
+    const keys = [
+      "success",
+      "failed",
+      "error",
+      "notcovered",
+      "excluded",
+      "total",
+    ] as const;
+
+    const values = await Promise.all(
+      keys.map((key) => this.getSummaryHeaderValue(key)),
+    );
+
+    return {
+      success: values[0],
+      failed: values[1],
+      error: values[2],
+      notcovered: values[3],
+      excluded: values[4],
+      total: values[5],
+    };
   }
 }
