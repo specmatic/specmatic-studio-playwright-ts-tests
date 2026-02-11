@@ -48,6 +48,8 @@ export class ApiContractPage extends BasePage {
   readonly getRawBtn: () => Locator;
   readonly getTableBtn: () => Locator;
   readonly getPreDetails: () => Locator;
+  readonly resultsContainer: Locator;
+  readonly drillDownScenarios: Locator;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
@@ -145,6 +147,11 @@ export class ApiContractPage extends BasePage {
     this.getTableBtn = () =>
       this.activeDrillDown.locator("button.dd-viewBtn--errors");
     this.getPreDetails = () => this.activeDrillDown.locator("pre.detailsPre");
+    this.resultsContainer = page
+      .locator("div.body")
+      .filter({ visible: true })
+      .first();
+    this.drillDownScenarios = this.resultsContainer.locator("drill-down");
   }
 
   //Function Beginning
@@ -493,54 +500,70 @@ export class ApiContractPage extends BasePage {
     };
   }
 
-  async toggleFailedTestsView() {
-    const count = await this.failedResultCountSpans.count();
+  async openFailedResults(index: number): Promise<number> {
+    const span = this.failedResultCountSpans.nth(index);
+    const failedValue = parseInt(
+      (await span.getAttribute("data-value")) || "0",
+      10,
+    );
 
-    for (let i = 0; i < count; i++) {
-      const span = this.failedResultCountSpans.nth(i);
-      const failedValue = parseInt(
-        (await span.getAttribute("data-value")) || "0",
-        10,
+    if (failedValue > 0) {
+      await expect(span).toBeVisible({ timeout: 5000 });
+      await span.click();
+      await takeAndAttachScreenshot(
+        this.page,
+        "Clicked Failed Scenarios",
+        this.eyes,
       );
-
-      if (failedValue > 0) {
-        await span.click();
-
-        const header = this.getExpandHeader();
-        const rawBtn = this.getRawBtn();
-
-        await expect(header).toBeVisible({ timeout: 10000 });
-
-        if ((await header.getAttribute("aria-expanded")) === "false") {
-          await header.click();
-        }
-
-        await expect(rawBtn).toBeVisible();
-        await takeAndAttachScreenshot(
-          this.page,
-          `expanded_failed_test_${i}`,
-          this.eyes,
-        );
-        await rawBtn.click();
-
-        await expect(this.getPreDetails()).toBeVisible();
-        await takeAndAttachScreenshot(
-          this.page,
-          `raw_view_failed_test_${i}`,
-          this.eyes,
-        );
-
-        await this.getTableBtn().click();
-
-        await takeAndAttachScreenshot(
-          this.page,
-          `table_view_failed_test_${i}`,
-          this.eyes,
-        );
-
-        await header.click();
-        break;
-      }
     }
+
+    return failedValue;
+  }
+
+  async verifyFailedScenariosCount(expectedCount: number) {
+    await expect(this.resultsContainer).toBeVisible({ timeout: 10000 });
+
+    await takeAndAttachScreenshot(
+      this.page,
+      `Expected Failed Scenario Count ${expectedCount}`,
+      this.eyes,
+    );
+
+    await expect(this.drillDownScenarios).toHaveCount(expectedCount, {
+      timeout: 10000,
+    });
+  }
+
+  async toggleScenarioViews(scenarioIndex: number = 0) {
+    const scenario = this.drillDownScenarios.nth(scenarioIndex);
+    const header = scenario.locator(".header");
+
+    if ((await header.getAttribute("aria-expanded")) === "false") {
+      await header.click();
+    }
+
+    const rawBtn = scenario.locator("button.dd-viewBtn--details");
+    const tableBtn = scenario.locator("button.dd-viewBtn--errors");
+    const preDetails = scenario.locator("pre.detailsPre");
+
+    await rawBtn.click();
+    await expect(preDetails).toBeVisible();
+    await expect(rawBtn).toHaveAttribute("aria-pressed", "true");
+
+    await takeAndAttachScreenshot(
+      this.page,
+      `toggled-scenario-${scenarioIndex}`,
+      this.eyes,
+    );
+
+    await tableBtn.click();
+    await expect(preDetails).toBeHidden();
+    await expect(scenario.locator("table.rulesTable")).toBeVisible();
+
+    await takeAndAttachScreenshot(
+      this.page,
+      `toggled-scenario-${scenarioIndex}`,
+      this.eyes,
+    );
   }
 }
