@@ -1,15 +1,15 @@
-import { test, expect, type TestInfo, Locator, Page } from "@playwright/test";
+import { test, expect, type TestInfo, Locator, Page, FrameLocator } from "@playwright/test";
 import type { SideBarPage } from "./side-bar-page";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class BasePage {
-  readonly page: Page;
-  readonly sideBar: SideBarPage;
-  readonly testInfo?: TestInfo;
-  readonly eyes?: any;
-  readonly specTree?: Locator;
+  protected readonly page: Page;
+  protected readonly sideBar: SideBarPage;
+  protected readonly testInfo?: TestInfo;
+  protected readonly eyes?: any;
+  protected readonly specTree?: Locator;
 
-  constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
+  protected constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     this.page = page;
     this.testInfo = testInfo;
     this.eyes = eyes;
@@ -18,31 +18,25 @@ export class BasePage {
     this.sideBar = new SideBarPageClass(page, testInfo, eyes);
   }
 
-  async gotoHomeAndOpenSidebar() {
-    await test.step("Open sidebar", async () => {
-      await this.page.goto("/");
-      await this.sideBar.ensureSidebarOpen();
-    });
-  }
-
-  async goto() {
+  protected async gotoHome() {
+    console.log("\tNavigating to home page: '/'");
     await this.page.goto("/");
     await takeAndAttachScreenshot(this.page, "app-loaded");
   }
 
-  async clickButtonByText(text: string) {
+  protected async clickButtonByText(text: string) {
     const btn = this.page.getByText(new RegExp(text, "i"));
     await btn.click({ force: true });
     return btn;
   }
 
-  async fillInputByPlaceholder(placeholder: string, value: string) {
+  protected async fillInputByPlaceholder(placeholder: string, value: string) {
     const input = this.page.getByPlaceholder(placeholder);
     await input.fill(value);
     return input;
   }
 
-  async fillInputByRole(role: string, value: string) {
+  protected async fillInputByRole(role: string, value: string) {
     const input = this.page.getByRole(role as any);
     await input.fill(value);
     return input;
@@ -53,11 +47,12 @@ export class BasePage {
    * @param tabLocator Locator for the tab to open
    * @param screenshotName Name for the screenshot
    */
-  private async openTab(
+  protected async openTab(
     tabLocator: Locator | undefined,
     screenshotName: string,
   ): Promise<Locator> {
     return await test.step(`Open tab: ${screenshotName}`, async () => {
+      console.log(`\tOpening tab with locator: ${tabLocator?.toString()}`);
       if (!tabLocator) {
         await takeAndAttachScreenshot(
           this.page,

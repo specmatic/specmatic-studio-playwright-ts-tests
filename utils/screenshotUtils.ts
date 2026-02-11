@@ -12,16 +12,28 @@ export async function takeAndAttachScreenshot(
   attachmentName: string,
   eyes?: any,
 ): Promise<void> {
-  await page.waitForTimeout(1000); // Optional: small delay for visual stability
+  // Wait for the body to be visible to ensure the page is ready
+  try {
+    await page.waitForSelector("body", { state: "visible", timeout: 5000 });
+  } catch (e) {
+    console.error(
+      `Timeout waiting for body to be visible before screenshot:`,
+      e,
+    );
+  }
 
-  const screenshotBuffer = await page.screenshot({
-    type: "png",
-    animations: "disabled",
-  });
-  test.info().attach(attachmentName, {
-    body: screenshotBuffer,
-    contentType: "image/png",
-  });
+  try {
+    const screenshotBuffer = await page.screenshot({
+      type: "png",
+      animations: "disabled",
+    });
+    test.info().attach(attachmentName, {
+      body: screenshotBuffer,
+      contentType: "image/png",
+    });
+  } catch (e) {
+    console.error(`Error taking screenshot:`, e);
+  }
 
   // Applitools Eyes integration: check for eyes param or page.eyes
   const eyesInstance = eyes || (page as any).eyes;
@@ -29,7 +41,6 @@ export async function takeAndAttachScreenshot(
     try {
       await eyesInstance.check(attachmentName, Target.window().fully(true));
     } catch (e) {
-      // Optionally log error
     }
   }
 }
