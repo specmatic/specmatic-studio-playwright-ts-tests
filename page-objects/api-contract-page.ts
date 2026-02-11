@@ -42,6 +42,13 @@ export class ApiContractPage extends BasePage {
   readonly summaryCount: (type: string) => Locator;
   readonly resultCell: Locator;
 
+  readonly failedResultCountSpans: Locator;
+  readonly activeDrillDown: Locator;
+  readonly getExpandHeader: () => Locator;
+  readonly getRawBtn: () => Locator;
+  readonly getTableBtn: () => Locator;
+  readonly getPreDetails: () => Locator;
+
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
@@ -125,6 +132,19 @@ export class ApiContractPage extends BasePage {
       );
 
     this.resultCell = page.locator('td[data-key="result"]');
+
+    this.failedResultCountSpans = page.locator(
+      'td[data-key="result"] span[data-key="failed"]',
+    );
+
+    this.activeDrillDown = page.locator("drill-down:visible").first();
+
+    this.getExpandHeader = () => this.activeDrillDown.locator("div.header");
+    this.getRawBtn = () =>
+      this.activeDrillDown.locator("button.dd-viewBtn--details");
+    this.getTableBtn = () =>
+      this.activeDrillDown.locator("button.dd-viewBtn--errors");
+    this.getPreDetails = () => this.activeDrillDown.locator("pre.detailsPre");
   }
 
   //Function Beginning
@@ -471,5 +491,56 @@ export class ApiContractPage extends BasePage {
       excluded: values[4],
       total: values[5],
     };
+  }
+
+  async toggleFailedTestsView() {
+    const count = await this.failedResultCountSpans.count();
+
+    for (let i = 0; i < count; i++) {
+      const span = this.failedResultCountSpans.nth(i);
+      const failedValue = parseInt(
+        (await span.getAttribute("data-value")) || "0",
+        10,
+      );
+
+      if (failedValue > 0) {
+        await span.click();
+
+        const header = this.getExpandHeader();
+        const rawBtn = this.getRawBtn();
+
+        await expect(header).toBeVisible({ timeout: 10000 });
+
+        if ((await header.getAttribute("aria-expanded")) === "false") {
+          await header.click();
+        }
+
+        await expect(rawBtn).toBeVisible();
+        await takeAndAttachScreenshot(
+          this.page,
+          `expanded_failed_test_${i}`,
+          this.eyes,
+        );
+        await rawBtn.click();
+
+        await expect(this.getPreDetails()).toBeVisible();
+        await takeAndAttachScreenshot(
+          this.page,
+          `raw_view_failed_test_${i}`,
+          this.eyes,
+        );
+
+        await this.getTableBtn().click();
+
+        await takeAndAttachScreenshot(
+          this.page,
+          `table_view_failed_test_${i}`,
+          this.eyes,
+        );
+
+        await header.click();
+        break;
+      }
+    }
   }
 }

@@ -139,6 +139,27 @@ test.describe("API Contract Testing", () => {
       });
     },
   );
+
+  test(
+    "Expand failed tests and toggle between Table and Raw views",
+    { tag: ["@apiContract", "@failedTestView"] },
+    async ({ page, eyes }, testInfo) => {
+      const contractPage = new ApiContractPage(page, testInfo, eyes);
+
+      await test.step("Setup: Run Contract Tests", async () => {
+        await contractPage.gotoHomeAndOpenSidebar();
+        await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await contractPage.openExecuteContractTestsTab();
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+        await contractPage.clickRunContractTests();
+      });
+
+      await test.step("Identify and Toggle Views for Failed Tests", async () => {
+        // This will find rows where data-key="failed" value > 0
+        await contractPage.toggleFailedTestsView();
+      });
+    },
+  );
 });
 
 async function validateSummaryAndTableCounts(
