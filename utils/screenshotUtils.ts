@@ -41,6 +41,7 @@ export async function takeAndAttachScreenshot(
     try {
       await eyesInstance.check(attachmentName, Target.window().fully(true));
     } catch (e) {
+      console.error(`Error during Applitools Eyes check:`, e);
     }
   }
 }
