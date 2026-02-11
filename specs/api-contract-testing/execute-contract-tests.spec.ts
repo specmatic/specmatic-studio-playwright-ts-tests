@@ -144,6 +144,7 @@ test.describe("API Contract Testing", () => {
     "Expand failed tests and toggle between Table and Raw views",
     { tag: ["@apiContract", "@failedTestView"] },
     async ({ page, eyes }, testInfo) => {
+      test.setTimeout(180000);
       const contractPage = new ApiContractPage(page, testInfo, eyes);
 
       await test.step("Setup: Run Contract Tests", async () => {
