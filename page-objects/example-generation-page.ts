@@ -28,7 +28,6 @@ export class ExampleGenerationPage extends BasePage {
     super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
     this.generateExamplesBtn = page.getByText(/Generate valid examples/i);
-    // .nth(1); // The first button is in the Run Mock Server tab, the second one is in the Example Generation tab
     this.validExamplesTable = page.locator("#valid-examples-table");
     this.invalidExamplesTable = page.locator("#invalid-examples-table");
     this.downloadExamplesBtn = page.locator("button#download-examples");
@@ -37,7 +36,6 @@ export class ExampleGenerationPage extends BasePage {
     this.examplesIframe = this.exampleDiv.locator(
       "iframe[data-examples-server-base]",
     );
-    // .nth(1);
     this.selectAllCheckboxSelector = "input#select-all";
     this.bulkDeleteBtnSelector = "button#bulk-delete";
     this.bulkGenerateBtnSelector = "button#bulk-generate";
@@ -79,7 +77,7 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async printDebugInfoForAvailableEndpoints(
-    iframe: FrameLocator,
+    iframe: import("@playwright/test").Frame,
     endpoint: string,
     responseCode: number,
   ) {
