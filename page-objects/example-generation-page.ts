@@ -19,14 +19,16 @@ export class ExampleGenerationPage extends BasePage {
   private readonly downloadExamplesBtn: Locator;
   private readonly exampleDiv: Locator;
   private readonly examplesIframe: Locator;
-  private readonly validExamplesTableFrame: string;
   private readonly selectAllCheckboxSelector: string;
   private readonly bulkDeleteBtnSelector: string;
+  private readonly bulkGenerateBtnSelector: string;
+  private readonly bulkValidateBtnSelector: string;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
     this.generateExamplesBtn = page.getByText(/Generate valid examples/i);
+    // .nth(1); // The first button is in the Run Mock Server tab, the second one is in the Example Generation tab
     this.validExamplesTable = page.locator("#valid-examples-table");
     this.invalidExamplesTable = page.locator("#invalid-examples-table");
     this.downloadExamplesBtn = page.locator("button#download-examples");
@@ -35,10 +37,11 @@ export class ExampleGenerationPage extends BasePage {
     this.examplesIframe = this.exampleDiv.locator(
       "iframe[data-examples-server-base]",
     );
-    this.validExamplesTableFrame =
-      "div.example iframe[data-examples-server-base]";
+    // .nth(1);
     this.selectAllCheckboxSelector = "input#select-all";
     this.bulkDeleteBtnSelector = "button#bulk-delete";
+    this.bulkGenerateBtnSelector = "button#bulk-generate";
+    this.bulkValidateBtnSelector = "button#bulk-validate";
   }
 
   private async openExampleGenerationTab() {
@@ -54,7 +57,11 @@ export class ExampleGenerationPage extends BasePage {
     // Wait for at least one button to exist before checking visibility
     const count = await generateBtns.count();
     if (count === 0) {
-      await this.printDebugInfoForAvailableEndpoints(iframe, endpoint, responseCode);
+      await this.printDebugInfoForAvailableEndpoints(
+        iframe,
+        endpoint,
+        responseCode,
+      );
       throw new Error(
         `No generate button found for endpoint: ${endpoint}, responseCode: ${responseCode}`,
       );
@@ -71,7 +78,11 @@ export class ExampleGenerationPage extends BasePage {
     await this.verifyTitleAndCloseDialog("Example Generated");
   }
 
-  private async printDebugInfoForAvailableEndpoints(iframe: FrameLocator, endpoint: string, responseCode: number) {
+  private async printDebugInfoForAvailableEndpoints(
+    iframe: FrameLocator,
+    endpoint: string,
+    responseCode: number,
+  ) {
     const allRows = await iframe.locator("//tr[@data-raw-path]").all();
     const debugRows = [];
     for (const row of allRows) {
@@ -86,11 +97,11 @@ export class ExampleGenerationPage extends BasePage {
       debugRows.push({ rawPath, codes });
     }
     console.error(
-      `No generate button found for endpoint: ${endpoint}, responseCode: ${responseCode}`
+      `No generate button found for endpoint: ${endpoint}, responseCode: ${responseCode}`,
     );
     console.error(
       "Available rows (data-raw-path and response codes):",
-      JSON.stringify(debugRows, null, 2)
+      JSON.stringify(debugRows, null, 2),
     );
   }
 
@@ -114,9 +125,11 @@ export class ExampleGenerationPage extends BasePage {
   ) {
     const iframe = await this.waitForExamplesIFrame();
     const rowXpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]`;
-    const endpointPrefix = endpoint.replace(/\/(\([^/]+\))/g, '');
+    const endpointPrefix = endpoint.replace(/\/(\([^/]+\))/g, "");
     const fileNameSpanXpath = `${rowXpath}//td/span[contains(text(), '${endpointPrefix}') and contains(text(), '${responseCode}')]`;
-    console.log(`\t\tLooking for example file name span with XPath: ${fileNameSpanXpath}`);
+    console.log(
+      `\t\tLooking for example file name span with XPath: ${fileNameSpanXpath}`,
+    );
     const fileNameSpan = iframe.locator(fileNameSpanXpath);
     await expect(fileNameSpan).toBeVisible({ timeout: 4000 });
     const fileNameText = (await fileNameSpan.textContent())?.trim();
@@ -190,7 +203,14 @@ export class ExampleGenerationPage extends BasePage {
       `verifying-dialog-${expectedText.replace(/\s+/g, "-").toLowerCase()}`,
     );
 
-    const frame = this.page.frameLocator("iframe[data-examples-server-base]");
+    const iframeHandle = await this.examplesIframe.elementHandle();
+    const frame = await iframeHandle?.contentFrame();
+
+    if (!frame) {
+      throw new Error(
+        "Frame is null or undefined in verifyTitleAndCloseDialog",
+      );
+    }
     console.log(
       "alert-container count:",
       await frame.locator("#alert-container").count(),
@@ -198,10 +218,6 @@ export class ExampleGenerationPage extends BasePage {
     console.log(
       "alert-msg count:",
       await frame.locator("#alert-container .alert-msg").count(),
-    );
-    console.log(
-      "alert-msg visible:",
-      await frame.locator("#alert-container .alert-msg").isVisible(),
     );
 
     const alert = frame.locator("#alert-container");
@@ -262,7 +278,7 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  private async selectAll(iframe: FrameLocator) {
+  private async selectAll(iframe: import("@playwright/test").Frame) {
     const selectAll = iframe.locator(this.selectAllCheckboxSelector);
     await selectAll.waitFor({ timeout: 3000 });
     console.log("\tselect-all checkbox found");
@@ -274,7 +290,7 @@ export class ExampleGenerationPage extends BasePage {
     }
   }
 
-  private async uncheckSelectAll(iframe: FrameLocator) {
+  private async uncheckSelectAll(iframe: import("@playwright/test").Frame) {
     const selectAll = iframe.locator(this.selectAllCheckboxSelector);
     await selectAll.waitFor({ timeout: 3000 });
     console.log("\tuncheck select-all checkbox found");
@@ -287,13 +303,148 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async waitForExamplesIFrame() {
-    await this.page
-      .locator("iframe[data-examples-server-base]")
-      .waitFor({ state: "attached", timeout: 10000 });
-    const iframe = this.page.frameLocator("iframe[data-examples-server-base]");
-    return iframe;
+    await this.examplesIframe.waitFor({ state: "attached", timeout: 10000 });
+    const iframeElement = await this.examplesIframe.elementHandle();
+    if (!iframeElement) {
+      throw new Error("Could not find the iframe element at index 1");
+    }
+    const frame = await iframeElement.contentFrame();
+    if (!frame) {
+      throw new Error("Could not get contentFrame from iframe element");
+    }
+    console.log("Successfully got the examples iframe");
+    return frame;
   }
 
+  async validateAllExamples() {
+    await test.step(`Validate all generated examples`, async () => {
+      console.log(`Validating all generated examples`);
+      const iframe = await this.waitForExamplesIFrame();
+      await this.selectAll(iframe);
+      await this.clickBulkValidateButton();
+
+      await this.waitForProcessingToComplete(iframe);
+      await this.verifyTitleAndCloseDialog("Example Validations Complete");
+      await takeAndAttachScreenshot(
+        this.page,
+        `validate-examples-for-all-paths`,
+        this.eyes,
+      );
+    });
+  }
+
+  async generateAllExamples() {
+    await test.step(`Generate example and validate for all paths`, async () => {
+      console.log(`Generating and validating example for all paths`);
+      const iframe = await this.waitForExamplesIFrame();
+      await this.selectAll(iframe);
+      await this.clickBulkGenerateButton();
+
+      await this.waitForProcessingToComplete(iframe);
+      await this.verifyTitleAndCloseDialog("Example Generations Complete");
+      await takeAndAttachScreenshot(
+        this.page,
+        `generate-examples-for-all-paths`,
+        this.eyes,
+      );
+    });
+  }
+
+  private async waitForProcessingToComplete(
+    iframe: import("@playwright/test").Frame,
+  ) {
+    console.log(`\t\tWaiting for processing to complete...`);
+    const processingBtn = iframe.locator("button#bulk-generate", {
+      hasText: "Processing",
+    });
+    // wait for 5 seconds for the processing button to appear in case it takes some time for the generation to start, but if it doesn't appear within that time, we proceed to check for completion to avoid unnecessary test failure
+    await processingBtn
+      .waitFor({ state: "visible", timeout: 5000 })
+      .catch(() => {
+        console.log(
+          "\t\tProcessing button did not appear within 5 seconds, proceeding to check for generation completion",
+        );
+      });
+    await expect(processingBtn).toBeHidden({ timeout: 60000 });
+  }
+
+  async getNumberOfPathMethodsAndResponses(): Promise<number> {
+    const iframe = await this.waitForExamplesIFrame();
+    const exampleRows = await iframe.locator("tr[data-raw-path]").all();
+    console.log(
+      `\tTotal number of path-method-response combinations: ${exampleRows.length}`,
+    );
+    return exampleRows.length;
+  }
+
+  async getNumberOfGenerateButtons(): Promise<number> {
+    const iframe = await this.waitForExamplesIFrame();
+    const generateButtons = await iframe
+      .locator('button[aria-label="Generate"]')
+      .all();
+    console.log(
+      `\tNumber of Generate buttons available: ${generateButtons.length}`,
+    );
+    return generateButtons.length;
+  }
+
+  async getNumberOfValidateButtons(): Promise<number> {
+    const iframe = await this.waitForExamplesIFrame();
+    const validateButtons = await iframe
+      .locator('button[aria-label="Validate"]')
+      .all();
+    console.log(
+      `\tNumber of Validate buttons available: ${validateButtons.length}`,
+    );
+    return validateButtons.length;
+  }
+
+  async getNumberOfExamplesValidated(): Promise<number> {
+    const iframe = await this.waitForExamplesIFrame();
+    const exampleRows = await iframe.locator("tr[data-valid=success]").all();
+    console.log(
+      `\tTotal endpoints with generated examples: ${exampleRows.length}`,
+    );
+    return exampleRows.length;
+  }
+
+  async getNumberOfExamplesGenerated(): Promise<number> {
+    const iframe = await this.waitForExamplesIFrame();
+    const exampleRows = await iframe
+      .locator("tr[data-example-relative-path]")
+      .all();
+    console.log(
+      `\tTotal endpoints with generated examples: ${exampleRows.length}`,
+    );
+    return exampleRows.length;
+  }
+
+  private async clickBulkGenerateButton() {
+    const iframe = await this.waitForExamplesIFrame();
+    const bulkGenerateBtn = iframe.locator(this.bulkGenerateBtnSelector);
+    await bulkGenerateBtn.waitFor({ state: "visible", timeout: 4000 });
+    await expect(bulkGenerateBtn).toBeVisible({ timeout: 4000 });
+    await expect(bulkGenerateBtn).toBeEnabled({ timeout: 4000 });
+    await bulkGenerateBtn.click();
+    await takeAndAttachScreenshot(
+      this.page,
+      "clicked-bulk-generate",
+      this.eyes,
+    );
+  }
+  private async clickBulkValidateButton() {
+    const iframe = await this.waitForExamplesIFrame();
+    const bulkValidateBtn = iframe.locator(this.bulkValidateBtnSelector);
+    await bulkValidateBtn.waitFor({ state: "visible", timeout: 4000 });
+    await expect(bulkValidateBtn).toBeVisible({ timeout: 4000 });
+    await expect(bulkValidateBtn).toBeEnabled({ timeout: 4000 });
+    await bulkValidateBtn.click();
+    await takeAndAttachScreenshot(
+      this.page,
+      "clicked-bulk-validate",
+      this.eyes,
+    );
+  }
   async generateAndValidateForPaths(
     endpoints: { path: string; responseCodes: number[] }[],
   ) {
