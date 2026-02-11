@@ -62,20 +62,23 @@ test.describe("API Contract Testing", () => {
         await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
         await contractPage.openExecuteContractTestsTab();
       });
+      await test.step("Enter service URL, exclude tests and run contract tests", async () => {
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
 
-      await test(
-        "Exclude single test",
-        { tag: ["@apiContract", "@testExclusion"] },
-        async ({ page, eyes }, testInfo) => {
-          const contractPage = new ApiContractPage(page, testInfo, eyes);
-          // ... setup steps ...
-          await contractPage.selectTestForExclusion("/products", "POST", "201");
-          await contractPage.clickExcludeButton();
-          await contractPage.clickRunContractTests();
+        await contractPage.selectTestForExclusion("/products", "POST", "201");
+        await contractPage.selectTestForExclusion("/products", "POST", "202");
 
-          await contractPage.verifyFinalCounts({ Excluded: 1, Total: 15 });
-        },
-      );
+        await contractPage.clickExcludeButton();
+
+        await contractPage.clickRunContractTests();
+      });
+
+      await test.step("Verify test results and remarks for executed contract tests", async () => {
+        await contractPage.verifyFinalCounts({
+          Excluded: 2,
+          Total: 15,
+        });
+      });
     },
   );
 
