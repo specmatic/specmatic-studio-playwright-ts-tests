@@ -18,6 +18,13 @@ export class BasePage {
     this.sideBar = new SideBarPageClass(page, testInfo, eyes);
   }
 
+  async gotoHomeAndOpenSidebar() {
+    await test.step("Open sidebar", async () => {
+      await this.page.goto("/");
+      await this.sideBar.ensureSidebarOpen();
+    });
+  }
+  
   protected async gotoHome() {
     console.log("\tNavigating to home page: '/'");
     await this.page.goto("/");
