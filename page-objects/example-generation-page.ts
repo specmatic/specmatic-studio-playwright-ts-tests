@@ -23,23 +23,31 @@ export class ExampleGenerationPage extends BasePage {
   private readonly bulkDeleteBtnSelector: string;
   private readonly bulkGenerateBtnSelector: string;
   private readonly bulkValidateBtnSelector: string;
+  private readonly inlineBtnSelector: string;
+  private readonly specSection: Locator;
 
-  constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
-    super(page, testInfo, eyes);
+  constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
+    super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
-    this.generateExamplesBtn = page.getByText(/Generate valid examples/i);
-    this.validExamplesTable = page.locator("#valid-examples-table");
-    this.invalidExamplesTable = page.locator("#invalid-examples-table");
-    this.downloadExamplesBtn = page.locator("button#download-examples");
-    this.openApiTabPage = new OpenAPISpecTabPage(this);
-    this.exampleDiv = page.locator("div.example");
+    this.specSection = page.locator(
+      `xpath=//div[contains(@id,"${specName}") and @data-mode="example"]`,
+    );
+    this.generateExamplesBtn = this.specSection.locator(
+      `xpath=.//p[contains(text(),"Generate valid examples")]`,
+    );
+    this.exampleDiv = this.specSection.locator(`div.example`);
     this.examplesIframe = this.exampleDiv.locator(
       "iframe[data-examples-server-base]",
     );
+    this.validExamplesTable = this.specSection.locator("#valid-examples-table");
+    this.invalidExamplesTable = this.specSection.locator("#invalid-examples-table");
+    this.downloadExamplesBtn = this.specSection.locator("button#download-examples");
+    this.openApiTabPage = new OpenAPISpecTabPage(this);
     this.selectAllCheckboxSelector = "input#select-all";
     this.bulkDeleteBtnSelector = "button#bulk-delete";
     this.bulkGenerateBtnSelector = "button#bulk-generate";
     this.bulkValidateBtnSelector = "button#bulk-validate";
+    this.inlineBtnSelector = "button#import";
   }
 
   private async openExampleGenerationTab() {
@@ -194,42 +202,68 @@ export class ExampleGenerationPage extends BasePage {
     await this.verifyTitleAndCloseDialog("Valid Example");
   }
 
-  private async verifyTitleAndCloseDialog(expectedText: string) {
-    console.log(`\tVerifying dialog with expected text: '${expectedText}'`);
+  private async verifyTitleAndCloseDialog(expectedTitle: string) {
+    console.log(`\tVerifying dialog with expected text: '${expectedTitle}'`);
     await takeAndAttachScreenshot(
       this.page,
-      `verifying-dialog-${expectedText.replace(/\s+/g, "-").toLowerCase()}`,
+      `verifying-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
 
-    const iframeHandle = await this.examplesIframe.elementHandle();
-    const frame = await iframeHandle?.contentFrame();
-
-    if (!frame) {
-      throw new Error(
-        "Frame is null or undefined in verifyTitleAndCloseDialog",
-      );
-    }
-    console.log(
-      "alert-container count:",
-      await frame.locator("#alert-container").count(),
-    );
-    console.log(
-      "alert-msg count:",
-      await frame.locator("#alert-container .alert-msg").count(),
-    );
-
-    const alert = frame.locator("#alert-container");
+    const { alert } = await this.getAlertContainerFrameAndLocator();
     await expect(alert).toBeAttached({ timeout: 15000 });
 
-    const text = await alert.locator("p, pre").first().innerText();
-    console.log("\t\t#Dialog text:", text);
+    const title = await this.getDialogTitle(alert);
+    const message = await this.getDialogMessage(alert);
 
     await alert.locator("button").click();
     await takeAndAttachScreenshot(
       this.page,
-      `verified-and-closed-dialog-${expectedText.replace(/\s+/g, "-").toLowerCase()}`,
+      `verified-and-closed-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
     await expect(alert).toBeHidden();
+  }
+
+  private async getAlertContainerFrameAndLocator(): Promise<{
+    frame: import("@playwright/test").Frame;
+    alert: Locator;
+  }> {
+    const iframeHandle = await this.examplesIframe.elementHandle();
+    const frame = await iframeHandle?.contentFrame();
+    if (!frame) {
+      throw new Error(
+        "Frame is null or undefined in getAlertContainerFrameAndLocator",
+      );
+    }
+    console.log(
+      "\t\talert-container count:",
+      await frame.locator("#alert-container").count(),
+    );
+    console.log(
+      "\t\talert-msg count:",
+      await frame.locator("#alert-container .alert-msg").count(),
+    );
+    const alert = frame.locator("#alert-container");
+    return { frame, alert };
+  }
+
+  private async getDialogTitle(alert: Locator): Promise<string> {
+    // Assumes the first <p> or <pre> is the title
+    const dialogTitle = await alert.locator("p, pre").first().innerText();
+    console.log("\t\tActual dialog title:", dialogTitle);
+    return dialogTitle;
+  }
+
+  private async getDialogMessage(alert: Locator): Promise<string> {
+    // Assumes the second <p> or <pre> is the message, if present
+    const elements = await alert.locator("p, pre").all();
+    let dialogMessage = "";
+    if (elements.length > 1) {
+      dialogMessage = await elements[1].innerText();
+    } else if (elements.length === 1) {
+      dialogMessage = await elements[0].innerText();
+    }
+    console.log("\t\tActual dialog message:", dialogMessage);
+    return dialogMessage;
   }
 
   private async saveAndValidate() {
@@ -342,7 +376,7 @@ export class ExampleGenerationPage extends BasePage {
     if (!frame) {
       throw new Error("Could not get contentFrame from iframe element");
     }
-    console.log("Successfully got the examples iframe");
+    console.log("\tSuccessfully got the examples iframe");
     return frame;
   }
 
@@ -475,6 +509,44 @@ export class ExampleGenerationPage extends BasePage {
       this.eyes,
     );
   }
+
+  async inlineExamples() {
+    await test.step(`Inline generated examples into the spec file`, async () => {
+      console.log(`Inlining examples into the spec file`);
+      await takeAndAttachScreenshot(this.page, `before-inline`, this.eyes);
+      const iframe = await this.waitForExamplesIFrame();
+      const inlineBtn = iframe.locator(this.inlineBtnSelector);
+      await inlineBtn.waitFor({ state: "visible", timeout: 4000 });
+      await expect(inlineBtn).toBeVisible({ timeout: 4000 });
+      await expect(inlineBtn).toBeEnabled({ timeout: 4000 });
+      await inlineBtn.click();
+    });
+  }
+
+  async getDialogTitleAndMessage(): Promise<[string, string]> {
+    return await test.step(`Get dialog title and message`, async () => {
+      console.log(`\tGetting dialog title and message`);
+      const { alert } = await this.getAlertContainerFrameAndLocator();
+      await takeAndAttachScreenshot(
+        this.page,
+        `dialog-title-and-message`,
+        this.eyes,
+      );
+      const title = await this.getDialogTitle(alert);
+      const message = await this.getDialogMessage(alert);
+      return [title, message];
+    });
+  }
+
+  async closeInlineSuccessDialog(expectedTitle: string) {
+    await test.step(`Close inline success dialog with title: '${expectedTitle}'`, async () => {
+      console.log(
+        `Closing inline success dialog with expected title: '${expectedTitle}'`,
+      );
+      const iframe = await this.waitForExamplesIFrame();
+      await this.verifyTitleAndCloseDialog(expectedTitle);
+    });
+  }
   async generateAndValidateForPaths(
     endpoints: { path: string; responseCodes: number[] }[],
   ) {
@@ -484,16 +556,16 @@ export class ExampleGenerationPage extends BasePage {
           console.log(
             `Generating and validating example for path: '/${endpoint.path}' and response code: '${code}'`,
           );
-          await this.#generateExample(endpoint.path, code);
-          await this.#verifyGeneratedExample(endpoint.path, code);
-          await this.#viewExampleDetailsAndReturn(endpoint.path, code);
-          await this.#validateExample(endpoint.path, code);
+          await this.generateExample(endpoint.path, code);
+          await this.verifyGeneratedExample(endpoint.path, code);
+          await this.viewExampleDetailsAndReturn(endpoint.path, code);
+          await this.validateExample(endpoint.path, code);
         });
       }
     }
   }
 
-  async #generateExample(path: string, code: number) {
+  private async generateExample(path: string, code: number) {
     await test.step(`Generate example`, async () => {
       console.log(
         `\tGenerating example for path: '/${path}' and response code: '${code}'`,
@@ -502,7 +574,7 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async #validateExample(path: string, code: number) {
+  private async validateExample(path: string, code: number) {
     await test.step(`Validate generated example`, async () => {
       console.log(
         `\tValidating example for path: '/${path}' and response code: '${code}'`,
@@ -511,7 +583,7 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async #viewExampleDetailsAndReturn(path: string, code: number) {
+  private async viewExampleDetailsAndReturn(path: string, code: number) {
     await test.step(`View details and go back`, async () => {
       console.log(
         `\tViewing details for example of path: '/${path}' and response code: '${code}'`,
@@ -522,7 +594,7 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async #verifyGeneratedExample(path: string, code: number) {
+  private async verifyGeneratedExample(path: string, code: number) {
     await test.step(`Verify example is generated`, async () => {
       console.log(
         `\tVerifying generated example for path: '/${path}' and response code: '${code}'`,

@@ -1,19 +1,32 @@
-import { test, expect, type TestInfo, Locator, Page, FrameLocator } from "@playwright/test";
+import {
+  test,
+  expect,
+  type TestInfo,
+  Locator,
+  Page,
+  FrameLocator,
+} from "@playwright/test";
 import type { SideBarPage } from "./side-bar-page";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class BasePage {
   protected readonly page: Page;
-  protected readonly sideBar: SideBarPage;
-  protected readonly testInfo?: TestInfo;
-  protected readonly eyes?: any;
+  readonly sideBar: SideBarPage;
+  protected readonly testInfo: TestInfo;
+  protected readonly eyes: any;
   protected readonly specTree?: Locator;
+  protected readonly specName?: string;
 
-  protected constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
+  protected constructor(
+    page: Page,
+    testInfo: TestInfo,
+    eyes: any,
+    specName?: string,
+  ) {
     this.page = page;
     this.testInfo = testInfo;
     this.eyes = eyes;
-    // Dynamically require SideBarPage to avoid circular dependency
+    this.specName = specName;
     const SideBarPageClass = require("./side-bar-page").SideBarPage;
     this.sideBar = new SideBarPageClass(page, testInfo, eyes);
   }
@@ -24,7 +37,7 @@ export class BasePage {
       await this.sideBar.ensureSidebarOpen();
     });
   }
-  
+
   protected async gotoHome() {
     console.log("\tNavigating to home page: '/'");
     await this.page.goto("/");

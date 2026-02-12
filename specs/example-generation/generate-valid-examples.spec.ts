@@ -8,7 +8,8 @@ test.describe.serial("Example Generation", () => {
     `Generate examples for 'findAvailableProducts' endpoint of '${PRODUCT_SEARCH_BFF_SPEC}' for response codes 200, 400`,
     { tag: ["@exampleGeneration", "@singlePathGeneration"] },
     async ({ page, eyes }, testInfo) => {
-      const examplePage = new ExampleGenerationPage(page, testInfo, eyes);
+      console.log(`Starting test: ${testInfo.title}`);
+      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
       await examplePage.openExampleGenerationTabForSpec(
         testInfo,
         eyes,
@@ -32,7 +33,8 @@ test.describe.serial("Example Generation", () => {
     `Generate examples for '/products' and '/monitor/(id:number)' paths of '${PRODUCT_SEARCH_BFF_SPEC}' for all response codes and methods`,
     { tag: ["@exampleGeneration", "@multiplePathGeneration"] },
     async ({ page, eyes }, testInfo) => {
-      const examplePage = new ExampleGenerationPage(page, testInfo, eyes);
+      console.log(`Starting test: ${testInfo.title}`);
+      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
       await examplePage.openExampleGenerationTabForSpec(
         testInfo,
         eyes,
@@ -56,7 +58,8 @@ test.describe.serial("Example Generation", () => {
     `Generate examples for ALL paths of '${PRODUCT_SEARCH_BFF_SPEC}' for all response codes and methods`,
     { tag: ["@exampleGeneration", "@allPathGeneration"] },
     async ({ page, eyes }, testInfo) => {
-      const examplePage = new ExampleGenerationPage(page, testInfo, eyes);
+      console.log(`Starting test: ${testInfo.title}`);
+      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
       await examplePage.openExampleGenerationTabForSpec(
         testInfo,
         eyes,
