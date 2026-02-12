@@ -6,9 +6,9 @@ import { ServiceSpecConfigPage } from "../../page-objects/service-spec-config-pa
 test.describe("Service Spec & Config Update", () => {
   test(
     "Update Service Specification",
-    { tag: ["@serviceSpecConfig"] },
+    { tag: ["@serviceSpecConfig", "@updateConfig"] },
     async ({ page, eyes }, testInfo) => {
-      const configPage = new ServiceSpecConfigPage(page, testInfo, eyes);
+      const configPage = new ServiceSpecConfigPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
       await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
         await configPage.gotoHomeAndOpenSidebar();
         await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
