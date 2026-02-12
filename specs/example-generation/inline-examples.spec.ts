@@ -3,7 +3,7 @@ import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 import { ExampleGenerationPage } from "../../page-objects/example-generation-page";
 import { Page, TestInfo } from "@playwright/test";
 
-test.describe.serial("Example Generation", () => {
+test.describe.serial("Inline examples", () => {
   test(
     `Inline an example for findAvailableProducts 200`,
     { tag: ["@exampleGeneration", "@inlineExamples", "@inlineExample"] },

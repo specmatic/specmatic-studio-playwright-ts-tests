@@ -9,6 +9,7 @@ import {
 } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
+import { Edit } from "../utils/types/json-edit.types";
 
 export class ExampleGenerationPage extends BasePage {
   private readonly openApiTabPage: OpenAPISpecTabPage;
@@ -23,6 +24,7 @@ export class ExampleGenerationPage extends BasePage {
   private readonly bulkDeleteBtnSelector: string;
   private readonly bulkGenerateBtnSelector: string;
   private readonly bulkValidateBtnSelector: string;
+  private readonly bulkFixBtnSelector: string;
   private readonly inlineBtnSelector: string;
   private readonly specSection: Locator;
 
@@ -40,14 +42,19 @@ export class ExampleGenerationPage extends BasePage {
       "iframe[data-examples-server-base]",
     );
     this.validExamplesTable = this.specSection.locator("#valid-examples-table");
-    this.invalidExamplesTable = this.specSection.locator("#invalid-examples-table");
-    this.downloadExamplesBtn = this.specSection.locator("button#download-examples");
+    this.invalidExamplesTable = this.specSection.locator(
+      "#invalid-examples-table",
+    );
+    this.downloadExamplesBtn = this.specSection.locator(
+      "button#download-examples",
+    );
     this.openApiTabPage = new OpenAPISpecTabPage(this);
     this.selectAllCheckboxSelector = "input#select-all";
     this.bulkDeleteBtnSelector = "button#bulk-delete";
     this.bulkGenerateBtnSelector = "button#bulk-generate";
     this.bulkValidateBtnSelector = "button#bulk-validate";
     this.inlineBtnSelector = "button#import";
+    this.bulkFixBtnSelector = "button#bulk-fix";
   }
 
   private async openExampleGenerationTab() {
@@ -168,6 +175,7 @@ export class ExampleGenerationPage extends BasePage {
     const viewDetailsSpan = iframe.locator(xpath);
     await expect(viewDetailsSpan).toBeVisible({ timeout: 4000 });
     await viewDetailsSpan.click();
+    await this.page.waitForTimeout(2000);
     await takeAndAttachScreenshot(
       this.page,
       `view-details-${endpoint}-${responseCode}`,
@@ -234,14 +242,6 @@ export class ExampleGenerationPage extends BasePage {
         "Frame is null or undefined in getAlertContainerFrameAndLocator",
       );
     }
-    console.log(
-      "\t\talert-container count:",
-      await frame.locator("#alert-container").count(),
-    );
-    console.log(
-      "\t\talert-msg count:",
-      await frame.locator("#alert-container .alert-msg").count(),
-    );
     const alert = frame.locator("#alert-container");
     return { frame, alert };
   }
@@ -277,7 +277,6 @@ export class ExampleGenerationPage extends BasePage {
       "clicked-save-and-validate",
       this.eyes,
     );
-    await this.verifyTitleAndCloseDialog("Valid Example");
   }
 
   async deleteGeneratedExamples() {
@@ -565,6 +564,164 @@ export class ExampleGenerationPage extends BasePage {
     }
   }
 
+  async generateExampleAndViewDetailsForPath(path: string, code: number) {
+    await test.step(`Generate example and view details for path: '/${path}' and response code: '${code}'`, async () => {
+      console.log(
+        `Generating example and viewing details for path: '/${path}' and response code: '${code}'`,
+      );
+      await this.generateExample(path, code);
+      await this.clickViewDetails(path, code);
+    });
+  }
+
+  async closeInvalidExampleDialog(dialogTitle: string) {
+    await test.step(`Close invalid example dialog with title: '${dialogTitle}'`, async () => {
+      console.log(
+        `Closing invalid example dialog with title: '${dialogTitle}'`,
+      );
+      await this.verifyTitleAndCloseDialog(`${dialogTitle}`);
+    });
+  }
+  async closeFixedExampleDialog(dialogTitle: string) {
+    await test.step(`Close fixed example dialog with title: '${dialogTitle}'`, async () => {
+      console.log(`Closing fixed example dialog with title: '${dialogTitle}'`);
+      await this.verifyTitleAndCloseDialog(`${dialogTitle}`);
+    });
+  }
+
+  async closeValidExampleDialog(dialogTitle: string) {
+    await test.step(`Close valid example dialog with title: '${dialogTitle}'`, async () => {
+      console.log(`Closing valid example dialog with title: '${dialogTitle}'`);
+      await this.verifyTitleAndCloseDialog(`${dialogTitle}`);
+    });
+  }
+
+  async fixExampleWithAutoFix() {
+    await test.step(`Fix example with Auto-Fix`, async () => {
+      console.log(`Fixing example with Auto-Fix`);
+      const iframe = await this.waitForExamplesIFrame();
+      const autoFixBtn = iframe.locator(this.bulkFixBtnSelector);
+
+      await autoFixBtn.waitFor({ state: "attached", timeout: 4000 });
+
+      const isVisible = await autoFixBtn.isVisible();
+      const isEnabled = await autoFixBtn.isEnabled();
+
+      if (!isVisible || !isEnabled) {
+        console.warn(
+          "Auto-Fix button is not enabled/visible, skipping auto-fix step.",
+        );
+        return;
+      }
+
+      await autoFixBtn.click();
+      await takeAndAttachScreenshot(this.page, `clicked-auto-fix`, this.eyes);
+      await this.verifyTitleAndCloseDialog("Auto-Fix Complete");
+    });
+  }
+
+  async getDetailsOfErrorsInExample(): Promise<[number, string]> {
+    return await test.step(`Get details of errors in example`, async () => {
+      console.log(`Getting details of errors in example`);
+      const iframe = await this.waitForExamplesIFrame();
+      // Click the details div to expand if not already expanded
+      const detailsDiv = iframe.locator("div.details");
+      const classAttr = await detailsDiv.getAttribute("class");
+      if (!classAttr || !classAttr.includes("expanded")) {
+        await detailsDiv.click();
+        await expect(detailsDiv).toHaveClass(/expanded/, { timeout: 3000 });
+      }
+      const expandedDiv = iframe.locator("div.details.expanded");
+      await expect(expandedDiv).toBeVisible({ timeout: 5000 });
+      // The summary line is in the .dropdown > p
+      const summaryP = expandedDiv.locator(".dropdown > p");
+      const summaryText = await summaryP.textContent();
+
+      let errorCount = 0;
+      if (summaryText) {
+        const match = summaryText.match(/Example has (\d+) Error/);
+        if (match) {
+          errorCount = parseInt(match[1], 10);
+        }
+      }
+      // The error message blob is in the <pre> tag
+      const pre = expandedDiv.locator("pre");
+      let errorBlob = "";
+      if ((await pre.count()) > 0) {
+        errorBlob = (await pre.first().textContent()) || "";
+      }
+      return [errorCount, errorBlob];
+    });
+  }
+
+  async saveEditedExample() {
+    await test.step(`Save edited example`, async () => {
+      console.log(`Saving edited example`);
+      await this.saveAndValidate();
+      await this.verifyTitleAndCloseDialog("Invalid Example");
+    });
+  }
+
+  async editExample(edits: Edit[]) {
+    await test.step(`Edit and save example with edits`, async () => {
+      console.log(`Editing example`);
+      const frame = await this.waitForExamplesIFrame();
+
+      const lines = frame.locator("#example-pre .cm-line");
+
+      await expect(lines.first()).toBeVisible({ timeout: 15000 });
+
+      // create a for loop to process each edit one by one
+      for (const edit of edits) {
+        let target = lines;
+
+        const pattern = edit.current;
+
+        console.log(
+          `\tProcessing edit #${edits.indexOf(edit) + 1}: '${JSON.stringify(edit.current)}' to '${edit.changeTo}' with pattern mode: '${pattern.mode}'`,
+        );
+
+        if (pattern.mode === "exact") {
+          target = target.filter({ hasText: pattern.value });
+        } else if (pattern.mode === "keyOnly") {
+          const re = new RegExp(`"${pattern.key}"`);
+          target = target.filter({ hasText: re });
+        } else if (pattern.mode === "keyAndAnyNumber") {
+          const re = new RegExp(`"${pattern.key}"\\s*:\\s*\\d+`);
+          target = target.filter({ hasText: re });
+        }
+
+        const line = target.first();
+        console.log(`\tLocated line for edit #${edits.indexOf(edit) + 1}`);
+        console.log(`\tOriginal line text: '${await line.innerText()}'`);
+
+        await expect(line).toBeVisible({ timeout: 10000 });
+
+        const originalText = await line.innerText();
+        const leadingSpaces = originalText.match(/^\s*/)?.[0] ?? "";
+
+        await line.scrollIntoViewIfNeeded();
+        await line.click();
+
+        await this.page.keyboard.press("Home");
+        await this.page.keyboard.press("Shift+End");
+
+        await this.page.keyboard.type(leadingSpaces + edit.changeTo);
+
+        takeAndAttachScreenshot(
+          this.page,
+          `edited-example-line-${edits.indexOf(edit) + 1}`,
+          this.eyes,
+        );
+
+        console.log(
+          `\tEdited example line: '${JSON.stringify(edit.current)}' to '${edit.changeTo}'`,
+        );
+      }
+      console.log(`All edits processed`);
+    });
+  }
+
   private async generateExample(path: string, code: number) {
     await test.step(`Generate example`, async () => {
       console.log(
@@ -590,6 +747,7 @@ export class ExampleGenerationPage extends BasePage {
       );
       await this.clickViewDetails(path, code);
       await this.saveAndValidate();
+      await this.verifyTitleAndCloseDialog("Valid Example");
       await this.clickGoBack(path, code);
     });
   }
