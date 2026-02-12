@@ -5,8 +5,8 @@ import { Page, TestInfo } from "@playwright/test";
 
 test.describe.serial("Example Generation", () => {
   test(
-    `Inline all examples for '${PRODUCT_SEARCH_BFF_SPEC}'`,
-    { tag: ["@exampleGeneration", "@inlineExamples", "@inlineAllExamples"] },
+    `Inline an example for findAvailableProducts 200`,
+    { tag: ["@exampleGeneration", "@inlineExamples", "@inlineExample"] },
     async ({ page, eyes }, testInfo) => {
       try {
         console.log(`Starting test: ${testInfo.title}`);
@@ -24,8 +24,10 @@ test.describe.serial("Example Generation", () => {
 
         await examplePage.deleteGeneratedExamples();
 
-        await examplePage.generateAllExamples();
-        await examplePage.validateAllExamples();
+        await examplePage.generateAndValidateForPaths([
+          { path: "findAvailableProducts", responseCodes: [200] },
+        ]);
+
         await examplePage.inlineExamples();
 
         const expectedUpdatedSpecName = PRODUCT_SEARCH_BFF_SPEC.replace(
@@ -53,8 +55,8 @@ test.describe.serial("Example Generation", () => {
   );
 
   test(
-    `Inline an example for findAvailableProducts 200`,
-    { tag: ["@exampleGeneration", "@inlineExamples", "@inlineExample"] },
+    `Inline all examples for '${PRODUCT_SEARCH_BFF_SPEC}'`,
+    { tag: ["@exampleGeneration", "@inlineExamples", "@inlineAllExamples"] },
     async ({ page, eyes }, testInfo) => {
       try {
         console.log(`Starting test: ${testInfo.title}`);
@@ -72,10 +74,8 @@ test.describe.serial("Example Generation", () => {
 
         await examplePage.deleteGeneratedExamples();
 
-        await examplePage.generateAndValidateForPaths([
-          { path: "findAvailableProducts", responseCodes: [200] },
-        ]);
-
+        await examplePage.generateAllExamples();
+        await examplePage.validateAllExamples();
         await examplePage.inlineExamples();
 
         const expectedUpdatedSpecName = PRODUCT_SEARCH_BFF_SPEC.replace(
