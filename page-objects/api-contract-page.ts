@@ -152,7 +152,7 @@ export class ApiContractPage extends BasePage {
     this.resultCell = page.locator('td[data-key="result"]');
 
     this.failedResultCountSpans = page.locator(
-      'td[data-key="result"] span[data-key="failed"]',
+      'td[data-key="result"] span[data-key="failed"]:not([data-value="0"])',
     );
 
     this.activeDrillDown = page.locator("drill-down:visible").first();
