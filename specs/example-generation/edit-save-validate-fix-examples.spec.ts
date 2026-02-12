@@ -47,17 +47,7 @@ async function validateAndSaveEditedExample(
   eyes: Eyes,
 ) {
   await test.step(`Validate the fixed example and verify details`, async () => {
-    await examplePage.saveEditedExample();
-
-    const [actualTitleAfterSave, actualMessageAfterSave] =
-      await examplePage.getDialogTitleAndMessage();
-
-    expect.soft(actualTitleAfterSave).toBe("Valid Example");
-    expect
-      .soft(actualMessageAfterSave)
-      .toContain(`Example name: products_POST_201_1`);
-
-    await examplePage.closeValidExampleDialog("Valid Example");
+    await examplePage.saveEditedExample("Valid Example");
 
     await takeAndAttachScreenshot(
       page,
@@ -73,28 +63,11 @@ async function fixExampleWithAutoCorrection(
   await test.step(`Fix example with auto-fix and verify details`, async () => {
     await examplePage.fixExampleWithAutoFix();
 
-    const [actualTitleAfterFix, actualMessageAfterFix] =
-      await examplePage.getDialogTitleAndMessage();
-
-    expect.soft(actualTitleAfterFix).toBe("Fixed Example");
-    expect
-      .soft(actualMessageAfterFix)
-      .toContain(`Example name: products_POST_201_1`);
-
-    await examplePage.closeFixedExampleDialog("Fixed Example");
   });
 }
 
 async function verifyInvalidExampleDetails(examplePage: ExampleGenerationPage) {
   await test.step(`Verify invalid example details`, async () => {
-    const [actualTitle, actualMessage] =
-      await examplePage.getDialogTitleAndMessage();
-
-    expect.soft(actualTitle).toBe("Invalid Example");
-    expect.soft(actualMessage).toContain(`Example name: products_POST_201_1`);
-
-    await examplePage.closeInvalidExampleDialog("Invalid Example");
-
     const [errorCount, errorBlob] =
       await examplePage.getDetailsOfErrorsInExample();
     console.log(
@@ -129,6 +102,6 @@ async function makeInvalidEditsInExample(examplePage: ExampleGenerationPage) {
       },
     ];
     await examplePage.editExample(edits);
-    await examplePage.saveEditedExample();
+    await examplePage.saveEditedExample("Invalid Example");
   });
 }

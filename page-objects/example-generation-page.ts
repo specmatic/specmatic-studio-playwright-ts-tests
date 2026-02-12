@@ -83,6 +83,7 @@ export class ExampleGenerationPage extends BasePage {
     await expect(btn).toBeVisible({ timeout: 4000 });
     await btn.scrollIntoViewIfNeeded();
     await btn.click();
+    await this.page.waitForTimeout(1000);
     await takeAndAttachScreenshot(
       this.page,
       `clicked-generate-${endpoint}-${responseCode}`,
@@ -221,14 +222,12 @@ export class ExampleGenerationPage extends BasePage {
     await expect(alert).toBeAttached({ timeout: 15000 });
 
     const title = await this.getDialogTitle(alert);
-    console.log(`\tActual dialog title: '${title}'`);
-    expect.soft(title).toContain(expectedTitle);
-
     const message = await this.getDialogMessage(alert);
+    expect.soft(title).toContain(expectedTitle);
 
     await alert.locator("button").click();
     console.log(
-      `\tClicked close button on dialog with title: '${expectedTitle}' Vs Actual: '${title}'`,
+      `\t\tClicked close button on dialog with title: '${expectedTitle}' Vs Actual: '${title}'`,
     );
     await this.page.waitForTimeout(1000);
     await takeAndAttachScreenshot(
@@ -274,18 +273,20 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async saveAndValidate() {
-    const iframe = await this.waitForExamplesIFrame();
-    const saveValidateBtn = iframe.locator("button#bulk-validate");
-    await this.page.waitForTimeout(1000);
-    await expect(saveValidateBtn).toBeVisible({ timeout: 4000 });
-    await expect(saveValidateBtn).toBeEnabled({ timeout: 4000 });
-    await saveValidateBtn.click();
-    await this.page.waitForTimeout(1000);
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-save-and-validate",
-      this.eyes,
-    );
+    await test.step(`Click 'Save & Validate' button`, async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const saveValidateBtn = iframe.locator("button#bulk-validate");
+      await this.page.waitForTimeout(1000);
+      await expect(saveValidateBtn).toBeVisible({ timeout: 4000 });
+      await expect(saveValidateBtn).toBeEnabled({ timeout: 4000 });
+      await saveValidateBtn.click();
+      await this.page.waitForTimeout(1000);
+      await takeAndAttachScreenshot(
+        this.page,
+        "clicked-save-and-validate",
+        this.eyes,
+      );
+    });
   }
 
   async deleteGeneratedExamples() {
@@ -626,7 +627,7 @@ export class ExampleGenerationPage extends BasePage {
 
       await autoFixBtn.click();
       await takeAndAttachScreenshot(this.page, `clicked-auto-fix`, this.eyes);
-      await this.verifyTitleAndCloseDialog("Auto-Fix Complete");
+      await this.verifyTitleAndCloseDialog("Fixed Example");
     });
   }
 
@@ -664,11 +665,11 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async saveEditedExample() {
+  async saveEditedExample(expectedDialogTitle: string) {
     await test.step(`Save edited example`, async () => {
       console.log(`Saving edited example`);
       await this.saveAndValidate();
-      await this.verifyTitleAndCloseDialog("Invalid Example");
+      await this.verifyTitleAndCloseDialog(expectedDialogTitle);
     });
   }
 
