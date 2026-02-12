@@ -279,13 +279,45 @@ export class ExampleGenerationPage extends BasePage {
   private async selectAll(iframe: import("@playwright/test").Frame) {
     const selectAll = iframe.locator(this.selectAllCheckboxSelector);
     await selectAll.waitFor({ timeout: 3000 });
-    console.log("\tselect-all checkbox found");
-    if (!(await selectAll.isChecked())) {
-      await selectAll.click({ force: true });
-      await expect(selectAll).toBeChecked({ timeout: 2000 });
-      console.log("\tselect-all checkbox checked");
-      await takeAndAttachScreenshot(this.page, `select-all-checked`);
+    const checkboxes = await selectAll.all();
+    console.log(`\tselect-all checkbox found, count: ${checkboxes.length}`);
+    let allChecked = true;
+    for (let i = 0; i < checkboxes.length; i++) {
+      let checked = await checkboxes[i].isChecked();
+      let attempts = 0;
+      while (!checked && attempts < 3) {
+        await checkboxes[i].click({ force: true });
+        await this.page.waitForTimeout(200);
+        checked = await checkboxes[i].isChecked();
+        console.log(
+          `\tselect-all checkbox[${i}] checked after click attempt ${attempts + 1}: ${checked}`,
+        );
+        attempts++;
+      }
+      if (!checked) {
+        allChecked = false;
+        console.log(
+          `\tselect-all checkbox[${i}] could not be checked after 3 attempts`,
+        );
+      }
     }
+    // Log final checked state for all checkboxes
+    for (let i = 0; i < checkboxes.length; i++) {
+      const checkedState = await checkboxes[i].isChecked();
+      console.log(`\tselect-all checkbox[${i}] final checked: ${checkedState}`);
+    }
+    if (!allChecked) {
+      throw new Error(
+        "selectAll: One or more checkboxes could not be checked after 3 attempts",
+      );
+    }
+    // Also check that at least one is checked for safety
+    if (checkboxes.length === 0) {
+      throw new Error(
+        "selectAll: No checkboxes found for selector 'input#select-all'",
+      );
+    }
+    await takeAndAttachScreenshot(this.page, `select-all-checked`);
   }
 
   private async uncheckSelectAll(iframe: import("@playwright/test").Frame) {
