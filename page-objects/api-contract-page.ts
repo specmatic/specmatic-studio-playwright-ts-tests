@@ -5,108 +5,118 @@ import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
 
 export class ApiContractPage extends BasePage {
   private readonly openApiTabPage: OpenAPISpecTabPage;
-  readonly specTree: Locator;
-  readonly testBtn: Locator;
-  readonly serviceUrlInput: Locator;
-  readonly runButton: Locator;
-  readonly runningButton: Locator;
-  readonly countsContainer: Locator;
-  readonly totalSpan: Locator;
-  readonly successCountSpan: Locator;
-  readonly failedCountSpan: Locator;
-  readonly errorCountSpan: Locator;
-  readonly notcoveredCountSpan: Locator;
-  readonly excludedCountSpan: Locator;
-  readonly excludeButton: Locator;
-  readonly pathHeader: Locator;
-  readonly responseHeader: Locator;
-  readonly uniqueContainer: Locator;
+  protected readonly specTree: Locator;
+  private readonly testBtn: Locator;
+  private readonly serviceUrlInput: Locator;
+  private readonly _runButton: Locator;
+  private readonly runningButton: Locator;
+  private readonly countsContainer: Locator;
+  private readonly totalSpan: Locator;
+  private readonly successCountSpan: Locator;
+  private readonly failedCountSpan: Locator;
+  private readonly errorCountSpan: Locator;
+  private readonly notcoveredCountSpan: Locator;
+  private readonly excludedCountSpan: Locator;
+  private readonly excludeButton: Locator;
+  private readonly pathHeader: Locator;
+  private readonly responseHeader: Locator;
+  private readonly uniqueContainer: Locator;
 
   // Aliases set in constructor
-  readonly rowLocator: (
+  private readonly rowLocator: (
     path: string,
     method: string,
     response: string,
   ) => Locator;
-  readonly remarkCellLocator: (row: Locator) => Locator;
-  readonly pollDataRunning: () => Promise<string | null>;
-  readonly exclusionCheckboxLocator: (
+  private readonly remarkCellLocator: (row: Locator) => Locator;
+  private readonly pollDataRunning: () => Promise<string | null>;
+  private readonly exclusionCheckboxLocator: (
     path: string,
     method: string,
     response: string,
   ) => Locator;
-  readonly headerCheckBox: Locator;
+  private readonly headerCheckBox: Locator;
 
-  readonly tableHeader: (key: string) => Locator;
-  readonly tableRows: Locator;
+  private readonly tableHeader: (key: string) => Locator;
+  private readonly tableRows: Locator;
 
-  readonly summaryCount: (type: string) => Locator;
-  readonly resultCell: Locator;
+  private readonly summaryCount: (type: string) => Locator;
+  private readonly resultCell: Locator;
 
-  readonly failedResultCountSpans: Locator;
-  readonly activeDrillDown: Locator;
-  readonly getExpandHeader: () => Locator;
-  readonly getRawBtn: () => Locator;
-  readonly getTableBtn: () => Locator;
-  readonly getPreDetails: () => Locator;
-  readonly resultsContainer: Locator;
-  readonly drillDownScenarios: Locator;
+  private readonly _failedResultCountSpans: Locator;
+  private readonly activeDrillDown: Locator;
+  private readonly getExpandHeader: () => Locator;
+  private readonly getRawBtn: () => Locator;
+  private readonly getTableBtn: () => Locator;
+  private readonly getPreDetails: () => Locator;
+  private readonly resultsContainer: Locator;
+  private readonly _drillDownScenarios: Locator;
 
-  readonly mixedOperationErrorContainer: Locator;
+  private readonly mixedOperationErrorContainer: Locator;
 
-  readonly prereqErrorAlert: Locator;
-  readonly getPrereqErrorSummary: () => Locator;
-  readonly getPrereqErrorMessage: () => Locator;
+  private readonly prereqErrorAlert: Locator;
+  private readonly getPrereqErrorSummary: () => Locator;
+  private readonly getPrereqErrorMessage: () => Locator;
 
-  readonly generativeCheckbox: Locator;
+  private readonly generativeCheckbox: Locator;
 
-  readonly filterListItems: Locator;
+  private readonly filterListItems: Locator;
 
-  readonly headerByType: (type: string) => Locator;
-  readonly tableResultSpansByType: (type: string) => Locator;
-  readonly countsRoot: Locator;
+  private readonly headerByType: (type: string) => Locator;
+  private readonly tableResultSpansByType: (type: string) => Locator;
+  private readonly countsRoot: Locator;
 
-  constructor(page: Page, testInfo: TestInfo, eyes?: any) {
-    super(page, testInfo, eyes);
+  private readonly specSection: Locator;
+
+  constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
+    super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
-    this.testBtn = page.getByText(/Execute contract tests/i);
-    this.serviceUrlInput = page.getByPlaceholder("Service URL");
-    this.runButton = page.locator(
-      'button.run[data-type="test"][data-running="false"]',
-    );
-    this.runningButton = page.locator('button.run[data-type="test"]');
-    this.countsContainer = page.locator(
+    this.specSection = page.locator(`div[id*="${specName}"]`);
+    this.testBtn = this.specSection.locator('li[data-type="test"]');
+
+    const scoped = (selector: string) => this.specSection.locator(selector);
+
+    this.serviceUrlInput = this.specSection.locator("#testBaseUrl");
+    this._runButton = scoped("#openapi-run-test");
+    this.runningButton = scoped('button.run[data-type="test"]');
+    this.countsContainer = this.specSection.locator(
       'div.test ol.counts[data-filter="total"]',
     );
-    this.totalSpan = page.locator(
-      'div.test ol.counts[data-filter="total"] > li.count[data-type="total"] > span',
+    this.totalSpan = this.countsContainer.locator(
+      'li.count[data-type="total"] > span',
     );
-    this.successCountSpan = page.locator(
-      'div.test ol.counts[data-filter="total"] > li.count[data-type="success"] > span',
+
+    this.successCountSpan = this.countsContainer.locator(
+      'li.count[data-type="success"] > span',
     );
-    this.failedCountSpan = page.locator(
-      'div.test ol.counts[data-filter="total"] > li.count[data-type="failed"] > span',
+
+    this.failedCountSpan = this.countsContainer.locator(
+      'li.count[data-type="failed"] > span',
     );
-    this.errorCountSpan = page.locator(
-      'div.test ol.counts[data-filter="total"] > li.count[data-type="error"] > span',
+
+    this.errorCountSpan = this.countsContainer.locator(
+      'li.count[data-type="error"] > span',
     );
-    this.notcoveredCountSpan = page.locator(
-      'div.test ol.counts[data-filter="total"] > li.count[data-type="notcovered"] > span',
+
+    this.notcoveredCountSpan = this.countsContainer.locator(
+      'li.count[data-type="notcovered"] > span',
     );
-    this.excludedCountSpan = page.locator(
-      'div.test ol.counts[data-filter="total"] > li.count[data-type="excluded"] > span',
+
+    this.excludedCountSpan = this.countsContainer.locator(
+      'li.count[data-type="excluded"] > span',
     );
-    this.pathHeader = page
+
+    this.pathHeader = this.specSection
       .locator("table")
       .filter({ visible: true })
       .locator('th[data-key="path"]')
       .first();
-    this.responseHeader = page
+    this.responseHeader = this.specSection
       .locator("table")
       .filter({ visible: true })
       .locator('th[data-key="response"]')
       .first();
-    this.uniqueContainer = page.locator("#unique-container");
+    this.uniqueContainer = this.specSection.locator("#unique-container");
     this.excludeButton = page.getByRole("button", { name: /exclude/i });
     this.rowLocator = (path: string, method: string, response: string) =>
       page.locator(
@@ -152,9 +162,9 @@ export class ApiContractPage extends BasePage {
         `ol.counts:visible li[data-type="${type}"] span[data-value]`,
       );
 
-    this.resultCell = page.locator('td[data-key="result"]');
+    this.resultCell = scoped('td[data-key="result"]');
 
-    this.failedResultCountSpans = page.locator(
+    this._failedResultCountSpans = page.locator(
       'td[data-key="result"] span[data-key="failed"]:not([data-value="0"])',
     );
 
@@ -170,26 +180,31 @@ export class ApiContractPage extends BasePage {
       .locator("div.body")
       .filter({ visible: true })
       .first();
-    this.drillDownScenarios = this.resultsContainer.locator("drill-down");
+    this._drillDownScenarios = this.resultsContainer.locator("drill-down");
 
     this.mixedOperationErrorContainer = page.locator(
       'div.error[data-active="true"]',
     );
 
-    this.prereqErrorAlert = page.locator("#prereq-error-alert").first();
+    this.prereqErrorAlert = scoped("#prereq-error-alert");
     this.getPrereqErrorSummary = () =>
-      this.prereqErrorAlert.locator("#prereq-error-summary");
+      this.prereqErrorAlert
+        .locator("#prereq-error-summary")
+        .filter({ visible: true });
+
     this.getPrereqErrorMessage = () =>
-      this.prereqErrorAlert.locator("#prereq-error-message");
+      this.prereqErrorAlert
+        .locator("#prereq-error-message")
+        .filter({ visible: true });
 
-    this.generativeCheckbox = page.locator("input#generative");
+    this.generativeCheckbox = scoped("input#generative");
 
-    this.filterListItems = page.locator("ol.counts > li.count");
+    this.filterListItems = scoped("ol.counts > li.count");
 
-    this.countsRoot = page.locator("ol.counts:visible").last();
+    this.countsRoot = scoped("ol.counts:visible").last();
 
     this.headerByType = (type: string) =>
-      page.locator(`ol.counts li.count[data-type="${type}"]`);
+      scoped(`ol.counts li.count[data-type="${type}"]`);
 
     this.tableResultSpansByType = (type: string) =>
       this.resultCell.locator(`span[data-key="${type}"]`);
@@ -221,42 +236,24 @@ export class ApiContractPage extends BasePage {
   async clickRunContractTests() {
     await test.step("Run Contract Tests", async () => {
       try {
-        await expect(this.runButton).toBeVisible({ timeout: 10000 });
-        await expect(this.runButton).toBeEnabled({ timeout: 10000 });
-      } catch (e) {
-        await takeAndAttachScreenshot(this.page, "error-run-btn-not-visible");
-        throw new Error(`Run button not visible/enabled: ${e}`);
-      }
-      const runBtnSelector =
-        'button.run[data-type="test"][data-running="false"]';
-      try {
-        await this.page.waitForFunction(
-          (selector) => {
-            const el = document.querySelector(selector);
-            if (!el) return false;
-            const rect = el.getBoundingClientRect();
-            const x = rect.left + rect.width / 2;
-            const y = rect.top + rect.height / 2;
-            const elementAtPoint = document.elementFromPoint(x, y);
-            return elementAtPoint === el || el.contains(elementAtPoint);
-          },
-          runBtnSelector,
-          { timeout: 10000 },
-        );
-      } catch (e) {
+        await expect(this._runButton).toBeEnabled({ timeout: 10000 });
+
+        await expect(this._runButton).toHaveAttribute("data-running", "false", {
+          timeout: 10000,
+        });
+
+        await this._runButton.click();
+
         await takeAndAttachScreenshot(
           this.page,
-          "error-run-btn-not-interactable",
+          "clicked-run-contract-tests",
+          this.eyes,
         );
-        throw new Error(`Run button not interactable: ${e}`);
+        await this.waitForTestCompletion();
+      } catch (e) {
+        await takeAndAttachScreenshot(this.page, "error-run-btn-failed");
+        throw new Error(`Failed to click Run button:`);
       }
-      await this.runButton.click();
-      await takeAndAttachScreenshot(
-        this.page,
-        "clicked-run-contract-tests",
-        this.eyes,
-      );
-      await this.waitForTestCompletion();
     });
   }
 
@@ -590,13 +587,13 @@ export class ApiContractPage extends BasePage {
   }
 
   async getFailedResultsCount(index: number): Promise<number> {
-    const span = this.failedResultCountSpans.nth(index);
+    const span = this._failedResultCountSpans.nth(index);
     const value = await span.getAttribute("data-value");
     return parseInt(value || "0", 10);
   }
 
   async clickFailedResults(index: number): Promise<void> {
-    const span = this.failedResultCountSpans.nth(index);
+    const span = this._failedResultCountSpans.nth(index);
     await span.click();
     await takeAndAttachScreenshot(
       this.page,
@@ -616,7 +613,7 @@ export class ApiContractPage extends BasePage {
   }
 
   async toggleScenarioViews(scenarioIndex: number = 0) {
-    const scenario = this.drillDownScenarios.nth(scenarioIndex);
+    const scenario = this._drillDownScenarios.nth(scenarioIndex);
     const header = scenario.locator(".header");
 
     if ((await header.getAttribute("aria-expanded")) === "false") {
@@ -716,5 +713,18 @@ export class ApiContractPage extends BasePage {
       await this.sideBar.selectSpec(specName);
       await this.openExecuteContractTestsTab();
     });
+  }
+
+  // Getters for accessing private locators from tests
+  get failedResultCountSpans(): Locator {
+    return this._failedResultCountSpans;
+  }
+
+  get drillDownScenarios(): Locator {
+    return this._drillDownScenarios;
+  }
+
+  get runButton(): Locator {
+    return this._runButton;
   }
 }
