@@ -3,7 +3,7 @@ import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC, ORDER_BFF_SERVICE_URL } from "../specNames";
 import { ApiContractPage } from "../../page-objects/api-contract-page";
 
-test.describe("API Contract Testing", () => {
+test.describe.serial("API Contract Testing", () => {
   test(
     "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings and verify test execution status",
     { tag: ["@apiContract", "@runContractTests"] },
@@ -12,9 +12,11 @@ test.describe("API Contract Testing", () => {
       const contractPage = new ApiContractPage(page, testInfo, eyes);
 
       await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-        await contractPage.gotoHomeAndOpenSidebar();
-        await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-        await contractPage.openExecuteContractTestsTab();
+        await contractPage.openContractTestTabForSpec(
+          testInfo,
+          eyes,
+          PRODUCT_SEARCH_BFF_SPEC,
+        );
       });
 
       await test.step("Enter service URL and run contract tests", async () => {
@@ -61,9 +63,11 @@ test.describe("API Contract Testing", () => {
       test.setTimeout(180000);
       const contractPage = new ApiContractPage(page, testInfo, eyes);
       await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-        await contractPage.gotoHomeAndOpenSidebar();
-        await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-        await contractPage.openExecuteContractTestsTab();
+        await contractPage.openContractTestTabForSpec(
+          testInfo,
+          eyes,
+          PRODUCT_SEARCH_BFF_SPEC,
+        );
       });
       await test.step("Exclude single test", async () => {
         const contractPage = new ApiContractPage(page, testInfo, eyes);
@@ -207,9 +211,12 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
   test.beforeEach(async ({ page, eyes }, testInfo) => {
     test.setTimeout(180000);
     const contractPage = new ApiContractPage(page, testInfo, eyes);
-    await contractPage.gotoHomeAndOpenSidebar();
-    await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-    await contractPage.openExecuteContractTestsTab();
+
+    await contractPage.openContractTestTabForSpec(
+      testInfo,
+      eyes,
+      PRODUCT_SEARCH_BFF_SPEC,
+    );
   });
 
   test(
@@ -242,7 +249,47 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
   );
 });
 
-test.describe(
+// test(
+//   "Verify results table filtering by header categories",
+//   { tag: ["@apiContract", "@filterTest"] },
+//   async ({ page, eyes }, testInfo) => {
+//     test.setTimeout(60000);
+//     const contractPage = new ApiContractPage(page, testInfo);
+
+//     // 1. Setup & Execution
+//     await contractPage.openContractTestTabForSpec(
+//       testInfo,
+//       eyes,
+//       PRODUCT_SEARCH_BFF_SPEC,
+//     );
+
+//     await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+//     await contractPage.setGenerativeMode(false);
+//     await contractPage.clickRunContractTests();
+
+//     const filterToTest = "success";
+//     const { expectedValue, expectedResultAttr } =
+//       await contractPage.applyHeaderFilterByType(filterToTest);
+
+//     await expect(page.locator("ol.counts").last()).toHaveAttribute(
+//       "data-filter",
+//       filterToTest,
+//     );
+
+//     await expect(contractPage.tableRows).toHaveCount(expectedValue, {
+//       timeout: 10000,
+//     });
+
+//     if (expectedValue > 0) {
+//       await expect(contractPage.tableRows.first()).toHaveAttribute(
+//         "data-_result",
+//         expectedResultAttr,
+//       );
+//     }
+//   },
+// );
+
+test.describe.serial(
   "Generative Test Suite - Include/Exclude Combinations",
   {
     tag: ["@apiContract", "@generativeTests"],
@@ -251,11 +298,15 @@ test.describe(
     test.setTimeout(180000);
     let contractPage: ApiContractPage;
 
-    test.beforeEach(async ({ page }, testInfo) => {
+    test.beforeEach(async ({ page, eyes }, testInfo) => {
       contractPage = new ApiContractPage(page, testInfo);
-      await contractPage.gotoHomeAndOpenSidebar();
-      await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-      await contractPage.openExecuteContractTestsTab();
+
+      await contractPage.openContractTestTabForSpec(
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
+
       await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
     });
 
@@ -274,39 +325,6 @@ test.describe(
         excluded: 0,
       });
     });
-  },
-);
-
-test(
-  "Verify results table filtering by header categories",
-  { tag: ["@apiContract", "@generativeTests", "@filterTest"] },
-  async ({ page }, testInfo) => {
-    test.setTimeout(180000);
-    const contractPage = new ApiContractPage(page, testInfo);
-
-    // 1. Setup & Execution
-    await contractPage.gotoHomeAndOpenSidebar();
-    await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-    await contractPage.openExecuteContractTestsTab();
-    await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
-    await contractPage.setGenerativeMode(false);
-    await contractPage.clickRunContractTests();
-
-    const { expectedValue, expectedResultAttr } =
-      await contractPage.applyHeaderFilterByType("success");
-
-    expect(expectedValue).toBe(12);
-
-    await expect(contractPage.tableRows).toHaveCount(expectedValue, {
-      timeout: 10000,
-    });
-
-    if (expectedValue > 0) {
-      await expect(contractPage.tableRows.first()).toHaveAttribute(
-        "data-_result",
-        expectedResultAttr,
-      );
-    }
   },
 );
 

@@ -2,7 +2,6 @@ import { test, Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
-import { TIMEOUT } from "node:dns";
 
 export class ApiContractPage extends BasePage {
   private readonly openApiTabPage: OpenAPISpecTabPage;
@@ -63,7 +62,7 @@ export class ApiContractPage extends BasePage {
 
   readonly filterListItems: Locator;
 
-  constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
+  constructor(page: Page, testInfo: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
     this.testBtn = page.getByText(/Execute contract tests/i);
@@ -185,7 +184,7 @@ export class ApiContractPage extends BasePage {
   }
 
   //Function Beginning
-  async openExecuteContractTestsTab() {
+  private async openExecuteContractTestsTab() {
     return this.openApiTabPage.openExecuteContractTestsTab();
   }
 
@@ -681,5 +680,20 @@ export class ApiContractPage extends BasePage {
     await takeAndAttachScreenshot(this.page, `Filter Clicked for ${filter}`);
 
     return { expectedValue, expectedResultAttr };
+  }
+
+  async openContractTestTabForSpec(
+    testInfo: import("@playwright/test").TestInfo,
+    eyes: any,
+    specName: string,
+  ) {
+    await test.step(`Go to Example Generation page for Service Spec: '${specName}'`, async () => {
+      console.log(
+        `Opening Example Generation page for Service Spec: '${specName}'`,
+      );
+      await this.gotoHome();
+      await this.sideBar.selectSpec(specName);
+      await this.openExecuteContractTestsTab();
+    });
   }
 }
