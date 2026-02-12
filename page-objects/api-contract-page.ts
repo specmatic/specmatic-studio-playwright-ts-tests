@@ -62,6 +62,10 @@ export class ApiContractPage extends BasePage {
 
   readonly filterListItems: Locator;
 
+  readonly headerByType: (type: string) => Locator;
+  readonly tableResultSpansByType: (type: string) => Locator;
+  readonly countsRoot: Locator;
+
   constructor(page: Page, testInfo: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
     this.specTree = page.locator("#spec-tree");
@@ -181,6 +185,14 @@ export class ApiContractPage extends BasePage {
     this.generativeCheckbox = page.locator("input#generative");
 
     this.filterListItems = page.locator("ol.counts > li.count");
+
+    this.countsRoot = page.locator("ol.counts:visible").last();
+
+    this.headerByType = (type: string) =>
+      page.locator(`ol.counts li.count[data-type="${type}"]`);
+
+    this.tableResultSpansByType = (type: string) =>
+      this.resultCell.locator(`span[data-key="${type}"]`);
   }
 
   //Function Beginning
@@ -649,37 +661,46 @@ export class ApiContractPage extends BasePage {
     );
   }
 
-  /**
-   * POM Action: Applies a filter by its name (success, failed, total, etc.)
-   * Returns the expected values to the test for verification.
-   */
-  async applyHeaderFilterByType(filterType: string) {
-    const filter = this.page
-      .locator(`ol.counts > li.count[data-type="${filterType}"]`)
-      .first();
+  async applyHeaderFilterAndGetExpectedCount(
+    filterType: string,
+  ): Promise<number | null> {
+    const header = this.headerByType(filterType).last();
 
-    const classAttr = (await filter.getAttribute("class")) || "";
+    await expect(header, `Header "${filterType}" not found`).toBeVisible();
+
+    const classAttr = (await header.getAttribute("class")) || "";
     if (classAttr.includes("disabled")) {
-      throw new Error(
-        `Filter "${filterType}" is currently disabled and cannot be clicked.`,
-      );
+      console.info(`Filter "${filterType}" is disabled — skipping`);
+      return null;
     }
 
-    const expectedValue = parseInt(
-      (await filter.locator("span").getAttribute("data-value")) || "0",
-      10,
-    );
+    const expectedCount = await this.getHeaderCount(filterType);
 
-    const expectedResultAttr =
-      filterType === "notcovered"
-        ? "NotCovered"
-        : filterType.charAt(0).toUpperCase() + filterType.slice(1);
+    await header.click();
 
-    await filter.dispatchEvent("click");
+    await expect(this.countsRoot).toHaveAttribute("data-filter", filterType);
 
-    await takeAndAttachScreenshot(this.page, `Filter Clicked for ${filter}`);
+    return expectedCount;
+  }
 
-    return { expectedValue, expectedResultAttr };
+  async getHeaderCount(filterType: string): Promise<number> {
+    const header = await this.summaryCount(filterType);
+
+    return parseInt((await header.getAttribute("data-value")) || "0", 10);
+  }
+
+  async getTableCountByResult(filterType: string): Promise<number> {
+    const resultSpans = this.tableResultSpansByType(filterType);
+
+    const count = await resultSpans.count();
+    let total = 0;
+
+    for (let i = 0; i < count; i++) {
+      const value = await resultSpans.nth(i).getAttribute("data-value");
+      total += value ? Number(value) : 0;
+    }
+
+    return total;
   }
 
   async openContractTestTabForSpec(

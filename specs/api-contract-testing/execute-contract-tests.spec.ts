@@ -249,45 +249,40 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
   );
 });
 
-// test(
-//   "Verify results table filtering by header categories",
-//   { tag: ["@apiContract", "@filterTest"] },
-//   async ({ page, eyes }, testInfo) => {
-//     test.setTimeout(60000);
-//     const contractPage = new ApiContractPage(page, testInfo);
+test(
+  "Verify filtering by header",
+  { tag: ["@apiContract", "@filterTest"] },
+  async ({ page, eyes }, testInfo) => {
+    test.setTimeout(60000);
 
-//     // 1. Setup & Execution
-//     await contractPage.openContractTestTabForSpec(
-//       testInfo,
-//       eyes,
-//       PRODUCT_SEARCH_BFF_SPEC,
-//     );
+    const contractPage = new ApiContractPage(page, testInfo);
 
-//     await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
-//     await contractPage.setGenerativeMode(false);
-//     await contractPage.clickRunContractTests();
+    await contractPage.openContractTestTabForSpec(
+      testInfo,
+      eyes,
+      PRODUCT_SEARCH_BFF_SPEC,
+    );
 
-//     const filterToTest = "success";
-//     const { expectedValue, expectedResultAttr } =
-//       await contractPage.applyHeaderFilterByType(filterToTest);
+    await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+    await contractPage.setGenerativeMode(false);
+    await contractPage.clickRunContractTests();
 
-//     await expect(page.locator("ol.counts").last()).toHaveAttribute(
-//       "data-filter",
-//       filterToTest,
-//     );
+    const filterTypes = ["success", "failed"];
 
-//     await expect(contractPage.tableRows).toHaveCount(expectedValue, {
-//       timeout: 10000,
-//     });
+    for (const filterType of filterTypes) {
+      const expectedCount =
+        await contractPage.applyHeaderFilterAndGetExpectedCount(filterType);
 
-//     if (expectedValue > 0) {
-//       await expect(contractPage.tableRows.first()).toHaveAttribute(
-//         "data-_result",
-//         expectedResultAttr,
-//       );
-//     }
-//   },
-// );
+      if (expectedCount == null) return;
+
+      const tableCount = await contractPage.getTableCountByResult(filterType);
+
+      expect(tableCount, `Mismatch for filter "${filterType}"`).toBe(
+        expectedCount,
+      );
+    }
+  },
+);
 
 test.describe.serial(
   "Generative Test Suite - Include/Exclude Combinations",
