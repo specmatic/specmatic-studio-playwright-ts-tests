@@ -214,19 +214,26 @@ export class ExampleGenerationPage extends BasePage {
     console.log(`\tVerifying dialog with expected text: '${expectedTitle}'`);
     await takeAndAttachScreenshot(
       this.page,
-      `verifying-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
+      `before-closing-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
 
     const { alert } = await this.getAlertContainerFrameAndLocator();
     await expect(alert).toBeAttached({ timeout: 15000 });
 
     const title = await this.getDialogTitle(alert);
+    console.log(`\tActual dialog title: '${title}'`);
+    expect.soft(title).toContain(expectedTitle);
+
     const message = await this.getDialogMessage(alert);
 
     await alert.locator("button").click();
+    console.log(
+      `\tClicked close button on dialog with title: '${expectedTitle}' Vs Actual: '${title}'`,
+    );
+    await this.page.waitForTimeout(1000);
     await takeAndAttachScreenshot(
       this.page,
-      `verified-and-closed-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
+      `after-closing-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
     await expect(alert).toBeHidden();
   }
@@ -269,9 +276,11 @@ export class ExampleGenerationPage extends BasePage {
   private async saveAndValidate() {
     const iframe = await this.waitForExamplesIFrame();
     const saveValidateBtn = iframe.locator("button#bulk-validate");
+    await this.page.waitForTimeout(1000);
     await expect(saveValidateBtn).toBeVisible({ timeout: 4000 });
     await expect(saveValidateBtn).toBeEnabled({ timeout: 4000 });
     await saveValidateBtn.click();
+    await this.page.waitForTimeout(1000);
     await takeAndAttachScreenshot(
       this.page,
       "clicked-save-and-validate",
@@ -288,6 +297,7 @@ export class ExampleGenerationPage extends BasePage {
       const bulkDeleteBtn = iframe.locator(this.bulkDeleteBtnSelector);
       let deleteClicked = false;
       if (await bulkDeleteBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await takeAndAttachScreenshot(this.page, `click-bulk-delete`);
         await bulkDeleteBtn.click();
         deleteClicked = true;
         console.log("\tbulk-delete button clicked");

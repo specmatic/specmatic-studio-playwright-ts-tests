@@ -4,6 +4,7 @@ import { ExampleGenerationPage } from "../../page-objects/example-generation-pag
 import { Page, TestInfo } from "@playwright/test";
 import { Edit } from "../../utils/types/json-edit.types";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
+import { Eyes } from "@applitools/eyes-playwright";
 
 test.describe.serial("Edit, save, validate and fix examples", () => {
   test(
@@ -27,68 +28,107 @@ test.describe.serial("Edit, save, validate and fix examples", () => {
 
       await examplePage.generateExampleAndViewDetailsForPath("products", 201);
 
-      const edits: Edit[] = [
-        {
-          current: { mode: "keyAndAnyNumber", key: "inventory" },
-          changeTo: '"inventy": "10"',
-        },
-        {
-          current: { mode: "keyAndAnyNumber", key: "id" },
-          changeTo: '"idty": "abc"',
-        },
-      ];
-      await examplePage.editExample(edits);
-      await examplePage.saveEditedExample();
-      const [actualTitle, actualMessage] =
-        await examplePage.getDialogTitleAndMessage();
+      await makeInvalidEditsInExample(examplePage);
 
-      expect.soft(actualTitle).toBe("Invalid Example");
-      expect.soft(actualMessage).toContain(`Example name: products_POST_201_1`);
+      await verifyInvalidExampleDetails(examplePage);
 
-      await examplePage.closeInvalidExampleDialog("Invalid Example");
-      const validationErrors = await examplePage.getDetailsOfErrorsInExample();
-      console.log(
-        "Validation errors in example:",
-        JSON.stringify(validationErrors, null, 2),
-      );
+      await fixExampleWithAutoCorrection(examplePage);
 
-    //   expect.soft(validationErrors.length).toBe(2);
-    //   expect.soft(validationErrors[0].location).toBe("response body");
-    //   expect.soft(validationErrors[0].code).toBe("YAMLException");
-    //   expect
-    //     .soft(validationErrors[0].summary)
-    //     .toBe("Bad indentation of a mapping entry");
-    //   expect
-    //     .soft(validationErrors[0].details)
-    //     .toContain("at line 15, column 11:");
+      await validateAndSaveEditedExample(examplePage, page, eyes);
 
-      await examplePage.fixExampleWithAutoFix();
-
-      const [actualTitleAfterFix, actualMessageAfterFix] =
-        await examplePage.getDialogTitleAndMessage();
-
-      expect.soft(actualTitleAfterFix).toBe("Fixed Example");
-      expect
-        .soft(actualMessageAfterFix)
-          .toContain(`Example name: products_POST_201_1`);
-        
-        await examplePage.closeFixedExampleDialog("Fixed Example");
-
-        await examplePage.saveEditedExample();
-
-        const [actualTitleAfterSave, actualMessageAfterSave] =
-          await examplePage.getDialogTitleAndMessage();
-
-        expect.soft(actualMessageAfterSave).toBe("Valid Example");
-        expect
-          .soft(actualMessageAfterSave)
-            .toContain(`Example name: products_POST_201_1`);
-        
-        await examplePage.closeValidExampleDialog("Valid Example");
-
-        await takeAndAttachScreenshot(page, "Edited, fixed and validated example", eyes);
-
-        console.log(`Completed test: ${testInfo.title}`);
+      console.log(`Completed test: ${testInfo.title}`);
     },
   );
 });
+
+async function validateAndSaveEditedExample(
+  examplePage: ExampleGenerationPage,
+  page: Page,
+  eyes: Eyes,
+) {
+  await test.step(`Validate the fixed example and verify details`, async () => {
+    await examplePage.saveEditedExample();
+
+    const [actualTitleAfterSave, actualMessageAfterSave] =
+      await examplePage.getDialogTitleAndMessage();
+
+    expect.soft(actualTitleAfterSave).toBe("Valid Example");
+    expect
+      .soft(actualMessageAfterSave)
+      .toContain(`Example name: products_POST_201_1`);
+
+    await examplePage.closeValidExampleDialog("Valid Example");
+
+    await takeAndAttachScreenshot(
+      page,
+      "Edited, fixed and validated example",
+      eyes,
+    );
+  });
+}
+
+async function fixExampleWithAutoCorrection(
+  examplePage: ExampleGenerationPage,
+) {
+  await test.step(`Fix example with auto-fix and verify details`, async () => {
+    await examplePage.fixExampleWithAutoFix();
+
+    const [actualTitleAfterFix, actualMessageAfterFix] =
+      await examplePage.getDialogTitleAndMessage();
+
+    expect.soft(actualTitleAfterFix).toBe("Fixed Example");
+    expect
+      .soft(actualMessageAfterFix)
+      .toContain(`Example name: products_POST_201_1`);
+
+    await examplePage.closeFixedExampleDialog("Fixed Example");
+  });
+}
+
+async function verifyInvalidExampleDetails(examplePage: ExampleGenerationPage) {
+  await test.step(`Verify invalid example details`, async () => {
+    const [actualTitle, actualMessage] =
+      await examplePage.getDialogTitleAndMessage();
+
+    expect.soft(actualTitle).toBe("Invalid Example");
+    expect.soft(actualMessage).toContain(`Example name: products_POST_201_1`);
+
+    await examplePage.closeInvalidExampleDialog("Invalid Example");
+
+    const [errorCount, errorBlob] =
+      await examplePage.getDetailsOfErrorsInExample();
+    console.log(
+      "Validation errors in example:",
+      JSON.stringify({ errorCount, errorBlob }, null, 2),
+    );
+
+    expect.soft(errorCount).toBe(2);
+    expect
+      .soft(errorBlob)
+      .toContain(
+        `Property "inventoy" in the example was not in the specification. Did you mean "inventory"?`,
+      );
+    expect
+      .soft(errorBlob)
+      .toContain(
+        `Property "idty" in the example was not in the specification. Did you mean "id"?"?`,
+      );
+  });
+}
+
+async function makeInvalidEditsInExample(examplePage: ExampleGenerationPage) {
+  await test.step(`Make invalid edits in example`, async () => {
+    const edits: Edit[] = [
+      {
+        current: { mode: "keyAndAnyNumber", key: "inventory" },
+        changeTo: '"inventy": "10"',
+      },
+      {
+        current: { mode: "keyAndAnyNumber", key: "id" },
+        changeTo: '"idty": "abc"',
+      },
+    ];
+    await examplePage.editExample(edits);
+    await examplePage.saveEditedExample();
+  });
+}
