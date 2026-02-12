@@ -20,6 +20,11 @@ test.describe.serial("Example Generation", () => {
       await examplePage.generateAndValidateForPaths([
         { path: "findAvailableProducts", responseCodes: [200, 400] },
       ]);
+
+      const numberOfExamplesValidated =
+        await examplePage.getNumberOfExamplesValidated();
+
+      expect(numberOfExamplesValidated).toBe(2);
     },
   );
 
@@ -39,44 +44,49 @@ test.describe.serial("Example Generation", () => {
         { path: "products", responseCodes: [201, 202, 400] },
         { path: "monitor/(id:number)", responseCodes: [200, 400] },
       ]);
+
+      const numberOfExamplesValidated =
+        await examplePage.getNumberOfExamplesValidated();
+
+      expect(numberOfExamplesValidated).toBe(5);
     },
   );
 
-test(
-  `Generate examples for ALL paths of '${PRODUCT_SEARCH_BFF_SPEC}' for all response codes and methods`,
-  { tag: ["@exampleGeneration", "@allPathGeneration"] },
-  async ({ page, eyes }, testInfo) => {
-    const examplePage = new ExampleGenerationPage(page, testInfo, eyes);
-    await examplePage.openExampleGenerationTabForSpec(
-      testInfo,
-      eyes,
-      PRODUCT_SEARCH_BFF_SPEC,
-    );
+  test(
+    `Generate examples for ALL paths of '${PRODUCT_SEARCH_BFF_SPEC}' for all response codes and methods`,
+    { tag: ["@exampleGeneration", "@allPathGeneration"] },
+    async ({ page, eyes }, testInfo) => {
+      const examplePage = new ExampleGenerationPage(page, testInfo, eyes);
+      await examplePage.openExampleGenerationTabForSpec(
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
 
-    const expectedNumberOfExamples =
-      await examplePage.getNumberOfPathMethodsAndResponses();
+      const expectedNumberOfExamples =
+        await examplePage.getNumberOfPathMethodsAndResponses();
 
-    await examplePage.deleteGeneratedExamples();
+      await examplePage.deleteGeneratedExamples();
 
-    const numberOfGenerateButtons =
-      await examplePage.getNumberOfGenerateButtons();
+      const numberOfGenerateButtons =
+        await examplePage.getNumberOfGenerateButtons();
 
-    await examplePage.generateAllExamples();
+      await examplePage.generateAllExamples();
 
-    const numberOfExamplesGenerated =
-      await examplePage.getNumberOfExamplesGenerated(); // get number of files generated from the UI after generation is complete
+      const numberOfExamplesGenerated =
+        await examplePage.getNumberOfExamplesGenerated(); // get number of files generated from the UI after generation is complete
 
-    const numberOfValidateButtons =
-      await examplePage.getNumberOfValidateButtons();
+      const numberOfValidateButtons =
+        await examplePage.getNumberOfValidateButtons();
 
-    await examplePage.validateAllExamples();
+      await examplePage.validateAllExamples();
 
-    const numberOfExamplesValidated =
-      await examplePage.getNumberOfExamplesValidated();
+      const numberOfExamplesValidated =
+        await examplePage.getNumberOfExamplesValidated();
 
-    expect.soft(numberOfGenerateButtons).toBe(numberOfValidateButtons);
-    expect.soft(numberOfExamplesGenerated).toBe(expectedNumberOfExamples);
-    expect.soft(numberOfExamplesValidated).toBe(expectedNumberOfExamples);
-  },
-);
+      expect.soft(numberOfGenerateButtons).toBe(numberOfValidateButtons);
+      expect.soft(numberOfExamplesGenerated).toBe(expectedNumberOfExamples);
+      expect.soft(numberOfExamplesValidated).toBe(expectedNumberOfExamples);
+    },
+  );
 });
