@@ -14,7 +14,8 @@
     "test:prod": "cross-env ENV_NAME=prod playwright test",
     "test:ci": "cross-env ENV_NAME=ci playwright test",
     "test:tag": "playwright test --grep",
-    "test:headed:tag": "playwright test --headed --grep"
+    "test:headed:tag": "playwright test --headed --grep",
+    "test:summary": "node utils/generate-failed-test-screenshots-summary.js"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.2.0",
     "cross-env": "^10.1.0",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "xml2js": "^0.6.2"
   }
 }
