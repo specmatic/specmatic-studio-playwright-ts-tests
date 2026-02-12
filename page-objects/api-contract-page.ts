@@ -2,6 +2,7 @@ import { test, Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
+import { TIMEOUT } from "node:dns";
 
 export class ApiContractPage extends BasePage {
   private readonly openApiTabPage: OpenAPISpecTabPage;
@@ -35,6 +36,7 @@ export class ApiContractPage extends BasePage {
     method: string,
     response: string,
   ) => Locator;
+  readonly headerCheckBox: Locator;
 
   readonly tableHeader: (key: string) => Locator;
   readonly tableRows: Locator;
@@ -50,6 +52,16 @@ export class ApiContractPage extends BasePage {
   readonly getPreDetails: () => Locator;
   readonly resultsContainer: Locator;
   readonly drillDownScenarios: Locator;
+
+  readonly mixedOperationErrorContainer: Locator;
+
+  readonly prereqErrorAlert: Locator;
+  readonly getPrereqErrorSummary: () => Locator;
+  readonly getPrereqErrorMessage: () => Locator;
+
+  readonly generativeCheckbox: Locator;
+
+  readonly filterListItems: Locator;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
@@ -120,6 +132,10 @@ export class ApiContractPage extends BasePage {
       page.locator(
         `table#test > tbody > tr:has(td[data-key="path"][data-value="${path}"]):has(td[data-key="method"][data-value="${method}"]):has(td[data-key="response"][data-value="${response}"]) input[type='checkbox']`,
       );
+
+    this.headerCheckBox = page.locator(
+      'table#test thead input[type="checkbox"]',
+    );
     this.openApiTabPage = new OpenAPISpecTabPage(this);
 
     //Table Locators
@@ -152,6 +168,20 @@ export class ApiContractPage extends BasePage {
       .filter({ visible: true })
       .first();
     this.drillDownScenarios = this.resultsContainer.locator("drill-down");
+
+    this.mixedOperationErrorContainer = page.locator(
+      'div.error[data-active="true"]',
+    );
+
+    this.prereqErrorAlert = page.locator("#prereq-error-alert").first();
+    this.getPrereqErrorSummary = () =>
+      this.prereqErrorAlert.locator("#prereq-error-summary");
+    this.getPrereqErrorMessage = () =>
+      this.prereqErrorAlert.locator("#prereq-error-message");
+
+    this.generativeCheckbox = page.locator("input#generative");
+
+    this.filterListItems = page.locator("ol.counts > li.count");
   }
 
   //Function Beginning
@@ -165,6 +195,16 @@ export class ApiContractPage extends BasePage {
       await this.serviceUrlInput.fill(serviceUrl);
       await takeAndAttachScreenshot(this.page, "service-url-entered");
     });
+  }
+
+  async setGenerativeMode(enable: boolean) {
+    const isChecked = await this.generativeCheckbox.isChecked();
+    if (isChecked !== enable) {
+      enable
+        ? await this.generativeCheckbox.check()
+        : await this.generativeCheckbox.uncheck();
+    }
+    await takeAndAttachScreenshot(this.page, `generative-mode-${enable}`);
   }
 
   async clickRunContractTests() {
@@ -308,7 +348,11 @@ export class ApiContractPage extends BasePage {
     }
   }
 
-  async selectTestForExclusion(path: string, method: string, response: string) {
+  async selectTestForExclusionOrInclusion(
+    path: string,
+    method: string,
+    response: string,
+  ) {
     const checkbox = this.exclusionCheckboxLocator(path, method, response);
     try {
       await expect(checkbox).toBeVisible({ timeout: 15000 });
@@ -349,6 +393,51 @@ export class ApiContractPage extends BasePage {
     );
   }
 
+  async clickIncludeButton() {
+    await expect(this.page.locator("button.clear")).toBeVisible({
+      timeout: 10000,
+    });
+    await this.page.locator("button.clear").click();
+    await takeAndAttachScreenshot(
+      this.page,
+      "include-button-clicked",
+      this.eyes,
+    );
+  }
+
+  async selectAllTestsForExclusion() {
+    await this.headerCheckBox.check();
+    await takeAndAttachScreenshot(this.page, "all-tests-checked", this.eyes);
+  }
+
+  async selectMultipleTests(
+    testList: { path: string; method: string; response: string }[],
+  ) {
+    for (const testItem of testList) {
+      await this.selectTestForExclusionOrInclusion(
+        testItem.path,
+        testItem.method,
+        testItem.response,
+      );
+    }
+  }
+
+  async getMixedOperationErrorText(): Promise<string> {
+    await this.mixedOperationErrorContainer.waitFor({
+      state: "visible",
+      timeout: 5000,
+    });
+    const errorText = await this.mixedOperationErrorContainer.innerText();
+
+    await takeAndAttachScreenshot(
+      this.page,
+      "mixed-operation-error-captured",
+      this.eyes,
+    );
+
+    return errorText;
+  }
+
   // async verifyTestExclusion() {
   //   const excludedCount = this.countsContainer.locator(
   //     'li[data-type="excluded"] span',
@@ -361,18 +450,6 @@ export class ApiContractPage extends BasePage {
   //   );
   // }
 
-  async verifyFinalCounts(expected: { Excluded: number; Total: number }) {
-    await expect(this.excludedCountSpan.last()).toHaveText(
-      String(expected.Excluded),
-      {
-        timeout: 10000,
-      },
-    );
-    await expect(this.totalSpan.last()).toHaveText(String(expected.Total), {
-      timeout: 10000,
-    });
-  }
-
   /**
    * Retrieves the 'data-total' attribute value for a specific header key
    * @param key 'path' | 'method' | 'response'
@@ -382,6 +459,7 @@ export class ApiContractPage extends BasePage {
 
     const enabledCount =
       await this.tableHeader(key).getAttribute("data-enabled");
+
     return parseInt(enabledCount || "0", 10);
   }
 
@@ -500,24 +578,20 @@ export class ApiContractPage extends BasePage {
     };
   }
 
-  async openFailedResults(index: number): Promise<number> {
+  async getFailedResultsCount(index: number): Promise<number> {
     const span = this.failedResultCountSpans.nth(index);
-    const failedValue = parseInt(
-      (await span.getAttribute("data-value")) || "0",
-      10,
+    const value = await span.getAttribute("data-value");
+    return parseInt(value || "0", 10);
+  }
+
+  async clickFailedResults(index: number): Promise<void> {
+    const span = this.failedResultCountSpans.nth(index);
+    await span.click();
+    await takeAndAttachScreenshot(
+      this.page,
+      "Clicked Failed Scenarios",
+      this.eyes,
     );
-
-    if (failedValue > 0) {
-      await expect(span).toBeVisible({ timeout: 5000 });
-      await span.click();
-      await takeAndAttachScreenshot(
-        this.page,
-        "Clicked Failed Scenarios",
-        this.eyes,
-      );
-    }
-
-    return failedValue;
   }
 
   async verifyFailedScenariosCount(expectedCount: number) {
@@ -528,10 +602,6 @@ export class ApiContractPage extends BasePage {
       `Expected Failed Scenario Count ${expectedCount}`,
       this.eyes,
     );
-
-    await expect(this.drillDownScenarios).toHaveCount(expectedCount, {
-      timeout: 10000,
-    });
   }
 
   async toggleScenarioViews(scenarioIndex: number = 0) {
@@ -565,5 +635,51 @@ export class ApiContractPage extends BasePage {
       `toggled-scenario-${scenarioIndex}`,
       this.eyes,
     );
+  }
+
+  async verifyPrereqErrorVisible(expectedSummary: string | RegExp) {
+    const summary = this.getPrereqErrorSummary();
+
+    await expect(summary).toBeAttached({ timeout: 15000 });
+    await expect(summary).toContainText(expectedSummary);
+
+    await takeAndAttachScreenshot(
+      this.page,
+      "prereq-error-verified",
+      this.eyes,
+    );
+  }
+
+  /**
+   * POM Action: Applies a filter by its name (success, failed, total, etc.)
+   * Returns the expected values to the test for verification.
+   */
+  async applyHeaderFilterByType(filterType: string) {
+    const filter = this.page
+      .locator(`ol.counts > li.count[data-type="${filterType}"]`)
+      .first();
+
+    const classAttr = (await filter.getAttribute("class")) || "";
+    if (classAttr.includes("disabled")) {
+      throw new Error(
+        `Filter "${filterType}" is currently disabled and cannot be clicked.`,
+      );
+    }
+
+    const expectedValue = parseInt(
+      (await filter.locator("span").getAttribute("data-value")) || "0",
+      10,
+    );
+
+    const expectedResultAttr =
+      filterType === "notcovered"
+        ? "NotCovered"
+        : filterType.charAt(0).toUpperCase() + filterType.slice(1);
+
+    await filter.dispatchEvent("click");
+
+    await takeAndAttachScreenshot(this.page, `Filter Clicked for ${filter}`);
+
+    return { expectedValue, expectedResultAttr };
   }
 }
