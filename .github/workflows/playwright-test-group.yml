@@ -52,7 +52,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ inputs.artifact_name }}
+          name: playwright-report-${{ inputs.artifact_name }}-${{ github.run_number }}
           path: |
             playwright-report-${{ inputs.artifact_name }}/
             docker-logs-${{ inputs.artifact_name }}/
@@ -61,7 +61,7 @@ jobs:
         if: always()
         uses: test-summary/action@v2
         with:
-          paths: playwright-report/junit-report.xml
+          paths: playwright-report-${{ inputs.artifact_name }}/junit-report.xml
           show: "all"
       - uses: actions/upload-artifact@v4
         if: always()
