@@ -303,7 +303,7 @@ test(
   "Verify filtering by header",
   { tag: ["@apiContract", "@filterTest"] },
   async ({ page, eyes }, testInfo) => {
-    test.setTimeout(180000);
+    test.setTimeout(120000);
 
     const contractPage = new ApiContractPage(
       page,

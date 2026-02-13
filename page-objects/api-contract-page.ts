@@ -64,7 +64,6 @@ export class ApiContractPage extends BasePage {
 
   private readonly headerByType: (type: string) => Locator;
   private readonly tableResultSpansByType: (type: string) => Locator;
-  private readonly countsRoot: Locator;
 
   private readonly specSection: Locator;
 
@@ -201,10 +200,8 @@ export class ApiContractPage extends BasePage {
 
     this.filterListItems = scoped("ol.counts > li.count");
 
-    this.countsRoot = scoped("ol.counts:visible").last();
-
     this.headerByType = (type: string) =>
-      this.countsRoot.locator(`li.count[data-type="${type}"]`).last();
+      scoped("div.test ol.counts").locator(`li.count[data-type="${type}"]`);
 
     this.tableResultSpansByType = (type: string) =>
       this.resultCell.locator(`span[data-key="${type}"]`);
@@ -669,7 +666,20 @@ export class ApiContractPage extends BasePage {
 
     await header.click({ force: true });
 
-    await expect(this.countsRoot).toHaveAttribute("data-filter", filterType);
+    await expect(header).toHaveAttribute("data-active", "true", {
+      timeout: 10000,
+    });
+
+    await expect(
+      this.tableResultSpansByType(filterType).first(),
+      `Table results for filter type "${filterType}" should be visible after applying filter`,
+    ).toBeVisible({ timeout: 10000 });
+
+    await takeAndAttachScreenshot(
+      this.page,
+      `filter-applied-${filterType}`,
+      this.eyes,
+    );
 
     return expectedCount;
   }
