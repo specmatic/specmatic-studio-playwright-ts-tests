@@ -45,6 +45,12 @@ jobs:
           npm install xml2js --no-save
           node utils/generate-failed-test-screenshots-summary.js
 
+      - name: Append failed tests summary to GitHub Actions job summary
+        if: always()
+        run: |
+          npm install fs --no-save || true
+          node utils/append-summary-to-job-summary.mjs
+
       - name: Upload Playwright screenshots
         if: always()
         uses: actions/upload-artifact@v4

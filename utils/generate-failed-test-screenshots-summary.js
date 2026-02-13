@@ -158,52 +158,44 @@ async function main() {
   }
 
   // HTML output for better formatting and expand/collapse
-  let summary = `<!DOCTYPE html>\n<html>\n<head>\n<meta charset='utf-8'>\n<title>Failed Playwright Tests with Screenshots</title>\n<style>\nbody { font-family: Arial, sans-serif; margin: 2em; }\ntable { border-collapse: collapse; width: 100%; word-break: break-word; }\nth, td { border: 1px solid #ddd; padding: 8px; }\nth { background: #f2f2f2; }\n.screenshot-img { max-width: 400px; max-height: 200px; display: block; margin-top: 4px; }\n.error-block { white-space: pre-wrap; word-break: break-word; background: #f9f9f9; border: 1px solid #ccc; padding: 8px; margin: 4px 0; }\n.expand-btn { color: #007bff; cursor: pointer; text-decoration: underline; background: none; border: none; font-size: 1em; padding: 0; }\n@media (max-width: 600px) { .screenshot-img { max-width: 100%; } }\n</style>\n</head>\n<body>\n`;
-  summary += `<h1>Playwright Test Results Summary</h1>\n`;
-  summary += `<table><tr><th>Total</th><th>Passed</th><th>Failed</th><th>Skipped</th></tr>`;
-  summary += `<tr><td>${total}</td><td>${passed}</td><td>${failed}</td><td>${skipped}</td></tr></table>\n`;
+  // Markdown output with collapsible sections and embedded screenshots
+  let summary = `# Playwright Test Results Summary\n\n`;
+  summary += `| Total | Passed | Failed | Skipped |\n|-------|--------|--------|---------|\n| ${total} | ${passed} | ${failed} | ${skipped} |\n\n`;
 
   if (failedTests.length === 0) {
-    summary += `<h2>No failed tests!</h2>`;
+    summary += `## No failed tests!\n`;
   } else {
     for (const specFile of Object.keys(grouped)) {
-      summary += `<h2>${specFile}</h2>\n`;
-      summary += `<table>\n<tr><th>Test Name</th><th>Screenshot</th><th>Error</th></tr>\n`;
+      summary += `\n<details>\n<summary><strong>${specFile}</strong></summary>\n\n`;
       for (const test of grouped[specFile]) {
-        summary += `<tr>`;
-        summary += `<td><b>${test.name}</b></td>`;
-        // Screenshot
+        summary += `\n<details>\n<summary>${test.name}</summary>\n\n`;
         if (test.screenshot) {
-          summary += `<td><img src="${test.screenshot}" class="screenshot-img" alt="Screenshot"></td>`;
+          summary += `![Screenshot](${test.screenshot})\n\n`;
         } else {
-          summary += `<td><i>No screenshot found</i></td>`;
+          summary += `_No screenshot found_\n\n`;
         }
-        // Error block with expand/collapse
         if (test.error) {
           const errorLines = test.error.split("\n");
           const previewLines = errorLines.slice(0, 8).join("\n");
-          const fullError = test.error
-            .replace(/\n/g, "\\n")
-            .replace(/'/g, "&#39;");
-          const previewError = previewLines
-            .replace(/\n/g, "\\n")
-            .replace(/'/g, "&#39;");
-          const errorId = `error-${specFile.replace(/[^a-zA-Z0-9]/g, "")}-${test.name.replace(/[^a-zA-Z0-9]/g, "")}`;
-          summary += `<td><div class="error-block" id="${errorId}-preview">${previewError}</div>`;
+          summary += `**Error (preview):**\n\n`;
+          summary += "```\n" + previewLines + "\n";
           if (errorLines.length > 8) {
-            summary += `<button class="expand-btn" onclick="document.getElementById('${errorId}-preview').style.display='none';document.getElementById('${errorId}-full').style.display='block';">See more</button>`;
-            summary += `<div class="error-block" id="${errorId}-full" style="display:none;">${fullError}<br><button class="expand-btn" onclick="document.getElementById('${errorId}-full').style.display='none';document.getElementById('${errorId}-preview').style.display='block';">Collapse</button></div>`;
+            summary += "...\n";
           }
-          summary += `</td>`;
+          summary += "```\n";
+          if (errorLines.length > 8) {
+            summary += `<details>\n<summary>Full Error</summary>\n\n`;
+            summary += "```\n" + test.error + "\n```\n";
+            summary += `</details>\n`;
+          }
         } else {
-          summary += `<td><i>No error message</i></td>`;
+          summary += `_No error message_\n`;
         }
-        summary += `</tr>\n`;
+        summary += `</details>\n`;
       }
-      summary += `</table>\n`;
+      summary += `</details>\n`;
     }
   }
-  summary += `</body>\n</html>`;
   fs.writeFileSync(outputSummaryPath, summary);
   console.log("Summary written to", outputSummaryPath);
 }
