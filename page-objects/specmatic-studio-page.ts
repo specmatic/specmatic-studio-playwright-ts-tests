@@ -42,10 +42,7 @@ export class SpecmaticStudioPage extends BasePage {
   async clickStopProxy() {
     await takeAndAttachScreenshot(this.page, "before-clicked-stop", this.eyes);
     const stopBtn = this.page.locator("#stopProxy");
-    // Only try to stop proxy if the button is visible
-    if (await stopBtn.isVisible()) {
-      await stopBtn.click({ force: true });
-      await takeAndAttachScreenshot(this.page, "clicked-stop", this.eyes);
-    }
+    await stopBtn.click({ force: true });
+    await takeAndAttachScreenshot(this.page, "clicked-stop", this.eyes);
   }
 }

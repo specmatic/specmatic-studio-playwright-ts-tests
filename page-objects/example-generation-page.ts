@@ -159,7 +159,6 @@ export class ExampleGenerationPage extends BasePage {
     endpoint: string,
     responseCode: number,
   ) {
-    // Use iframe context and XPath to find the Validate button for the correct endpoint and response code
     const iframe = await this.waitForExamplesIFrame();
     await takeAndAttachScreenshot(
       this.page,

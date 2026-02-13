@@ -50,7 +50,6 @@ export class SideBarPage {
         await specLocator.click({ force: true, timeout: 3000 });
       }
       await takeAndAttachScreenshot(this.page, "selected-spec", this.eyes);
-      // Close the sidebar after selecting the spec
       await this.closeSidebar();
     });
     return specLocator!;

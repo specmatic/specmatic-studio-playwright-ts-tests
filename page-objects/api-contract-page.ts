@@ -230,7 +230,7 @@ export class ApiContractPage extends BasePage {
         ? await this.generativeCheckbox.check()
         : await this.generativeCheckbox.uncheck();
     }
-    await takeAndAttachScreenshot(this.page, `generative-mode-${enable}`);
+    await takeAndAttachScreenshot(this.page, `generative-mode-${enable}`, this.eyes);
   }
 
   async clickRunContractTests() {
@@ -251,7 +251,7 @@ export class ApiContractPage extends BasePage {
         );
         await this.waitForTestCompletion();
       } catch (e) {
-        await takeAndAttachScreenshot(this.page, "error-run-btn-failed");
+        await takeAndAttachScreenshot(this.page, "error-in-run-contract-tests");
         throw new Error(`Failed to click Run button:`);
       }
     });
@@ -331,7 +331,7 @@ export class ApiContractPage extends BasePage {
       throw new Error(`#verify-total-span did not match expected text: ${e}`);
     }
     const value = await this.totalSpan.innerText();
-    await takeAndAttachScreenshot(this.page, "test-results-number-verified");
+    await takeAndAttachScreenshot(this.page, "test-results-number-verified", this.eyes);
   }
 
   async verifyRowRemark(
@@ -607,8 +607,7 @@ export class ApiContractPage extends BasePage {
 
     await takeAndAttachScreenshot(
       this.page,
-      `Expected Failed Scenario Count ${expectedCount}`,
-      this.eyes,
+      `Expected Failed Scenario Count ${expectedCount}`
     );
   }
 
@@ -649,13 +648,12 @@ export class ApiContractPage extends BasePage {
     const summary = this.getPrereqErrorSummary();
 
     await expect(summary).toBeAttached({ timeout: 15000 });
-    await expect(summary).toContainText(expectedSummary);
-
     await takeAndAttachScreenshot(
       this.page,
       "prereq-error-verified",
       this.eyes,
     );
+    await expect(summary).toContainText(expectedSummary);
   }
 
   async applyHeaderFilterAndGetExpectedCount(
