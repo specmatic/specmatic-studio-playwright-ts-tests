@@ -1,12 +1,15 @@
-import { test, expect } from "../../utils/eyesFixture";
-import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
-import { PRODUCT_SEARCH_BFF_SPEC, ORDER_BFF_SERVICE_URL } from "../specNames";
-import { ApiContractPage } from "../../page-objects/api-contract-page";
+import { test, expect } from "../../../utils/eyesFixture";
+import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
+import {
+  PRODUCT_SEARCH_BFF_SPEC,
+  ORDER_BFF_SERVICE_URL,
+} from "../../specNames";
+import { ApiContractPage } from "../../../page-objects/api-contract-page";
 
 test.describe.serial("API Contract Testing", () => {
   test(
     "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings and verify test execution status",
-    { tag: ["@contract", "@runContractTests"] },
+    { tag: ["@test", "@runContractTests"] },
     async ({ page, eyes }, testInfo) => {
       test.setTimeout(180000);
       const contractPage = new ApiContractPage(
@@ -64,7 +67,7 @@ test.describe.serial("API Contract Testing", () => {
 
   test(
     "Exclude specific tests and verify excluded tests are not executed",
-    { tag: ["@contract", "@testExclusion"] },
+    { tag: ["@test", "@testExclusion"] },
     async ({ page, eyes }, testInfo) => {
       test.setTimeout(180000);
       const contractPage = new ApiContractPage(
@@ -257,7 +260,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid service URL",
-    { tag: ["@contract", "@negative", "@wrongServiceURL"] },
+    { tag: ["@test", "@negative", "@wrongServiceURL"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
         page,
@@ -279,7 +282,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid port",
-    { tag: ["@contract", "@negative", "@wrongPort"] },
+    { tag: ["@test", "@negative", "@wrongPort"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
         page,
@@ -301,7 +304,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
 test(
   "Verify filtering by header",
-  { tag: ["@contract", "@filterTest"] },
+  { tag: ["@test", "@filterTest"] },
   async ({ page, eyes }, testInfo) => {
     test.setTimeout(120000);
 
@@ -348,7 +351,7 @@ test(
 test.describe.serial(
   "Generative Test Suite - Include/Exclude Combinations",
   {
-    tag: ["@contract", "@generativeTests"],
+    tag: ["@test", "@generativeTests"],
   },
   () => {
     test.setTimeout(180000);

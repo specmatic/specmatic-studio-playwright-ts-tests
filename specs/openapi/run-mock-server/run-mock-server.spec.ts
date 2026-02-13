@@ -1,11 +1,11 @@
-import { test, expect } from "../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
-import { MockServerPage } from "../../page-objects/mock-server-page";
+import { test, expect } from "../../../utils/eyesFixture";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { MockServerPage } from "../../../page-objects/mock-server-page";
 
-test.describe("API Mocking", () => {
+test.describe("Mock Server", () => {
   test(
     "Run Mock Server for API Spec",
-    { tag: ["@apiMocking"] },
+    { tag: ["@mock"] },
     async ({ page, eyes }, testInfo) => {
       const mockPage = new MockServerPage(page, testInfo, eyes);
 

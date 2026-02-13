@@ -1,15 +1,15 @@
-import { test, expect } from "../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
-import { ExampleGenerationPage } from "../../page-objects/example-generation-page";
+import { test, expect } from "../../../utils/eyesFixture";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import { Page, TestInfo } from "@playwright/test";
-import { Edit } from "../../utils/types/json-edit.types";
-import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
+import { Edit } from "../../../utils/types/json-edit.types";
+import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
 import { Eyes } from "@applitools/eyes-playwright";
 
-test.describe.serial("Edit, save, validate and fix examples", () => {
+test.describe("Edit, save, validate and fix examples", () => {
   test(
     `Edit, save and validate examples for 'products' path of the '${PRODUCT_SEARCH_BFF_SPEC}' for response codes 200`,
-    { tag: ["@exampleGeneration", "@editSaveAndValidate"] },
+    { tag: ["@examples", "@editSaveAndValidate"] },
     async ({ page, eyes }, testInfo) => {
       console.log(`Starting test: ${testInfo.title}`);
       const examplePage = new ExampleGenerationPage(
@@ -62,7 +62,6 @@ async function fixExampleWithAutoCorrection(
 ) {
   await test.step(`Fix example with auto-fix and verify details`, async () => {
     await examplePage.fixExampleWithAutoFix();
-
   });
 }
 

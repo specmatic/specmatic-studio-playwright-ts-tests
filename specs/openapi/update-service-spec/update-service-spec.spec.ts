@@ -1,14 +1,22 @@
-import { test, expect } from "../../utils/eyesFixture";
-import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
-import { PRODUCT_SEARCH_BFF_SPEC, ORDER_BFF_SERVICE_URL } from "../specNames";
-import { ServiceSpecConfigPage } from "../../page-objects/service-spec-config-page";
+import { test, expect } from "../../../utils/eyesFixture";
+import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
+import {
+  PRODUCT_SEARCH_BFF_SPEC,
+  ORDER_BFF_SERVICE_URL,
+} from "../../specNames";
+import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 
-test.describe("Service Spec & Config Update", () => {
+test.describe("Update Service Spec", () => {
   test(
     "Update Service Specification",
-    { tag: ["@serviceSpecConfig", "@updateConfig"] },
+    { tag: ["@spec", "@updateConfig"] },
     async ({ page, eyes }, testInfo) => {
-      const configPage = new ServiceSpecConfigPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
+      const configPage = new ServiceSpecConfigPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
       await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
         await configPage.gotoHomeAndOpenSidebar();
         await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
