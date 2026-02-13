@@ -166,32 +166,31 @@ async function main() {
     summary += `## No failed tests!\n`;
   } else {
     for (const specFile of Object.keys(grouped)) {
-      summary += `\n<details>\n<summary><strong>${specFile}</strong></summary>\n\n`;
+      summary += `<details><summary><strong>${specFile}</strong></summary>\n`;
       for (const test of grouped[specFile]) {
-        summary += `### ${test.name}\n`;
+        summary += `\n**${test.name}**\n`;
         if (test.screenshot) {
-          summary += `![Screenshot](${test.screenshot})\n\n`;
+          summary += `![Screenshot](${test.screenshot})\n`;
         } else {
-          summary += `_No screenshot found_\n\n`;
+          summary += `_No screenshot found_\n`;
         }
         if (test.error) {
           const errorLines = test.error.split("\n");
           const previewLines = errorLines.slice(0, 8).join("\n");
-          summary += `**Error (preview):**\n\n`;
+          summary += `**Error (preview):**\n`;
           summary += "``\n" + previewLines + "\n";
           if (errorLines.length > 8) {
             summary += "...\n";
           }
           summary += "``\n";
           if (errorLines.length > 8) {
-            summary += `<details>\n<summary>Full Error</summary>\n\n`;
+            summary += `<details><summary>Full Error</summary>\n`;
             summary += "``\n" + test.error + "\n``\n";
             summary += `</details>\n`;
           }
         } else {
           summary += `_No error message_\n`;
         }
-        summary += `---\n`;
       }
       summary += `</details>\n`;
     }
