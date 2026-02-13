@@ -6,7 +6,7 @@ import { ApiContractPage } from "../../page-objects/api-contract-page";
 test.describe.serial("API Contract Testing", () => {
   test(
     "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings and verify test execution status",
-    { tag: ["@apiContract", "@runContractTests"] },
+    { tag: ["@contract", "@runContractTests"] },
     async ({ page, eyes }, testInfo) => {
       test.setTimeout(180000);
       const contractPage = new ApiContractPage(
@@ -64,7 +64,7 @@ test.describe.serial("API Contract Testing", () => {
 
   test(
     "Exclude specific tests and verify excluded tests are not executed",
-    { tag: ["@apiContract", "@testExclusion"] },
+    { tag: ["@contract", "@testExclusion"] },
     async ({ page, eyes }, testInfo) => {
       test.setTimeout(180000);
       const contractPage = new ApiContractPage(
@@ -257,7 +257,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid service URL",
-    { tag: ["@apiContract", "@negative", "@wrongServiceURL"] },
+    { tag: ["@contract", "@negative", "@wrongServiceURL"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
         page,
@@ -279,7 +279,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid port",
-    { tag: ["@apiContract", "@negative", "@wrongPort"] },
+    { tag: ["@contract", "@negative", "@wrongPort"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
         page,
@@ -301,7 +301,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
 test(
   "Verify filtering by header",
-  { tag: ["@apiContract", "@filterTest"] },
+  { tag: ["@contract", "@filterTest"] },
   async ({ page, eyes }, testInfo) => {
     test.setTimeout(120000);
 
@@ -348,7 +348,7 @@ test(
 test.describe.serial(
   "Generative Test Suite - Include/Exclude Combinations",
   {
-    tag: ["@apiContract", "@generativeTests"],
+    tag: ["@contract", "@generativeTests"],
   },
   () => {
     test.setTimeout(180000);
