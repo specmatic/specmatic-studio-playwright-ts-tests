@@ -2,16 +2,16 @@ import { Locator, test, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class SideBarPage {
+  readonly leftSidebar: Locator;
   readonly page: Page;
   readonly testInfo?: TestInfo;
   readonly eyes?: any;
-  readonly leftSidebar: Locator;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
+    this.leftSidebar = page.locator("#left-sidebar");
     this.page = page;
     this.testInfo = testInfo;
     this.eyes = eyes;
-    this.leftSidebar = page.locator("#left-sidebar");
   }
 
   /**
@@ -19,6 +19,7 @@ export class SideBarPage {
    * Takes a screenshot after opening if testInfo is provided.
    */
   async ensureSidebarOpen(): Promise<void> {
+    console.log("\tEnsuring sidebar is open");
     await expect(this.leftSidebar).toBeAttached();
     const isExpanded = await this.leftSidebar.getAttribute("aria-expanded");
     if (isExpanded === "false") {
@@ -27,9 +28,7 @@ export class SideBarPage {
         if (sidebar) sidebar.setAttribute("aria-expanded", "true");
       });
       await expect(this.leftSidebar).toHaveAttribute("aria-expanded", "true");
-    }
-    if (this.testInfo) {
-      await takeAndAttachScreenshot(this.page, "sidebar");
+      await takeAndAttachScreenshot(this.page, "sidebar-opened");
     }
   }
 
@@ -39,6 +38,7 @@ export class SideBarPage {
   async selectSpec(specName: string): Promise<Locator> {
     let specLocator: Locator;
     await test.step(`Navigate to Service Spec: '${specName}'`, async () => {
+      console.log(`\tNavigating to Service Spec: '${specName}'`);
       await this.ensureSidebarOpen();
       const specTree = this.page.locator("#spec-tree");
       await expect(specTree).toBeVisible({ timeout: 4000 });
@@ -49,10 +49,28 @@ export class SideBarPage {
       } catch (e) {
         await specLocator.click({ force: true, timeout: 3000 });
       }
-      if (this.testInfo) {
-        await takeAndAttachScreenshot(this.page, "selected-spec", this.eyes);
-      }
+      await takeAndAttachScreenshot(this.page, "selected-spec", this.eyes);
+      // Close the sidebar after selecting the spec
+      await this.closeSidebar();
     });
     return specLocator!;
+  }
+
+  /**
+   * Closes the left sidebar if open.
+   */
+  async closeSidebar(): Promise<void> {
+    console.log("\tClosing sidebar if open");
+    await expect(this.leftSidebar).toBeAttached();
+    const isExpanded = await this.leftSidebar.getAttribute("aria-expanded");
+    if (isExpanded === "true") {
+      await this.page.evaluate(() => {
+        const sidebar = document.getElementById("left-sidebar");
+        if (sidebar) sidebar.setAttribute("aria-expanded", "false");
+      });
+      await expect(this.leftSidebar).toHaveAttribute("aria-expanded", "false");
+      await this.page.waitForTimeout(1000); // Wait 1 second for UI to settle
+      await takeAndAttachScreenshot(this.page, "sidebar-closed");
+    }
   }
 }

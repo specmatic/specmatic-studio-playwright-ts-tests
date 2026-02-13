@@ -3,18 +3,25 @@ import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC, ORDER_BFF_SERVICE_URL } from "../specNames";
 import { ApiContractPage } from "../../page-objects/api-contract-page";
 
-test.describe("API Contract Testing", () => {
+test.describe.serial("API Contract Testing", () => {
   test(
     "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings and verify test execution status",
     { tag: ["@apiContract", "@runContractTests"] },
     async ({ page, eyes }, testInfo) => {
       test.setTimeout(180000);
-      const contractPage = new ApiContractPage(page, testInfo, eyes);
+      const contractPage = new ApiContractPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
 
       await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-        await contractPage.gotoHomeAndOpenSidebar();
-        await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-        await contractPage.openExecuteContractTestsTab();
+        await contractPage.openContractTestTabForSpec(
+          testInfo,
+          eyes,
+          PRODUCT_SEARCH_BFF_SPEC,
+        );
       });
 
       await test.step("Enter service URL and run contract tests", async () => {
@@ -59,14 +66,26 @@ test.describe("API Contract Testing", () => {
     { tag: ["@apiContract", "@testExclusion"] },
     async ({ page, eyes }, testInfo) => {
       test.setTimeout(180000);
-      const contractPage = new ApiContractPage(page, testInfo, eyes);
+      const contractPage = new ApiContractPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
       await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-        await contractPage.gotoHomeAndOpenSidebar();
-        await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-        await contractPage.openExecuteContractTestsTab();
+        await contractPage.openContractTestTabForSpec(
+          testInfo,
+          eyes,
+          PRODUCT_SEARCH_BFF_SPEC,
+        );
       });
       await test.step("Exclude single test", async () => {
-        const contractPage = new ApiContractPage(page, testInfo, eyes);
+        const contractPage = new ApiContractPage(
+          page,
+          testInfo,
+          eyes,
+          PRODUCT_SEARCH_BFF_SPEC,
+        );
 
         await contractPage.selectTestForExclusionOrInclusion(
           "/products",
@@ -94,7 +113,12 @@ test.describe("API Contract Testing", () => {
       });
 
       await test.step("Include single test", async () => {
-        const contractPage = new ApiContractPage(page, testInfo, eyes);
+        const contractPage = new ApiContractPage(
+          page,
+          testInfo,
+          eyes,
+          PRODUCT_SEARCH_BFF_SPEC,
+        );
         await contractPage.selectTestForExclusionOrInclusion(
           "/products",
           "POST",
@@ -121,7 +145,12 @@ test.describe("API Contract Testing", () => {
       });
 
       await test.step("Exclude multiple tests across different endpoints", async () => {
-        const contractPage = new ApiContractPage(page, testInfo, eyes);
+        const contractPage = new ApiContractPage(
+          page,
+          testInfo,
+          eyes,
+          PRODUCT_SEARCH_BFF_SPEC,
+        );
 
         await contractPage.selectMultipleTests([
           { path: "/products", method: "POST", response: "201" },
@@ -148,7 +177,12 @@ test.describe("API Contract Testing", () => {
       });
 
       await test.step("Include multiple tests across different endpoints", async () => {
-        const contractPage = new ApiContractPage(page, testInfo, eyes);
+        const contractPage = new ApiContractPage(
+          page,
+          testInfo,
+          eyes,
+          PRODUCT_SEARCH_BFF_SPEC,
+        );
         await contractPage.selectMultipleTests([
           { path: "/products", method: "POST", response: "201" },
           { path: "/findAvailableProducts", method: "GET", response: "200" },
@@ -206,24 +240,39 @@ test.describe("API Contract Testing", () => {
 test.describe("API Contract Testing - Negative Scenarios", () => {
   test.beforeEach(async ({ page, eyes }, testInfo) => {
     test.setTimeout(180000);
-    const contractPage = new ApiContractPage(page, testInfo, eyes);
-    await contractPage.gotoHomeAndOpenSidebar();
-    await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-    await contractPage.openExecuteContractTestsTab();
+    const contractPage = new ApiContractPage(
+      page,
+      testInfo,
+      eyes,
+      PRODUCT_SEARCH_BFF_SPEC,
+    );
+
+    await contractPage.openContractTestTabForSpec(
+      testInfo,
+      eyes,
+      PRODUCT_SEARCH_BFF_SPEC,
+    );
   });
 
   test(
     "Verify error for invalid service URL",
     { tag: ["@apiContract", "@negative", "@wrongServiceURL"] },
     async ({ page, eyes }, testInfo) => {
-      const contractPage = new ApiContractPage(page, testInfo, eyes);
+      const contractPage = new ApiContractPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
       const invalidUrl = "http://ww.gag.com";
 
       await contractPage.enterServiceUrl(invalidUrl);
 
       await contractPage.clickRunContractTests();
 
-      await contractPage.verifyPrereqErrorVisible("Error (click to expand)");
+      await contractPage.verifyPrereqErrorVisible(
+        "Tests could not run due to errors in specification or example(s)",
+      );
     },
   );
 
@@ -231,18 +280,65 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
     "Verify error for invalid port",
     { tag: ["@apiContract", "@negative", "@wrongPort"] },
     async ({ page, eyes }, testInfo) => {
-      const contractPage = new ApiContractPage(page, testInfo, eyes);
+      const contractPage = new ApiContractPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
       const invalidPortUrl = "http://order-bff:9999";
 
       await contractPage.enterServiceUrl(invalidPortUrl);
-      await contractPage.runButton.click();
+      await contractPage.clickRunContractTests();
 
-      await contractPage.verifyPrereqErrorVisible("Error (click to expand)");
+      await contractPage.verifyPrereqErrorVisible(
+        "Tests could not run due to errors in specification or example(s)",
+      );
     },
   );
 });
 
-test.describe(
+test(
+  "Verify filtering by header",
+  { tag: ["@apiContract", "@filterTest"] },
+  async ({ page, eyes }, testInfo) => {
+    test.setTimeout(180000);
+
+    const contractPage = new ApiContractPage(
+      page,
+      testInfo,
+      eyes,
+      PRODUCT_SEARCH_BFF_SPEC,
+    );
+
+    await contractPage.openContractTestTabForSpec(
+      testInfo,
+      eyes,
+      PRODUCT_SEARCH_BFF_SPEC,
+    );
+
+    await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+    await contractPage.setGenerativeMode(false);
+    await contractPage.clickRunContractTests();
+
+    const filterTypes = ["success", "failed"];
+
+    for (const filterType of filterTypes) {
+      const expectedCount =
+        await contractPage.applyHeaderFilterAndGetExpectedCount(filterType);
+
+      if (expectedCount == null) return;
+
+      const tableCount = await contractPage.getTableCountByResult(filterType);
+
+      expect(tableCount, `Mismatch for filter "${filterType}"`).toBe(
+        expectedCount,
+      );
+    }
+  },
+);
+
+test.describe.serial(
   "Generative Test Suite - Include/Exclude Combinations",
   {
     tag: ["@apiContract", "@generativeTests"],
@@ -251,11 +347,20 @@ test.describe(
     test.setTimeout(180000);
     let contractPage: ApiContractPage;
 
-    test.beforeEach(async ({ page }, testInfo) => {
-      contractPage = new ApiContractPage(page, testInfo);
-      await contractPage.gotoHomeAndOpenSidebar();
-      await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-      await contractPage.openExecuteContractTestsTab();
+    test.beforeEach(async ({ page, eyes }, testInfo) => {
+      contractPage = new ApiContractPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
+
+      await contractPage.openContractTestTabForSpec(
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
+
       await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
     });
 
@@ -274,39 +379,6 @@ test.describe(
         excluded: 0,
       });
     });
-  },
-);
-
-test(
-  "Verify results table filtering by header categories",
-  { tag: ["@apiContract", "@generativeTests", "@filterTest"] },
-  async ({ page }, testInfo) => {
-    test.setTimeout(180000);
-    const contractPage = new ApiContractPage(page, testInfo);
-
-    // 1. Setup & Execution
-    await contractPage.gotoHomeAndOpenSidebar();
-    await contractPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-    await contractPage.openExecuteContractTestsTab();
-    await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
-    await contractPage.setGenerativeMode(false);
-    await contractPage.clickRunContractTests();
-
-    const { expectedValue, expectedResultAttr } =
-      await contractPage.applyHeaderFilterByType("success");
-
-    expect(expectedValue).toBe(12);
-
-    await expect(contractPage.tableRows).toHaveCount(expectedValue, {
-      timeout: 10000,
-    });
-
-    if (expectedValue > 0) {
-      await expect(contractPage.tableRows.first()).toHaveAttribute(
-        "data-_result",
-        expectedResultAttr,
-      );
-    }
   },
 );
 

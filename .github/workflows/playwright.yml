@@ -25,6 +25,36 @@ jobs:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
           BRANCH_NAME: ${{ github.ref_name }}
         run: npx playwright test
+
+      - name: Test Summary (JUnit)
+        if: always()
+        uses: test-summary/action@v2
+        with:
+          paths: playwright-report/junit-report.xml
+          show: "all"
+
+      - name: Generate failed test screenshots summary
+        if: always()
+        run: |
+          npm install xml2js --no-save
+          node utils/generate-failed-test-screenshots-summary.js
+
+      - name: Upload Playwright screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-screenshots
+          path: playwright-report/*.png
+          retention-days: 7
+
+      - name: Upload failed tests summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-tests-summary
+          path: playwright-report/failed-tests-summary.md
+          retention-days: 7
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
