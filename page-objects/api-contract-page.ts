@@ -245,11 +245,7 @@ export class ApiContractPage extends BasePage {
 
         await this._runButton.click();
 
-        await takeAndAttachScreenshot(
-          this.page,
-          "clicked-run-contract-tests",
-          this.eyes,
-        );
+        await takeAndAttachScreenshot(this.page, "clicked-run-contract-tests");
         await this.waitForTestCompletion();
       } catch (e) {
         await takeAndAttachScreenshot(this.page, "error-in-run-contract-tests");
