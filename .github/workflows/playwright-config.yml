@@ -1,4 +1,4 @@
-name: Playwright Tests for Config Specs
+name: Studio - Config Tests
 on:
   push:
     branches: [main, master]
