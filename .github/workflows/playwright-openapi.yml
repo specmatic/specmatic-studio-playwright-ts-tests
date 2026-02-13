@@ -29,15 +29,3 @@ jobs:
       test_path: specs/openapi/update-service-spec
       artifact_name: update-service-spec
       group_name: Update Service Spec
-      - name: Test Summary (JUnit)
-        if: always()
-        uses: test-summary/action@v2
-        with:
-          paths: playwright-report-openapi/junit-report.xml
-          show: "all"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
