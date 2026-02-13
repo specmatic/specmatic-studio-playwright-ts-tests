@@ -21,48 +21,16 @@ jobs:
         run: mkdir -p playwright-report
       - name: Print all environment variables
         run: printenv
-
-      # Reusable step template for each test group
-      - &run_and_archive
-        name: Run Playwright tests - <<group_name>>
+      - name: Run Playwright tests - Execute Contract Tests
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
-        run: |
-          npx playwright test <<test_path>> --workers=1
-          mv playwright-report playwright-report-<<artifact_name>> || true
-          mkdir -p playwright-report
-        continue-on-error: true
-      - &docker_logs
-        name: Capture Docker logs (<<group_name>>)
-        if: always()
-        run: |
-          mkdir -p docker-logs-<<artifact_name>>
-          for cname in studio order-bff order-api inventory-api; do
-            if docker ps -a -q -f name="^/${cname}$" | grep .; then
-              docker logs "$cname" > "docker-logs-<<artifact_name>>/${cname}.log" 2>&1 || true
-            fi
-          done
-      - &archive
-        name: Archive <<group_name>> Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-<<artifact_name>>
-          path: |
-            playwright-report-<<artifact_name>>/
-            docker-logs-<<artifact_name>>/
-          retention-days: 30
-
-      # Steps for each test group using anchors
-      - <<: *run_and_archive
-        name: Run Playwright tests - Execute Contract Tests
         run: |
           npx playwright test specs/openapi/execute-contract-tests --workers=1
           mv playwright-report playwright-report-execute-contract-tests || true
           mkdir -p playwright-report
         continue-on-error: true
-      - <<: *docker_logs
-        name: Capture Docker logs (Execute Contract Tests)
+      - name: Capture Docker logs (Execute Contract Tests)
+        if: always()
         run: |
           mkdir -p docker-logs-execute-contract-tests
           for cname in studio order-bff order-api inventory-api; do
@@ -70,8 +38,9 @@ jobs:
               docker logs "$cname" > "docker-logs-execute-contract-tests/${cname}.log" 2>&1 || true
             fi
           done
-      - <<: *archive
-        name: Archive Execute Contract Tests Report
+      - name: Archive Execute Contract Tests Report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-execute-contract-tests
           path: |
@@ -79,15 +48,16 @@ jobs:
             docker-logs-execute-contract-tests/
           retention-days: 30
 
-      - <<: *run_and_archive
-        name: Run Playwright tests - Generate Valid Examples
+      - name: Run Playwright tests - Generate Valid Examples
+        env:
+          APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
         run: |
           npx playwright test specs/openapi/generate-valid-examples --workers=1
           mv playwright-report playwright-report-generate-valid-examples || true
           mkdir -p playwright-report
         continue-on-error: true
-      - <<: *docker_logs
-        name: Capture Docker logs (Generate Valid Examples)
+      - name: Capture Docker logs (Generate Valid Examples)
+        if: always()
         run: |
           mkdir -p docker-logs-generate-valid-examples
           for cname in studio order-bff order-api inventory-api; do
@@ -95,8 +65,9 @@ jobs:
               docker logs "$cname" > "docker-logs-generate-valid-examples/${cname}.log" 2>&1 || true
             fi
           done
-      - <<: *archive
-        name: Archive Generate Valid Examples Report
+      - name: Archive Generate Valid Examples Report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-generate-valid-examples
           path: |
@@ -104,15 +75,16 @@ jobs:
             docker-logs-generate-valid-examples/
           retention-days: 30
 
-      - <<: *run_and_archive
-        name: Run Playwright tests - Run Mock Server
+      - name: Run Playwright tests - Run Mock Server
+        env:
+          APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
         run: |
           npx playwright test specs/openapi/run-mock-server --workers=1
           mv playwright-report playwright-report-run-mock-server || true
           mkdir -p playwright-report
         continue-on-error: true
-      - <<: *docker_logs
-        name: Capture Docker logs (Run Mock Server)
+      - name: Capture Docker logs (Run Mock Server)
+        if: always()
         run: |
           mkdir -p docker-logs-run-mock-server
           for cname in studio order-bff order-api inventory-api; do
@@ -120,8 +92,9 @@ jobs:
               docker logs "$cname" > "docker-logs-run-mock-server/${cname}.log" 2>&1 || true
             fi
           done
-      - <<: *archive
-        name: Archive Run Mock Server Report
+      - name: Archive Run Mock Server Report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-run-mock-server
           path: |
@@ -129,15 +102,16 @@ jobs:
             docker-logs-run-mock-server/
           retention-days: 30
 
-      - <<: *run_and_archive
-        name: Run Playwright tests - Update Service Spec
+      - name: Run Playwright tests - Update Service Spec
+        env:
+          APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
         run: |
           npx playwright test specs/openapi/update-service-spec --workers=1
           mv playwright-report playwright-report-update-service-spec || true
           mkdir -p playwright-report
         continue-on-error: true
-      - <<: *docker_logs
-        name: Capture Docker logs (Update Service Spec)
+      - name: Capture Docker logs (Update Service Spec)
+        if: always()
         run: |
           mkdir -p docker-logs-update-service-spec
           for cname in studio order-bff order-api inventory-api; do
@@ -145,8 +119,9 @@ jobs:
               docker logs "$cname" > "docker-logs-update-service-spec/${cname}.log" 2>&1 || true
             fi
           done
-      - <<: *archive
-        name: Archive Update Service Spec Report
+      - name: Archive Update Service Spec Report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-update-service-spec
           path: |
