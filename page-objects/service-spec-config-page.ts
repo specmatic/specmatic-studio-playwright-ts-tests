@@ -10,14 +10,20 @@ export class ServiceSpecConfigPage extends BasePage {
   readonly editBtn: Locator;
   readonly updateTab: Locator;
   readonly saveBtn: Locator;
+  private readonly specSection: Locator;
 
-  constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
-    super(page, testInfo, eyes);
+  constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
+    super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
+    this.specSection = page.locator(
+      `xpath=//div[contains(@id,"${specName}") and @data-mode="spec"]`,
+    );
     this.specBtn = page.locator('li.tab[data-type="spec"]').first();
-    this.editBtn = page.getByText(/Edit specmatic.yaml/i);
-    this.updateTab = page.locator('li.tab[data-type="spec"]').first();
-    this.saveBtn = page.locator('button[data-validate="/openapi"]');
+    this.editBtn = this.specSection.getByText(/Edit specmatic.yaml/i);
+    this.updateTab = this.specSection
+      .locator('li.tab[data-type="spec"]')
+      .first();
+    this.saveBtn = this.specSection.locator('button[data-validate="/openapi"]');
     this.openApiTabPage = new OpenAPISpecTabPage(this);
   }
   async openSpecTab() {

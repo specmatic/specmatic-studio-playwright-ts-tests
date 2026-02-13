@@ -1,7 +1,8 @@
 services:
   studio:
-    image: specmatic/specmatic-studio:latest
+    image: specmatic/enterprise:latest
     container_name: studio
+    command: ["studio"]
     restart: unless-stopped
     ports:
       - "9000:9000"

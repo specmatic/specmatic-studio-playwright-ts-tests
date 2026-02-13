@@ -8,16 +8,12 @@ export class SpecmaticStudioPage extends BasePage {
   readonly sidebarToggleBtn: Locator;
   readonly sideBar: SideBarPage;
   readonly specTree: Locator;
-  readonly testInfo?: TestInfo;
-  readonly eyes?: any;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
-    super(page);
+    super(page, testInfo || ({} as TestInfo), eyes);
     this.leftSidebar = page.locator("#left-sidebar");
     this.sidebarToggleBtn = page.locator("button#left-sidebar-toggle");
     this.specTree = page.locator("#spec-tree");
-    this.testInfo = testInfo;
-    this.eyes = eyes;
     this.sideBar = new SideBarPage(page, testInfo, eyes);
   }
 

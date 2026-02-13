@@ -1,41 +1,95 @@
 import { test, expect } from "../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specNames";
 import { ExampleGenerationPage } from "../../page-objects/example-generation-page";
+import { Page, TestInfo } from "@playwright/test";
 
-test.describe("Example Generation", () => {
+test.describe.serial("Example Generation", () => {
   test(
-    "Generate examples for 'findAvailableProducts' endpoint of product_search_bff_v5.yaml for response codes 200, 400",
-    { tag: ["@exampleGeneration", "@findAvailableProducts"] },
+    `Generate examples for 'findAvailableProducts' endpoint of '${PRODUCT_SEARCH_BFF_SPEC}' for response codes 200, 400`,
+    { tag: ["@exampleGeneration", "@singlePathGeneration"] },
     async ({ page, eyes }, testInfo) => {
-      const examplePage = new ExampleGenerationPage(page, testInfo, eyes);
-      await test.step(`Go to Example Generation page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
-        await examplePage.gotoHomeAndOpenSidebar();
-        await examplePage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-        await examplePage.openExampleGenerationTab();
-      });
+      console.log(`Starting test: ${testInfo.title}`);
+      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
+      await examplePage.openExampleGenerationTabForSpec(
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
 
-      const endpoint = "findAvailableProducts";
-      const responseCodes = [200, 400];
+      await examplePage.deleteGeneratedExamples();
 
-      for (const code of responseCodes) {
-        await test.step(`Generate example and validate for endpoint: '${endpoint}' and response code: '${code}'`, async () => {
-          await test.step(`Generate example`, async () => {
-            await examplePage.clickGenerateButton(endpoint, code);
-          });
-          await test.step(`Verify example is generated`, async () => {
-            await examplePage.verifyGenerateButtonNotVisible(endpoint, code);
-            await examplePage.verifyExampleFileNameVisible(endpoint, code);
-            await examplePage.verifyValidateButtonVisible(endpoint, code);
-          });
-          await test.step(`View details and go back`, async () => {
-            await examplePage.clickViewDetails(endpoint, code);
-            await examplePage.clickGoBack(endpoint, code);
-          });
-          await test.step(`Validate generated example`, async () => {
-            await examplePage.clickValidateButton(endpoint, code);
-          });
-        });
-      }
+      await examplePage.generateAndValidateForPaths([
+        { path: "findAvailableProducts", responseCodes: [200, 400] },
+      ]);
+
+      const numberOfExamplesValidated =
+        await examplePage.getNumberOfExamplesValidated();
+
+      expect(numberOfExamplesValidated).toBe(2);
+    },
+  );
+
+  test(
+    `Generate examples for '/products' and '/monitor/(id:number)' paths of '${PRODUCT_SEARCH_BFF_SPEC}' for all response codes and methods`,
+    { tag: ["@exampleGeneration", "@multiplePathGeneration"] },
+    async ({ page, eyes }, testInfo) => {
+      console.log(`Starting test: ${testInfo.title}`);
+      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
+      await examplePage.openExampleGenerationTabForSpec(
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
+
+      await examplePage.deleteGeneratedExamples();
+      await examplePage.generateAndValidateForPaths([
+        { path: "products", responseCodes: [201, 202, 400] },
+        { path: "monitor/(id:number)", responseCodes: [200, 400] },
+      ]);
+
+      const numberOfExamplesValidated =
+        await examplePage.getNumberOfExamplesValidated();
+
+      expect(numberOfExamplesValidated).toBe(5);
+    },
+  );
+
+  test(
+    `Generate examples for ALL paths of '${PRODUCT_SEARCH_BFF_SPEC}' for all response codes and methods`,
+    { tag: ["@exampleGeneration", "@allPathGeneration"] },
+    async ({ page, eyes }, testInfo) => {
+      console.log(`Starting test: ${testInfo.title}`);
+      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
+      await examplePage.openExampleGenerationTabForSpec(
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
+
+      const expectedNumberOfExamples =
+        await examplePage.getNumberOfPathMethodsAndResponses();
+
+      await examplePage.deleteGeneratedExamples();
+
+      const numberOfGenerateButtons =
+        await examplePage.getNumberOfGenerateButtons();
+
+      await examplePage.generateAllExamples();
+
+      const numberOfExamplesGenerated =
+        await examplePage.getNumberOfExamplesGenerated(); // get number of files generated from the UI after generation is complete
+
+      const numberOfValidateButtons =
+        await examplePage.getNumberOfValidateButtons();
+
+      await examplePage.validateAllExamples();
+
+      const numberOfExamplesValidated =
+        await examplePage.getNumberOfExamplesValidated();
+
+      expect.soft(numberOfGenerateButtons).toBe(numberOfValidateButtons);
+      expect.soft(numberOfExamplesGenerated).toBe(expectedNumberOfExamples);
+      expect.soft(numberOfExamplesValidated).toBe(expectedNumberOfExamples);
     },
   );
 });
