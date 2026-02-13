@@ -58,7 +58,7 @@ jobs:
         if: always()
         uses: test-summary/action@v2
         with:
-          paths: playwright-report-${{ inputs.artifact_name }}/junit-report.xml
+          paths: playwright-report/junit-report.xml
           show: "all"
       - uses: actions/upload-artifact@v4
         if: always()
