@@ -83,22 +83,28 @@ test.describe.serial("Example Generation", () => {
 
       await examplePage.deleteGeneratedExamples();
 
-      let expectedNumberOfExamples: number = 0;
+      let expectedNumberOfExamples: number = 11;
+      let expectedNumberOfPathsAndResponseCodes: number = 0;
       let numberOfGenerateButtons: number = 0;
       let numberOfExamplesGenerated: number = 0;
       let numberOfValidateButtons: number = 0;
       let numberOfExamplesValidated: number = 0;
 
       await test.step(`Generate all examples and get number of paths and responses in the spec`, async () => {
-        expectedNumberOfExamples =
+        expectedNumberOfPathsAndResponseCodes =
           await examplePage.getNumberOfPathMethodsAndResponses();
+        expect
+          .soft(expectedNumberOfPathsAndResponseCodes)
+          .toBe(expectedNumberOfExamples);
         numberOfGenerateButtons =
           await examplePage.getNumberOfGenerateButtons();
         await examplePage.generateAllExamples();
         const [actualTitle, actualMessage] =
           await examplePage.getDialogTitleAndMessage();
         expect.soft(actualTitle).toBe("Example Generations Complete");
-        expect.soft(actualMessage).toBe(`11 new examples`);
+        expect
+          .soft(actualMessage)
+          .toBe(`${expectedNumberOfExamples} new examples`);
       });
 
       await test.step(`Validate all generated examples and get counts`, async () => {
@@ -111,8 +117,12 @@ test.describe.serial("Example Generation", () => {
           await examplePage.getNumberOfExamplesValidated();
 
         expect.soft(numberOfGenerateButtons).toBe(numberOfValidateButtons);
-        expect.soft(numberOfExamplesGenerated).toBe(expectedNumberOfExamples);
-        expect.soft(numberOfExamplesValidated).toBe(expectedNumberOfExamples);
+        expect
+          .soft(numberOfExamplesGenerated)
+          .toBe(expectedNumberOfPathsAndResponseCodes);
+        expect
+          .soft(numberOfExamplesValidated)
+          .toBe(expectedNumberOfPathsAndResponseCodes);
       });
     },
   );
