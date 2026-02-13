@@ -47,7 +47,8 @@ if (!process.env.MACHINE_NAME) {
 export const Runner: EyesRunner = new VisualGridRunner({ testConcurrency: 5 });
 export const Batch: BatchInfo = new BatchInfo({
   name: (() => {
-    let batchName = `Specmatic Studio - ${process.env.ENV_NAME || "local"}`;
+    let base = process.env.GITHUB_WORKFLOW || "Specmatic Studio";
+    let batchName = `${base} - ${process.env.ENV_NAME || "local"}`;
     if (process.env.GITHUB_REF_NAME) {
       batchName += ` - ${process.env.GITHUB_REF_NAME}`;
     }
