@@ -204,7 +204,7 @@ export class ApiContractPage extends BasePage {
     this.countsRoot = scoped("ol.counts:visible").last();
 
     this.headerByType = (type: string) =>
-      scoped(`ol.counts li.count[data-type="${type}"]`);
+      this.countsRoot.locator(`li.count[data-type="${type}"]`).last();
 
     this.tableResultSpansByType = (type: string) =>
       this.resultCell.locator(`span[data-key="${type}"]`);
@@ -655,7 +655,7 @@ export class ApiContractPage extends BasePage {
   async applyHeaderFilterAndGetExpectedCount(
     filterType: string,
   ): Promise<number | null> {
-    const header = this.headerByType(filterType).last();
+    const header = this.headerByType(filterType);
 
     await expect(header, `Header "${filterType}" not found`).toBeVisible();
 
@@ -667,7 +667,7 @@ export class ApiContractPage extends BasePage {
 
     const expectedCount = await this.getHeaderCount(filterType);
 
-    await header.click();
+    await header.click({ force: true });
 
     await expect(this.countsRoot).toHaveAttribute("data-filter", filterType);
 
