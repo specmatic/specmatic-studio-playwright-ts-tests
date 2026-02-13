@@ -9,7 +9,12 @@ test.describe.serial("Example Generation", () => {
     { tag: ["@exampleGeneration", "@singlePathGeneration"] },
     async ({ page, eyes }, testInfo) => {
       console.log(`Starting test: ${testInfo.title}`);
-      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
+      const examplePage = new ExampleGenerationPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
       await examplePage.openExampleGenerationTabForSpec(
         testInfo,
         eyes,
@@ -34,7 +39,12 @@ test.describe.serial("Example Generation", () => {
     { tag: ["@exampleGeneration", "@multiplePathGeneration"] },
     async ({ page, eyes }, testInfo) => {
       console.log(`Starting test: ${testInfo.title}`);
-      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
+      const examplePage = new ExampleGenerationPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
       await examplePage.openExampleGenerationTabForSpec(
         testInfo,
         eyes,
@@ -59,37 +69,51 @@ test.describe.serial("Example Generation", () => {
     { tag: ["@exampleGeneration", "@allPathGeneration"] },
     async ({ page, eyes }, testInfo) => {
       console.log(`Starting test: ${testInfo.title}`);
-      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, PRODUCT_SEARCH_BFF_SPEC);
+      const examplePage = new ExampleGenerationPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
       await examplePage.openExampleGenerationTabForSpec(
         testInfo,
         eyes,
         PRODUCT_SEARCH_BFF_SPEC,
       );
 
-      const expectedNumberOfExamples =
-        await examplePage.getNumberOfPathMethodsAndResponses();
-
       await examplePage.deleteGeneratedExamples();
 
-      const numberOfGenerateButtons =
-        await examplePage.getNumberOfGenerateButtons();
+      let expectedNumberOfExamples: number = 0;
+      let numberOfGenerateButtons: number = 0;
+      let numberOfExamplesGenerated: number = 0;
+      let numberOfValidateButtons: number = 0;
+      let numberOfExamplesValidated: number = 0;
 
-      await examplePage.generateAllExamples();
+      await test.step(`Generate all examples and get number of paths and responses in the spec`, async () => {
+        expectedNumberOfExamples =
+          await examplePage.getNumberOfPathMethodsAndResponses();
+        numberOfGenerateButtons =
+          await examplePage.getNumberOfGenerateButtons();
+        await examplePage.generateAllExamples();
+        const [actualTitle, actualMessage] =
+          await examplePage.getDialogTitleAndMessage();
+        expect.soft(actualTitle).toBe("Example Generations Complete");
+        expect.soft(actualMessage).toBe(`11 new examples`);
+      });
 
-      const numberOfExamplesGenerated =
-        await examplePage.getNumberOfExamplesGenerated(); // get number of files generated from the UI after generation is complete
+      await test.step(`Validate all generated examples and get counts`, async () => {
+        numberOfExamplesGenerated =
+          await examplePage.getNumberOfExamplesGenerated();
+        numberOfValidateButtons =
+          await examplePage.getNumberOfValidateButtons();
+        await examplePage.validateAllExamples();
+        numberOfExamplesValidated =
+          await examplePage.getNumberOfExamplesValidated();
 
-      const numberOfValidateButtons =
-        await examplePage.getNumberOfValidateButtons();
-
-      await examplePage.validateAllExamples();
-
-      const numberOfExamplesValidated =
-        await examplePage.getNumberOfExamplesValidated();
-
-      expect.soft(numberOfGenerateButtons).toBe(numberOfValidateButtons);
-      expect.soft(numberOfExamplesGenerated).toBe(expectedNumberOfExamples);
-      expect.soft(numberOfExamplesValidated).toBe(expectedNumberOfExamples);
+        expect.soft(numberOfGenerateButtons).toBe(numberOfValidateButtons);
+        expect.soft(numberOfExamplesGenerated).toBe(expectedNumberOfExamples);
+        expect.soft(numberOfExamplesValidated).toBe(expectedNumberOfExamples);
+      });
     },
   );
 });

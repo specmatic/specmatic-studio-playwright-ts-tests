@@ -414,7 +414,6 @@ export class ExampleGenerationPage extends BasePage {
       await this.clickBulkGenerateButton();
 
       await this.waitForProcessingToComplete(iframe);
-      await this.verifyTitleAndCloseDialog("Example Generations Complete");
       await takeAndAttachScreenshot(
         this.page,
         `generate-examples-for-all-paths`,
