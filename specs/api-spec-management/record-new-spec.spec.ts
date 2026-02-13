@@ -10,7 +10,7 @@ test.describe("API Specification Management", () => {
       const studio = new SpecmaticStudioPage(page, testInfo, eyes);
 
       await test.step(`Go to Proxy's Record Spec`, async () => {
-        await studio.goto();
+        await studio.gotoHomeAndOpenSidebar();
         await studio.clickRecordSpec();
       });
 

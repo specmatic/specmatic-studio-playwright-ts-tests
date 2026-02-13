@@ -64,6 +64,7 @@ const baseConfig: BaseConfigType = {
   reporter: [
     ["html"],
     ["json", { outputFile: "playwright-report/test-results.json" }],
+    ["junit", { outputFile: "playwright-report/junit-report.xml" }],
   ],
   use: {
     baseURL,

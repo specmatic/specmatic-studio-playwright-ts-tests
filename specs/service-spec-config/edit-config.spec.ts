@@ -7,9 +7,9 @@ const CONFIG_NAME = SPECMATIC_CONFIG;
 test.describe("Service Spec & Config Update", () => {
   test(
     "Edit Specmatic Configuration",
-    { tag: ["@serviceSpecConfig"] },
+    { tag: ["@serviceSpecConfig", "@editConfig"] },
     async ({ page, eyes }, testInfo) => {
-      const configPage = new ServiceSpecConfigPage(page, testInfo, eyes);
+      const configPage = new ServiceSpecConfigPage(page, testInfo, eyes, CONFIG_NAME);
 
       await test.step(`Go to Spec page for Service Spec: '${CONFIG_NAME}'`, async () => {
           await configPage.gotoHomeAndOpenSidebar();
