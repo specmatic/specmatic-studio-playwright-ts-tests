@@ -230,7 +230,11 @@ export class ApiContractPage extends BasePage {
         ? await this.generativeCheckbox.check()
         : await this.generativeCheckbox.uncheck();
     }
-    await takeAndAttachScreenshot(this.page, `generative-mode-${enable}`, this.eyes);
+    await takeAndAttachScreenshot(
+      this.page,
+      `generative-mode-${enable}`,
+      this.eyes,
+    );
   }
 
   async clickRunContractTests() {
@@ -331,7 +335,11 @@ export class ApiContractPage extends BasePage {
       throw new Error(`#verify-total-span did not match expected text: ${e}`);
     }
     const value = await this.totalSpan.innerText();
-    await takeAndAttachScreenshot(this.page, "test-results-number-verified", this.eyes);
+    await takeAndAttachScreenshot(
+      this.page,
+      "test-results-number-verified",
+      this.eyes,
+    );
   }
 
   async verifyRowRemark(
@@ -445,18 +453,6 @@ export class ApiContractPage extends BasePage {
 
     return errorText;
   }
-
-  // async verifyTestExclusion() {
-  //   const excludedCount = this.countsContainer.locator(
-  //     'li[data-type="excluded"] span',
-  //   );
-  //   await expect(excludedCount).toBeVisible({ timeout: 10000 });
-  //   await takeAndAttachScreenshot(
-  //     this.page,
-  //     "test-exclusion-verified",
-  //     this.eyes,
-  //   );
-  // }
 
   /**
    * Retrieves the 'data-total' attribute value for a specific header key
@@ -607,7 +603,7 @@ export class ApiContractPage extends BasePage {
 
     await takeAndAttachScreenshot(
       this.page,
-      `Expected Failed Scenario Count ${expectedCount}`
+      `Expected Failed Scenario Count ${expectedCount}`,
     );
   }
 
@@ -629,7 +625,7 @@ export class ApiContractPage extends BasePage {
 
     await takeAndAttachScreenshot(
       this.page,
-      `toggled-scenario-${scenarioIndex}`,
+      "toggled-scenario-raw-view",
       this.eyes,
     );
 
@@ -639,7 +635,7 @@ export class ApiContractPage extends BasePage {
 
     await takeAndAttachScreenshot(
       this.page,
-      `toggled-scenario-${scenarioIndex}`,
+      "toggled-scenario-table-view",
       this.eyes,
     );
   }
