@@ -61,32 +61,138 @@ function getFailedTestsWithScreenshots() {
 }
 
 async function main() {
-  const failed = getFailedTestsWithScreenshots();
-  let summary = "# Failed Playwright Tests with Screenshots\n\n";
-  if (failed.length === 0) {
-    summary += "No failed tests!\n";
-  } else {
-    // Group by spec file (first part of the name, before the first ' › ')
-    const grouped = {};
-    for (const test of failed) {
-      const [specFile, ...rest] = test.name.split(" › ");
-      if (!grouped[specFile]) grouped[specFile] = [];
-      grouped[specFile].push({
-        name: rest.join(" › "),
-        screenshot: test.screenshot,
-      });
-    }
-    for (const specFile of Object.keys(grouped)) {
-      summary += `## ${specFile}\n\n`;
-      for (const test of grouped[specFile]) {
-        summary += `- **${test.name}**\n`;
-        if (test.screenshot) {
-          summary += `  ![Screenshot](${test.screenshot})\n`;
-        } else {
-          summary += "  _No screenshot found_\n";
+  // Read Playwright JSON report for summary stats
+  if (!fs.existsSync(testResultsPath)) {
+    console.error("Playwright JSON report not found:", testResultsPath);
+    process.exit(1);
+  }
+  const report = JSON.parse(fs.readFileSync(testResultsPath, "utf-8"));
+  // Collect stats
+  let total = 0,
+    passed = 0,
+    failed = 0,
+    skipped = 0;
+  function collectStats(suites) {
+    for (const suite of suites) {
+      if (suite.specs) {
+        for (const spec of suite.specs) {
+          for (const test of spec.tests || []) {
+            total++;
+            let foundFailed = false,
+              foundPassed = false,
+              foundSkipped = false;
+            for (const result of test.results || []) {
+              if (result.status === "failed") foundFailed = true;
+              else if (result.status === "passed") foundPassed = true;
+              else if (result.status === "skipped") foundSkipped = true;
+            }
+            if (foundFailed) failed++;
+            else if (foundPassed) passed++;
+            else if (foundSkipped) skipped++;
+          }
         }
       }
-      summary += "\n";
+      if (suite.suites) collectStats(suite.suites);
+    }
+  }
+  collectStats(report.suites || []);
+
+  // Get failed tests with screenshots and errors
+  function getFailedTestsWithScreenshotsAndErrors() {
+    const failed = [];
+    function walkSuites(suites, parentTitles = []) {
+      for (const suite of suites) {
+        const titles = [...parentTitles, suite.title];
+        if (suite.specs) {
+          for (const spec of suite.specs) {
+            for (const test of spec.tests || []) {
+              for (const result of test.results || []) {
+                if (result.status === "failed") {
+                  // Find the last screenshot attachment, if any
+                  let screenshot = null;
+                  if (result.attachments) {
+                    const pngs = result.attachments.filter(
+                      (a) => a.contentType === "image/png" && a.path,
+                    );
+                    if (pngs.length > 0) {
+                      screenshot = path.relative(
+                        path.join(__dirname, ".."),
+                        pngs[pngs.length - 1].path,
+                      );
+                    }
+                  }
+                  // Get error message
+                  let error =
+                    result.error && result.error.message
+                      ? result.error.message
+                      : "";
+                  failed.push({
+                    name: [...titles, spec.title].join(" › "),
+                    screenshot,
+                    error,
+                  });
+                }
+              }
+            }
+          }
+        }
+        if (suite.suites) walkSuites(suite.suites, titles);
+      }
+    }
+    walkSuites(report.suites || []);
+    return failed;
+  }
+
+  const failedTests = getFailedTestsWithScreenshotsAndErrors();
+
+  // Group by spec file (first part of the name, before the first ' › ')
+  const grouped = {};
+  for (const test of failedTests) {
+    const [specFile, ...rest] = test.name.split(" › ");
+    if (!grouped[specFile]) grouped[specFile] = [];
+    grouped[specFile].push({
+      name: rest.join(" › "),
+      screenshot: test.screenshot,
+      error: test.error,
+    });
+  }
+
+  // HTML output for better formatting and expand/collapse
+  // Markdown output with collapsible sections and embedded screenshots
+  let summary = `# Playwright Test Results Summary\n\n`;
+  summary += `| Total | Passed | Failed | Skipped |\n|-------|--------|--------|---------|\n| ${total} | ${passed} | ${failed} | ${skipped} |\n\n`;
+
+  if (failedTests.length === 0) {
+    summary += `## No failed tests!\n`;
+  } else {
+    for (const specFile of Object.keys(grouped)) {
+      summary += `<details><summary><strong>${specFile}</strong></summary>\n`;
+      for (const test of grouped[specFile]) {
+        summary += `\n**${test.name}**\n`;
+        if (test.screenshot) {
+          summary += `![Screenshot](${test.screenshot})\n`;
+        } else {
+          summary += `_No screenshot found_\n`;
+        }
+        if (test.error) {
+          const errorLines = test.error.split("\n");
+          const previewLines = errorLines.slice(0, 8).join("\n");
+          summary += `**Error (preview):**\n`;
+          summary += "``\n" + previewLines + "\n";
+          if (errorLines.length > 8) {
+            summary += "...\n";
+          }
+          summary += "``\n";
+          if (errorLines.length > 8) {
+            summary += `<details><summary>Full Error</summary>\n`;
+            summary += "``\n" + test.error + "\n``\n";
+            summary += `</details>\n`;
+          }
+        } else {
+          summary += `_No error message_\n`;
+        }
+      }
+      summary += `</details>\n`;
     }
   }
   fs.writeFileSync(outputSummaryPath, summary);

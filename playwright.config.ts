@@ -35,26 +35,12 @@ const baseURL =
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-interface BaseConfigType {
-  testDir: string;
-  testMatch: string[];
-  fullyParallel: boolean;
-  forbidOnly: boolean;
-  retries: number;
-  workers: number | undefined;
-  reporter: string;
-  use: any;
-  projects: any[];
-  globalSetup: string;
-  globalTeardown: string;
-  webServer?: {
-    command: string;
-    url: string;
-    reuseExistingServer: boolean;
-  };
-}
 
-const baseConfig: BaseConfigType = {
+const isDocker = process.env.USE_DOCKER === "true";
+const isWindows = process.platform === "win32";
+const dockerScript = isWindows ? "start-docker.bat" : "./start-docker.sh";
+
+export default defineConfig({
   testDir: "./",
   testMatch: ["tests/**/*.spec.ts", "specs/**/*.spec.ts"],
   fullyParallel: true,
@@ -69,8 +55,8 @@ const baseConfig: BaseConfigType = {
   use: {
     baseURL,
     trace: "on-first-retry",
-    screenshot: "on" as const,
-    video: "on" as const,
+    screenshot: "on",
+    video: "on",
     launchOptions: {
       headless: process.env.CI ? true : process.env.HEADLESS === "true",
     },
@@ -102,16 +88,13 @@ const baseConfig: BaseConfigType = {
   ],
   globalSetup: path.resolve(__dirname, "./utils/global-setup.ts"),
   globalTeardown: path.resolve(__dirname, "./utils/global-teardown.ts"),
-};
-
-if (process.env.USE_DOCKER === "true") {
-  const isWindows = process.platform === "win32";
-  const dockerScript = isWindows ? "start-docker.bat" : "./start-docker.sh";
-  baseConfig.webServer = {
-    command: dockerScript,
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-  };
-}
-
-export default defineConfig(baseConfig);
+  ...(isDocker
+    ? {
+        webServer: {
+          command: dockerScript,
+          url: baseURL,
+          reuseExistingServer: !process.env.CI,
+        },
+      }
+    : {}),
+});
