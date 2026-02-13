@@ -21,6 +21,7 @@ export class SpecmaticStudioPage extends BasePage {
     await this.page
       .getByRole("button", { name: /Record a specification/i })
       .click({ force: true });
+    await this.sideBar.closeSidebar();
     await takeAndAttachScreenshot(this.page, "clicked-record-spec", this.eyes);
   }
 
@@ -36,6 +37,7 @@ export class SpecmaticStudioPage extends BasePage {
 
   async clickStartProxy() {
     await this.page.locator("#startProxy").click({ force: true });
+    await this.sideBar.closeSidebar();
     await takeAndAttachScreenshot(this.page, "clicked-start", this.eyes);
   }
 

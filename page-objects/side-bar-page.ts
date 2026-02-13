@@ -49,8 +49,8 @@ export class SideBarPage {
       } catch (e) {
         await specLocator.click({ force: true, timeout: 3000 });
       }
-      await takeAndAttachScreenshot(this.page, "selected-spec");
       await this.closeSidebar();
+      await takeAndAttachScreenshot(this.page, "selected-spec");
     });
     return specLocator!;
   }
