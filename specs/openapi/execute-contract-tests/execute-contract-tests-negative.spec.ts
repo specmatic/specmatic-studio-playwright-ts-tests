@@ -31,13 +31,19 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
       );
       const invalidUrl = "http://ww.gag.com";
 
-      await contractPage.enterServiceUrl(invalidUrl);
+      await test.step("Enter invalid service URL", async () => {
+        await contractPage.enterServiceUrl(invalidUrl);
+      });
 
-      await contractPage.clickRunContractTests();
+      await test.step("Run contract tests and expect error", async () => {
+        await contractPage.clickRunContractTests();
+      });
 
-      await contractPage.verifyPrereqErrorVisible(
-        "Tests could not run due to errors in specification or example(s)",
-      );
+      await test.step("Verify prerequisite error is visible", async () => {
+        await contractPage.verifyPrereqErrorVisible(
+          "Tests could not run due to errors in specification or example(s)",
+        );
+      });
     },
   );
 
@@ -53,12 +59,19 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
       );
       const invalidPortUrl = "http://order-bff:9999";
 
-      await contractPage.enterServiceUrl(invalidPortUrl);
-      await contractPage.clickRunContractTests();
+      await test.step("Enter service URL with invalid port", async () => {
+        await contractPage.enterServiceUrl(invalidPortUrl);
+      });
 
-      await contractPage.verifyPrereqErrorVisible(
-        "Tests could not run due to errors in specification or example(s)",
-      );
+      await test.step("Run contract tests and expect error", async () => {
+        await contractPage.clickRunContractTests();
+      });
+
+      await test.step("Verify prerequisite error is visible", async () => {
+        await contractPage.verifyPrereqErrorVisible(
+          "Tests could not run due to errors in specification or example(s)",
+        );
+      });
     },
   );
 });

@@ -34,12 +34,15 @@ test.describe(
     });
 
     test("Execute generative tests with specific row excluded", async () => {
-      await contractPage.selectTestForExclusionOrInclusion(
-        "/products",
-        "POST",
-        "201",
-      );
-      await contractPage.clickExcludeButton();
+      await test.step("Exclude specific test row", async () => {
+        await contractPage.selectTestForExclusionOrInclusion(
+          "/products",
+          "POST",
+          "201",
+        );
+        await contractPage.clickExcludeButton();
+      });
+
       await test.step("Enable Generative Mode and Run Tests", async () => {
         await contractPage.setGenerativeMode(true);
         await contractPage.clickRunContractTests();
@@ -47,12 +50,12 @@ test.describe(
 
       await test.step("Verify Summary and Table Counts", async () => {
         await validateSummaryAndTableCounts(contractPage, {
-          success: 180,
+          success: 148,
           failed: 20,
-          total: 203,
+          total: 172,
           error: 0,
           notcovered: 3,
-          excluded: 0,
+          excluded: 1,
         });
       });
     });
