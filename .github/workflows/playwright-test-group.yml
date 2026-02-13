@@ -11,6 +11,9 @@ on:
       group_name:
         required: true
         type: string
+    secrets:
+      APPLITOOLS_API_KEY:
+        required: true
 jobs:
   test:
     runs-on: ubuntu-latest

@@ -11,3 +11,5 @@ jobs:
       test_path: specs/config
       artifact_name: config
       group_name: Config
+    secrets:
+      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
