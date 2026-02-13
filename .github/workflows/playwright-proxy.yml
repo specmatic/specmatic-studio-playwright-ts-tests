@@ -5,57 +5,9 @@ on:
   pull_request:
     branches: [main, master]
 jobs:
-  test:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-      - name: Install dependencies
-        run: npm ci
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Ensure playwright-report directory exists
-        run: mkdir -p playwright-report
-      - name: Print all environment variables
-        run: printenv
-      - name: Run Playwright tests - Proxy
-        env:
-          APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
-        run: |
-          npx playwright test specs/proxy --workers=1
-          mv playwright-report playwright-report-proxy || true
-          mkdir -p playwright-report
-        continue-on-error: true
-      - name: Capture Docker logs (Proxy)
-        if: always()
-        run: |
-          mkdir -p docker-logs-proxy
-          for cname in studio order-bff order-api inventory-api; do
-            if docker ps -a -q -f name="^/${cname}$" | grep .; then
-              docker logs "$cname" > "docker-logs-proxy/${cname}.log" 2>&1 || true
-            fi
-          done
-      - name: Archive Proxy Test Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-proxy
-          path: |
-            playwright-report-proxy/
-            docker-logs-proxy/
-          retention-days: 30
-      - name: Test Summary (JUnit)
-        if: always()
-        uses: test-summary/action@v2
-        with:
-          paths: playwright-report-proxy/junit-report.xml
-          show: "all"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+  proxy:
+    uses: ./.github/workflows/playwright-test-group.yml
+    with:
+      test_path: specs/proxy
+      artifact_name: proxy
+      group_name: Proxy
