@@ -254,7 +254,7 @@ export class ApiContractPage extends BasePage {
     });
   }
 
-  async waitForTestCompletion() {
+  private async waitForTestCompletion() {
     await this.waitForTestsToStartRunning();
 
     await this.waitForTestsToCompleteExecution();
