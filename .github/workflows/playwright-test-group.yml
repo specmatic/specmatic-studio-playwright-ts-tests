@@ -35,7 +35,7 @@ jobs:
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
         run: |
-          npx playwright test ${{ inputs.test_path }} --workers=1
+          npx playwright test ${{ inputs.test_path }}
           mv playwright-report playwright-report-${{ inputs.artifact_name }} || true
           mkdir -p playwright-report
         continue-on-error: true
