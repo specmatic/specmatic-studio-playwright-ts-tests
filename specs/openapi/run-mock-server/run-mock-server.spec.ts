@@ -16,6 +16,12 @@ test.describe("API Mocking", () => {
         eyes,
         PRODUCT_SEARCH_BFF_SPEC,
       );
+      const contractPage = new ApiContractPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC,
+      );
 
       let mockUrl: string;
 
@@ -34,123 +40,101 @@ test.describe("API Mocking", () => {
       });
 
       await test.step("Run Contract Tests and Validate Mock Server Results", async () => {
-        const contractPage = new ApiContractPage(
-          page,
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
-        );
         await contractPage.clickRunContractTests();
-
-        await test.step("Navigate back to Mock Server tab", async () => {
-          await mockPage.clickMockServerTab();
-        });
-
-        await test.step("Validate Mock Summary Results", async () => {
-          await validateMockSummaryAndTableCounts(mockPage, {
-            success: 45,
-            failed: 2,
-            total: 47,
-            error: 0,
-            notcovered: 0,
-          });
-        });
-
-        await test.step("Validate Mock Table Headers", async () => {
-          const headers = await mockPage.getMockTableHeadersData();
-
-          expect(headers.coverage.text).toBe("Coverage");
-          expect(headers.coverage.total).toBe("54%");
-
-          expect(headers.path).toMatchObject({
-            text: "Path",
-            total: "6",
-            enabled: "6",
-            disabled: "0",
-          });
-          expect(headers.method).toMatchObject({
-            text: "Method",
-            total: "6",
-            enabled: "6",
-            disabled: "0",
-          });
-
-          // Validate Response
-          expect(headers.response).toMatchObject({
-            text: "Response",
-            total: "13",
-            enabled: "13",
-            disabled: "0",
-          });
-        });
-
-        await test.step("Verify Drill-Down Scenarios", async () => {
-          await mockPage.clickMockTableRemark("/products", "201");
-
-          const count = await mockPage.getTotalDrillDownCount();
-          expect(count, "The number of drill-down scenarios should be 12").toBe(
-            12,
-          );
-
-          const isAllSuccess = await mockPage.areAllDrillDownsSuccess();
-          expect(
-            isAllSuccess,
-            "Expected all drill-down scenarios to have 'Success' status",
-          ).toBe(true);
-
-          const indicesToCheck = count > 1 ? [0, count - 1] : [0];
-
-          for (const index of indicesToCheck) {
-            const label = index === 0 ? "First" : "Last";
-
-            await test.step(`Verify structure of ${label} drill-down`, async () => {
-              const state = await mockPage.getDrillDownState(index);
-
-              expect(
-                state.requestVisible,
-                `${label} drill-down request block should be visible`,
-              ).toBe(true);
-              expect(
-                state.responseVisible,
-                `${label} drill-down response block should be visible`,
-              ).toBe(true);
-            });
-          }
-
-          await mockPage.goBackFromDrillDown();
-        });
-
-        await test.step("Verify Mock Filter Operations", async () => {
-          await test.step("Filter by Success and verify count matches", async () => {
-            const { headerCount, filteredCount } =
-              await mockPage.verifyMockFilterCountMatches("success");
-
-            expect(
-              filteredCount,
-              `Expected table sum to match header count of ${headerCount}`,
-            ).toBe(headerCount);
-          });
-
-          await test.step("Filter by Failed and verify count matches", async () => {
-            const { headerCount, filteredCount } =
-              await mockPage.verifyMockFilterCountMatches("failed");
-            expect(
-              filteredCount,
-              `Expected table sum to match header count of ${headerCount}`,
-            ).toBe(headerCount);
-          });
-
-          await test.step("Reset to Total filter and verify all results", async () => {
-            await mockPage.clickMockFilterHeader("total");
-            const { headerCount, filteredCount } =
-              await mockPage.verifyMockFilterCountMatches("total");
-            expect(
-              filteredCount,
-              `Expected table sum to match header count of ${headerCount}`,
-            ).toBe(headerCount);
-          });
-        });
+        await mockPage.clickMockServerTab();
       });
+
+      await validateSummaryResults(mockPage);
+      await validateTableHeaders(mockPage);
+      await verifyDrillDownScenarios(mockPage);
+      await verifyFilterOperations(mockPage);
     },
   );
 });
+
+async function validateSummaryResults(mockPage: MockServerPage) {
+  await test.step("Validate Mock Summary Results", async () => {
+    await validateMockSummaryAndTableCounts(mockPage, {
+      success: 45,
+      failed: 2,
+      total: 47,
+      error: 0,
+      notcovered: 0,
+    });
+  });
+}
+
+async function validateTableHeaders(mockPage: MockServerPage) {
+  await test.step("Validate Mock Table Headers", async () => {
+    const headers = await mockPage.getMockTableHeadersData();
+
+    expect(headers.coverage).toMatchObject({ text: "Coverage", total: "54%" });
+    expect(headers.path).toMatchObject({
+      text: "Path",
+      total: "6",
+      enabled: "6",
+      disabled: "0",
+    });
+    expect(headers.method).toMatchObject({
+      text: "Method",
+      total: "6",
+      enabled: "6",
+      disabled: "0",
+    });
+    expect(headers.response).toMatchObject({
+      text: "Response",
+      total: "13",
+      enabled: "13",
+      disabled: "0",
+    });
+  });
+}
+
+async function verifyDrillDownScenarios(mockPage: MockServerPage) {
+  await test.step("Verify Drill-Down Scenarios", async () => {
+    await mockPage.clickMockTableRemark("/products", "201");
+
+    const count = await mockPage.getTotalDrillDownCount();
+    expect(count, "The number of drill-down scenarios should be 12").toBe(12);
+
+    const isAllSuccess = await mockPage.areAllDrillDownsSuccess();
+    expect(
+      isAllSuccess,
+      "Expected all drill-down scenarios to have 'Success' status",
+    ).toBe(true);
+
+    const indicesToCheck = count > 1 ? [0, count - 1] : [0];
+    for (const index of indicesToCheck) {
+      const label = index === 0 ? "First" : "Last";
+      const state = await mockPage.getDrillDownState(index);
+
+      expect(
+        state.requestVisible,
+        `${label} drill-down request block should be visible`,
+      ).toBe(true);
+      expect(
+        state.responseVisible,
+        `${label} drill-down response block should be visible`,
+      ).toBe(true);
+    }
+
+    await mockPage.goBackFromDrillDown();
+  });
+}
+
+async function verifyFilterOperations(mockPage: MockServerPage) {
+  await test.step("Verify Mock Filter Operations", async () => {
+    const filters = ["success", "failed", "total"] as const;
+
+    for (const filterType of filters) {
+      await test.step(`Filter by ${filterType} and verify count matches`, async () => {
+        const { headerCount, filteredCount } =
+          await mockPage.verifyMockFilterCountMatches(filterType);
+        expect(
+          filteredCount,
+          `Expected table sum to match header count of ${headerCount}`,
+        ).toBe(headerCount);
+      });
+    }
+  });
+}
