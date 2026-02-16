@@ -16,7 +16,7 @@ export default async function globalTeardown() {
     // Applitools BatchClose requires batchIds, serverUrl, and apiKey
     const batchId = Batch.getId();
     const serverUrl =
-      process.env.APPLITOOLS_SERVER_URL || "https://eyesapi.applitools.com";
+      process.env.APPLITOOLS_SERVER_URL || "https://eyes.applitools.com";
     const apiKey = process.env.APPLITOOLS_API_KEY;
     console.log(
       `Closing Applitools batch with ID: ${batchId}, Server URL: ${serverUrl} and API Key: ${apiKey}`,
