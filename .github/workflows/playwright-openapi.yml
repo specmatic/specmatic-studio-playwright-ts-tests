@@ -1,39 +1,39 @@
-# name: Studio - OpenAPI Tests
-# on:
-#   push:
-#     branches: [main, master]
-#   pull_request:
-#     branches: [main, master]
-# jobs:
-#   execute-contract-tests:
-#     uses: ./.github/workflows/playwright-test-group.yml
-#     with:
-#       test_path: specs/openapi/execute-contract-tests
-#       artifact_name: execute-contract-tests
-#       group_name: Execute Contract Tests
-#     secrets:
-#       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
-#   generate-valid-examples:
-#     uses: ./.github/workflows/playwright-test-group.yml
-#     with:
-#       test_path: specs/openapi/generate-valid-examples
-#       artifact_name: generate-valid-examples
-#       group_name: Generate Valid Examples
-#     secrets:
-#       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
-#   run-mock-server:
-#     uses: ./.github/workflows/playwright-test-group.yml
-#     with:
-#       test_path: specs/openapi/run-mock-server
-#       artifact_name: run-mock-server
-#       group_name: Run Mock Server
-#     secrets:
-#       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
-#   update-service-spec:
-#     uses: ./.github/workflows/playwright-test-group.yml
-#     with:
-#       test_path: specs/openapi/update-service-spec
-#       artifact_name: update-service-spec
-#       group_name: Update Service Spec
-#     secrets:
-#       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+name: Studio - OpenAPI Tests
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+jobs:
+  execute-contract-tests:
+    uses: ./.github/workflows/playwright-test-group.yml
+    with:
+      test_path: specs/openapi/execute-contract-tests
+      artifact_name: execute-contract-tests
+      group_name: Execute Contract Tests
+    secrets:
+      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+  generate-valid-examples:
+    uses: ./.github/workflows/playwright-test-group.yml
+    with:
+      test_path: specs/openapi/generate-valid-examples
+      artifact_name: generate-valid-examples
+      group_name: Generate Valid Examples
+    secrets:
+      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+  run-mock-server:
+    uses: ./.github/workflows/playwright-test-group.yml
+    with:
+      test_path: specs/openapi/run-mock-server
+      artifact_name: run-mock-server
+      group_name: Run Mock Server
+    secrets:
+      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+  update-service-spec:
+    uses: ./.github/workflows/playwright-test-group.yml
+    with:
+      test_path: specs/openapi/update-service-spec
+      artifact_name: update-service-spec
+      group_name: Update Service Spec
+    secrets:
+      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
