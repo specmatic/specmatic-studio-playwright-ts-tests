@@ -44,37 +44,22 @@ test.describe("API Mocking", () => {
         await mockPage.clickMockServerTab();
       });
 
-      await expect
-        .poll(
-          async () => {
-            return await mockPage.getMockSummaryHeaderValue("total");
-          },
-          {
-            message: "Wait for Mock Server totals to update after tests",
-            timeout: 15000,
-          },
-        )
-        .toBe(47);
+      await test.step("Validate Mock Summary Results", async () => {
+        await validateMockSummaryAndTableCounts(mockPage, {
+          success: 45,
+          failed: 2,
+          total: 47,
+          error: 0,
+          notcovered: 0,
+        });
+      });
 
-      await validateSummaryResults(mockPage);
       await validateTableHeaders(mockPage);
       await verifyDrillDownScenarios(mockPage);
       await verifyFilterOperations(mockPage);
     },
   );
 });
-
-async function validateSummaryResults(mockPage: MockServerPage) {
-  await test.step("Validate Mock Summary Results", async () => {
-    await validateMockSummaryAndTableCounts(mockPage, {
-      success: 45,
-      failed: 2,
-      total: 47,
-      error: 0,
-      notcovered: 0,
-    });
-  });
-}
 
 async function validateTableHeaders(mockPage: MockServerPage) {
   await test.step("Validate Mock Table Headers", async () => {
