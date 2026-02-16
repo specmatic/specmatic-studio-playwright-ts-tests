@@ -77,7 +77,7 @@ jobs:
         if: always()
         uses: test-summary/action@v2
         with:
-          paths: playwright-report-${{ inputs.artifact_name }}/playwright-report/junit-report.xml
+          paths: playwright-report-${{ inputs.artifact_name }}/junit-report.xml
           show: "all"
       # No need to upload the original playwright-report directory again, as it is moved/renamed above
       - name: Publish Build Reports to Specmatic Insights
