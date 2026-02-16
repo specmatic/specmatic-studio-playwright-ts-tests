@@ -44,6 +44,18 @@ test.describe("API Mocking", () => {
         await mockPage.clickMockServerTab();
       });
 
+      await expect
+        .poll(
+          async () => {
+            return await mockPage.getMockSummaryHeaderValue("total");
+          },
+          {
+            message: "Wait for Mock Server totals to update after tests",
+            timeout: 15000,
+          },
+        )
+        .toBe(47);
+
       await validateSummaryResults(mockPage);
       await validateTableHeaders(mockPage);
       await verifyDrillDownScenarios(mockPage);
