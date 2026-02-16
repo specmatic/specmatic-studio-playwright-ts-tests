@@ -41,17 +41,31 @@ jobs:
           mkdir -p playwright-report-${{ inputs.artifact_name }}
           npx playwright test ${{ inputs.test_path }}
           echo "Playwright tests completed for group: ${{ inputs.group_name }}"
+          echo "Current directory contents after test execution:"
+          pwd
+          ls -la
+          echo "Contents of playwright-report directory:"
+          ls -la playwright-report
           mv playwright-report playwright-report-${{ inputs.artifact_name }}/playwright-report
+          echo "Renamed playwright-report to playwright-report-${{ inputs.artifact_name }}/playwright-report"
+          echo "Contents of playwright-report-${{ inputs.artifact_name }} directory after moving report:"
+          ls -la playwright-report-${{ inputs.artifact_name }}
         continue-on-error: true
       - name: Capture Docker logs generated while running ${{ inputs.group_name }} tests
         if: always()
         run: |
+          echo "Contents of playwright-report-${{ inputs.artifact_name }} directory before capturing Docker logs:"
+          ls -la playwright-report-${{ inputs.artifact_name }}
           mkdir -p playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }}
           for cname in studio order-bff order-api inventory-api; do
             if docker ps -a -q -f name="^/${cname}$" | grep .; then
               docker logs "$cname" > "playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }}/${cname}.log" 2>&1 || true
             fi
           done
+          echo "Contents of playwright-report-${{ inputs.artifact_name }} directory after capturing Docker logs:"
+          ls -la playwright-report-${{ inputs.artifact_name }}
+          echo "Contents of playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }} directory:"
+          ls -la playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }}
       - name: Upload Playwright report and Docker logs for ${{ inputs.group_name }} tests
         if: always()
         uses: actions/upload-artifact@v4
