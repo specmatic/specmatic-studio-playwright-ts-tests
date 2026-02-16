@@ -27,55 +27,44 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-      - name: Ensure playwright-report directory exists
-        run: mkdir -p playwright-report
       - name: Write specmatic license key to file
         run: |
           mkdir -p ~/.specmatic
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print all environment variables
         run: printenv
-      - name: Run Playwright tests - ${{ inputs.group_name }}
+      - name: Run Playwright tests for ${{ inputs.group_name }}
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
         run: |
+          mkdir -p playwright-report
+          mkdir -p playwright-report-${{ inputs.artifact_name }}
           npx playwright test ${{ inputs.test_path }}
           echo "Playwright tests completed for group: ${{ inputs.group_name }}"
-          # Move report directory if it exists and not already moved
-          if [ -d playwright-report ]; then
-            mv playwright-report playwright-report-${{ inputs.artifact_name }}
-          fi
-          # Ensure junit-report.xml is in the right place
-          if [ -f playwright-report-${{ inputs.artifact_name }}/junit-report.xml ]; then
-            echo "JUnit report found in correct location."
-          elif [ -f playwright-report/junit-report.xml ]; then
-            mkdir -p playwright-report-${{ inputs.artifact_name }}
-            mv playwright-report/junit-report.xml playwright-report-${{ inputs.artifact_name }}/
-          fi
+          mv playwright-report playwright-report-${{ inputs.artifact_name }}/playwright-report
         continue-on-error: true
-      - name: Capture Docker logs for (${{ inputs.group_name }}) Tests
+      - name: Capture Docker logs generated while running ${{ inputs.group_name }} tests
         if: always()
         run: |
-          mkdir -p docker-logs-${{ inputs.artifact_name }}
+          mkdir -p playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }}
           for cname in studio order-bff order-api inventory-api; do
             if docker ps -a -q -f name="^/${cname}$" | grep .; then
-              docker logs "$cname" > "docker-logs-${{ inputs.artifact_name }}/${cname}.log" 2>&1 || true
+              docker logs "$cname" > "playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }}/${cname}.log" 2>&1 || true
             fi
           done
-      - name: Upload Playwright report and Docker logs for ${{ inputs.group_name }}
+      - name: Upload Playwright report and Docker logs for ${{ inputs.group_name }} tests
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-artifacts-${{ inputs.artifact_name }}-group-${{ inputs.group_name }}-${{ github.run_number }}
+          name: test-artifacts-${{ inputs.artifact_name }}-tests-run-${{ github.run_number }}
           path: |
-            playwright-report-${{ inputs.artifact_name }}/
-            docker-logs-${{ inputs.artifact_name }}/
+            playwright-report-${{ inputs.artifact_name }}
           retention-days: 30
-      - name: ${{ inputs.group_name }} Test Summary (JUnit)
+      - name: ${{ inputs.group_name }} Test Execution Summary
         if: always()
         uses: test-summary/action@v2
         with:
-          paths: playwright-report-${{ inputs.artifact_name }}/junit-report.xml
+          paths: playwright-report-${{ inputs.artifact_name }}/playwright-report/junit-report.xml
           show: "all"
       # No need to upload the original playwright-report directory again, as it is moved/renamed above
       - name: Publish Build Reports to Specmatic Insights
