@@ -40,15 +40,14 @@ jobs:
           mkdir -p playwright-report
           mkdir -p playwright-report-${{ inputs.artifact_name }}
           npx playwright test ${{ inputs.test_path }}
-          echo "Playwright tests completed for group: ${{ inputs.group_name }}"
-          echo "Current directory contents after test execution:"
-          pwd
-          ls -la
-          echo "Contents of playwright-report directory:"
-          ls -la playwright-report
-          mv playwright-report playwright-report-${{ inputs.artifact_name }}/playwright-report
-          echo "Renamed playwright-report to playwright-report-${{ inputs.artifact_name }}/playwright-report"
-          echo "Contents of playwright-report-${{ inputs.artifact_name }} directory after moving report:"
+        continue-on-error: true
+      - name: Copy Playwright report for ${{ inputs.group_name }} tests
+        if: always()
+        run: |
+          mkdir -p playwright-report-${{ inputs.artifact_name }}
+          cp -v -r playwright-report/* playwright-report-${{ inputs.artifact_name }}/ || true
+          echo "Copied Playwright report to playwright-report-${{ inputs.artifact_name }}"
+          echo "Contents of playwright-report-${{ inputs.artifact_name }} directory after copying report:"
           ls -la playwright-report-${{ inputs.artifact_name }}
         continue-on-error: true
       - name: Capture Docker logs generated while running ${{ inputs.group_name }} tests
