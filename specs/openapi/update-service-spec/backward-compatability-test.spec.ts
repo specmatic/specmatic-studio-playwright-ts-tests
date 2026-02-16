@@ -1,13 +1,6 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
-import {
-  PRODUCT_SEARCH_BFF_SPEC,
-  ORDER_BFF_SERVICE_URL,
-} from "../../specNames";
-import {
-  ServiceSpecConfigPage,
-  Edit,
-} from "../../../page-objects/service-spec-config-page";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 
 test.describe("API Specification - Backward Compatibility", () => {
   test(
@@ -33,6 +26,7 @@ test.describe("API Specification - Backward Compatibility", () => {
         await configPage.dismissAlert();
       });
 
+      //TODO: Implement Positive Scenario for this as well
       await test.step("Expand Error Details and Verify Content", async () => {
         await configPage.toggleBccErrorSection(true);
         const errorData = await configPage.getBccErrorDetails();

@@ -141,6 +141,7 @@ export class ServiceSpecConfigPage extends BasePage {
       (await this.validationErrorBtn.getAttribute("aria-expanded")) === "false"
     ) {
       await this.validationErrorBtn.click();
+      await takeAndAttachScreenshot(this.page, "error expanded", this.eyes);
     }
     return await this.errorContent.innerText();
   }
@@ -158,6 +159,7 @@ export class ServiceSpecConfigPage extends BasePage {
   async dismissAlert() {
     await this.alertDismissButton.click();
     await this.alertMessage.waitFor({ state: "hidden" });
+    await takeAndAttachScreenshot(this.page, "dismissing alert", this.eyes);
   }
 
   async toggleBccErrorSection(shouldExpand: boolean) {
@@ -168,9 +170,13 @@ export class ServiceSpecConfigPage extends BasePage {
       (!shouldExpand && isExpanded === "true")
     ) {
       await this.bccErrorToggle.click();
+      await takeAndAttachScreenshot(
+        this.page,
+        "expanding-error-setion",
+        this.eyes,
+      );
     }
 
-    // Wait for Bootstrap collapse animation to finish
     if (shouldExpand) {
       await expect(this.bccErrorContent).toHaveClass(/show/);
     }

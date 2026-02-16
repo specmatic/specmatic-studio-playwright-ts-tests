@@ -1,9 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
-import {
-  PRODUCT_SEARCH_BFF_SPEC,
-  ORDER_BFF_SERVICE_URL,
-} from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
 import {
   ServiceSpecConfigPage,
   Edit,

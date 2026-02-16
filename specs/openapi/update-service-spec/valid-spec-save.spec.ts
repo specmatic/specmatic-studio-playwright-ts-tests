@@ -1,9 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
-import {
-  PRODUCT_SEARCH_BFF_SPEC,
-  ORDER_BFF_SERVICE_URL,
-} from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
 import {
   ServiceSpecConfigPage,
   Edit,
@@ -12,7 +8,7 @@ import {
 test.describe("Saving Valid Spec", () => {
   test(
     "Scenario 1: Save Valid Spec",
-    { tag: ["@spec", "@validSpecChange"] },
+    { tag: ["@spec", "@correctSpecChange"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(
         page,
