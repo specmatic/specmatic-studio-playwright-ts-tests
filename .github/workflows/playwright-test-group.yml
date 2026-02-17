@@ -75,3 +75,14 @@ jobs:
         with:
           paths: playwright-report-${{ inputs.artifact_name }}/junit-report.xml
           show: "all"
+      - name: Fail job if there are test failures
+        run: |
+          FAILURES=$(xmllint --xpath 'string(//testsuite/@failures)' playwright-report-${{ inputs.artifact_name }}/junit-report.xml)
+          ERRORS=$(xmllint --xpath 'string(//testsuite/@errors)' playwright-report-${{ inputs.artifact_name }}/junit-report.xml)
+          if [ "$FAILURES" != "0" ] || [ "$ERRORS" != "0" ]; then
+            echo "Test failures or errors detected: failures=$FAILURES, errors=$ERRORS"
+            exit 1
+          else
+            echo "No test failures or errors detected."
+          fi
+        if: always()
