@@ -49,6 +49,9 @@ export class MockServerPage extends BasePage {
   // Drill-down back button
   private readonly drillDownBackButton: Locator;
 
+  private readonly alertContainer: Locator;
+  private readonly alertMessage: Locator;
+
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
@@ -131,6 +134,9 @@ export class MockServerPage extends BasePage {
       .locator(".header")
       .getByRole("button", { name: "Go Back" })
       .first();
+
+    this.alertContainer = page.locator("#alert-container");
+    this.alertMessage = this.alertContainer.locator(".alert-msg.error");
   }
 
   async openRunMockServerTab() {
@@ -466,5 +472,36 @@ export class MockServerPage extends BasePage {
     const filteredCount = await this.getFilteredMockResultCount(filterType);
 
     return { headerCount, filteredCount };
+  }
+
+  async getErrorMessage(): Promise<{ title: string; detail: string }> {
+    await this.alertMessage.waitFor({ state: "visible", timeout: 5000 });
+
+    const title = await this.alertMessage.locator("p").innerText();
+    const detail = await this.alertMessage.locator("pre").innerText();
+
+    await takeAndAttachScreenshot(
+      this.page,
+      "mock-start-error-alert",
+      this.eyes,
+    );
+
+    return { title, detail };
+  }
+
+  async isMockServerRunning(): Promise<boolean> {
+    const isRunning = await this.mockToggleButton.getAttribute("data-running");
+    return isRunning === "true";
+  }
+
+  async dismissAlert() {
+    const closeButton = this.alertMessage.locator("button");
+    await closeButton.click();
+    await this.alertMessage.waitFor({ state: "hidden", timeout: 5000 });
+    await takeAndAttachScreenshot(
+      this.page,
+      "invalid dialog dismissed",
+      this.eyes,
+    );
   }
 }

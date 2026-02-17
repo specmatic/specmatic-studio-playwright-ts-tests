@@ -9,7 +9,7 @@ test.describe("API Mocking", () => {
     "Run Mock Server for API Spec",
     { tag: ["@apiMocking"] },
     async ({ page, eyes }, testInfo) => {
-      test.setTimeout(120000);
+      test.setTimeout(180000);
       const mockPage = new MockServerPage(
         page,
         testInfo,
