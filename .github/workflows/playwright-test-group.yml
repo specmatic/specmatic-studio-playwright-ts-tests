@@ -14,6 +14,8 @@ on:
     secrets:
       APPLITOOLS_API_KEY:
         required: true
+      SPECMATIC_LICENSE_KEY:
+        required: true
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -26,46 +28,50 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Ensure playwright-report directory exists
-        run: mkdir -p playwright-report
+        run: npx playwright install chromium --with-deps
+      - name: Write specmatic license key to file
+        run: |
+          mkdir -p ~/.specmatic
+          echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print all environment variables
         run: printenv
-      - name: Run Playwright tests - ${{ inputs.group_name }}
+      - name: Run Playwright tests for ${{ inputs.group_name }}
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
         run: |
-          npx playwright test ${{ inputs.test_path }} --workers=1
-          mv playwright-report playwright-report-${{ inputs.artifact_name }} || true
           mkdir -p playwright-report
+          mkdir -p playwright-report-${{ inputs.artifact_name }}
+          npx playwright test ${{ inputs.test_path }}
         continue-on-error: true
-      - name: Capture Docker logs (${{ inputs.group_name }})
+      - name: Copy Playwright report for ${{ inputs.group_name }} tests
         if: always()
         run: |
-          mkdir -p docker-logs-${{ inputs.artifact_name }}
+          mkdir -p playwright-report-${{ inputs.artifact_name }}
+          cp -v -r playwright-report/* playwright-report-${{ inputs.artifact_name }}/ || true
+          echo "Copied Playwright report to playwright-report-${{ inputs.artifact_name }}"
+        continue-on-error: true
+      - name: Capture Docker logs generated while running ${{ inputs.group_name }} tests
+        if: always()
+        run: |
+          mkdir -p playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }}
           for cname in studio order-bff order-api inventory-api; do
             if docker ps -a -q -f name="^/${cname}$" | grep .; then
-              docker logs "$cname" > "docker-logs-${{ inputs.artifact_name }}/${cname}.log" 2>&1 || true
+              docker logs "$cname" > "playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }}/${cname}.log" 2>&1 || true
             fi
           done
-      - name: Archive ${{ inputs.group_name }} Report
+          echo "Contents of playwright-report-${{ inputs.artifact_name }} directory after capturing Docker logs:"
+          ls -la playwright-report-${{ inputs.artifact_name }}
+      - name: Upload Playwright report and Docker logs for ${{ inputs.group_name }} tests
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ inputs.artifact_name }}-${{ github.run_number }}
+          name: test-artifacts-${{ inputs.artifact_name }}-tests-run-${{ github.run_number }}
           path: |
-            playwright-report-${{ inputs.artifact_name }}/
-            docker-logs-${{ inputs.artifact_name }}/
+            playwright-report-${{ inputs.artifact_name }}
           retention-days: 30
-      - name: Test Summary (JUnit)
+      - name: ${{ inputs.group_name }} Test Execution Summary
         if: always()
         uses: test-summary/action@v2
         with:
           paths: playwright-report-${{ inputs.artifact_name }}/junit-report.xml
           show: "all"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30

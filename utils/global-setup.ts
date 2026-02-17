@@ -59,19 +59,17 @@ export const Batch: BatchInfo = new BatchInfo({
   })(),
 });
 Batch.setNotifyOnCompletion(true);
-if (process.env.BATCH_SEQUENCE_NAME) {
-  Batch.setSequenceName(process.env.BATCH_SEQUENCE_NAME);
+
+if (process.env.BATCH_ID) {
+  Batch.setId(process.env.BATCH_ID);
 }
-if (process.env.BATCH_ID) Batch.setId(process.env.BATCH_ID);
-{
-  Batch.addProperty("environment", process.env.ENV_NAME || "local");
-  Batch.addProperty("branch", process.env.BRANCH_NAME);
-  Batch.addProperty("os", process.env.OS_TYPE);
-  Batch.addProperty("user", process.env.LOGGED_IN_USER);
-  Batch.addProperty("machine", process.env.MACHINE_NAME);
-  if (process.env.GITHUB_RUN_NUMBER) {
-    Batch.addProperty("GITHUB_RUN_NUMBER", process.env.GITHUB_RUN_NUMBER);
-  }
+Batch.addProperty("environment", process.env.ENV_NAME || "local");
+Batch.addProperty("branch", process.env.BRANCH_NAME);
+Batch.addProperty("os", process.env.OS_TYPE);
+Batch.addProperty("user", process.env.LOGGED_IN_USER);
+Batch.addProperty("machine", process.env.MACHINE_NAME);
+if (process.env.GITHUB_RUN_NUMBER) {
+  Batch.addProperty("GITHUB_RUN_NUMBER", process.env.GITHUB_RUN_NUMBER);
 }
 export default async function globalSetup() {
   // No-op: Applitools batch/runner setup is handled in worker context for each test process.
