@@ -33,6 +33,13 @@ test.describe(
       });
     });
 
+    test("Execute generative tests", async () => {
+      await test.step("Enable Generative Mode and Run Tests", async () => {
+        await contractPage.setGenerativeMode(true);
+        await contractPage.clickRunContractTests();
+      });
+    });
+
     test("Execute generative tests with specific row excluded", async () => {
       await test.step("Exclude specific test row", async () => {
         await contractPage.selectTestForExclusionOrInclusion(
