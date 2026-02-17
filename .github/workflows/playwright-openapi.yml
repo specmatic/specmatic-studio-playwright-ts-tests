@@ -22,6 +22,7 @@ jobs:
       group_name: Generate Valid Examples
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+      SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
   run-mock-server:
     uses: ./.github/workflows/playwright-test-group.yml
     with:
@@ -30,6 +31,7 @@ jobs:
       group_name: Run Mock Server
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+      SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
   update-service-spec:
     uses: ./.github/workflows/playwright-test-group.yml
     with:
@@ -38,3 +40,4 @@ jobs:
       group_name: Update Service Spec
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+      SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
