@@ -13,6 +13,7 @@ jobs:
       group_name: Execute Contract Tests
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+      SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
   generate-valid-examples:
     uses: ./.github/workflows/playwright-test-group.yml
     with:

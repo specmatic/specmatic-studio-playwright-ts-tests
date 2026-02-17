@@ -38,6 +38,7 @@ jobs:
       - name: Run Playwright tests for ${{ inputs.group_name }}
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+          SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
         run: |
           mkdir -p playwright-report
           mkdir -p playwright-report-${{ inputs.artifact_name }}
