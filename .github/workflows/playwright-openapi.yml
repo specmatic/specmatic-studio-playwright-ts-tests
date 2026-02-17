@@ -10,7 +10,7 @@ jobs:
     with:
       test_path: specs/openapi/execute-contract-tests
       artifact_name: execute-contract-tests
-      group_name: Execute Contract Tests
+      group_name: Contract
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
       SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
@@ -19,7 +19,7 @@ jobs:
     with:
       test_path: specs/openapi/generate-valid-examples
       artifact_name: generate-valid-examples
-      group_name: Generate Valid Examples
+      group_name: Examples
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
       SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
@@ -28,7 +28,7 @@ jobs:
     with:
       test_path: specs/openapi/run-mock-server
       artifact_name: run-mock-server
-      group_name: Run Mock Server
+      group_name: Mock
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
       SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
@@ -37,7 +37,7 @@ jobs:
     with:
       test_path: specs/openapi/update-service-spec
       artifact_name: update-service-spec
-      group_name: Update Service Spec
+      group_name: Spec
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
       SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}

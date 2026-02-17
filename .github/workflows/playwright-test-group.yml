@@ -39,6 +39,7 @@ jobs:
       - name: Run Playwright tests for ${{ inputs.group_name }}
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+          GROUP_NAME: ${{ inputs.group_name }}
         run: |
           echo "Print all environment variables"
           printenv
