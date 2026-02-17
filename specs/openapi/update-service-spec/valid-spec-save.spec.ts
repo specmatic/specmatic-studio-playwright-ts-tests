@@ -1,18 +1,14 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
-import {
-  PRODUCT_SEARCH_BFF_SPEC,
-  ORDER_BFF_SERVICE_URL,
-} from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
 import {
   ServiceSpecConfigPage,
   Edit,
 } from "../../../page-objects/service-spec-config-page";
 
-test.describe("Update Service Spec", () => {
+test.describe("Saving Valid Spec", () => {
   test(
-    "Update Service Specification",
-    { tag: ["@spec", "@updateConfig"] },
+    "Scenario 1: Save Valid Spec",
+    { tag: ["@spec", "@correctSpecChange"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(
         page,
@@ -25,9 +21,19 @@ test.describe("Update Service Spec", () => {
         await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
         await configPage.openSpecTab();
       });
-      await test.step("Save updated Service Spec", async () => {
+
+      await test.step("Edit Spec and Save", async () => {
+        const validEdit: Edit[] = [
+          {
+            current: { mode: "keyOnly", key: "title" },
+            changeTo: "title: Updated Order BFF",
+          },
+        ];
+
+        await configPage.editSpec(validEdit);
         await configPage.clickSaveOpenApi();
-        await takeAndAttachScreenshot(page, "save-clicked", eyes);
+
+        await expect(configPage.alertMsg).not.toBeVisible();
       });
     },
   );

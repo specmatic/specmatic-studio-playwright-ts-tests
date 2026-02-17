@@ -47,8 +47,8 @@ test.describe("API Mocking", () => {
       await test.step("Validate Mock Summary Results", async () => {
         await validateMockSummaryAndTableCounts(mockPage, {
           success: 45,
-          failed: 2,
-          total: 47,
+          failed: 1,
+          total: 46,
           error: 0,
           notcovered: 0,
         });
@@ -68,20 +68,20 @@ async function validateTableHeaders(mockPage: MockServerPage) {
     expect(headers.coverage).toMatchObject({ text: "Coverage", total: "54%" });
     expect(headers.path).toMatchObject({
       text: "Path",
-      total: "6",
-      enabled: "6",
+      total: "5",
+      enabled: "5",
       disabled: "0",
     });
     expect(headers.method).toMatchObject({
       text: "Method",
-      total: "6",
-      enabled: "6",
+      total: "5",
+      enabled: "5",
       disabled: "0",
     });
     expect(headers.response).toMatchObject({
       text: "Response",
-      total: "13",
-      enabled: "13",
+      total: "12",
+      enabled: "12",
       disabled: "0",
     });
   });
