@@ -1,5 +1,5 @@
 import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
-import { Locator, expect, type TestInfo, Page } from "@playwright/test";
+import { Locator, expect, type TestInfo, Page, test } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 
@@ -20,6 +20,7 @@ export class ServiceSpecConfigPage extends BasePage {
   readonly updateTab: Locator;
   readonly saveBtn: Locator;
   private readonly specSection: Locator;
+  private readonly contractTestTab: Locator;
   readonly editorLines: Locator;
   readonly alertMsg: Locator;
   readonly validationErrorBtn: Locator;
@@ -44,6 +45,7 @@ export class ServiceSpecConfigPage extends BasePage {
     this.saveBtn = this.specSection.locator('button[data-validate="/openapi"]');
     this.openApiTabPage = new OpenAPISpecTabPage(this);
     this.editorLines = this.specSection.locator(".cm-content .cm-line");
+    this.contractTestTab = page.locator('li.tab[data-type="test"]').first();
     this.alertMsg = page.locator(".alert-msg.error");
     this.validationErrorBtn = page.locator("button.bcc-errors-btn");
     this.errorContent = page.locator(".bcc-errors-content");
@@ -56,6 +58,128 @@ export class ServiceSpecConfigPage extends BasePage {
   }
   async openSpecTab() {
     return this.openApiTabPage.openSpecTab();
+  }
+  async openContractTestTab() {
+    await test.step(`Open Contract Test tab`, async () => {
+      await this.contractTestTab.waitFor({ state: "visible", timeout: 10000 });
+      const isActive = await this.contractTestTab.getAttribute("data-active");
+      if (isActive !== "true") {
+        await this.contractTestTab.click({ force: true });
+      }
+      await takeAndAttachScreenshot(
+        this.page,
+        "contract-test-tab-opened",
+        this.eyes,
+      );
+    });
+  }
+
+  /**
+   * @param expectedPath   The path that SHOULD be present (e.g. '/orders')
+   * @param unexpectedPath The path that should NOT be present (e.g. '/ordres')
+   */
+  async verifyEndpointInContractTable(
+    expectedPath: string,
+    unexpectedPath?: string,
+  ) {
+    await test.step(`Verify endpoint '${expectedPath}' in contract test table`, async () => {
+      await this.openContractTestTab();
+
+      const table = this.page.locator("table#test");
+      await expect(table).toBeVisible({ timeout: 15000 });
+      console.log(`  Contract test table is visible`);
+
+      const expectedCell = this.page.locator(
+        `table#test tbody td[data-key="path"][data-value="${expectedPath}"]`,
+      );
+      await expect(expectedCell.first()).toBeVisible({ timeout: 10000 });
+      console.log(`  ✓ Found expected path in contract table: ${expectedPath}`);
+
+      await takeAndAttachScreenshot(
+        this.page,
+        `verified-contract-path-${expectedPath.replace(/\//g, "")}-present`,
+        this.eyes,
+      );
+
+      if (unexpectedPath) {
+        const unexpectedCell = this.page.locator(
+          `table#test tbody td[data-key="path"][data-value="${unexpectedPath}"]`,
+        );
+        await expect(unexpectedCell).toHaveCount(0);
+        console.log(`  ✓ Confirmed typo path is absent: ${unexpectedPath}`);
+
+        await takeAndAttachScreenshot(
+          this.page,
+          `verified-contract-path-${unexpectedPath.replace(/\//g, "")}-absent`,
+          this.eyes,
+        );
+      }
+
+      console.log(`  ✓ Contract table path verification complete`);
+    });
+  }
+
+  /**
+   *
+   * @param searchText  Exact string to find in the file (e.g. '  /ordres:')
+   * @param replaceText Replacement string (e.g. '  /orders:')
+   */
+  async editSpecFile(searchText: string, replaceText: string) {
+    await test.step(`Edit spec file: replace '${searchText}' with '${replaceText}'`, async () => {
+      const fs = require("fs") as typeof import("fs");
+      const nodePath = require("path") as typeof import("path");
+
+      const specFilePath = nodePath.join(
+        process.cwd(),
+        "specmatic-studio-demo",
+        "specs",
+        this.specName!,
+      );
+
+      console.log(`\tReading spec file from: ${specFilePath}`);
+      let content: string;
+      try {
+        content = fs.readFileSync(specFilePath, "utf-8");
+      } catch (error) {
+        throw new Error(
+          `Could not read spec file at ${specFilePath}. Error: ${error}`,
+        );
+      }
+
+      if (!content.includes(searchText)) {
+        throw new Error(
+          `Text '${searchText}' not found in spec file: ${specFilePath}`,
+        );
+      }
+
+      const updatedContent = content.replace(searchText, replaceText);
+      fs.writeFileSync(specFilePath, updatedContent, "utf-8");
+      console.log(`\t✓ Spec file updated: '${searchText}' → '${replaceText}'`);
+
+      await test.step(`Visual evidence: show '${replaceText.trim()}' highlighted in spec editor`, async () => {
+        const editorContent = this.specSection.locator(".cm-content");
+        await expect(editorContent).toBeVisible({ timeout: 10000 });
+        await editorContent.click();
+
+        await this.page.keyboard.press("Control+f");
+        await this.page.waitForTimeout(500);
+        await this.page.keyboard.type(replaceText.trim());
+        await this.page.waitForTimeout(800);
+
+        await takeAndAttachScreenshot(
+          this.page,
+          `visual-evidence-spec-file-edit-${replaceText.trim().replace(/[^a-zA-Z0-9]/g, "-")}`,
+          this.eyes,
+        );
+
+        await this.page.keyboard.press("Escape");
+        await this.page.waitForTimeout(200);
+
+        console.log(
+          `\t📸 Visual evidence screenshot taken for '${replaceText.trim()}'`,
+        );
+      });
+    });
   }
 
   async clickEditConfig() {
@@ -87,8 +211,24 @@ export class ServiceSpecConfigPage extends BasePage {
     return this.saveBtn;
   }
 
+  private async scrollEditorToRevealAllLines() {
+    const editorContent = this.specSection.locator(".cm-content");
+    await editorContent.click();
+
+    await this.page.keyboard.press("Control+End");
+    await this.page.waitForTimeout(400);
+
+    await this.page.keyboard.press("Control+Home");
+    await this.page.waitForTimeout(200);
+    console.log(
+      "\tScrolled editor to reveal all lines (CodeMirror lazy-load workaround)",
+    );
+  }
+
   async editSpec(edits: Edit[]) {
     await expect(this.editorLines.first()).toBeVisible({ timeout: 10000 });
+
+    await this.scrollEditorToRevealAllLines();
 
     for (const [index, edit] of edits.entries()) {
       let target = this.editorLines;

@@ -12,7 +12,7 @@ import { BasePage } from "./base-page";
 import { Edit } from "../utils/types/json-edit.types";
 
 export class ExampleGenerationPage extends BasePage {
-  private readonly openApiTabPage: OpenAPISpecTabPage;
+  readonly openApiTabPage: OpenAPISpecTabPage;
   protected readonly specTree: Locator;
   private readonly generateExamplesBtn: Locator;
   private readonly validExamplesTable: Locator;
@@ -27,6 +27,8 @@ export class ExampleGenerationPage extends BasePage {
   private readonly bulkFixBtnSelector: string;
   private readonly inlineBtnSelector: string;
   private readonly specSection: Locator;
+  private readonly specEditorSection: Locator;
+  private readonly specTabLocator: Locator;
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -34,6 +36,10 @@ export class ExampleGenerationPage extends BasePage {
     this.specSection = page.locator(
       `xpath=//div[contains(@id,"${specName}") and @data-mode="example"]`,
     );
+    this.specEditorSection = page.locator(
+      `xpath=//div[contains(@id,"${specName}") and @data-mode="spec"]`,
+    );
+    this.specTabLocator = page.locator('li.tab[data-type="spec"]').first();
     this.generateExamplesBtn = this.specSection.locator(
       `xpath=.//p[contains(text(),"Generate valid examples")]`,
     );
@@ -784,6 +790,420 @@ export class ExampleGenerationPage extends BasePage {
       await this.gotoHome();
       await this.sideBar.selectSpec(specName);
       await this.openExampleGenerationTab();
+    });
+  }
+
+  /**
+   * Click the 'Generate More' button for a specific path and response code.
+   * @param path The endpoint path without leading slash (e.g., 'findAvailableProducts')
+   * @param responseCode The response code (e.g., 200)
+   */
+  async clickGenerateMoreButton(path: string, responseCode: number) {
+    await test.step(`Click Generate More for ${path} - ${responseCode}`, async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const generateMoreBtn = iframe.locator(
+        `//tr[@data-raw-path="/${path}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[@aria-label="Generate More"]`,
+      );
+      await expect(generateMoreBtn).toBeVisible({ timeout: 4000 });
+      await generateMoreBtn.click();
+      await this.page.waitForTimeout(1000);
+      await this.verifyTitleAndCloseDialog("Example Generated");
+    });
+  }
+
+  /**
+   * @returns Array of example names without the '_response' suffix
+   */
+  async getGeneratedExampleNames(): Promise<string[]> {
+    return await test.step(`Get generated example names`, async () => {
+      console.log(`Getting generated example names from Examples tab`);
+      const iframe = await this.waitForExamplesIFrame();
+      const exampleRows = await iframe
+        .locator("tr[data-example-relative-path]")
+        .all();
+
+      const exampleNames: string[] = [];
+      for (const row of exampleRows) {
+        const relativePath = await row.getAttribute(
+          "data-example-relative-path",
+        );
+        if (relativePath) {
+          const match = relativePath.match(/_examples\/(.+)\.json$/);
+          if (match) {
+            exampleNames.push(match[1]);
+          }
+        }
+      }
+
+      console.log(
+        `Found ${exampleNames.length} generated examples:`,
+        exampleNames,
+      );
+      await takeAndAttachScreenshot(
+        this.page,
+        `generated-example-names`,
+        this.eyes,
+      );
+      return exampleNames;
+    });
+  }
+
+  async openSpecTabForCurrentSpec() {
+    await test.step(`Open Spec tab for current spec`, async () => {
+      console.log(`Opening Spec tab`);
+      await this.openApiTabPage.openSpecTab(this.specTabLocator);
+      await takeAndAttachScreenshot(this.page, `spec-tab-opened`, this.eyes);
+    });
+  }
+
+  /**
+   * Verify that inlined examples appear in the spec's CodeMirror editor.
+   * Checks for $ref entries in the format: $ref: '#/components/examples/{exampleName}_response'
+   * @param expectedExampleNames Array of example names (without '_response' suffix)
+   * @param endpoint The endpoint path (e.g., 'findAvailableProducts')
+   * @param method The HTTP method (e.g., 'get')
+   * @param responseCode The response code (e.g., 200)
+   */
+  async verifyInlinedExamplesInSpec(
+    expectedExampleNames: string[],
+    endpoint: string,
+    method: string,
+    responseCode: number,
+  ) {
+    await test.step(`Verify inlined examples in spec file`, async () => {
+      console.log(
+        `Verifying ${expectedExampleNames.length} inlined examples for ${endpoint} ${method.toUpperCase()} ${responseCode}`,
+      );
+
+      const fs = require("fs") as typeof import("fs");
+      const nodePath = require("path") as typeof import("path");
+
+      const specFilePath = nodePath.join(
+        process.cwd(),
+        "specmatic-studio-demo",
+        "specs",
+        this.specName!,
+      );
+
+      console.log(`\tReading spec file from: ${specFilePath}`);
+
+      let fullText: string;
+      try {
+        fullText = fs.readFileSync(specFilePath, "utf-8");
+        const lineCount = fullText.split("\n").length;
+        console.log(`\tRead ${lineCount} lines from spec file`);
+      } catch (error) {
+        console.error(`\tFailed to read spec file: ${error}`);
+        throw new Error(
+          `Could not read spec file at ${specFilePath}. Error: ${error}`,
+        );
+      }
+
+      for (const exampleName of expectedExampleNames) {
+        const exampleRefPattern = `#/components/examples/${exampleName}_response`;
+        console.log(`\t  Looking for: ${exampleRefPattern}`);
+
+        if (fullText.includes(exampleRefPattern)) {
+          console.log(`\t  ✓ Verified: ${exampleName}_response is inlined`);
+        } else {
+          console.error(`\t  FAILED to find: ${exampleRefPattern}`);
+
+          const searchPattern = exampleName + "_response";
+          if (fullText.includes(searchPattern)) {
+            console.error(
+              `\t  Found '${searchPattern}' but not the full ref pattern`,
+            );
+            const lines = fullText.split("\n");
+            const matchingLines = lines
+              .map((line, idx) => ({ line, idx }))
+              .filter(({ line }) => line.includes(searchPattern))
+              .map(({ line, idx }) => `Line ${idx + 1}: ${line.trim()}`);
+            console.error(`\t  Matching lines:`, matchingLines);
+          }
+
+          await takeAndAttachScreenshot(
+            this.page,
+            `failed-to-find-${exampleName}`,
+            this.eyes,
+          );
+          throw new Error(
+            `Example reference '${exampleRefPattern}' not found in spec file. The inline may have failed.`,
+          );
+        }
+      }
+
+      await takeAndAttachScreenshot(
+        this.page,
+        `verified-inlined-examples-${endpoint}-${responseCode}`,
+        this.eyes,
+      );
+
+      console.log(
+        `\t✓ All ${expectedExampleNames.length} examples verified in spec file`,
+      );
+
+      await test.step(`Navigate to inlined examples in editor for visual evidence`, async () => {
+        const editorContent = this.specEditorSection.locator(".cm-content");
+
+        await expect(editorContent).toBeVisible({ timeout: 10000 });
+        await editorContent.click();
+
+        await this.page.keyboard.press("Control+f");
+        await this.page.waitForTimeout(500);
+
+        const firstExample = expectedExampleNames[0];
+        const searchTerm = `${firstExample}_response`;
+        await this.page.keyboard.type(searchTerm);
+        await this.page.waitForTimeout(800);
+        await takeAndAttachScreenshot(
+          this.page,
+          `visual-evidence-inlined-${endpoint}-${responseCode}`,
+          this.eyes,
+        );
+
+        await this.page.keyboard.press("Escape");
+        await this.page.waitForTimeout(300);
+
+        console.log(`\t📸 Visual evidence screenshot taken for ${searchTerm}`);
+      });
+    });
+  }
+
+  /**
+   * @param expectedExampleNames Array of example names (without suffix)
+   * @param endpoint The endpoint path without leading slash (e.g., 'products')
+   * @param responseCode The response code (e.g., 201)
+   */
+  async verifyInlinedPostExamplesInSpec(
+    expectedExampleNames: string[],
+    endpoint: string,
+    responseCode: number,
+  ) {
+    await test.step(`Verify inlined POST examples in spec file for /${endpoint} POST ${responseCode}`, async () => {
+      console.log(
+        `Verifying ${expectedExampleNames.length} inlined POST examples for /${endpoint} POST ${responseCode}`,
+      );
+
+      const fs = require("fs") as typeof import("fs");
+      const nodePath = require("path") as typeof import("path");
+
+      const specFilePath = nodePath.join(
+        process.cwd(),
+        "specmatic-studio-demo",
+        "specs",
+        this.specName!,
+      );
+
+      console.log(`\tReading spec file from: ${specFilePath}`);
+
+      let lines: string[];
+      try {
+        const fullText = fs.readFileSync(specFilePath, "utf-8");
+        lines = fullText.split("\n");
+        console.log(`\tRead ${lines.length} lines from spec file`);
+      } catch (error) {
+        console.error(`\tFailed to read spec file: ${error}`);
+        throw new Error(
+          `Could not read spec file at ${specFilePath}. Error: ${error}`,
+        );
+      }
+
+      const pathMarker = `/${endpoint}:`;
+      const pathLineIdx = lines.findIndex((l) =>
+        l.trimEnd().endsWith(pathMarker),
+      );
+      if (pathLineIdx === -1) {
+        throw new Error(
+          `Could not find path '${pathMarker}' in spec file. ` +
+            `Make sure the endpoint exists in the updated spec.`,
+        );
+      }
+      console.log(`\tFound path '${pathMarker}' at line ${pathLineIdx + 1}`);
+
+      const pathIndent = lines[pathLineIdx].search(/\S/);
+
+      let endLineIdx = lines.length;
+      for (let i = pathLineIdx + 1; i < lines.length; i++) {
+        const trimmed = lines[i].trim();
+        if (trimmed === "") continue;
+        const indent = lines[i].search(/\S/);
+        if (indent <= pathIndent) {
+          endLineIdx = i;
+          break;
+        }
+      }
+      const pathBlock = lines.slice(pathLineIdx, endLineIdx);
+      console.log(
+        `\tPath block spans lines ${pathLineIdx + 1}–${endLineIdx} (${pathBlock.length} lines)`,
+      );
+
+      const requestBodyIdx = pathBlock.findIndex((l) =>
+        l.trim().startsWith("requestBody:"),
+      );
+      if (requestBodyIdx === -1) {
+        throw new Error(
+          `Could not find 'requestBody:' inside path block for '/${endpoint}'.`,
+        );
+      }
+      const requestBodyIndent = pathBlock[requestBodyIdx].search(/\S/);
+      let requestBodyEnd = pathBlock.length;
+      for (let i = requestBodyIdx + 1; i < pathBlock.length; i++) {
+        const trimmed = pathBlock[i].trim();
+        if (trimmed === "") continue;
+        const indent = pathBlock[i].search(/\S/);
+        if (indent <= requestBodyIndent) {
+          requestBodyEnd = i;
+          break;
+        }
+      }
+      const requestBodyBlock = pathBlock
+        .slice(requestBodyIdx, requestBodyEnd)
+        .join("\n");
+      console.log(
+        `\trequestBody block (${requestBodyEnd - requestBodyIdx} lines):\n${requestBodyBlock}`,
+      );
+
+      const responsesIdx = pathBlock.findIndex((l) =>
+        l.trim().startsWith("responses:"),
+      );
+      if (responsesIdx === -1) {
+        throw new Error(
+          `Could not find 'responses:' inside path block for '/${endpoint}'.`,
+        );
+      }
+
+      const codePatterns = [
+        `'${responseCode}':`,
+        `"${responseCode}":`,
+        `${responseCode}:`,
+      ];
+      let codeLineIdx = -1;
+      for (let i = responsesIdx + 1; i < pathBlock.length; i++) {
+        const trimmed = pathBlock[i].trim();
+        if (codePatterns.some((p) => trimmed.startsWith(p))) {
+          codeLineIdx = i;
+          break;
+        }
+      }
+      if (codeLineIdx === -1) {
+        throw new Error(
+          `Could not find response code '${responseCode}' inside responses block for '/${endpoint}'.`,
+        );
+      }
+      const codeIndent = pathBlock[codeLineIdx].search(/\S/);
+      let codeBlockEnd = pathBlock.length;
+      for (let i = codeLineIdx + 1; i < pathBlock.length; i++) {
+        const trimmed = pathBlock[i].trim();
+        if (trimmed === "") continue;
+        const indent = pathBlock[i].search(/\S/);
+        if (indent <= codeIndent) {
+          codeBlockEnd = i;
+          break;
+        }
+      }
+      const responseCodeBlock = pathBlock
+        .slice(codeLineIdx, codeBlockEnd)
+        .join("\n");
+      console.log(
+        `\tresponses/${responseCode} block (${codeBlockEnd - codeLineIdx} lines):\n${responseCodeBlock}`,
+      );
+
+      for (const exampleName of expectedExampleNames) {
+        const requestRefPattern = `#/components/examples/${exampleName}_request`;
+        const responseRefPattern = `#/components/examples/${exampleName}_response`;
+
+        console.log(`\t  Checking requestBody ref: ${requestRefPattern}`);
+        if (requestBodyBlock.includes(requestRefPattern)) {
+          console.log(
+            `\t  ✓ Verified: ${exampleName}_request is in requestBody section`,
+          );
+        } else {
+          console.error(
+            `\t  FAILED: '${requestRefPattern}' not found in requestBody section`,
+          );
+          console.error(`\t  requestBody block was:\n${requestBodyBlock}`);
+          await takeAndAttachScreenshot(
+            this.page,
+            `failed-request-ref-${exampleName}`,
+            this.eyes,
+          );
+          throw new Error(
+            `Request body example reference '${requestRefPattern}' not found ` +
+              `inside requestBody section of '/${endpoint}' in spec file.`,
+          );
+        }
+
+        console.log(
+          `\t  Checking responses/${responseCode} ref: ${responseRefPattern}`,
+        );
+        if (responseCodeBlock.includes(responseRefPattern)) {
+          console.log(
+            `\t  ✓ Verified: ${exampleName}_response is in responses/${responseCode} section`,
+          );
+        } else {
+          console.error(
+            `\t  FAILED: '${responseRefPattern}' not found in responses/${responseCode} section`,
+          );
+          console.error(
+            `\t  responses/${responseCode} block was:\n${responseCodeBlock}`,
+          );
+          await takeAndAttachScreenshot(
+            this.page,
+            `failed-response-ref-${exampleName}`,
+            this.eyes,
+          );
+          throw new Error(
+            `Response example reference '${responseRefPattern}' not found ` +
+              `inside responses/${responseCode} section of '/${endpoint}' in spec file.`,
+          );
+        }
+      }
+
+      await takeAndAttachScreenshot(
+        this.page,
+        `verified-post-inlined-examples-${endpoint}-${responseCode}`,
+        this.eyes,
+      );
+      console.log(
+        `\t✓ All ${expectedExampleNames.length} POST examples verified in correct sections ` +
+          `(requestBody + responses/${responseCode}) for /${endpoint}`,
+      );
+
+      await test.step(`Navigate to inlined POST examples in editor for visual evidence`, async () => {
+        const editorContent = this.specEditorSection.locator(".cm-content");
+        await expect(editorContent).toBeVisible({ timeout: 10000 });
+        await editorContent.click();
+        await this.page.keyboard.press("Control+Home");
+        await this.page.waitForTimeout(200);
+
+        const firstExample = expectedExampleNames[0];
+
+        await this.page.keyboard.press("Control+f");
+        await this.page.waitForTimeout(500);
+        await this.page.keyboard.type(`${firstExample}_request`);
+        await this.page.waitForTimeout(1000);
+        await takeAndAttachScreenshot(
+          this.page,
+          `visual-evidence-post-request-${endpoint}-${responseCode}`,
+          this.eyes,
+        );
+
+        await this.page.keyboard.press("Control+a");
+        await this.page.keyboard.type(`${firstExample}_response`);
+        await this.page.waitForTimeout(800);
+        await takeAndAttachScreenshot(
+          this.page,
+          `visual-evidence-post-response-${endpoint}-${responseCode}`,
+          this.eyes,
+        );
+
+        await this.page.keyboard.press("Escape");
+        await this.page.waitForTimeout(300);
+
+        console.log(
+          `\t📸 Visual evidence screenshots taken for ${firstExample} (requestBody + response)`,
+        );
+      });
     });
   }
 }

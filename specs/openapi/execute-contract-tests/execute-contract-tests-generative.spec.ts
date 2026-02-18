@@ -37,6 +37,17 @@ test.describe(
       await test.step("Enable Generative Mode and Run Tests", async () => {
         await contractPage.setGenerativeMode(true);
         await contractPage.clickRunContractTests();
+
+        await test.step("Verify Summary and Table Counts", async () => {
+          await validateSummaryAndTableCounts(contractPage, {
+            success: 180,
+            failed: 20,
+            total: 203,
+            error: 0,
+            notcovered: 3,
+            excluded: 0,
+          });
+        });
       });
     });
 
