@@ -4,7 +4,7 @@ import {
   ORDER_BFF_SERVICE_URL,
 } from "../../specNames";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
-import { validateSummaryAndTableCounts } from "./execute-contract-tests.utils";
+import { validateSummaryAndTableCounts } from "../helpers/execute-contract-tests-helper";
 
 test.describe(
   "Generative Test Suite - Include/Exclude Combinations",
@@ -12,7 +12,6 @@ test.describe(
     tag: ["@test", "@generativeTests"],
   },
   () => {
-    test.setTimeout(180000);
     let contractPage: ApiContractPage;
 
     test.beforeEach(async ({ page, eyes }, testInfo) => {
@@ -33,6 +32,22 @@ test.describe(
       });
     });
 
+    test("Execute generative tests", async () => {
+      await test.step("Enable Generative Mode and Run Tests", async () => {
+        await contractPage.setGenerativeMode(true);
+        await contractPage.clickRunContractTests();
+
+        await validateSummaryAndTableCounts(contractPage, {
+          success: 180,
+          failed: 20,
+          total: 203,
+          error: 0,
+          notcovered: 3,
+          excluded: 0,
+        });
+      });
+    });
+
     test("Execute generative tests with specific row excluded", async () => {
       await test.step("Exclude specific test row", async () => {
         await contractPage.selectTestForExclusionOrInclusion(
@@ -48,15 +63,14 @@ test.describe(
         await contractPage.clickRunContractTests();
       });
 
-      await test.step("Verify Summary and Table Counts", async () => {
-        await validateSummaryAndTableCounts(contractPage, {
-          success: 174,
-          failed: 26,
-          total: 203,
-          error: 0,
-          notcovered: 2,
-          excluded: 1,
-        });
+      await validateSummaryAndTableCounts(contractPage, {
+        success: 148,
+        failed: 20,
+        total: 172,
+        error: 0,
+        notcovered: 3,
+        excluded: 1,
+
       });
     });
   },

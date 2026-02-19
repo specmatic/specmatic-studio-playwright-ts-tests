@@ -25,6 +25,10 @@ import { captureBrowserConsole } from "./browser-console-logger";
 
 export const test = base.extend<{ eyes: Eyes }>({
   eyes: async ({ page }, use, testInfo) => {
+    const isCI = process.env.CI === "true" || process.env.ENV_NAME === "ci";
+    const defaultTimeout = isCI ? 180000 : 120000;
+    testInfo.setTimeout(defaultTimeout);
+
     // 🔹 Start capturing console + network failures
     const consoleCapture = captureBrowserConsole(page, testInfo);
 

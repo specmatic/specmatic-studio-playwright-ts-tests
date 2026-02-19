@@ -2,14 +2,13 @@ import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
 import { MockServerPage } from "../../../page-objects/mock-server-page";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
-import { validateMockSummaryAndTableCounts } from "./run-mock-server.helper";
+import { validateMockSummaryAndTableCounts } from "../helpers/run-mock-server-helper.ts";
 
 test.describe("API Mocking", () => {
   test(
     "Run Mock Server for API Spec",
     { tag: ["@apiMocking"] },
     async ({ page, eyes }, testInfo) => {
-      test.setTimeout(120000);
       const mockPage = new MockServerPage(
         page,
         testInfo,
