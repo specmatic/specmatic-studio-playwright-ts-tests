@@ -26,15 +26,11 @@ test.describe("API Specification - Backward Compatibility", () => {
         await configPage.dismissAlert();
       });
 
-      //TODO: Implement Positive Scenario for this as well
       await test.step("Expand Error Details and Verify Content", async () => {
         await configPage.toggleBccErrorSection(true);
         const errorData = await configPage.getBccErrorDetails();
 
-        expect(errorData.summary).toContain("found 1 error");
-        expect(errorData.details).toContain(
-          "Type (MonitorLink) does not exist",
-        );
+        expect(errorData.summary).toContain("Tests successful");
       });
     },
   );

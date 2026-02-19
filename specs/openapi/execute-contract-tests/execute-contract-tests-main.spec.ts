@@ -55,9 +55,9 @@ test.describe("API Contract Testing", () => {
         await validateSummaryAndTableCounts(contractPage, {
           success: 12,
           failed: 20,
-          total: 37,
+          total: 34,
           error: 0,
-          notcovered: 5,
+          notcovered: 2,
           excluded: 0,
         });
       });

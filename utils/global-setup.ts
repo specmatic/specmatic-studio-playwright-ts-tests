@@ -48,6 +48,10 @@ export const Runner: EyesRunner = new VisualGridRunner({ testConcurrency: 5 });
 export const Batch: BatchInfo = new BatchInfo({
   name: (() => {
     let base = process.env.GITHUB_WORKFLOW || "Specmatic Studio";
+    if (process.env.GROUP_NAME) {
+      base += ` - ${process.env.GROUP_NAME}`;
+    }
+
     let batchName = `${base} - ${process.env.ENV_NAME || "local"}`;
     if (process.env.GITHUB_REF_NAME) {
       batchName += ` - ${process.env.GITHUB_REF_NAME}`;
@@ -70,6 +74,9 @@ Batch.addProperty("user", process.env.LOGGED_IN_USER);
 Batch.addProperty("machine", process.env.MACHINE_NAME);
 if (process.env.GITHUB_RUN_NUMBER) {
   Batch.addProperty("GITHUB_RUN_NUMBER", process.env.GITHUB_RUN_NUMBER);
+}
+if (process.env.GROUP_NAME) {
+  Batch.addProperty("group_name", process.env.GROUP_NAME);
 }
 export default async function globalSetup() {
   // No-op: Applitools batch/runner setup is handled in worker context for each test process.
