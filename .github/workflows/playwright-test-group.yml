@@ -36,6 +36,10 @@ jobs:
           echo "Write specmatic license key to file"
           mkdir -p ~/.specmatic
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
+      - name: Pull latest Specmatic Docker image
+        run: |
+          echo "Pulling latest specmatic/enterprise image"
+          docker pull specmatic/enterprise:latest
       - name: Run Playwright tests for ${{ inputs.group_name }}
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
