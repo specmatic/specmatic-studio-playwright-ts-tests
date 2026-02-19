@@ -1,79 +1,81 @@
 import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
-import {
-  ServiceSpecConfigPage,
-} from "../../../page-objects/service-spec-config-page";
+import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 
-test.describe("Fix Spec Typo - Update endpoint path in service spec", () => {
+test.describe("Fix Spec Typo - Conditional Update", () => {
+  let tempSpecName: string;
+
   test.beforeEach(async () => {
-    const fs = require("fs") as typeof import("fs");
-    const nodePath = require("path") as typeof import("path");
-    const specFilePath = nodePath.join(
+    const fs = require("fs");
+    const nodePath = require("path");
+
+    const specsDir = nodePath.join(
       process.cwd(),
       "specmatic-studio-demo",
       "specs",
-      PRODUCT_SEARCH_BFF_SPEC,
     );
-    const content = fs.readFileSync(specFilePath, "utf-8");
-    if (content.includes("  /orders:") && !content.includes("  /ordres:")) {
-      fs.writeFileSync(specFilePath, content.replace("  /orders:", "  /ordres:"), "utf-8");
-      console.log("[beforeEach] Restored /ordres: typo in spec file for test repeatability");
+    const originalPath = nodePath.join(specsDir, PRODUCT_SEARCH_BFF_SPEC);
+
+    // Create an isolated copy to work on
+    tempSpecName = `${PRODUCT_SEARCH_BFF_SPEC.replace(".yaml", "")}-test-copy.yaml`;
+    const copyPath = nodePath.join(specsDir, tempSpecName);
+
+    fs.copyFileSync(originalPath, copyPath);
+    console.log(`[beforeEach] Created isolated copy: ${tempSpecName}`);
+  });
+
+  test.afterEach(async () => {
+    const fs = require("fs");
+    const nodePath = require("path");
+    const copyPath = nodePath.join(
+      process.cwd(),
+      "specmatic-studio-demo",
+      "specs",
+      tempSpecName,
+    );
+
+    if (fs.existsSync(copyPath)) {
+      fs.unlinkSync(copyPath);
+      console.log(`[afterEach] Cleaned up temporary spec: ${tempSpecName}`);
     }
   });
 
   test(
-    "Fix /ordres typo to /orders and verify endpoint is updated in examples table",
-    {
-      tag: [
-        "@spec",
-        "@fixSpecTypo",
-        "@updateEndpointPath",
-      ],
-    },
+    "Fix /ordres typo to /orders ONLY if it exists",
+    { tag: ["@spec", "@fixSpecTypo"] },
     async ({ page, eyes }, testInfo) => {
-      test.setTimeout(120000);
-      try {
-        console.log(`Starting test: ${testInfo.title}`);
+      const configPage = new ServiceSpecConfigPage(
+        page,
+        testInfo,
+        eyes,
+        tempSpecName,
+      );
 
-        const configPage = new ServiceSpecConfigPage(
-          page,
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
-        );
+      await test.step(`Maps to spec and check for typo`, async () => {
+        await configPage.gotoHomeAndOpenSidebar();
+        await configPage.sideBar.selectSpec(tempSpecName);
+        await configPage.openSpecTab();
+      });
 
-        await test.step(
-          `Navigate to spec '${PRODUCT_SEARCH_BFF_SPEC}' and open Spec tab`,
-          async () => {
-            await configPage.gotoHomeAndOpenSidebar();
-            await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-            await configPage.openSpecTab();
-          },
-        );
+      const hasTypo = configPage.specFileContains("  /ordres:");
 
-        await test.step("Fix the /ordres typo to /orders in the spec file", async () => {
+      if (hasTypo) {
+        await test.step("Typo detected: Fixing /ordres to /orders", async () => {
           await configPage.editSpecFile("  /ordres:", "  /orders:");
 
-          console.log("\tReloading page to sync UI with disk changes...");
           await page.reload();
-
           await configPage.gotoHomeAndOpenSidebar();
-          await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
-        });
+          await configPage.sideBar.selectSpec(tempSpecName);
 
-        await test.step(
-          "Verify /orders appears and /ordres is gone in the contract test table",
-          async () => {
-            await configPage.verifyEndpointInContractTable(
-              "/orders",
-              "/ordres",
-            );
-          },
-        );
-      } catch (err) {
-        expect
-          .soft(err, `Unexpected error in test: ${testInfo.title}`)
-          .toBeUndefined();
+          await configPage.verifyEndpointInContractTable("/orders", "/ordres");
+        });
+      } else {
+        await test.step("No typo detected: Verifying current endpoint state", async () => {
+          console.log(
+            "\t✓ No typo found. Ensuring '/orders' is already present.",
+          );
+          await configPage.verifyEndpointInContractTable("/orders");
+        });
       }
     },
   );

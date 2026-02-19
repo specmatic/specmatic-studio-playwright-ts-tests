@@ -10,8 +10,6 @@ test.describe("API Contract Testing - Filtering", () => {
     "Verify filtering by header",
     { tag: ["@test", "@filterTest"] },
     async ({ page, eyes }, testInfo) => {
-      test.setTimeout(120000);
-
       const contractPage = new ApiContractPage(
         page,
         testInfo,

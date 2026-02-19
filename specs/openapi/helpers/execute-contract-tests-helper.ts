@@ -1,4 +1,4 @@
-import { expect } from "../../../utils/eyesFixture";
+import { expect, test } from "../../../utils/eyesFixture";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
 
 export async function validateSummaryAndTableCounts(
@@ -12,18 +12,20 @@ export async function validateSummaryAndTableCounts(
     excluded: number;
   },
 ) {
-  const tableTotals = await contractPage.getAggregateTableResults();
-  const headerTotals = await contractPage.getSummaryHeaderTotals();
+  await test.step("Verify Summary and Table Counts", async () => {
+    const tableTotals = await contractPage.getAggregateTableResults();
+    const headerTotals = await contractPage.getSummaryHeaderTotals();
 
-  expect(
-    tableTotals,
-    "Internal Check: Table sum must match Header counts",
-  ).toStrictEqual(headerTotals);
+    expect(
+      tableTotals,
+      "Internal Check: Table sum must match Header counts",
+    ).toStrictEqual(headerTotals);
 
-  expect(
-    headerTotals,
-    "Business Check: Header counts must match expected values",
-  ).toStrictEqual(expected);
+    expect(
+      headerTotals,
+      "Business Check: Header counts must match expected values",
+    ).toStrictEqual(expected);
+  });
 }
 
 export async function toggleFailedTestViewForTableandRaw(

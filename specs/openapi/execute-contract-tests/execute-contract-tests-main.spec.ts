@@ -7,14 +7,13 @@ import { ApiContractPage } from "../../../page-objects/api-contract-page";
 import {
   validateSummaryAndTableCounts,
   toggleFailedTestViewForTableandRaw,
-} from "./execute-contract-tests.utils";
+} from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract Testing", () => {
   test(
     "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings",
     { tag: ["@test", "@runContractTests"] },
     async ({ page, eyes }, testInfo) => {
-      test.setTimeout(180000);
       const contractPage = new ApiContractPage(
         page,
         testInfo,

@@ -4,7 +4,6 @@ import { ApiContractPage } from "../../../page-objects/api-contract-page";
 
 test.describe("API Contract Testing - Negative Scenarios", () => {
   test.beforeEach(async ({ page, eyes }, testInfo) => {
-    test.setTimeout(180000);
     const contractPage = new ApiContractPage(
       page,
       testInfo,

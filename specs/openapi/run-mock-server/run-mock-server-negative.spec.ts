@@ -56,8 +56,8 @@ test.describe("Mock Server - Negative Scenarios", () => {
       await test.step("Verify invalid port error message", async () => {
         const error = await mockPage.getErrorMessage();
 
-        expect(error.title).toBe("Failed to start mock");
-        expect(error.detail).toMatch(/invalid port|out of range/i);
+        expect.soft(error.title).toBe("Failed to start mock");
+        expect.soft(error.detail).toMatch(/invalid port|out of range/i);
 
         const isRunning = await mockPage.isMockServerRunning();
         expect(isRunning).toBe(false);
