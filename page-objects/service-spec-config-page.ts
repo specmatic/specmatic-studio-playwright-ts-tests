@@ -172,6 +172,9 @@ export class ServiceSpecConfigPage extends BasePage {
     await expect(this.saveBtn).toBeVisible({ timeout: 5000 });
     await expect(this.saveBtn).toBeEnabled({ timeout: 5000 });
 
+    await this.saveBtn.scrollIntoViewIfNeeded();
+    console.log("\tScrolled Save button into view");
+
     // Use a helper to ensure the button isn't obscured
     await this.waitForElementToBeClickable('button[data-validate="/openapi"]');
 
@@ -334,5 +337,14 @@ export class ServiceSpecConfigPage extends BasePage {
       console.error(`\tError checking spec file content: ${error}`);
       return false;
     }
+  }
+
+  async navigateToSpec(specName: string) {
+    await test.step(`Maps to spec: ${specName}`, async () => {
+      await this.gotoHomeAndOpenSidebar();
+      await this.sideBar.selectSpec(specName);
+      // You can even include opening the tab if it's always required
+      await this.openSpecTab();
+    });
   }
 }

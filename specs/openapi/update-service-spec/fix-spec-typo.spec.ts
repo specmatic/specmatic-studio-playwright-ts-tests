@@ -3,7 +3,7 @@ import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 
 test.describe("Fix Spec Typo - Conditional Update", () => {
-  let tempSpecName: string;
+  let specCopy: string;
 
   test.beforeEach(async () => {
     const fs = require("fs");
@@ -17,11 +17,11 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
     const originalPath = nodePath.join(specsDir, PRODUCT_SEARCH_BFF_SPEC);
 
     // Create an isolated copy to work on
-    tempSpecName = `${PRODUCT_SEARCH_BFF_SPEC.replace(".yaml", "")}-test-copy.yaml`;
-    const copyPath = nodePath.join(specsDir, tempSpecName);
+    specCopy = `${PRODUCT_SEARCH_BFF_SPEC.replace(".yaml", "")}-test-copy.yaml`;
+    const copyPath = nodePath.join(specsDir, specCopy);
 
     fs.copyFileSync(originalPath, copyPath);
-    console.log(`[beforeEach] Created isolated copy: ${tempSpecName}`);
+    console.log(`[beforeEach] Created isolated copy: ${specCopy}`);
   });
 
   test.afterEach(async () => {
@@ -31,12 +31,12 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
       process.cwd(),
       "specmatic-studio-demo",
       "specs",
-      tempSpecName,
+      specCopy,
     );
 
     if (fs.existsSync(copyPath)) {
       fs.unlinkSync(copyPath);
-      console.log(`[afterEach] Cleaned up temporary spec: ${tempSpecName}`);
+      console.log(`[afterEach] Cleaned up temporary spec: ${specCopy}`);
     }
   });
 
@@ -48,14 +48,10 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
         page,
         testInfo,
         eyes,
-        tempSpecName,
+        specCopy,
       );
 
-      await test.step(`Maps to spec and check for typo`, async () => {
-        await configPage.gotoHomeAndOpenSidebar();
-        await configPage.sideBar.selectSpec(tempSpecName);
-        await configPage.openSpecTab();
-      });
+      await configPage.navigateToSpec(specCopy);
 
       const hasTypo = configPage.specFileContains("  /ordres:");
 
@@ -65,7 +61,7 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
 
           await page.reload();
           await configPage.gotoHomeAndOpenSidebar();
-          await configPage.sideBar.selectSpec(tempSpecName);
+          await configPage.sideBar.selectSpec(specCopy);
 
           await configPage.verifyEndpointInContractTable("/orders", "/ordres");
         });
