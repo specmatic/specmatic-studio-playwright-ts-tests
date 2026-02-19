@@ -50,11 +50,11 @@ test.describe(
 
       await test.step("Verify Summary and Table Counts", async () => {
         await validateSummaryAndTableCounts(contractPage, {
-          success: 148,
-          failed: 20,
-          total: 172,
+          success: 174,
+          failed: 26,
+          total: 203,
           error: 0,
-          notcovered: 3,
+          notcovered: 2,
           excluded: 1,
         });
       });

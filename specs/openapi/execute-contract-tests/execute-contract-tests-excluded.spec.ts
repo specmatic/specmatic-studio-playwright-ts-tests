@@ -54,9 +54,9 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await validateSummaryAndTableCounts(contractPage, {
           success: 0,
           failed: 20,
-          total: 26,
+          total: 23,
           error: 0,
-          notcovered: 5,
+          notcovered: 2,
           excluded: 1,
         });
       });
@@ -86,9 +86,9 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await validateSummaryAndTableCounts(contractPage, {
           success: 12,
           failed: 20,
-          total: 37,
+          total: 34,
           error: 0,
-          notcovered: 5,
+          notcovered: 2,
           excluded: 0,
         });
       });
@@ -118,9 +118,9 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await validateSummaryAndTableCounts(contractPage, {
           success: 0,
           failed: 15,
-          total: 22,
+          total: 19,
           error: 0,
-          notcovered: 5,
+          notcovered: 2,
           excluded: 2,
         });
       });
@@ -149,9 +149,9 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await validateSummaryAndTableCounts(contractPage, {
           success: 12,
           failed: 20,
-          total: 37,
+          total: 34,
           error: 0,
-          notcovered: 5,
+          notcovered: 2,
           excluded: 0,
         });
       });
