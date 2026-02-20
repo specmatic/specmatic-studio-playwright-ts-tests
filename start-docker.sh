@@ -13,6 +13,7 @@ for cname in studio order-bff order-api inventory-api; do
 	fi
 done
 
+docker compose -p "$REPO_NAME" -f specmatic-studio-demo/docker-compose.yaml pull
 docker compose -p "$REPO_NAME" -f specmatic-studio-demo/docker-compose.yaml up -d
 
 # Wait until the service is accessible
