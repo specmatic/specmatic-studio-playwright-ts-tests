@@ -41,7 +41,7 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
   });
 
   test(
-    "Fix /ordres typo to /orders ONLY if it exists",
+    "Fix /ordres typo to /orders when it exists",
     { tag: ["@spec", "@fixSpecTypo"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(
@@ -52,27 +52,15 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
       );
 
       await configPage.navigateToSpec(specCopy);
+      await test.step("Typo detected: Fixing /ordres to /orders", async () => {
+        expect(configPage.specFileContains("  /ordres:")).toBeTruthy();
 
-      const hasTypo = configPage.specFileContains("  /ordres:");
+        await configPage.editSpecFile("  /ordres:", "  /orders:");
+        await page.reload();
 
-      if (hasTypo) {
-        await test.step("Typo detected: Fixing /ordres to /orders", async () => {
-          await configPage.editSpecFile("  /ordres:", "  /orders:");
-
-          await page.reload();
-          await configPage.gotoHomeAndOpenSidebar();
-          await configPage.sideBar.selectSpec(specCopy);
-
-          await configPage.verifyEndpointInContractTable("/orders", "/ordres");
-        });
-      } else {
-        await test.step("No typo detected: Verifying current endpoint state", async () => {
-          console.log(
-            "\t✓ No typo found. Ensuring '/orders' is already present.",
-          );
-          await configPage.verifyEndpointInContractTable("/orders");
-        });
-      }
+        await configPage.navigateToSpec(specCopy);
+        await configPage.verifyEndpointInContractTable("/orders");
+      });
     },
   );
 });
