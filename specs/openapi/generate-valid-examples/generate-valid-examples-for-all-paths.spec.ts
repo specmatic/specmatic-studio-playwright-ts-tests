@@ -45,6 +45,9 @@ test.describe("Example Generation", () => {
         expect
           .soft(actualMessage)
           .toBe(`${expectedNumberOfExamples} new examples`);
+        await examplePage.closeInvalidExampleDialog(
+          "Example Generations Complete",
+        );
       });
 
       await test.step(`Validate all generated examples and get counts`, async () => {
