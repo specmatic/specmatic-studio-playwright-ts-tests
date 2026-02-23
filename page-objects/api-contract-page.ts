@@ -19,6 +19,7 @@ export class ApiContractPage extends BasePage {
   private readonly notcoveredCountSpan: Locator;
   private readonly excludedCountSpan: Locator;
   private readonly excludeButton: Locator;
+  private readonly includeButton: Locator;
   private readonly pathHeader: Locator;
   private readonly responseHeader: Locator;
   private readonly uniqueContainer: Locator;
@@ -213,6 +214,10 @@ export class ApiContractPage extends BasePage {
       page.locator(
         `#accordion-group-TEST .process-bar[data-spec-path*="${specName}"]`,
       );
+
+    this.includeButton = this.specSection
+      .locator("button.clear")
+      .filter({ hasText: "Include" });
   }
 
   //Function Beginning
@@ -413,10 +418,10 @@ export class ApiContractPage extends BasePage {
   }
 
   async clickIncludeButton() {
-    await expect(this.page.locator("button.clear")).toBeVisible({
+    await expect(this.includeButton).toBeVisible({
       timeout: 10000,
     });
-    await this.page.locator("button.clear").click();
+    await this.includeButton.click();
     await takeAndAttachScreenshot(
       this.page,
       "include-button-clicked",
