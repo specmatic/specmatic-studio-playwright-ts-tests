@@ -47,7 +47,7 @@ test.describe("API Mocking", () => {
 
       await test.step("Run Contract Tests and Validate Mock Server Results", async () => {
         await contractPage.clickRunContractTests();
-        await mockPage.clickMockServerTab();
+        await mockPage.goBackToMockServerTab();
       });
 
       await test.step("Validate Mock Summary Results", async () => {

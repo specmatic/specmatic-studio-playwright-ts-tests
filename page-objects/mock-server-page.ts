@@ -149,7 +149,6 @@ export class MockServerPage extends BasePage {
   async openRunMockServerTab(specName: string) {
     await this.gotoHome();
     await this.sideBar.selectSpec(specName);
-    await takeAndAttachScreenshot(this.page, "mock-tab-open", this.eyes);
     return this.openApiTabPage.openRunMockServerTab();
   }
 
@@ -207,7 +206,7 @@ export class MockServerPage extends BasePage {
 
     const rawUrl = urlMatch[0];
 
-    await takeAndAttachScreenshot(this.page, "mock-url-extraction", this.eyes);
+    await takeAndAttachScreenshot(this.page, "mock-url-extraction");
 
     return rawUrl;
   }
@@ -217,16 +216,12 @@ export class MockServerPage extends BasePage {
     await takeAndAttachScreenshot(this.page, "navigated-to-contract-tests");
   }
 
-  async clickMockServerTab() {
+  async goBackToMockServerTab() {
     await this.runMockServerTab.click();
     await this.mockCountsSection
       .first()
       .waitFor({ state: "visible", timeout: 10000 });
-    await takeAndAttachScreenshot(
-      this.page,
-      "navigated-back-to-mock-tab",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "navigated-back-to-mock-tab");
   }
 
   async enterServiceBaseURL(serviceUrl: string) {
@@ -417,7 +412,6 @@ export class MockServerPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `mock-filter-applied-${filterType}`,
-      this.eyes,
     );
   }
 

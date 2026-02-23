@@ -198,7 +198,6 @@ export class ExampleGenerationPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `go-back-${endpoint}-${responseCode}`,
-      this.eyes,
     );
   }
 
@@ -320,7 +319,6 @@ export class ExampleGenerationPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         `examples-deleted-or-none-to-delete`,
-        this.eyes,
       );
     });
   }
@@ -504,7 +502,7 @@ export class ExampleGenerationPage extends BasePage {
     await expect(bulkGenerateBtn).toBeVisible({ timeout: 4000 });
     await expect(bulkGenerateBtn).toBeEnabled({ timeout: 4000 });
     await bulkGenerateBtn.click();
-    await takeAndAttachScreenshot(this.page, "clicked-generate", this.eyes);
+    await takeAndAttachScreenshot(this.page, "clicked-generate");
   }
   private async clickBulkValidateButton() {
     const iframe = await this.waitForExamplesIFrame();
@@ -513,7 +511,7 @@ export class ExampleGenerationPage extends BasePage {
     await expect(bulkValidateBtn).toBeVisible({ timeout: 4000 });
     await expect(bulkValidateBtn).toBeEnabled({ timeout: 4000 });
     await bulkValidateBtn.click();
-    await takeAndAttachScreenshot(this.page, "clicked-validate", this.eyes);
+    await takeAndAttachScreenshot(this.page, "clicked-validate");
   }
 
   async inlineExamples() {
@@ -533,11 +531,7 @@ export class ExampleGenerationPage extends BasePage {
     return await test.step(`Get dialog title and message`, async () => {
       console.log(`\tGetting dialog title and message`);
       const { alert } = await this.getAlertContainerFrameAndLocator();
-      await takeAndAttachScreenshot(
-        this.page,
-        `dialog-title-and-message`,
-        this.eyes,
-      );
+      await takeAndAttachScreenshot(this.page, `dialog-title-and-message`);
       const title = await this.getDialogTitle(alert);
       const message = await this.getDialogMessage(alert);
       return [title, message];
@@ -833,11 +827,7 @@ export class ExampleGenerationPage extends BasePage {
         `Found ${exampleNames.length} generated examples:`,
         exampleNames,
       );
-      await takeAndAttachScreenshot(
-        this.page,
-        `generated-example-names`,
-        this.eyes,
-      );
+      await takeAndAttachScreenshot(this.page, `generated-example-names`);
       return exampleNames;
     });
   }
@@ -846,7 +836,7 @@ export class ExampleGenerationPage extends BasePage {
     await test.step(`Open Spec tab for current spec`, async () => {
       console.log(`Opening Spec tab`);
       await this.openApiTabPage.openSpecTab(this.specTabLocator);
-      await takeAndAttachScreenshot(this.page, `spec-tab-opened`, this.eyes);
+      await takeAndAttachScreenshot(this.page, `spec-tab-opened`);
     });
   }
 
@@ -904,11 +894,7 @@ export class ExampleGenerationPage extends BasePage {
       );
     }
 
-    await takeAndAttachScreenshot(
-      this.page,
-      `failed-to-find-${exampleName}`,
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, `failed-to-find-${exampleName}`);
     throw new Error(
       `Example reference '${refPattern}' not found in spec file '${this.specName}'. ` +
         `The inline operation may have failed for this example.`,
@@ -1000,21 +986,16 @@ export class ExampleGenerationPage extends BasePage {
       console.log(
         `\t ✓ Verified: ${name}_${type} is in the ${type === "request" ? "requestBody" : `responses/${type}`} section`,
       );
-      return;
+    } else {
+      console.error(
+        `\t FAILED: '${pattern}' not found in ${type} section of /${endpoint}`,
+      );
+      await takeAndAttachScreenshot(this.page, `failed-${type}-ref-${name}`);
+      throw new Error(
+        `${type === "request" ? "Request body" : "Response"} example reference '${pattern}' ` +
+          `not found in the ${type} section of '/${endpoint}' in spec file '${this.specName}'.`,
+      );
     }
-
-    console.error(
-      `\t FAILED: '${pattern}' not found in ${type} section of /${endpoint}`,
-    );
-    await takeAndAttachScreenshot(
-      this.page,
-      `failed-${type}-ref-${name}`,
-      this.eyes,
-    );
-    throw new Error(
-      `${type === "request" ? "Request body" : "Response"} example reference '${pattern}' ` +
-        `not found in the ${type} section of '/${endpoint}' in spec file '${this.specName}'.`,
-    );
   }
 
   private async showVisualEvidenceInEditor(
@@ -1041,7 +1022,6 @@ export class ExampleGenerationPage extends BasePage {
         await takeAndAttachScreenshot(
           this.page,
           `visual-${searchTerm}-${endpoint}-${code}`,
-          this.eyes,
         );
 
         if (targets.length > 1) {

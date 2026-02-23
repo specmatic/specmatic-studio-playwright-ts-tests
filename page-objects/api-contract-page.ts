@@ -467,7 +467,7 @@ export class ApiContractPage extends BasePage {
    * @param key 'path' | 'method' | 'response'
    */
   async getTableHeaderCount(key: string): Promise<number> {
-    await takeAndAttachScreenshot(this.page, `header-count-${key}`, this.eyes);
+    await takeAndAttachScreenshot(this.page, `header-count-${key}`);
 
     const enabledCount =
       await this.tableHeader(key).getAttribute("data-enabled");
@@ -497,6 +497,7 @@ export class ApiContractPage extends BasePage {
   }
 
   async getAllHeaderTotals() {
+    await takeAndAttachScreenshot(this.page, "all-header-totals", this.eyes);
     return {
       path: await this.getTableHeaderCount("path"),
       method: await this.getTableHeaderCount("method"),
@@ -521,7 +522,6 @@ export class ApiContractPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       "calculating aggregate table results",
-      this.eyes,
     );
 
     // Get all result cells in the visible table
@@ -564,7 +564,6 @@ export class ApiContractPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       "calculating summary table results",
-      this.eyes,
     );
 
     const keys = [
@@ -599,11 +598,7 @@ export class ApiContractPage extends BasePage {
   async clickFailedResults(index: number): Promise<void> {
     const span = this._failedResultCountSpans.nth(index);
     await span.click();
-    await takeAndAttachScreenshot(
-      this.page,
-      "Clicked Failed Scenarios",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "Clicked Failed Scenarios");
   }
 
   async verifyFailedScenariosCount(expectedCount: number) {

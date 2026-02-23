@@ -70,11 +70,7 @@ export class ServiceSpecConfigPage extends BasePage {
       if (isActive !== "true") {
         await this.contractTestTab.click({ force: true });
       }
-      await takeAndAttachScreenshot(
-        this.page,
-        "contract-test-tab-opened",
-        this.eyes,
-      );
+      await takeAndAttachScreenshot(this.page, "contract-test-tab-opened");
     });
   }
 
@@ -248,7 +244,7 @@ export class ServiceSpecConfigPage extends BasePage {
       (await this.validationErrorBtn.getAttribute("aria-expanded")) === "false"
     ) {
       await this.validationErrorBtn.click();
-      await takeAndAttachScreenshot(this.page, "error expanded", this.eyes);
+      await takeAndAttachScreenshot(this.page, "error expanded");
     }
     return await this.errorContent.innerText();
   }
@@ -266,7 +262,7 @@ export class ServiceSpecConfigPage extends BasePage {
   async dismissAlert() {
     await this.alertDismissButton.click();
     await this.alertMessage.waitFor({ state: "hidden" });
-    await takeAndAttachScreenshot(this.page, "dismissing alert", this.eyes);
+    await takeAndAttachScreenshot(this.page, "dismissing alert");
   }
 
   async toggleBccErrorSection(shouldExpand: boolean) {
@@ -280,7 +276,6 @@ export class ServiceSpecConfigPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         "expanding-error-setion",
-        this.eyes,
       );
     }
 
