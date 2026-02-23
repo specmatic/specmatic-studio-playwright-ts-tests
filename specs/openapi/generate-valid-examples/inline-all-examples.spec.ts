@@ -25,13 +25,17 @@ test.describe("Inline examples", () => {
         await examplePage.deleteGeneratedExamples();
 
         await examplePage.generateAllExamples();
+        await examplePage.closeExamplesGenerationCompletedDialog(
+          "Example Generations Complete",
+        );
         await examplePage.validateAllExamples();
         await examplePage.inlineExamples();
 
-        const expectedUpdatedSpecName = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL.replace(
-          /.yaml$/,
-          "-updated.yaml",
-        );
+        const expectedUpdatedSpecName =
+          PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL.replace(
+            /.yaml$/,
+            "-updated.yaml",
+          );
 
         const [actualTitle, actualMessage] =
           await examplePage.getDialogTitleAndMessage();

@@ -6,7 +6,7 @@ import { Page, TestInfo } from "@playwright/test";
 test.describe("Inline examples", () => {
   test(
     `Inline an example for findAvailableProducts 200`,
-    { tag: ["@examples", "@inlineExamples", "@inlineExample"] },
+    { tag: ["@examples", "@inlineExamples", "@inline1Example"] },
     async ({ page, eyes }, testInfo) => {
       try {
         console.log(`Starting test: ${testInfo.title}`);

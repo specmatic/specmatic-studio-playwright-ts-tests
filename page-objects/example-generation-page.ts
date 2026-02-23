@@ -336,7 +336,7 @@ export class ExampleGenerationPage extends BasePage {
       let attempts = 0;
       while (!checked && attempts < 3) {
         await checkboxes[i].click({ force: true });
-        await this.page.waitForTimeout(200);
+        await this.page.waitForTimeout(200 * (attempts + 1)); // Wait a bit longer after each attempt
         checked = await checkboxes[i].isChecked();
         console.log(
           `\tselect-all checkbox[${i}] checked after click attempt ${attempts + 1}: ${checked}`,
@@ -504,11 +504,7 @@ export class ExampleGenerationPage extends BasePage {
     await expect(bulkGenerateBtn).toBeVisible({ timeout: 4000 });
     await expect(bulkGenerateBtn).toBeEnabled({ timeout: 4000 });
     await bulkGenerateBtn.click();
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-generate",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "clicked-generate", this.eyes);
   }
   private async clickBulkValidateButton() {
     const iframe = await this.waitForExamplesIFrame();
@@ -517,11 +513,7 @@ export class ExampleGenerationPage extends BasePage {
     await expect(bulkValidateBtn).toBeVisible({ timeout: 4000 });
     await expect(bulkValidateBtn).toBeEnabled({ timeout: 4000 });
     await bulkValidateBtn.click();
-    await takeAndAttachScreenshot(
-      this.page,
-      "clicked-validate",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "clicked-validate", this.eyes);
   }
 
   async inlineExamples() {
@@ -597,6 +589,16 @@ export class ExampleGenerationPage extends BasePage {
       await this.verifyTitleAndCloseDialog(`${dialogTitle}`);
     });
   }
+
+  async closeExamplesGenerationCompletedDialog(dialogTitle: string) {
+    await test.step(`Close examples generated dialog with title: '${dialogTitle}'`, async () => {
+      console.log(
+        `Closing examples generated dialog with title: '${dialogTitle}'`,
+      );
+      await this.verifyTitleAndCloseDialog(`${dialogTitle}`);
+    });
+  }
+
   async closeFixedExampleDialog(dialogTitle: string) {
     await test.step(`Close fixed example dialog with title: '${dialogTitle}'`, async () => {
       console.log(`Closing fixed example dialog with title: '${dialogTitle}'`);
@@ -897,13 +899,19 @@ export class ExampleGenerationPage extends BasePage {
 
     // Provide a more helpful diagnostic before throwing
     if (content.includes(`${exampleName}_response`)) {
-      console.error(`\tFound '${exampleName}_response' but not the full $ref path '${refPattern}'`);
+      console.error(
+        `\tFound '${exampleName}_response' but not the full $ref path '${refPattern}'`,
+      );
     }
 
-    await takeAndAttachScreenshot(this.page, `failed-to-find-${exampleName}`, this.eyes);
+    await takeAndAttachScreenshot(
+      this.page,
+      `failed-to-find-${exampleName}`,
+      this.eyes,
+    );
     throw new Error(
       `Example reference '${refPattern}' not found in spec file '${this.specName}'. ` +
-      `The inline operation may have failed for this example.`,
+        `The inline operation may have failed for this example.`,
     );
   }
 
@@ -989,15 +997,23 @@ export class ExampleGenerationPage extends BasePage {
     const pattern = `#/components/examples/${name}_${type}`;
 
     if (blockText.includes(pattern)) {
-      console.log(`\t ✓ Verified: ${name}_${type} is in the ${type === "request" ? "requestBody" : `responses/${type}`} section`);
+      console.log(
+        `\t ✓ Verified: ${name}_${type} is in the ${type === "request" ? "requestBody" : `responses/${type}`} section`,
+      );
       return;
     }
 
-    console.error(`\t FAILED: '${pattern}' not found in ${type} section of /${endpoint}`);
-    await takeAndAttachScreenshot(this.page, `failed-${type}-ref-${name}`, this.eyes);
+    console.error(
+      `\t FAILED: '${pattern}' not found in ${type} section of /${endpoint}`,
+    );
+    await takeAndAttachScreenshot(
+      this.page,
+      `failed-${type}-ref-${name}`,
+      this.eyes,
+    );
     throw new Error(
       `${type === "request" ? "Request body" : "Response"} example reference '${pattern}' ` +
-      `not found in the ${type} section of '/${endpoint}' in spec file '${this.specName}'.`,
+        `not found in the ${type} section of '/${endpoint}' in spec file '${this.specName}'.`,
     );
   }
 
