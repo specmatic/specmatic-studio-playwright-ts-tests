@@ -42,11 +42,11 @@ test.describe(
         await verifyRightSidebarStatus(contractPage, "Done");
 
         await validateSummaryAndTableCounts(contractPage, {
-          success: 180,
-          failed: 20,
-          total: 203,
+          success: 188,
+          failed: 32,
+          total: 222,
           error: 0,
-          notcovered: 3,
+          notcovered: 2,
           excluded: 0,
         });
       });
@@ -68,13 +68,12 @@ test.describe(
       });
 
       await validateSummaryAndTableCounts(contractPage, {
-        success: 148,
-        failed: 20,
-        total: 172,
+        success: 176,
+        failed: 32,
+        total: 211,
         error: 0,
-        notcovered: 3,
+        notcovered: 2,
         excluded: 1,
-
       });
     });
   },
