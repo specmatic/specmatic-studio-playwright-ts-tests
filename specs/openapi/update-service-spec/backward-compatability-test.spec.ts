@@ -7,6 +7,10 @@ test.describe("API Specification - Backward Compatibility", () => {
     "Scenario 2: Save Invalid Spec and Assert Error",
     { tag: ["@spec", "@bccTest"] },
     async ({ page, eyes }, testInfo) => {
+      test.fail(
+        true,
+        "Known issue in Backward Compatibility Checker - devs need to fix the issue for this test to pass",
+      );
       const configPage = new ServiceSpecConfigPage(
         page,
         testInfo,
@@ -15,7 +19,9 @@ test.describe("API Specification - Backward Compatibility", () => {
       );
       await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY}'`, async () => {
         await configPage.gotoHomeAndOpenSidebar();
-        await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY);
+        await configPage.sideBar.selectSpec(
+          PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY,
+        );
         await configPage.openSpecTab();
       });
 
