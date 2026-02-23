@@ -78,12 +78,12 @@ async function verifyInvalidExampleDetails(examplePage: ExampleGenerationPage) {
     expect
       .soft(errorBlob)
       .toContain(
-        `Property "inventoy" in the example was not in the specification. Did you mean "inventory"?`,
+        `Property "inventy" in the example was not in the specification. Did you mean "inventory"?`,
       );
     expect
       .soft(errorBlob)
       .toContain(
-        `Property "idty" in the example was not in the specification. Did you mean "id"?"?`,
+        `Property "idty" in the example was not in the specification. Did you mean "id"?`,
       );
   });
 }
