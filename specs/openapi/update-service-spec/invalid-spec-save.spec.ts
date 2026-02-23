@@ -7,7 +7,7 @@ import {
 
 test.describe("InValid Spec save and Error Dialog Display", () => {
   test(
-    "Scenario 2: Save Invalid Spec and Assert Error",
+    "Save Invalid Spec and Assert Error",
     { tag: ["@spec", "@invalidSpecChange"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(

@@ -7,7 +7,7 @@ import {
 
 test.describe("Saving Valid Spec", () => {
   test(
-    "Scenario 1: Save Valid Spec",
+    "Save Valid Spec",
     { tag: ["@spec", "@correctSpecChange"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(
