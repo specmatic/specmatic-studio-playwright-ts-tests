@@ -95,7 +95,15 @@ export const test = base.extend<{ eyes: Eyes }>({
     try {
       await use(eyes);
 
+      const beforeClose = new Date();
+      console.log(
+        `[Applitools] eyes.close() called at: ${beforeClose.toISOString()}`,
+      );
       const results = await eyes.close(false);
+      const afterClose = new Date();
+      console.log(
+        `[Applitools] eyes.close() completed at: ${afterClose.toISOString()}`,
+      );
       console.log(`Test '${testInfo.title}' - Eyes results:`, results);
     } catch (error) {
       console.error("Error closing Eyes:", error);
