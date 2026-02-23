@@ -47,8 +47,12 @@ export class ServiceSpecConfigPage extends BasePage {
     this.editorLines = this.specSection.locator(".cm-content .cm-line");
     this.contractTestTab = page.locator('li.tab[data-type="test"]').first();
     this.alertMsg = page.locator(".alert-msg.error");
-    this.validationErrorBtn = page.locator("button.bcc-errors-btn");
-    this.errorContent = page.locator(".bcc-errors-content");
+    this.validationErrorBtn = page
+      .locator(`[id*="${this.specName}"]`)
+      .locator("button.bcc-errors-btn");
+    this.errorContent = page
+      .locator(`[id*="${this.specName}"]`)
+      .locator(".bcc-errors-content");
 
     this.bccTestButton = this.specSection.locator("#bcc-test-btn");
     this.alertMessage = this.page.locator(".alert-msg.error");
@@ -175,29 +179,9 @@ export class ServiceSpecConfigPage extends BasePage {
     await this.saveBtn.scrollIntoViewIfNeeded();
     console.log("\tScrolled Save button into view");
 
-    // Use a helper to ensure the button isn't obscured
-    await this.waitForElementToBeClickable('button[data-validate="/openapi"]');
-
     await this.saveBtn.click({ force: true });
     await takeAndAttachScreenshot(this.page, "save-clicked", this.eyes);
     return this.saveBtn;
-  }
-
-  private async waitForElementToBeClickable(selector: string) {
-    await this.page.waitForFunction(
-      (sel) => {
-        const el = document.querySelector(sel);
-        if (!el) return false;
-        const rect = el.getBoundingClientRect();
-        const elementAtPoint = document.elementFromPoint(
-          rect.left + rect.width / 2,
-          rect.top + rect.height / 2,
-        );
-        return elementAtPoint === el || el.contains(elementAtPoint);
-      },
-      selector,
-      { timeout: 5000 },
-    );
   }
 
   private async scrollEditorToRevealAllLines() {

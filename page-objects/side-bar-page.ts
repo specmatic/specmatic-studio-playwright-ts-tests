@@ -32,27 +32,27 @@ export class SideBarPage {
     }
   }
 
-  /**
-   * Ensures the sidebar is open, then selects the given spec from the spec tree.
-   */
   async selectSpec(specName: string): Promise<Locator> {
-    let specLocator: Locator;
-    await test.step(`Navigate to Service Spec: '${specName}'`, async () => {
-      console.log(`\tNavigating to Service Spec: '${specName}'`);
+    const specLocator = this.page
+      .locator("#spec-tree")
+      .locator(`span.wb-title:has-text("${specName}")`);
+
+    await test.step(`Maps to Service Spec: '${specName}'`, async () => {
       await this.ensureSidebarOpen();
-      const specTree = this.page.locator("#spec-tree");
-      await expect(specTree).toBeVisible({ timeout: 4000 });
-      specLocator = specTree.locator(`text=${specName}`);
-      await expect(specLocator).toBeVisible({ timeout: 4000 });
-      try {
-        await specLocator.click({ force: true, timeout: 3000 });
-      } catch (e) {
-        await specLocator.click({ force: true, timeout: 3000 });
-      }
+
+      await this.page.waitForTimeout(500);
+
+      await expect(specLocator).toBeVisible({ timeout: 5000 });
+
+      await specLocator.evaluate((node) =>
+        node.scrollIntoView({ block: "center", behavior: "smooth" }),
+      );
+
+      await specLocator.click();
+
       await this.closeSidebar();
-      await takeAndAttachScreenshot(this.page, "selected-spec");
     });
-    return specLocator!;
+    return specLocator;
   }
 
   /**
