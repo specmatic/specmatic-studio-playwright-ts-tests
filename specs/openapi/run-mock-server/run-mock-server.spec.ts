@@ -25,12 +25,18 @@ test.describe("API Mocking", () => {
       let mockUrl: string;
 
       await test.step(`Go to Mock page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER}'`, async () => {
-        await mockPage.openRunMockServerTab();
+        await mockPage.openRunMockServerTab(
+          PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER,
+        );
       });
       await test.step("Start Mock Server", async () => {
         await mockPage.fillMockPort(9999);
         await mockPage.startMockServer();
-        await verifyRightSidebarStatus(mockPage, "Running");
+        await verifyRightSidebarStatus(
+          mockPage,
+          "Running",
+          PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER,
+        );
         mockUrl = await mockPage.getMockURL();
       });
 
@@ -139,8 +145,9 @@ async function verifyFilterOperations(mockPage: MockServerPage) {
 async function verifyRightSidebarStatus(
   mockPage: MockServerPage,
   status: "Running" | "Done" | "Failed",
+  specName: string,
 ) {
   await mockPage.toggleRightSidebar();
-  await mockPage.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER, status);
+  await mockPage.verifySidebarStatus(specName, status);
   await mockPage.closeRightSidebarByClickingOutside();
 }

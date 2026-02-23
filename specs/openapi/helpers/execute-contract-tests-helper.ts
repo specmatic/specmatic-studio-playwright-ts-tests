@@ -80,8 +80,9 @@ export async function verifyAllContractRemarks(contractPage: ApiContractPage) {
 export async function verifyRightSidebarStatus(
   contractPage: ApiContractPage,
   status: "Running" | "Done" | "Failed",
+  specName: string,
 ) {
   await contractPage.toggleRightSidebar();
-  await contractPage.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC, status);
+  await contractPage.verifySidebarStatus(specName, status);
   await contractPage.closeRightSidebarByClickingOutside();
 }

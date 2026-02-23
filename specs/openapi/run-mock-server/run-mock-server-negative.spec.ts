@@ -12,7 +12,7 @@ test.describe("Mock Server - Negative Scenarios", () => {
       eyes,
       PRODUCT_SEARCH_BFF_SPEC_MOCK_NEGATIVE,
     );
-    await mockPage.openRunMockServerTab();
+    await mockPage.openRunMockServerTab(PRODUCT_SEARCH_BFF_SPEC_MOCK_NEGATIVE);
   });
 
   test(

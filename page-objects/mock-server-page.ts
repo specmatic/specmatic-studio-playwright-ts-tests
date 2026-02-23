@@ -146,9 +146,9 @@ export class MockServerPage extends BasePage {
       );
   }
 
-  async openRunMockServerTab() {
+  async openRunMockServerTab(specName: string) {
     await this.gotoHome();
-    await this.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+    await this.sideBar.selectSpec(specName);
     await takeAndAttachScreenshot(this.page, "mock-tab-open", this.eyes);
     return this.openApiTabPage.openRunMockServerTab();
   }

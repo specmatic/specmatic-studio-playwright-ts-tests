@@ -6,7 +6,6 @@ import {
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
 import {
   validateSummaryAndTableCounts,
-  toggleFailedTestViewForTableandRaw,
   verifyRightSidebarStatus,
 } from "../helpers/execute-contract-tests-helper";
 
@@ -42,8 +41,13 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
           "201",
         );
         await contractPage.clickExcludeButton();
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
-        await verifyRightSidebarStatus(contractPage, "Done");
+        await verifyRightSidebarStatus(
+          contractPage,
+          "Done",
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
+        );
 
         const tableHeaderTotals = await contractPage.getAllHeaderTotals();
 
@@ -75,6 +79,7 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
           "201",
         );
         await contractPage.clickIncludeButton();
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
 
         const tableHeaderTotals = await contractPage.getAllHeaderTotals();
@@ -107,6 +112,7 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
           { path: "/findAvailableProducts", method: "GET", response: "200" },
         ]);
         await contractPage.clickExcludeButton();
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
 
         const tableHeaderTotals = await contractPage.getAllHeaderTotals();
@@ -138,6 +144,7 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
           { path: "/findAvailableProducts", method: "GET", response: "200" },
         ]);
         await contractPage.clickIncludeButton();
+        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
 
         const tableHeaderTotals = await contractPage.getAllHeaderTotals();

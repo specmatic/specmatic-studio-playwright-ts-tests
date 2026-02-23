@@ -30,7 +30,11 @@ test.describe("API Contract Testing - Filtering", () => {
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.setGenerativeMode(false);
         await contractPage.clickRunContractTests();
-        await verifyRightSidebarStatus(contractPage, "Done");
+        await verifyRightSidebarStatus(
+          contractPage,
+          "Done",
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER,
+        );
       });
 
       await test.step("Apply and verify filters for test results", async () => {

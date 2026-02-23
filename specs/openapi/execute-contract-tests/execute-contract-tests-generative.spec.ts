@@ -39,7 +39,11 @@ test.describe(
       await test.step("Enable Generative Mode and Run Tests", async () => {
         await contractPage.setGenerativeMode(true);
         await contractPage.clickRunContractTests();
-        await verifyRightSidebarStatus(contractPage, "Done");
+        await verifyRightSidebarStatus(
+          contractPage,
+          "Done",
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_GENERATIVE,
+        );
 
         await validateSummaryAndTableCounts(contractPage, {
           success: 188,
@@ -65,6 +69,11 @@ test.describe(
       await test.step("Enable Generative Mode and Run Tests", async () => {
         await contractPage.setGenerativeMode(true);
         await contractPage.clickRunContractTests();
+        await verifyRightSidebarStatus(
+          contractPage,
+          "Done",
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_GENERATIVE,
+        );
       });
 
       await validateSummaryAndTableCounts(contractPage, {

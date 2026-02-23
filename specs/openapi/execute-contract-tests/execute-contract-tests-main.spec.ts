@@ -34,7 +34,11 @@ test.describe("API Contract Testing", () => {
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
 
-        await verifyRightSidebarStatus(contractPage, "Done");
+        await verifyRightSidebarStatus(
+          contractPage,
+          "Done",
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_DEFAULT,
+        );
       });
       await test.step("Verify test results and remarks for executed contract tests", async () => {
         await contractPage.verifyTestResults();
