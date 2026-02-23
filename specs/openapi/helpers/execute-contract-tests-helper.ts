@@ -1,5 +1,6 @@
-import { expect } from "../../../utils/eyesFixture";
+import { expect, test } from "../../../utils/eyesFixture";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
 
 export async function validateSummaryAndTableCounts(
   contractPage: ApiContractPage,
@@ -12,18 +13,20 @@ export async function validateSummaryAndTableCounts(
     excluded: number;
   },
 ) {
-  const tableTotals = await contractPage.getAggregateTableResults();
-  const headerTotals = await contractPage.getSummaryHeaderTotals();
+  await test.step("Verify Summary and Table Counts", async () => {
+    const tableTotals = await contractPage.getAggregateTableResults();
+    const headerTotals = await contractPage.getSummaryHeaderTotals();
 
-  expect(
-    tableTotals,
-    "Internal Check: Table sum must match Header counts",
-  ).toStrictEqual(headerTotals);
+    expect(
+      tableTotals,
+      "Internal Check: Table sum must match Header counts",
+    ).toStrictEqual(headerTotals);
 
-  expect(
-    headerTotals,
-    "Business Check: Header counts must match expected values",
-  ).toStrictEqual(expected);
+    expect(
+      headerTotals,
+      "Business Check: Header counts must match expected values",
+    ).toStrictEqual(expected);
+  });
 }
 
 export async function toggleFailedTestViewForTableandRaw(
@@ -72,4 +75,13 @@ export async function verifyAllContractRemarks(contractPage: ApiContractPage) {
   );
 
   await contractPage.verifyRowRemark("/health", "GET", "0", "Missing In Spec");
+}
+
+export async function verifyRightSidebarStatus(
+  contractPage: ApiContractPage,
+  status: "Running" | "Done" | "Failed",
+) {
+  await contractPage.toggleRightSidebar();
+  await contractPage.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC, status);
+  await contractPage.closeRightSidebarByClickingOutside();
 }

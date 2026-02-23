@@ -2,14 +2,13 @@ import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
 import { MockServerPage } from "../../../page-objects/mock-server-page";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
-import { validateMockSummaryAndTableCounts } from "./run-mock-server.helper";
+import { validateMockSummaryAndTableCounts } from "../helpers/run-mock-server-helper.ts";
 
 test.describe("API Mocking", () => {
   test(
     "Run Mock Server for API Spec",
-    { tag: ["@apiMocking"] },
+    { tag: ["@apiMocking", "@runMockServer"] },
     async ({ page, eyes }, testInfo) => {
-      test.setTimeout(120000);
       const mockPage = new MockServerPage(
         page,
         testInfo,
@@ -31,6 +30,7 @@ test.describe("API Mocking", () => {
       await test.step("Start Mock Server", async () => {
         await mockPage.fillMockPort(9999);
         await mockPage.startMockServer();
+        await verifyRightSidebarStatus(mockPage, "Running");
         mockUrl = await mockPage.getMockURL();
       });
 
@@ -134,4 +134,13 @@ async function verifyFilterOperations(mockPage: MockServerPage) {
       });
     }
   });
+}
+
+async function verifyRightSidebarStatus(
+  mockPage: MockServerPage,
+  status: "Running" | "Done" | "Failed",
+) {
+  await mockPage.toggleRightSidebar();
+  await mockPage.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC, status);
+  await mockPage.closeRightSidebarByClickingOutside();
 }

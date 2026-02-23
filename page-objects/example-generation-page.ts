@@ -12,7 +12,7 @@ import { BasePage } from "./base-page";
 import { Edit } from "../utils/types/json-edit.types";
 
 export class ExampleGenerationPage extends BasePage {
-  private readonly openApiTabPage: OpenAPISpecTabPage;
+  readonly openApiTabPage: OpenAPISpecTabPage;
   protected readonly specTree: Locator;
   private readonly generateExamplesBtn: Locator;
   private readonly validExamplesTable: Locator;
@@ -27,6 +27,8 @@ export class ExampleGenerationPage extends BasePage {
   private readonly bulkFixBtnSelector: string;
   private readonly inlineBtnSelector: string;
   private readonly specSection: Locator;
+  private readonly specEditorSection: Locator;
+  private readonly specTabLocator: Locator;
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -34,6 +36,10 @@ export class ExampleGenerationPage extends BasePage {
     this.specSection = page.locator(
       `xpath=//div[contains(@id,"${specName}") and @data-mode="example"]`,
     );
+    this.specEditorSection = page.locator(
+      `xpath=//div[contains(@id,"${specName}") and @data-mode="spec"]`,
+    );
+    this.specTabLocator = page.locator('li.tab[data-type="spec"]').first();
     this.generateExamplesBtn = this.specSection.locator(
       `xpath=.//p[contains(text(),"Generate valid examples")]`,
     );
@@ -784,6 +790,250 @@ export class ExampleGenerationPage extends BasePage {
       await this.gotoHome();
       await this.sideBar.selectSpec(specName);
       await this.openExampleGenerationTab();
+    });
+  }
+
+  async clickGenerateMoreButton(path: string, responseCode: number) {
+    await test.step(`Click Generate More for ${path} - ${responseCode}`, async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const generateMoreBtn = iframe.locator(
+        `//tr[@data-raw-path="/${path}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[@aria-label="Generate More"]`,
+      );
+      await expect(generateMoreBtn).toBeVisible({ timeout: 4000 });
+      await generateMoreBtn.click();
+      await this.page.waitForTimeout(1000);
+      await this.verifyTitleAndCloseDialog("Example Generated");
+    });
+  }
+
+  async getGeneratedExampleNames(): Promise<string[]> {
+    return await test.step(`Get generated example names`, async () => {
+      console.log(`Getting generated example names from Examples tab`);
+      const iframe = await this.waitForExamplesIFrame();
+      const exampleRows = await iframe
+        .locator("tr[data-example-relative-path]")
+        .all();
+
+      const exampleNames: string[] = [];
+      for (const row of exampleRows) {
+        const relativePath = await row.getAttribute(
+          "data-example-relative-path",
+        );
+        if (relativePath) {
+          const match = relativePath.match(/_examples\/(.+)\.json$/);
+          if (match) {
+            exampleNames.push(match[1]);
+          }
+        }
+      }
+
+      console.log(
+        `Found ${exampleNames.length} generated examples:`,
+        exampleNames,
+      );
+      await takeAndAttachScreenshot(
+        this.page,
+        `generated-example-names`,
+        this.eyes,
+      );
+      return exampleNames;
+    });
+  }
+
+  async openSpecTabForCurrentSpec() {
+    await test.step(`Open Spec tab for current spec`, async () => {
+      console.log(`Opening Spec tab`);
+      await this.openApiTabPage.openSpecTab(this.specTabLocator);
+      await takeAndAttachScreenshot(this.page, `spec-tab-opened`, this.eyes);
+    });
+  }
+
+  async verifyInlinedExamplesInSpec(
+    expectedExampleNames: string[],
+    endpoint: string,
+    method: string,
+    responseCode: number,
+  ) {
+    await test.step(`Verify inlined examples in spec file`, async () => {
+      const specContent = this.readSpecFile();
+
+      for (const name of expectedExampleNames) {
+        await this.validateExamplePresence(specContent, name);
+      }
+
+      await takeAndAttachScreenshot(
+        this.page,
+        `verified-inlined-examples-${endpoint}-${responseCode}`,
+        this.eyes,
+      );
+
+      await this.showVisualEvidenceInEditor(
+        expectedExampleNames[0],
+        endpoint,
+        responseCode,
+      );
+    });
+  }
+
+  private readSpecFile(): string {
+    const fs = require("fs");
+    const nodePath = require("path");
+    const specFilePath = nodePath.join(
+      process.cwd(),
+      "specmatic-studio-demo",
+      "specs",
+      this.specName!,
+    );
+    return fs.readFileSync(specFilePath, "utf-8");
+  }
+
+  private async validateExamplePresence(content: string, exampleName: string) {
+    const refPattern = `#/components/examples/${exampleName}_response`;
+
+    if (content.includes(refPattern)) {
+      console.log(`\t ✓ Verified: ${exampleName}_response is inlined`);
+      return;
+    }
+
+    // Provide a more helpful diagnostic before throwing
+    if (content.includes(`${exampleName}_response`)) {
+      console.error(`\tFound '${exampleName}_response' but not the full $ref path '${refPattern}'`);
+    }
+
+    await takeAndAttachScreenshot(this.page, `failed-to-find-${exampleName}`, this.eyes);
+    throw new Error(
+      `Example reference '${refPattern}' not found in spec file '${this.specName}'. ` +
+      `The inline operation may have failed for this example.`,
+    );
+  }
+
+  async verifyInlinedPostExamplesInSpec(
+    expectedExampleNames: string[],
+    endpoint: string,
+    responseCode: number,
+  ) {
+    await test.step(`Verify inlined POST examples in spec file for /${endpoint}`, async () => {
+      const fullText = this.readSpecFile();
+      const lines = fullText.split("\n");
+
+      const pathBlock = this.extractYamlBlock(lines, `/${endpoint}:`);
+
+      const requestBodyBlock = this.extractYamlBlock(
+        pathBlock,
+        "requestBody:",
+      ).join("\n");
+      const responseCodeBlock = this.extractYamlBlock(
+        pathBlock,
+        `${responseCode}:`,
+        [`'${responseCode}':`, `"${responseCode}":`],
+      ).join("\n");
+
+      for (const name of expectedExampleNames) {
+        await this.validateSectionRef(
+          requestBodyBlock,
+          name,
+          "request",
+          endpoint,
+        );
+        await this.validateSectionRef(
+          responseCodeBlock,
+          name,
+          "response",
+          endpoint,
+        );
+      }
+      await this.showVisualEvidenceInEditor(
+        expectedExampleNames[0],
+        endpoint,
+        responseCode,
+        true,
+      );
+    });
+  }
+
+  private extractYamlBlock(
+    lines: string[],
+    marker: string,
+    aliases: string[] = [],
+  ): string[] {
+    const allPatterns = [marker, ...aliases];
+    const startIdx = lines.findIndex((l) =>
+      allPatterns.some((p) => l.trim().startsWith(p)),
+    );
+
+    if (startIdx === -1) {
+      throw new Error(`Could not find block starting with '${marker}'`);
+    }
+
+    const startIndent = lines[startIdx].search(/\S/);
+    let endIdx = lines.length;
+
+    for (let i = startIdx + 1; i < lines.length; i++) {
+      if (lines[i].trim() === "") continue;
+      const currentIndent = lines[i].search(/\S/);
+      if (currentIndent <= startIndent) {
+        endIdx = i;
+        break;
+      }
+    }
+
+    return lines.slice(startIdx, endIdx);
+  }
+
+  private async validateSectionRef(
+    blockText: string,
+    name: string,
+    type: "request" | "response",
+    endpoint: string,
+  ) {
+    const pattern = `#/components/examples/${name}_${type}`;
+
+    if (blockText.includes(pattern)) {
+      console.log(`\t ✓ Verified: ${name}_${type} is in the ${type === "request" ? "requestBody" : `responses/${type}`} section`);
+      return;
+    }
+
+    console.error(`\t FAILED: '${pattern}' not found in ${type} section of /${endpoint}`);
+    await takeAndAttachScreenshot(this.page, `failed-${type}-ref-${name}`, this.eyes);
+    throw new Error(
+      `${type === "request" ? "Request body" : "Response"} example reference '${pattern}' ` +
+      `not found in the ${type} section of '/${endpoint}' in spec file '${this.specName}'.`,
+    );
+  }
+
+  private async showVisualEvidenceInEditor(
+    exampleName: string,
+    endpoint: string,
+    code: number,
+    isPost: boolean = false,
+  ) {
+    await test.step(`Capture visual evidence in editor for ${endpoint}`, async () => {
+      const editorContent = this.specEditorSection.locator(".cm-content");
+      await expect(editorContent).toBeVisible({ timeout: 10000 });
+      await editorContent.click();
+      await this.page.keyboard.press("Control+Home");
+
+      const targets = isPost
+        ? [`${exampleName}_request`, `${exampleName}_response`]
+        : [`${exampleName}_response`];
+
+      for (const searchTerm of targets) {
+        await this.page.keyboard.press("Control+f");
+        await this.page.keyboard.type(searchTerm);
+        await this.page.waitForTimeout(800);
+
+        await takeAndAttachScreenshot(
+          this.page,
+          `visual-${searchTerm}-${endpoint}-${code}`,
+          this.eyes,
+        );
+
+        if (targets.length > 1) {
+          await this.page.keyboard.press("Control+a");
+          await this.page.keyboard.press("Backspace");
+        }
+      }
+      await this.page.keyboard.press("Escape");
     });
   }
 }

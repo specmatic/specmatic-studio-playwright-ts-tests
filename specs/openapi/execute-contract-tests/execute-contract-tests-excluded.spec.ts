@@ -7,14 +7,14 @@ import { ApiContractPage } from "../../../page-objects/api-contract-page";
 import {
   validateSummaryAndTableCounts,
   toggleFailedTestViewForTableandRaw,
-} from "./execute-contract-tests.utils";
+  verifyRightSidebarStatus,
+} from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract testing with test exclusion and inclusion", () => {
   test(
     "Exclude specific tests and verify excluded tests are not executed",
     { tag: ["@test", "@testExclusion"] },
     async ({ page, eyes }, testInfo) => {
-      test.setTimeout(180000);
       const contractPage = new ApiContractPage(
         page,
         testInfo,
@@ -43,6 +43,7 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         );
         await contractPage.clickExcludeButton();
         await contractPage.clickRunContractTests();
+        await verifyRightSidebarStatus(contractPage, "Done");
 
         const tableHeaderTotals = await contractPage.getAllHeaderTotals();
 
