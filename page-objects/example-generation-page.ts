@@ -506,7 +506,7 @@ export class ExampleGenerationPage extends BasePage {
     await bulkGenerateBtn.click();
     await takeAndAttachScreenshot(
       this.page,
-      "clicked-bulk-generate",
+      "clicked-generate",
       this.eyes,
     );
   }
@@ -519,7 +519,7 @@ export class ExampleGenerationPage extends BasePage {
     await bulkValidateBtn.click();
     await takeAndAttachScreenshot(
       this.page,
-      "clicked-bulk-validate",
+      "clicked-validate",
       this.eyes,
     );
   }

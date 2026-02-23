@@ -157,17 +157,22 @@ export class MockServerPage extends BasePage {
     await this.mockPort.clear();
     if (port) {
       await this.mockPort.fill(port.toString());
-      await takeAndAttachScreenshot(this.page, "entered Mock port", this.eyes);
+      await takeAndAttachScreenshot(this.page, "entered Mock port");
     }
   }
 
   async startMockServer() {
     const isRunning = await this.mockToggleButton.getAttribute("data-running");
     if (isRunning === "false") {
+      await takeAndAttachScreenshot(
+        this.page,
+        "starting-mock-server",
+        this.eyes,
+      );
       await this.mockToggleButton.click();
       await takeAndAttachScreenshot(
         this.page,
-        "mock-server-started",
+        "started-mock-server",
         this.eyes,
       );
     }
@@ -340,8 +345,6 @@ export class MockServerPage extends BasePage {
     );
   }
 
-  // Drill-Down Scenario Assertions
-
   async goBackFromDrillDown(): Promise<void> {
     await this.drillDownBackButton.waitFor({ state: "visible", timeout: 5000 });
     await this.drillDownBackButton.click();
@@ -387,7 +390,6 @@ export class MockServerPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `drill-down-expanded-index-${index}`,
-      this.eyes,
     );
 
     const state = {
@@ -402,7 +404,6 @@ export class MockServerPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `drill-down-collapsed-index-${index}`,
-      this.eyes,
     );
 
     return state;
@@ -505,11 +506,7 @@ export class MockServerPage extends BasePage {
     const closeButton = this.alertMessage.locator("button");
     await closeButton.click();
     await this.alertMessage.waitFor({ state: "hidden", timeout: 5000 });
-    await takeAndAttachScreenshot(
-      this.page,
-      "invalid dialog dismissed",
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, "invalid dialog dismissed");
   }
 
   async verifySidebarStatus(

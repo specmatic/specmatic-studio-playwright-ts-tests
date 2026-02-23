@@ -515,7 +515,7 @@ export class ApiContractPage extends BasePage {
   async getAggregateTableResults() {
     await takeAndAttachScreenshot(
       this.page,
-      "calculating table results",
+      "calculating aggregate table results",
       this.eyes,
     );
 
@@ -558,7 +558,7 @@ export class ApiContractPage extends BasePage {
   async getSummaryHeaderTotals() {
     await takeAndAttachScreenshot(
       this.page,
-      "calculating table results",
+      "calculating summary table results",
       this.eyes,
     );
 

@@ -38,13 +38,17 @@ export class SpecmaticStudioPage extends BasePage {
   async clickStartProxy() {
     await this.page.locator("#startProxy").click({ force: true });
     await this.sideBar.closeSidebar();
-    await takeAndAttachScreenshot(this.page, "clicked-start", this.eyes);
+    await takeAndAttachScreenshot(this.page, "clicked-start-proxy", this.eyes);
   }
 
   async clickStopProxy() {
-    await takeAndAttachScreenshot(this.page, "before-clicked-stop", this.eyes);
+    await takeAndAttachScreenshot(
+      this.page,
+      "before-clicked-stop-proxy",
+      this.eyes,
+    );
     const stopBtn = this.page.locator("#stopProxy");
     await stopBtn.click({ force: true });
-    await takeAndAttachScreenshot(this.page, "clicked-stop", this.eyes);
+    await takeAndAttachScreenshot(this.page, "clicked-stop-proxy", this.eyes);
   }
 }
