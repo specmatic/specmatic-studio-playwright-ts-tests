@@ -1,6 +1,6 @@
 import { test } from "../../../utils/eyesFixture";
 import {
-  PRODUCT_SEARCH_BFF_SPEC,
+  PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_GENERATIVE,
   ORDER_BFF_SERVICE_URL,
 } from "../../specNames";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
@@ -22,14 +22,14 @@ test.describe(
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_GENERATIVE,
       );
 
-      await test.step(`Setup: Open Test tab for '${PRODUCT_SEARCH_BFF_SPEC}' and set Service URL`, async () => {
+      await test.step(`Setup: Open Test tab for '${PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_GENERATIVE}' and set Service URL`, async () => {
         await contractPage.openContractTestTabForSpec(
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_GENERATIVE,
         );
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
       });

@@ -1,5 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED } from "../../specNames";
 import {
   filterExampleNames,
   generateMoreThenValidateAndInline,
@@ -27,7 +27,7 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED,
         [{ path: PRODUCTS, responseCodes: [201] }],
       );
 
@@ -36,7 +36,7 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         [{ path: PRODUCTS, code: 201 }],
       );
 
-      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC);
+      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED);
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined POST examples appear in the updated spec file", async () => {
@@ -69,7 +69,7 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED,
         [{ path: PRODUCTS, responseCodes: [201, 400] }],
       );
 
@@ -81,7 +81,7 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         ],
       );
 
-      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC);
+      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED);
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined POST examples appear in the updated spec file", async () => {
@@ -120,7 +120,7 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED,
         [
           { path: PRODUCTS, responseCodes: [201, 400] },
           { path: ORDRES, responseCodes: [201, 400] },
@@ -137,7 +137,7 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         ],
       );
 
-      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC);
+      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED);
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined POST examples appear in the updated spec file", async () => {

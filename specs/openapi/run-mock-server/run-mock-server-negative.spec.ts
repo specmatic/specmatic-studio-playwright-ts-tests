@@ -1,5 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC_MOCK_NEGATIVE } from "../../specNames";
 import { MockServerPage } from "../../../page-objects/mock-server-page";
 
 test.describe("Mock Server - Negative Scenarios", () => {
@@ -10,7 +10,7 @@ test.describe("Mock Server - Negative Scenarios", () => {
       page,
       testInfo,
       eyes,
-      PRODUCT_SEARCH_BFF_SPEC,
+      PRODUCT_SEARCH_BFF_SPEC_MOCK_NEGATIVE,
     );
     await mockPage.openRunMockServerTab();
   });

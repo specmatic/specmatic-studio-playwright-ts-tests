@@ -1,5 +1,5 @@
 import { test } from "../../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE } from "../../specNames";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
 
 test.describe("API Contract Testing - Negative Scenarios", () => {
@@ -8,13 +8,13 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
       page,
       testInfo,
       eyes,
-      PRODUCT_SEARCH_BFF_SPEC,
+      PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE,
     );
 
     await contractPage.openContractTestTabForSpec(
       testInfo,
       eyes,
-      PRODUCT_SEARCH_BFF_SPEC,
+      PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE,
     );
   });
 
@@ -26,7 +26,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE,
       );
       const invalidUrl = "http://ww.gag.com";
 
@@ -54,7 +54,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE,
       );
       const invalidPortUrl = "http://order-bff:9999";
 

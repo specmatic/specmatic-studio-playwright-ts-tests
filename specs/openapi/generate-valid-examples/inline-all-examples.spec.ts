@@ -1,11 +1,11 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL } from "../../specNames";
 import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import { Page, TestInfo } from "@playwright/test";
 
 test.describe("Inline examples", () => {
   test(
-    `Inline all examples for '${PRODUCT_SEARCH_BFF_SPEC}'`,
+    `Inline all examples for '${PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL}'`,
     { tag: ["@examples", "@inlineExamples", "@inlineAllExamples"] },
     async ({ page, eyes }, testInfo) => {
       try {
@@ -14,12 +14,12 @@ test.describe("Inline examples", () => {
           page,
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL,
         );
         await examplePage.openExampleGenerationTabForSpec(
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL,
         );
 
         await examplePage.deleteGeneratedExamples();
@@ -28,7 +28,7 @@ test.describe("Inline examples", () => {
         await examplePage.validateAllExamples();
         await examplePage.inlineExamples();
 
-        const expectedUpdatedSpecName = PRODUCT_SEARCH_BFF_SPEC.replace(
+        const expectedUpdatedSpecName = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL.replace(
           /.yaml$/,
           "-updated.yaml",
         );

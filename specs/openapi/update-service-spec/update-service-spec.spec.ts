@@ -1,8 +1,7 @@
 import { test, expect } from "../../../utils/eyesFixture";
 import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
 import {
-  PRODUCT_SEARCH_BFF_SPEC,
-  ORDER_BFF_SERVICE_URL,
+  PRODUCT_SEARCH_BFF_SPEC_UPDATE,
 } from "../../specNames";
 import {
   ServiceSpecConfigPage,
@@ -18,11 +17,11 @@ test.describe("Update Service Spec", () => {
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_UPDATE,
       );
-      await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
+      await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_UPDATE}'`, async () => {
         await configPage.gotoHomeAndOpenSidebar();
-        await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC_UPDATE);
         await configPage.openSpecTab();
       });
       await test.step("Save updated Service Spec", async () => {

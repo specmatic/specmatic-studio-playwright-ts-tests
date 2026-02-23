@@ -1,5 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER } from "../../specNames";
 import { MockServerPage } from "../../../page-objects/mock-server-page";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
 import { validateMockSummaryAndTableCounts } from "../helpers/run-mock-server-helper.ts";
@@ -13,18 +13,18 @@ test.describe("API Mocking", () => {
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER,
       );
       const contractPage = new ApiContractPage(
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER,
       );
 
       let mockUrl: string;
 
-      await test.step(`Go to Mock page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
+      await test.step(`Go to Mock page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER}'`, async () => {
         await mockPage.openRunMockServerTab();
       });
       await test.step("Start Mock Server", async () => {
@@ -141,6 +141,6 @@ async function verifyRightSidebarStatus(
   status: "Running" | "Done" | "Failed",
 ) {
   await mockPage.toggleRightSidebar();
-  await mockPage.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC, status);
+  await mockPage.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER, status);
   await mockPage.closeRightSidebarByClickingOutside();
 }

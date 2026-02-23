@@ -1,5 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY } from "../../specNames";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 
 test.describe("API Specification - Backward Compatibility", () => {
@@ -11,11 +11,11 @@ test.describe("API Specification - Backward Compatibility", () => {
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY,
       );
-      await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
+      await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY}'`, async () => {
         await configPage.gotoHomeAndOpenSidebar();
-        await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC);
+        await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY);
         await configPage.openSpecTab();
       });
 

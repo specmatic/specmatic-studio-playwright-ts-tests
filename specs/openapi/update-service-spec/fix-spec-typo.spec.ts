@@ -1,45 +1,8 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO } from "../../specNames";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 
 test.describe("Fix Spec Typo - Conditional Update", () => {
-  let specCopy: string;
-
-  test.beforeEach(async () => {
-    const fs = require("fs");
-    const nodePath = require("path");
-
-    const specsDir = nodePath.join(
-      process.cwd(),
-      "specmatic-studio-demo",
-      "specs",
-    );
-    const originalPath = nodePath.join(specsDir, PRODUCT_SEARCH_BFF_SPEC);
-
-    // Create an isolated copy to work on
-    specCopy = `${PRODUCT_SEARCH_BFF_SPEC.replace(".yaml", "")}-test-copy.yaml`;
-    const copyPath = nodePath.join(specsDir, specCopy);
-
-    fs.copyFileSync(originalPath, copyPath);
-    console.log(`[beforeEach] Created isolated copy: ${specCopy}`);
-  });
-
-  test.afterEach(async () => {
-    const fs = require("fs");
-    const nodePath = require("path");
-    const copyPath = nodePath.join(
-      process.cwd(),
-      "specmatic-studio-demo",
-      "specs",
-      specCopy,
-    );
-
-    if (fs.existsSync(copyPath)) {
-      fs.unlinkSync(copyPath);
-      console.log(`[afterEach] Cleaned up temporary spec: ${specCopy}`);
-    }
-  });
-
   test(
     "Fix /ordres typo to /orders when it exists",
     { tag: ["@spec", "@fixSpecTypo"] },
@@ -48,17 +11,17 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
         page,
         testInfo,
         eyes,
-        specCopy,
+        PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO,
       );
 
-      await configPage.navigateToSpec(specCopy);
+      await configPage.navigateToSpec(PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO);
       await test.step("Typo detected: Fixing /ordres to /orders", async () => {
         expect(configPage.specFileContains("  /ordres:")).toBeTruthy();
 
         await configPage.editSpecFile("  /ordres:", "  /orders:");
         await page.reload();
 
-        await configPage.navigateToSpec(specCopy);
+        await configPage.navigateToSpec(PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO);
         await configPage.verifyEndpointInContractTable("/orders");
       });
     },

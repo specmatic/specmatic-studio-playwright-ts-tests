@@ -1,6 +1,6 @@
 import { test, expect } from "../../../utils/eyesFixture";
 import {
-  PRODUCT_SEARCH_BFF_SPEC,
+  PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER,
   ORDER_BFF_SERVICE_URL,
 } from "../../specNames";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
@@ -15,14 +15,14 @@ test.describe("API Contract Testing - Filtering", () => {
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER,
       );
 
-      await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
+      await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER}'`, async () => {
         await contractPage.openContractTestTabForSpec(
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER,
         );
       });
 

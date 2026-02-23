@@ -1,6 +1,6 @@
 import { test, expect } from "../../../utils/eyesFixture";
 import {
-  PRODUCT_SEARCH_BFF_SPEC,
+  PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
   ORDER_BFF_SERVICE_URL,
 } from "../../specNames";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
@@ -19,13 +19,13 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
       );
-      await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC}'`, async () => {
+      await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED}'`, async () => {
         await contractPage.openContractTestTabForSpec(
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
         );
       });
       await test.step("Exclude single test", async () => {
@@ -33,7 +33,7 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
           page,
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
         );
 
         await contractPage.selectTestForExclusionOrInclusion(
@@ -67,7 +67,7 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
           page,
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
         );
         await contractPage.selectTestForExclusionOrInclusion(
           "/products",
@@ -99,7 +99,7 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
           page,
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
         );
 
         await contractPage.selectMultipleTests([
@@ -131,7 +131,7 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
           page,
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
         );
         await contractPage.selectMultipleTests([
           { path: "/products", method: "POST", response: "201" },

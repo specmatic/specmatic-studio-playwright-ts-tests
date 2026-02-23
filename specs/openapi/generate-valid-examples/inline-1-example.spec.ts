@@ -1,5 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_1 } from "../../specNames";
 import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import { Page, TestInfo } from "@playwright/test";
 
@@ -14,12 +14,12 @@ test.describe("Inline examples", () => {
           page,
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_1,
         );
         await examplePage.openExampleGenerationTabForSpec(
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC,
+          PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_1,
         );
 
         await examplePage.deleteGeneratedExamples();
@@ -30,7 +30,7 @@ test.describe("Inline examples", () => {
 
         await examplePage.inlineExamples();
 
-        const expectedUpdatedSpecName = PRODUCT_SEARCH_BFF_SPEC.replace(
+        const expectedUpdatedSpecName = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_1.replace(
           /.yaml$/,
           "-updated.yaml",
         );

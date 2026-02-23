@@ -1,11 +1,11 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_1_PATH } from "../../specNames";
 import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import { Page, TestInfo } from "@playwright/test";
 
 test.describe("Example Generation", () => {
   test(
-    `Generate examples for 'findAvailableProducts' endpoint of '${PRODUCT_SEARCH_BFF_SPEC}' for response codes 200, 400`,
+    `Generate examples for 'findAvailableProducts' endpoint of '${PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_1_PATH}' for response codes 200, 400`,
     { tag: ["@examples", "@singlePathGeneration"] },
     async ({ page, eyes }, testInfo) => {
       console.log(`Starting test: ${testInfo.title}`);
@@ -13,12 +13,12 @@ test.describe("Example Generation", () => {
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_1_PATH,
       );
       await examplePage.openExampleGenerationTabForSpec(
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC,
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_1_PATH,
       );
 
       await examplePage.deleteGeneratedExamples();
