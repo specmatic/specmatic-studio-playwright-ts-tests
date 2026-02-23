@@ -1,5 +1,6 @@
 import { expect, test } from "../../../utils/eyesFixture";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
 
 export async function validateSummaryAndTableCounts(
   contractPage: ApiContractPage,
@@ -74,4 +75,13 @@ export async function verifyAllContractRemarks(contractPage: ApiContractPage) {
   );
 
   await contractPage.verifyRowRemark("/health", "GET", "0", "Missing In Spec");
+}
+
+export async function verifyRightSidebarStatus(
+  contractPage: ApiContractPage,
+  status: "Running" | "Done" | "Failed",
+) {
+  await contractPage.toggleRightSidebar();
+  await contractPage.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC, status);
+  await contractPage.closeRightSidebarByClickingOutside();
 }

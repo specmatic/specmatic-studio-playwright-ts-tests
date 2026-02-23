@@ -52,6 +52,8 @@ export class MockServerPage extends BasePage {
   private readonly alertContainer: Locator;
   private readonly alertMessage: Locator;
 
+  private readonly sidebarProcessBar: (specName: string) => Locator;
+
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
@@ -137,6 +139,11 @@ export class MockServerPage extends BasePage {
 
     this.alertContainer = page.locator("#alert-container");
     this.alertMessage = this.alertContainer.locator(".alert-msg.error");
+
+    this.sidebarProcessBar = (specName: string) =>
+      page.locator(
+        `#accordion-group-MOCK .process-bar[data-spec-path*="${specName}"]`,
+      );
   }
 
   async openRunMockServerTab() {
@@ -503,5 +510,23 @@ export class MockServerPage extends BasePage {
       "invalid dialog dismissed",
       this.eyes,
     );
+  }
+
+  async verifySidebarStatus(
+    specName: string,
+    expectedStatus: "Running" | "Done" | "Failed",
+  ) {
+    await test.step(`Verify sidebar status is '${expectedStatus}' for ${specName}`, async () => {
+      const processRow = this.sidebarProcessBar(specName);
+      const statusText = processRow.locator(".status-text");
+
+      await expect(statusText).toBeVisible({ timeout: 10000 });
+      await expect(statusText).toHaveText(expectedStatus, { ignoreCase: true });
+
+      await takeAndAttachScreenshot(
+        this.page,
+        `sidebar-status-${expectedStatus}`,
+      );
+    });
   }
 }

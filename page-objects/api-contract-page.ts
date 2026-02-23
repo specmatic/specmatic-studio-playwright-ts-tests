@@ -2,6 +2,7 @@ import { test, Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
+import { PRODUCT_SEARCH_BFF_SPEC } from "../specs/specNames";
 
 export class ApiContractPage extends BasePage {
   private readonly openApiTabPage: OpenAPISpecTabPage;
@@ -66,6 +67,8 @@ export class ApiContractPage extends BasePage {
   private readonly tableResultSpansByType: (type: string) => Locator;
 
   private readonly specSection: Locator;
+
+  private readonly sidebarProcessBar: (specName: string) => Locator;
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -205,6 +208,11 @@ export class ApiContractPage extends BasePage {
 
     this.tableResultSpansByType = (type: string) =>
       this.resultCell.locator(`span[data-key="${type}"]`);
+
+    this.sidebarProcessBar = (specName: string) =>
+      page.locator(
+        `#accordion-group-TEST .process-bar[data-spec-path*="${specName}"]`,
+      );
   }
 
   //Function Beginning
@@ -246,6 +254,7 @@ export class ApiContractPage extends BasePage {
         await this._runButton.click();
 
         await takeAndAttachScreenshot(this.page, "clicked-run-contract-tests");
+
         await this.waitForTestCompletion();
       } catch (e) {
         await takeAndAttachScreenshot(this.page, "error-in-run-contract-tests");
@@ -297,6 +306,7 @@ export class ApiContractPage extends BasePage {
           message: "Waiting for contract tests to start",
         })
         .toBe("true");
+      await this.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC, "Running");
     } catch (e) {
       await takeAndAttachScreenshot(
         this.page,
@@ -726,5 +736,23 @@ export class ApiContractPage extends BasePage {
 
   get runButton(): Locator {
     return this._runButton;
+  }
+
+  async verifySidebarStatus(
+    specName: string,
+    expectedStatus: "Running" | "Done" | "Failed",
+  ) {
+    await test.step(`Verify sidebar status is '${expectedStatus}' for ${specName}`, async () => {
+      const processRow = this.sidebarProcessBar(specName);
+      const statusText = processRow.locator(".status-text");
+
+      await expect(statusText).toBeVisible({ timeout: 10000 });
+      await expect(statusText).toHaveText(expectedStatus, { ignoreCase: true });
+
+      await takeAndAttachScreenshot(
+        this.page,
+        `sidebar-status-${expectedStatus}`,
+      );
+    });
   }
 }

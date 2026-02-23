@@ -7,7 +7,7 @@ import { validateMockSummaryAndTableCounts } from "../helpers/run-mock-server-he
 test.describe("API Mocking", () => {
   test(
     "Run Mock Server for API Spec",
-    { tag: ["@apiMocking"] },
+    { tag: ["@apiMocking", "@runMockServer"] },
     async ({ page, eyes }, testInfo) => {
       const mockPage = new MockServerPage(
         page,
@@ -30,6 +30,7 @@ test.describe("API Mocking", () => {
       await test.step("Start Mock Server", async () => {
         await mockPage.fillMockPort(9999);
         await mockPage.startMockServer();
+        await verifyRightSidebarStatus(mockPage, "Running");
         mockUrl = await mockPage.getMockURL();
       });
 
@@ -133,4 +134,13 @@ async function verifyFilterOperations(mockPage: MockServerPage) {
       });
     }
   });
+}
+
+async function verifyRightSidebarStatus(
+  mockPage: MockServerPage,
+  status: "Running" | "Done" | "Failed",
+) {
+  await mockPage.toggleRightSidebar();
+  await mockPage.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC, status);
+  await mockPage.closeRightSidebarByClickingOutside();
 }

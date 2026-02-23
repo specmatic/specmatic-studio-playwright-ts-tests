@@ -16,6 +16,8 @@ export class BasePage {
   protected readonly eyes: any;
   protected readonly specTree?: Locator;
   protected readonly specName?: string;
+  private readonly rightSidebarToggle: Locator;
+  private readonly activityBadge: Locator;
 
   protected constructor(
     page: Page,
@@ -29,6 +31,8 @@ export class BasePage {
     this.specName = specName;
     const SideBarPageClass = require("./side-bar-page").SideBarPage;
     this.sideBar = new SideBarPageClass(page, testInfo, eyes);
+    this.rightSidebarToggle = page.locator("#right-sidebar-toggle");
+    this.activityBadge = page.locator("#activity-badge");
   }
 
   async gotoHomeAndOpenSidebar() {
@@ -103,5 +107,15 @@ export class BasePage {
       await takeAndAttachScreenshot(this.page, screenshotName, this.eyes);
       return tabLocator;
     });
+  }
+
+  async toggleRightSidebar() {
+    await this.rightSidebarToggle.click();
+    await this.page.waitForTimeout(500);
+  }
+
+  async closeRightSidebarByClickingOutside() {
+    await this.page.locator("body").click({ position: { x: 100, y: 100 } });
+    await this.page.waitForTimeout(500);
   }
 }

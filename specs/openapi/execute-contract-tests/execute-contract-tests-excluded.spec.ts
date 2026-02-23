@@ -7,6 +7,7 @@ import { ApiContractPage } from "../../../page-objects/api-contract-page";
 import {
   validateSummaryAndTableCounts,
   toggleFailedTestViewForTableandRaw,
+  verifyRightSidebarStatus,
 } from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract testing with test exclusion and inclusion", () => {
@@ -42,6 +43,7 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         );
         await contractPage.clickExcludeButton();
         await contractPage.clickRunContractTests();
+        await verifyRightSidebarStatus(contractPage, "Done");
 
         const tableHeaderTotals = await contractPage.getAllHeaderTotals();
 

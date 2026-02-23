@@ -7,6 +7,7 @@ import { ApiContractPage } from "../../../page-objects/api-contract-page";
 import {
   validateSummaryAndTableCounts,
   toggleFailedTestViewForTableandRaw,
+  verifyRightSidebarStatus,
 } from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract Testing", () => {
@@ -32,6 +33,8 @@ test.describe("API Contract Testing", () => {
       await test.step("Enter service URL and run contract tests", async () => {
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
+
+        await verifyRightSidebarStatus(contractPage, "Done");
       });
       await test.step("Verify test results and remarks for executed contract tests", async () => {
         await contractPage.verifyTestResults();

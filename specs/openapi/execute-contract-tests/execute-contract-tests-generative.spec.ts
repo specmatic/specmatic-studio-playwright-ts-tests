@@ -4,7 +4,10 @@ import {
   ORDER_BFF_SERVICE_URL,
 } from "../../specNames";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
-import { validateSummaryAndTableCounts } from "../helpers/execute-contract-tests-helper";
+import {
+  validateSummaryAndTableCounts,
+  verifyRightSidebarStatus,
+} from "../helpers/execute-contract-tests-helper";
 
 test.describe(
   "Generative Test Suite - Include/Exclude Combinations",
@@ -36,6 +39,7 @@ test.describe(
       await test.step("Enable Generative Mode and Run Tests", async () => {
         await contractPage.setGenerativeMode(true);
         await contractPage.clickRunContractTests();
+        await verifyRightSidebarStatus(contractPage, "Done");
 
         await validateSummaryAndTableCounts(contractPage, {
           success: 180,

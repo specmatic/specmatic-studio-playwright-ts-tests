@@ -4,6 +4,7 @@ import {
   ORDER_BFF_SERVICE_URL,
 } from "../../specNames";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
+import { verifyRightSidebarStatus } from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract Testing - Filtering", () => {
   test(
@@ -29,6 +30,7 @@ test.describe("API Contract Testing - Filtering", () => {
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.setGenerativeMode(false);
         await contractPage.clickRunContractTests();
+        await verifyRightSidebarStatus(contractPage, "Done");
       });
 
       await test.step("Apply and verify filters for test results", async () => {
