@@ -93,7 +93,6 @@ export class ExampleGenerationPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `clicked-generate-${endpoint}-${responseCode}`,
-      this.eyes,
     );
     await this.verifyTitleAndCloseDialog("Example Generated");
   }
@@ -517,7 +516,7 @@ export class ExampleGenerationPage extends BasePage {
   async inlineExamples() {
     await test.step(`Inline generated examples into the spec file`, async () => {
       console.log(`Inlining examples into the spec file`);
-      await takeAndAttachScreenshot(this.page, `before-inline`, this.eyes);
+      await takeAndAttachScreenshot(this.page, `before-inline`);
       const iframe = await this.waitForExamplesIFrame();
       const inlineBtn = iframe.locator(this.inlineBtnSelector);
       await inlineBtn.waitFor({ state: "visible", timeout: 4000 });
@@ -722,7 +721,6 @@ export class ExampleGenerationPage extends BasePage {
         takeAndAttachScreenshot(
           this.page,
           `edited-example-line-${edits.indexOf(edit) + 1}`,
-          this.eyes,
         );
 
         console.log(
@@ -856,7 +854,6 @@ export class ExampleGenerationPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         `verified-inlined-examples-${endpoint}-${responseCode}`,
-        this.eyes,
       );
 
       await this.showVisualEvidenceInEditor(
