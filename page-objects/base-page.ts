@@ -104,7 +104,7 @@ export class BasePage {
       } else {
         await tabLocator.click({ force: true });
       }
-      await takeAndAttachScreenshot(this.page, screenshotName, this.eyes);
+      await takeAndAttachScreenshot(this.page, screenshotName);
       return tabLocator;
     });
   }

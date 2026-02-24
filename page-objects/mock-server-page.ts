@@ -163,11 +163,7 @@ export class MockServerPage extends BasePage {
   async startMockServer() {
     const isRunning = await this.mockToggleButton.getAttribute("data-running");
     if (isRunning === "false") {
-      await takeAndAttachScreenshot(
-        this.page,
-        "starting-mock-server",
-        this.eyes,
-      );
+      await takeAndAttachScreenshot(this.page, "starting-mock-server");
       await this.mockToggleButton.click();
       await takeAndAttachScreenshot(
         this.page,
@@ -227,7 +223,7 @@ export class MockServerPage extends BasePage {
   async enterServiceBaseURL(serviceUrl: string) {
     await expect(this.serviceUrlInput).toBeVisible({ timeout: 4000 });
     await this.serviceUrlInput.fill(serviceUrl);
-    await takeAndAttachScreenshot(this.page, "service-url-entered", this.eyes);
+    await takeAndAttachScreenshot(this.page, "service-url-entered");
   }
 
   async getMockTableResults() {
