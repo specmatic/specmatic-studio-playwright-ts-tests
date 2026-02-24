@@ -85,10 +85,17 @@ jobs:
           show: "all"
       - name: Fail job if there are test failures
         run: |
-          FAILURES=$(xmllint --xpath 'string(//testsuite/@failures)' playwright-report-${{ inputs.artifact_name }}/junit-report.xml)
-          ERRORS=$(xmllint --xpath 'string(//testsuite/@errors)' playwright-report-${{ inputs.artifact_name }}/junit-report.xml)
+          REPORT_PATH="playwright-report-${{ inputs.artifact_name }}/junit-report.xml"
+          if [ ! -f "$REPORT_PATH" ]; then
+            echo "JUnit report not found at $REPORT_PATH"
+            exit 1
+          fi
+
+          # Sum across all suites so failures in any shard/spec file are counted.
+          FAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")
+          ERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")
           if [ "$FAILURES" != "0" ] || [ "$ERRORS" != "0" ]; then
-            echo "Test failures or errors detected: failures=$FAILURES, errors=$ERRORS"
+            echo "Test failures or errors detected across all suites: failures=$FAILURES, errors=$ERRORS"
             exit 1
           else
             echo "No test failures or errors detected."

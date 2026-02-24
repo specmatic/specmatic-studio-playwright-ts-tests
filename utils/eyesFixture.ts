@@ -10,9 +10,8 @@ if (ENV_NAME === "ci" && BRANCH_NAME && BRANCH_NAME !== "main") {
 }
 export { ENABLE_VISUAL };
 
-export { expect } from "@playwright/test";
-
-import { test as base } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
+export { expect };
 import path from "path";
 import fs from "fs";
 import {
@@ -22,6 +21,30 @@ import {
 } from "@applitools/eyes-playwright";
 import { Batch, Runner } from "./global-setup";
 import { captureBrowserConsole } from "./browser-console-logger";
+
+function getEyesValidationSummary(results: any) {
+  const raw = results?._result ?? results ?? {};
+  const mismatches = Number(raw.mismatches ?? 0);
+  const missing = Number(raw.missing ?? 0);
+  const unresolved = Number(raw.unresolved ?? 0);
+  const failed = Number(raw.failed ?? 0);
+  const steps = Number(raw.steps ?? 0);
+  const passed = Number(raw.passed ?? 0);
+  const isDifferent = Boolean(raw.isDifferent);
+  const isAborted = Boolean(raw.isAborted);
+
+  const passedByCounts =
+    mismatches === 0 && missing === 0 && unresolved === 0 && failed === 0;
+  const passedBySteps = steps > 0 && steps === passed;
+  const passedByFlags = !isDifferent && !isAborted;
+
+  return {
+    passed: passedByCounts || passedBySteps || passedByFlags,
+    message:
+      `mismatches=${mismatches}, missing=${missing}, unresolved=${unresolved}, failed=${failed}, ` +
+      `steps=${steps}, passed=${passed}, isDifferent=${isDifferent}, isAborted=${isAborted}`,
+  };
+}
 
 export const test = base.extend<{ eyes: Eyes }>({
   eyes: async ({ page }, use, testInfo) => {
@@ -110,6 +133,21 @@ export const test = base.extend<{ eyes: Eyes }>({
         `[Applitools] eyes.close() completed at: ${afterClose.toISOString()}`,
       );
       console.log(`Test '${testInfo.title}' - Eyes results:`, results);
+      if (!disableEyes) {
+        const validation = getEyesValidationSummary(results);
+        await test.step(
+          `Applitools validation: ${validation.passed ? "passed" : "failed"}`,
+          async () => {
+            console.log(
+              `[Applitools] '${testInfo.title}' validation summary: ${validation.message}`,
+            );
+            expect.soft(
+              validation.passed,
+              `[Applitools] '${testInfo.title}' did not pass visual criteria. ${validation.message}`,
+            ).toBeTruthy();
+          },
+        );
+      }
     } catch (error) {
       console.error("Error closing Eyes:", error);
       await eyes.abortIfNotClosed();
