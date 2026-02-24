@@ -131,7 +131,7 @@ export class ServiceSpecConfigPage extends BasePage {
 
       await this.page.keyboard.press("Control+f");
       await this.page.keyboard.type(text);
-      await this.page.waitForTimeout(1000); // Allow time for scroll/highlight
+      await this.page.keyboard.press("Enter");
 
       const safeFileName = text.replace(/[^a-zA-Z0-9]/g, "-");
       await takeAndAttachScreenshot(
@@ -273,10 +273,7 @@ export class ServiceSpecConfigPage extends BasePage {
       (!shouldExpand && isExpanded === "true")
     ) {
       await this.bccErrorToggle.click();
-      await takeAndAttachScreenshot(
-        this.page,
-        "expanding-error-setion",
-      );
+      await takeAndAttachScreenshot(this.page, "expanding-error-setion");
     }
 
     if (shouldExpand) {
