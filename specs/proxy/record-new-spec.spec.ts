@@ -5,7 +5,7 @@ import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
 test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy",
-    { tag: ["@proxy", "@recordNewAPISpec", "@recordNewSpec"] },
+    { tag: ["@proxy", "@recordNewAPISpec", "@recordNewSpec", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const studio = new SpecmaticStudioPage(page, testInfo, eyes);
 
@@ -33,7 +33,7 @@ test.describe("API Specification Management", () => {
 
   test(
     "Record New Spec",
-    { tag: ["@proxy", "@recordNewSpec"] },
+    { tag: ["@proxy", "@recordNewSpec", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const specPage = new SpecmaticStudioPage(page, testInfo, eyes);
 

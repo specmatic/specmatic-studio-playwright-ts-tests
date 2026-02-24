@@ -20,7 +20,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid service URL",
-    { tag: ["@test", "@negative", "@wrongServiceURL"] },
+    { tag: ["@test", "@negative", "@wrongServiceURL", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
         page,
@@ -48,7 +48,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid port",
-    { tag: ["@test", "@negative", "@wrongPort"] },
+    { tag: ["@test", "@negative", "@wrongPort", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
         page,

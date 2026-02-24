@@ -5,7 +5,7 @@ import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config
 test.describe("API Specification - Backward Compatibility", () => {
   test(
     "Save Invalid Spec and Assert Error",
-    { tag: ["@spec", "@bccTest", "@expected-failure"] },
+    { tag: ["@spec", "@bccTest", "@expected-failure", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       test.fail(
         true,

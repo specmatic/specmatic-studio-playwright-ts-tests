@@ -12,7 +12,7 @@ import {
 test.describe("API Contract testing with test exclusion and inclusion", () => {
   test(
     "Exclude specific tests and verify excluded tests are not executed",
-    { tag: ["@test", "@testExclusion"] },
+    { tag: ["@test", "@testExclusion", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
         page,

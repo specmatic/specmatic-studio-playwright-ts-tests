@@ -11,7 +11,7 @@ import {
 test.describe("Update Service Spec", () => {
   test(
     "Update Service Specification",
-    { tag: ["@spec", "@updateConfig"] },
+    { tag: ["@spec", "@updateConfig", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(
         page,

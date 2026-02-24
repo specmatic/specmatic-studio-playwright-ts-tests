@@ -9,7 +9,7 @@ import { verifyRightSidebarStatus } from "../helpers/execute-contract-tests-help
 test.describe("API Contract Testing - Filtering", () => {
   test(
     "Verify filtering by header",
-    { tag: ["@test", "@filterTest"] },
+    { tag: ["@test", "@filterTest", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
         page,

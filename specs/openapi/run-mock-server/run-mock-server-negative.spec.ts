@@ -17,7 +17,7 @@ test.describe("Mock Server - Negative Scenarios", () => {
 
   test(
     "Should show error when starting mock on an already used port",
-    { tag: ["@apiMocking", "@usedPort"] },
+    { tag: ["@apiMocking", "@usedPort", "@eyes"] },
     async () => {
       const usedPort = 9000;
 
@@ -44,7 +44,7 @@ test.describe("Mock Server - Negative Scenarios", () => {
 
   test(
     "Should show error when entering an invalid port number",
-    { tag: ["@apiMocking", "@invalidPort"] },
+    { tag: ["@apiMocking", "@invalidPort", "@eyes"] },
     async () => {
       const invalidPort = 99999;
 

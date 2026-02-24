@@ -7,7 +7,7 @@ const CONFIG_NAME = SPECMATIC_CONFIG;
 test.describe("Specmatic Config", () => {
   test(
     "See Specmatic Configuration",
-    { tag: ["@config", "@editConfig"] },
+    { tag: ["@config", "@editConfig", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(
         page,

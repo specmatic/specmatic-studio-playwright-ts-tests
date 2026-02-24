@@ -6,7 +6,7 @@ import { Page, TestInfo } from "@playwright/test";
 test.describe("Example Generation", () => {
   test(
     `Generate examples for 'findAvailableProducts' endpoint of '${PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_1_PATH}' for response codes 200, 400`,
-    { tag: ["@examples", "@singlePathGeneration"] },
+    { tag: ["@examples", "@singlePathGeneration", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       console.log(`Starting test: ${testInfo.title}`);
       const examplePage = new ExampleGenerationPage(

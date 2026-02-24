@@ -12,7 +12,7 @@ import {
 test.describe(
   "Generative Test Suite - Include/Exclude Combinations",
   {
-    tag: ["@test", "@generativeTests"],
+    tag: ["@test", "@generativeTests", "@eyes"],
   },
   () => {
     let contractPage: ApiContractPage;

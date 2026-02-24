@@ -36,7 +36,9 @@ test.describe("Validate generated spec after inlining GET examples", () => {
         [{ path: FIND_AVAILABLE_PRODUCTS, code: 200 }],
       );
 
-      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED);
+      const updatedSpecName = getUpdatedSpecName(
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED,
+      );
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined examples appear in the updated spec file", async () => {
@@ -82,7 +84,9 @@ test.describe("Validate generated spec after inlining GET examples", () => {
         ],
       );
 
-      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED);
+      const updatedSpecName = getUpdatedSpecName(
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED,
+      );
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined examples appear in the updated spec file", async () => {
@@ -124,6 +128,7 @@ test.describe("Validate generated spec after inlining GET examples", () => {
         "@examples",
         "@inlineExamples",
         "@validateInlinedExamplesForMultiplePaths",
+        "@eyes",
       ],
     },
     async ({ page, eyes }, testInfo) => {
@@ -148,7 +153,9 @@ test.describe("Validate generated spec after inlining GET examples", () => {
         ],
       );
 
-      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED);
+      const updatedSpecName = getUpdatedSpecName(
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED,
+      );
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined examples appear in the updated spec file", async () => {

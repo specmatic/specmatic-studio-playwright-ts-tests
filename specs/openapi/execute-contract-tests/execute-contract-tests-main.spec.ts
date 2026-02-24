@@ -13,7 +13,7 @@ import {
 test.describe("API Contract Testing", () => {
   test(
     "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings",
-    { tag: ["@test", "@runContractTests"] },
+    { tag: ["@test", "@runContractTests", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
         page,

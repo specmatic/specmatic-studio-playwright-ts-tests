@@ -28,6 +28,7 @@ export const test = base.extend<{ eyes: Eyes }>({
     const isCI = process.env.CI === "true" || process.env.ENV_NAME === "ci";
     const defaultTimeout = isCI ? 180000 : 120000;
     testInfo.setTimeout(defaultTimeout);
+    const hasEyesTag = testInfo.tags.includes("@eyes");
 
     // 🔹 Start capturing console + network failures
     const consoleCapture = captureBrowserConsole(page, testInfo);
@@ -65,7 +66,11 @@ export const test = base.extend<{ eyes: Eyes }>({
     config.setBatch(Batch);
     config.setAppName("Specmatic Studio");
     config.setForceFullPageScreenshot(true);
-    config.setIsDisabled(!ENABLE_VISUAL);
+    const disableEyes = !(ENABLE_VISUAL && hasEyesTag);
+    console.log(
+      `\t[Applitools] Test '${testInfo.title}' - Eyes enabled: ${!disableEyes} because ENABLE_VISUAL=${ENABLE_VISUAL} and hasEyesTag=${hasEyesTag}`,
+    );
+    config.setIsDisabled(disableEyes);
     config.setIgnoreDisplacements(true);
     config.setBranchName(BRANCH_NAME || "unknown");
     config.setEnvironmentName(ENV_NAME || "local");

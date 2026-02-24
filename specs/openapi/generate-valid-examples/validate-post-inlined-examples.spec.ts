@@ -113,6 +113,7 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         "@examples",
         "@inlineExamples",
         "@validateInlinedPostExamplesForMultiplePaths",
+        "@eyes",
       ],
     },
     async ({ page, eyes }, testInfo) => {

@@ -523,6 +523,7 @@ export class ExampleGenerationPage extends BasePage {
       await expect(inlineBtn).toBeVisible({ timeout: 4000 });
       await expect(inlineBtn).toBeEnabled({ timeout: 4000 });
       await inlineBtn.click();
+      await takeAndAttachScreenshot(this.page, `all-examples-inlined`, this.eyes);
     });
   }
 

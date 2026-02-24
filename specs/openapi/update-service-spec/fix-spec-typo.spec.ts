@@ -5,7 +5,7 @@ import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config
 test.describe("Fix Spec Typo - Conditional Update", () => {
   test(
     "Fix /ordres typo to /orders when it exists",
-    { tag: ["@spec", "@fixSpecTypo"] },
+    { tag: ["@spec", "@fixSpecTypo", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(
         page,

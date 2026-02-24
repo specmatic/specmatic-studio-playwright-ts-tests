@@ -7,7 +7,7 @@ import { validateMockSummaryAndTableCounts } from "../helpers/run-mock-server-he
 test.describe("API Mocking", () => {
   test(
     "Run Mock Server for API Spec",
-    { tag: ["@apiMocking", "@runMockServer"] },
+    { tag: ["@apiMocking", "@runMockServer", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const mockPage = new MockServerPage(
         page,
