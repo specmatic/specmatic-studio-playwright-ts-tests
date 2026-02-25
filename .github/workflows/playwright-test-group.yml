@@ -77,15 +77,14 @@ jobs:
           path: |
             playwright-report-${{ inputs.artifact_name }}
           retention-days: 30
-      - name: ${{ inputs.group_name }} Test Execution Summary
+      - name: Generate ${{ inputs.group_name }} Playwright Summary
         if: always()
-        uses: test-summary/action@v2
-        with:
-          paths: playwright-report-${{ inputs.artifact_name }}/junit-report.xml
-          show: "all"
-      - name: Decode escaped characters in ${{ inputs.group_name }} summary
+        run: npm run test:summary
+        continue-on-error: true
+      - name: Append ${{ inputs.group_name }} Playwright Summary To Job Summary
         if: always()
-        run: node utils/decode-html-entities-in-file.mjs "$GITHUB_STEP_SUMMARY"
+        run: node utils/append-summary-to-job-summary.mjs
+        continue-on-error: true
       - name: Fail job if there are test failures
         run: |
           REPORT_PATH="playwright-report-${{ inputs.artifact_name }}/junit-report.xml"
