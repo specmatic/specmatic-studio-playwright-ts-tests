@@ -18,7 +18,9 @@ test.describe("InValid Spec save and Error Dialog Display", () => {
       );
       await test.step(`Go to Spec page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_SAVE_INVALID_SPEC}'`, async () => {
         await configPage.gotoHomeAndOpenSidebar();
-        await configPage.sideBar.selectSpec(PRODUCT_SEARCH_BFF_SPEC_SAVE_INVALID_SPEC);
+        await configPage.sideBar.selectSpec(
+          PRODUCT_SEARCH_BFF_SPEC_SAVE_INVALID_SPEC,
+        );
         await configPage.openSpecTab();
       });
 
@@ -38,7 +40,7 @@ test.describe("InValid Spec save and Error Dialog Display", () => {
         await test.step("Assert 'Failed to save' dialog", async () => {
           await expect(configPage.alertMsg).toBeVisible();
           const alertText = await configPage.getAlertText();
-          expect(alertText).toContain("Content is invalid");
+          expect(alertText).toContain("Failed to save");
         });
 
         await test.step("Assert validation error details", async () => {

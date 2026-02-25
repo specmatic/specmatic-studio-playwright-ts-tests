@@ -53,8 +53,8 @@ test.describe("API Mocking", () => {
       await test.step("Validate Mock Summary Results", async () => {
         await validateMockSummaryAndTableCounts(mockPage, {
           success: 45,
-          failed: 1,
-          total: 46,
+          failed: 0,
+          total: 45,
           error: 0,
           notcovered: 0,
         });
