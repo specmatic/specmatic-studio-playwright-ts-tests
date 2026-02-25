@@ -13,9 +13,8 @@ import {
 test.describe("API Contract Testing", () => {
   test(
     "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings",
-    { tag: ["@test", "@runContractTests", "@eyes", "@expected-failure"] },
+    { tag: ["@test", "@runContractTests", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "Issue needs to be resolved for failing test in CI");
       const contractPage = new ApiContractPage(
         page,
         testInfo,

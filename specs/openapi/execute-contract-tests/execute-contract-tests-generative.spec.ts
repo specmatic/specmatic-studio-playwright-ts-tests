@@ -12,7 +12,7 @@ import {
 test.describe(
   "Generative Test Suite - Include/Exclude Combinations",
   {
-    tag: ["@test", "@generativeTests", "@eyes", "@expected-failure"],
+    tag: ["@test", "@generativeTests", "@eyes"],
   },
   () => {
     let contractPage: ApiContractPage;
@@ -36,7 +36,6 @@ test.describe(
     });
 
     test("Execute generative tests", async () => {
-      test.fail(true, "Issue needs to be resolved for failing test in CI");
       await test.step("Enable Generative Mode and Run Tests", async () => {
         await contractPage.setGenerativeMode(true);
         await contractPage.clickRunContractTests();
@@ -58,7 +57,6 @@ test.describe(
     });
 
     test("Execute generative tests with specific row excluded", async () => {
-      test.fail(true, "Issue needs to be resolved for failing test in CI");
       await test.step("Exclude specific test row", async () => {
         await contractPage.selectTestForExclusionOrInclusion(
           "/products",

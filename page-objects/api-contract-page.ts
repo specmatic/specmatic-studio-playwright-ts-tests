@@ -759,27 +759,22 @@ export class ApiContractPage extends BasePage {
   async handlePrereqErrorIfVisible() {
     console.log("Checking for prerequisite error bar...");
 
-    // Use the same scoped locators already proven to work in the negative test specs
     const summary = this.getPrereqErrorSummary();
     const message = this.getPrereqErrorMessage();
 
-    // Quick check — if the summary isn't visible, no prereq error is present
     const isVisible = await summary.isVisible({ timeout: 3000 }).catch(() => false);
     if (!isVisible) {
       console.log("No prerequisite error detected.");
       return;
     }
 
-    // Error bar IS visible — capture collapsed state first
     await takeAndAttachScreenshot(this.page, "contract-prereq-error-collapsed");
 
     const summaryText = await summary.innerText().catch(() => "<unreadable>");
     console.error(`Prerequisite error detected: ${summaryText}`);
 
-    // Click the summary paragraph to expand — same proven approach as verifyPrereqErrorVisible
     await summary.click();
 
-    // Wait for the detail message to appear after expansion
     await expect(message).toBeVisible({ timeout: 5000 }).catch(() => {
       console.warn("Detail message did not become visible after clicking summary");
     });
@@ -792,6 +787,6 @@ export class ApiContractPage extends BasePage {
       : "<not visible>";
 
     console.error(`Prerequisite error summary: ${summaryText}`);
-    console.error(`Prerequisite error detail:  ${detailedMessage}`);
+    console.error(`Prerequisite error detail:  ${detailedMessage}`);  
   }
 }

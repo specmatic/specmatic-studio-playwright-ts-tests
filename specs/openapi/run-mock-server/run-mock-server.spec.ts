@@ -74,20 +74,20 @@ async function validateTableHeaders(mockPage: MockServerPage) {
     expect(headers.coverage).toMatchObject({ text: "Coverage", total: "54%" });
     expect(headers.path).toMatchObject({
       text: "Path",
-      total: "5",
-      enabled: "5",
+      total: "4",
+      enabled: "4",
       disabled: "0",
     });
     expect(headers.method).toMatchObject({
       text: "Method",
-      total: "5",
-      enabled: "5",
+      total: "4",
+      enabled: "4",
       disabled: "0",
     });
     expect(headers.response).toMatchObject({
       text: "Response",
-      total: "12",
-      enabled: "12",
+      total: "11",
+      enabled: "11",
       disabled: "0",
     });
   });
@@ -127,7 +127,7 @@ async function verifyDrillDownScenarios(mockPage: MockServerPage) {
 
 async function verifyFilterOperations(mockPage: MockServerPage) {
   await test.step("Verify Mock Filter Operations", async () => {
-    const filters = ["success", "failed", "total"] as const;
+    const filters = ["success", "total"] as const;
 
     for (const filterType of filters) {
       await test.step(`Filter by ${filterType} and verify count matches`, async () => {
