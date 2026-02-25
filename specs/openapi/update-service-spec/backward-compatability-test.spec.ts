@@ -2,9 +2,9 @@ import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY } from "../../specNames";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 
-test.describe("API Specification - Backward Compatibility", () => {
+test.describe("API Specification", () => {
   test(
-    "Save Invalid Spec and Assert Error",
+    "Backward Compatibility Test",
     { tag: ["@spec", "@bccTest", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const configPage = new ServiceSpecConfigPage(
