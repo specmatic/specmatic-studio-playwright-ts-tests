@@ -83,6 +83,9 @@ jobs:
         with:
           paths: playwright-report-${{ inputs.artifact_name }}/junit-report.xml
           show: "all"
+      - name: Decode escaped characters in ${{ inputs.group_name }} summary
+        if: always()
+        run: node utils/decode-html-entities-in-file.mjs "$GITHUB_STEP_SUMMARY"
       - name: Fail job if there are test failures
         run: |
           REPORT_PATH="playwright-report-${{ inputs.artifact_name }}/junit-report.xml"
