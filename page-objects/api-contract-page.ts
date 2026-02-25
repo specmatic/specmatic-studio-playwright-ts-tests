@@ -765,11 +765,13 @@ export class ApiContractPage extends BasePage {
       console.error(`Prerequisite error detected: ${errorText}`);
 
       await test.step("Expand and capture prerequisite error", async () => {
+        await errorSummary.waitFor({ state: "visible" });
+
         const isOpen = await errorDetails.evaluate(
           (el: HTMLDetailsElement) => el.open,
         );
         if (!isOpen) {
-          await errorSummary.click();
+          await errorSummary.click({ force: true });
         }
 
         await takeAndAttachScreenshot(
