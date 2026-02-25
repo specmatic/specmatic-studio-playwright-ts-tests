@@ -665,6 +665,70 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+
+  async getCollapsedErrorSummaryCount(): Promise<number> {
+    return await test.step(`Get collapsed error summary count`, async () => {
+      console.log(`Getting collapsed error summary count`);
+      const iframe = await this.waitForExamplesIFrame();
+      const detailsDiv = iframe.locator("div.details");
+      await expect(detailsDiv).toBeVisible({ timeout: 5000 });
+
+      const classAttr = await detailsDiv.getAttribute("class");
+      if (classAttr?.includes("expanded")) {
+        console.log(`\tDetails div is already expanded — collapsing it first`);
+        await detailsDiv.click();
+        await expect(detailsDiv).not.toHaveClass(/expanded/, { timeout: 3000 });
+      }
+
+      const summaryP = detailsDiv.locator(".dropdown > p");
+      const summaryText = await summaryP.textContent();
+      console.log(`\tCollapsed summary text: "${summaryText}"`);
+
+      let errorCount = 0;
+      if (summaryText) {
+        const match = summaryText.match(/Example has (\d+) Error/);
+        if (match) {
+          errorCount = parseInt(match[1], 10);
+        }
+      }
+      await takeAndAttachScreenshot(this.page, `collapsed-error-summary-count-${errorCount}`);
+      return errorCount;
+    });
+  }
+
+
+  async getVisibleErrorBlockCount(): Promise<number> {
+    return await test.step(`Get visible error block count after expanding`, async () => {
+      console.log(`Getting visible error block count in expanded details`);
+      const iframe = await this.waitForExamplesIFrame();
+      const detailsDiv = iframe.locator("div.details");
+
+      const classAttr = await detailsDiv.getAttribute("class");
+      if (!classAttr?.includes("expanded")) {
+        await detailsDiv.click();
+        await expect(detailsDiv).toHaveClass(/expanded/, { timeout: 3000 });
+      }
+
+      const expandedDiv = iframe.locator("div.details.expanded");
+      await expect(expandedDiv).toBeVisible({ timeout: 5000 });
+
+      const pre = expandedDiv.locator("pre");
+      let preText = "";
+      if ((await pre.count()) > 0) {
+        preText = (await pre.first().textContent()) || "";
+      }
+
+      const errorBlocks = preText
+        .split("\n")
+        .filter((line) => line.trim().startsWith(">>"));
+      const count = errorBlocks.length;
+
+      console.log(`\tVisible error block count: ${count}`);
+      await takeAndAttachScreenshot(this.page, `expanded-error-block-count-${count}`);
+      return count;
+    });
+  }
+
   async saveEditedExample(expectedDialogTitle: string) {
     await test.step(`Save edited example`, async () => {
       console.log(`Saving edited example`);

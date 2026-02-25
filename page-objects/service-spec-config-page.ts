@@ -46,7 +46,7 @@ export class ServiceSpecConfigPage extends BasePage {
     this.openApiTabPage = new OpenAPISpecTabPage(this);
     this.editorLines = this.specSection.locator(".cm-content .cm-line");
     this.contractTestTab = page.locator('li.tab[data-type="test"]').first();
-    this.alertMsg = page.locator(".alert-msg.error");
+    this.alertMsg = page.locator(".alert-msg p");
     this.validationErrorBtn = page
       .locator(`[id*="${this.specName}"]`)
       .locator("button.bcc-errors-btn");
@@ -55,7 +55,7 @@ export class ServiceSpecConfigPage extends BasePage {
       .locator(".bcc-errors-content");
 
     this.bccTestButton = this.specSection.locator("#bcc-test-btn");
-    this.alertMessage = this.page.locator(".alert-msg.error");
+    this.alertMessage = this.page.locator(".alert-msg");
     this.alertDismissButton = this.alertMessage.locator("button");
     this.bccErrorToggle = this.specSection.locator(".bcc-errors-btn");
     this.bccErrorContent = this.specSection.locator(".bcc-errors-content");
@@ -236,7 +236,7 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async getAlertText() {
-    return await this.alertMsg.locator("pre").innerText();
+    return await this.alertMsg.innerText();
   }
 
   async expandAndGetValidationError() {

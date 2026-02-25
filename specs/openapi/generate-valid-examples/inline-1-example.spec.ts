@@ -1,7 +1,13 @@
 import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_1 } from "../../specNames";
 import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
-import { Page, TestInfo } from "@playwright/test";
+import {
+  filterExampleNames,
+  getUpdatedSpecName,
+  navigateToUpdatedSpec,
+} from "../helpers/inline-examples-helper";
+
+const FIND_AVAILABLE_PRODUCTS = "findAvailableProducts";
 
 test.describe("Inline examples", () => {
   test(
@@ -25,15 +31,14 @@ test.describe("Inline examples", () => {
         await examplePage.deleteGeneratedExamples();
 
         await examplePage.generateAndValidateForPaths([
-          { path: "findAvailableProducts", responseCodes: [200] },
+          { path: FIND_AVAILABLE_PRODUCTS, responseCodes: [200] },
         ]);
+
+        const generatedExampleNames = await examplePage.getGeneratedExampleNames();
 
         await examplePage.inlineExamples();
 
-        const expectedUpdatedSpecName = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_1.replace(
-          /.yaml$/,
-          "-updated.yaml",
-        );
+        const expectedUpdatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_1);
 
         const [actualTitle, actualMessage] =
           await examplePage.getDialogTitleAndMessage();
@@ -46,6 +51,22 @@ test.describe("Inline examples", () => {
           );
 
         await examplePage.closeInlineSuccessDialog("Examples Inline Complete");
+
+        await test.step("Verify inlined examples appear in the updated spec file", async () => {
+          const updatedSpecPage = await navigateToUpdatedSpec(
+            page,
+            testInfo,
+            eyes,
+            expectedUpdatedSpecName,
+          );
+
+          await updatedSpecPage.verifyInlinedExamplesInSpec(
+            filterExampleNames(generatedExampleNames, FIND_AVAILABLE_PRODUCTS, 200),
+            FIND_AVAILABLE_PRODUCTS,
+            "get",
+            200,
+          );
+        });
       } catch (err) {
         expect
           .soft(err, `Unexpected error in test: ${testInfo.title}`)

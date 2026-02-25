@@ -755,4 +755,35 @@ export class ApiContractPage extends BasePage {
       );
     });
   }
+
+  async handlePrereqErrorIfVisible() {
+    const errorDetails = this.page.locator("#prereq-error-alert");
+    const errorSummary = this.page.locator("#prereq-error-summary");
+
+    if (await errorDetails.isVisible({ timeout: 5000 }).catch(() => false)) {
+      const errorText = await errorSummary.innerText();
+      console.error(`Prerequisite error detected: ${errorText}`);
+
+      await test.step("Expand and capture prerequisite error", async () => {
+        const isOpen = await errorDetails.evaluate(
+          (el: HTMLDetailsElement) => el.open,
+        );
+        if (!isOpen) {
+          await errorSummary.click();
+        }
+
+        await takeAndAttachScreenshot(
+          this.page,
+          "contract-prereq-error-details",
+        );
+
+        const detailedMessage = await this.page
+          .locator("#prereq-error-message")
+          .innerText();
+        console.log(`Detailed Error: ${detailedMessage}`);
+      });
+
+      throw new Error(`Test blocked by prerequisite error: ${errorText}`);
+    }
+  }
 }

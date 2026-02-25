@@ -36,9 +36,16 @@ test.describe("Edit, save, validate and fix examples", () => {
 
       await validateAndSaveEditedExample(examplePage, page, eyes);
 
+      await makeTypeMismatchEditsInExample(examplePage);
+
+      await verifyCollapsedErrorSummary(examplePage, 2);
+
+      await verifyExpandedErrorBlocks(examplePage, 1);
+
       console.log(`Completed test: ${testInfo.title}`);
     },
   );
+
 });
 
 async function validateAndSaveEditedExample(
@@ -104,3 +111,46 @@ async function makeInvalidEditsInExample(examplePage: ExampleGenerationPage) {
     await examplePage.saveEditedExample("Invalid Example");
   });
 }
+
+async function makeTypeMismatchEditsInExample(
+  examplePage: ExampleGenerationPage,
+) {
+  await test.step(`Make type-mismatch edits — status and inventory as strings`, async () => {
+    const edits: Edit[] = [
+      {
+        current: { mode: "keyAndAnyNumber", key: "status" },
+        changeTo: '"status": "201",',
+      },
+      {
+        current: { mode: "keyAndAnyNumber", key: "inventory" },
+        changeTo: '"inventory": "10"',
+      },
+    ];
+    await examplePage.editExample(edits);
+    await examplePage.saveEditedExample("Invalid Example");
+  });
+}
+
+
+async function verifyCollapsedErrorSummary(
+  examplePage: ExampleGenerationPage,
+  expectedCount: number,
+) {
+  await test.step(`Verify collapsed error summary shows ${expectedCount} error(s)`, async () => {
+    const collapsedCount = await examplePage.getCollapsedErrorSummaryCount();
+    console.log(`Collapsed summary error count: ${collapsedCount}`);
+    expect.soft(collapsedCount).toBe(expectedCount);
+  });
+}
+
+async function verifyExpandedErrorBlocks(
+  examplePage: ExampleGenerationPage,
+  expectedBlockCount: number,
+) {
+  await test.step(`Expand error dropdown and verify ${expectedBlockCount} error block(s) visible`, async () => {
+    const visibleBlocks = await examplePage.getVisibleErrorBlockCount();
+    console.log(`Visible error blocks after expanding: ${visibleBlocks}`);
+    expect.soft(visibleBlocks).toBe(expectedBlockCount);
+  });
+}
+
