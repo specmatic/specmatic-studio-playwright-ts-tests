@@ -44,7 +44,7 @@ if (!process.env.LOGGED_IN_USER) {
 if (!process.env.MACHINE_NAME) {
   process.env.MACHINE_NAME = os.hostname();
 }
-export const Runner: EyesRunner = new VisualGridRunner({ testConcurrency: 5 });
+export const Runner: EyesRunner = new VisualGridRunner({ testConcurrency: 10 });
 export const Batch: BatchInfo = new BatchInfo({
   name: (() => {
     let base = process.env.GITHUB_WORKFLOW || "Specmatic Studio";
