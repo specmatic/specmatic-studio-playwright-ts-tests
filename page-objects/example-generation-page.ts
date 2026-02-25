@@ -93,7 +93,9 @@ export class ExampleGenerationPage extends BasePage {
     await expect(btn).toBeVisible({ timeout: 4000 });
     await btn.scrollIntoViewIfNeeded();
     await btn.click();
-    await this.page.waitForTimeout(1000);
+    await iframe.waitForSelector(`text=Example Generated`, {
+      timeout: 2000,
+    });
     await takeAndAttachScreenshot(
       this.page,
       `clicked-generate-${endpoint}-${responseCode}`,
@@ -540,7 +542,11 @@ export class ExampleGenerationPage extends BasePage {
       await expect(inlineBtn).toBeVisible({ timeout: 4000 });
       await expect(inlineBtn).toBeEnabled({ timeout: 4000 });
       await inlineBtn.click();
-      await takeAndAttachScreenshot(this.page, `all-examples-inlined`, this.eyes);
+      await takeAndAttachScreenshot(
+        this.page,
+        `all-examples-inlined`,
+        this.eyes,
+      );
     });
   }
 
@@ -576,11 +582,7 @@ export class ExampleGenerationPage extends BasePage {
           console.log(
             `Generating and validating example for path: '/${endpoint.path}' and response code: '${code}'`,
           );
-          await this.generateExample(
-            endpoint.path,
-            code,
-            withVisualValidation,
-          );
+          await this.generateExample(endpoint.path, code, withVisualValidation);
           await this.verifyGeneratedExample(
             endpoint.path,
             code,
@@ -591,11 +593,7 @@ export class ExampleGenerationPage extends BasePage {
             code,
             withVisualValidation,
           );
-          await this.validateExample(
-            endpoint.path,
-            code,
-            withVisualValidation,
-          );
+          await this.validateExample(endpoint.path, code, withVisualValidation);
         });
       }
     }
@@ -701,7 +699,6 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-
   async getCollapsedErrorSummaryCount(): Promise<number> {
     return await test.step(`Get collapsed error summary count`, async () => {
       console.log(`Getting collapsed error summary count`);
@@ -727,11 +724,13 @@ export class ExampleGenerationPage extends BasePage {
           errorCount = parseInt(match[1], 10);
         }
       }
-      await takeAndAttachScreenshot(this.page, `collapsed-error-summary-count-${errorCount}`);
+      await takeAndAttachScreenshot(
+        this.page,
+        `collapsed-error-summary-count-${errorCount}`,
+      );
       return errorCount;
     });
   }
-
 
   async getVisibleErrorBlockCount(): Promise<number> {
     return await test.step(`Get visible error block count after expanding`, async () => {
@@ -760,7 +759,10 @@ export class ExampleGenerationPage extends BasePage {
       const count = errorBlocks.length;
 
       console.log(`\tVisible error block count: ${count}`);
-      await takeAndAttachScreenshot(this.page, `expanded-error-block-count-${count}`);
+      await takeAndAttachScreenshot(
+        this.page,
+        `expanded-error-block-count-${count}`,
+      );
       return count;
     });
   }
@@ -884,11 +886,7 @@ export class ExampleGenerationPage extends BasePage {
         `\tVerifying generated example for path: '/${path}' and response code: '${code}'`,
       );
       await this.verifyGenerateButtonNotVisible(path, code);
-      await this.verifyExampleFileNameVisible(
-        path,
-        code,
-        withVisualValidation,
-      );
+      await this.verifyExampleFileNameVisible(path, code, withVisualValidation);
       await this.verifyValidateButtonVisible(path, code, withVisualValidation);
     });
   }
