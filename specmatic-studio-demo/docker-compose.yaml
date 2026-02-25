@@ -10,6 +10,7 @@ services:
       - "9090:9090"
     volumes:
       - ./specs:/usr/src/app
+      - ~/.specmatic:/root/.specmatic
     environment:
       STUDIO_MAX_TEST_COUNT: 1000
       KAFKA_PROPERTIES: |
