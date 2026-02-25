@@ -55,6 +55,10 @@ function normalizeSummaryText(input) {
   return decodeHtmlEntities(stripAnsi(input));
 }
 
+function isFailureLikeStatus(status) {
+  return status === "failed" || status === "timedOut" || status === "interrupted";
+}
+
 function pickLastScreenshotPath(result) {
   if (!result.attachments) {
     return null;
@@ -143,6 +147,7 @@ async function main() {
   let total = 0,
     passed = 0,
     failed = 0,
+    errored = 0,
     skipped = 0;
   function collectStats(suites) {
     for (const suite of suites) {
@@ -151,14 +156,21 @@ async function main() {
           for (const test of spec.tests || []) {
             total++;
             let foundFailed = false,
+              foundErrored = false,
               foundPassed = false,
               foundSkipped = false;
             for (const result of test.results || []) {
               if (result.status === "failed") foundFailed = true;
+              else if (
+                result.status === "timedOut" ||
+                result.status === "interrupted"
+              )
+                foundErrored = true;
               else if (result.status === "passed") foundPassed = true;
               else if (result.status === "skipped") foundSkipped = true;
             }
             if (foundFailed) failed++;
+            else if (foundErrored) errored++;
             else if (foundPassed) passed++;
             else if (foundSkipped) skipped++;
           }
@@ -178,17 +190,36 @@ async function main() {
         if (suite.specs) {
           for (const spec of suite.specs) {
             for (const test of spec.tests || []) {
-              for (const result of test.results || []) {
-                if (result.status === "failed") {
-                  const screenshot = pickLastScreenshotPath(result);
-                  const error = extractFailureText(result);
-                  failed.push({
-                    name: [...titles, spec.title].join(" › "),
-                    screenshot,
-                    error,
-                  });
+              const failingResults = (test.results || []).filter((result) =>
+                isFailureLikeStatus(result.status),
+              );
+              if (failingResults.length === 0) {
+                continue;
+              }
+
+              const lastFailingResult = failingResults[failingResults.length - 1];
+              let screenshot = pickLastScreenshotPath(lastFailingResult);
+              if (!screenshot) {
+                for (let i = failingResults.length - 1; i >= 0; i--) {
+                  screenshot = pickLastScreenshotPath(failingResults[i]);
+                  if (screenshot) break;
                 }
               }
+
+              let error = extractFailureText(lastFailingResult);
+              if (!error) {
+                for (let i = failingResults.length - 1; i >= 0; i--) {
+                  error = extractFailureText(failingResults[i]);
+                  if (error) break;
+                }
+              }
+
+              failed.push({
+                name: [...titles, spec.title].join(" › "),
+                screenshot,
+                error,
+                status: lastFailingResult.status,
+              });
             }
           }
         }
@@ -211,13 +242,14 @@ async function main() {
       name: normalizeSummaryText(rest.join(" › ")),
       screenshot: test.screenshot,
       error: normalizeSummaryText(test.error),
+      status: test.status,
     });
   }
 
   // HTML output for better formatting and expand/collapse
   // Markdown output with collapsible sections and embedded screenshots
   let summary = `# Playwright Test Results Summary\n\n`;
-  summary += `| Total | Passed | Failed | Skipped |\n|-------|--------|--------|---------|\n| ${total} | ${passed} | ${failed} | ${skipped} |\n\n`;
+  summary += `| Total | Passed | Failed | Errors | Skipped |\n|-------|--------|--------|--------|---------|\n| ${total} | ${passed} | ${failed} | ${errored} | ${skipped} |\n\n`;
 
   if (failedTests.length === 0) {
     summary += `## No failed tests!\n`;
@@ -226,6 +258,7 @@ async function main() {
       summary += `<details><summary><strong>${specFile}</strong></summary>\n`;
       for (const test of grouped[specFile]) {
         summary += `\n**${test.name}**\n`;
+        summary += `_Status: ${test.status}_\n`;
         if (test.screenshot) {
           if (artifactUrl) {
             summary += `[Screenshot Artifact](${artifactUrl})\n`;
