@@ -68,7 +68,11 @@ export class ExampleGenerationPage extends BasePage {
     return this.openApiTabPage.openExampleGenerationTab();
   }
 
-  private async clickGenerateButton(endpoint: string, responseCode: number) {
+  private async clickGenerateButton(
+    endpoint: string,
+    responseCode: number,
+    withVisualValidation = true,
+  ) {
     // Use XPath inside the iframe to find the visible Generate button for the correct endpoint row
     const iframe = await this.waitForExamplesIFrame();
     const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[(@aria-label="Generate" or @aria-label="Generate More") and not(contains(@class, 'hidden')) and not(contains(@style, 'display: none'))]`;
@@ -93,6 +97,7 @@ export class ExampleGenerationPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `clicked-generate-${endpoint}-${responseCode}`,
+      withVisualValidation ? this.eyes : undefined,
     );
     await this.verifyTitleAndCloseDialog("Example Generated");
   }
@@ -141,6 +146,7 @@ export class ExampleGenerationPage extends BasePage {
   private async verifyExampleFileNameVisible(
     endpoint: string,
     responseCode: number,
+    withVisualValidation = true,
   ) {
     const iframe = await this.waitForExamplesIFrame();
     const rowXpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]`;
@@ -157,17 +163,20 @@ export class ExampleGenerationPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `example-file-name-visible-${endpoint}-${responseCode}`,
+      withVisualValidation ? this.eyes : undefined,
     );
   }
 
   private async verifyValidateButtonVisible(
     endpoint: string,
     responseCode: number,
+    withVisualValidation = true,
   ) {
     const iframe = await this.waitForExamplesIFrame();
     await takeAndAttachScreenshot(
       this.page,
       `validate-button-visible-${endpoint}-${responseCode}`,
+      withVisualValidation ? this.eyes : undefined,
     );
     const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[@aria-label="Validate"]`;
     const validateBtn = iframe.locator(xpath);
@@ -567,8 +576,16 @@ export class ExampleGenerationPage extends BasePage {
           console.log(
             `Generating and validating example for path: '/${endpoint.path}' and response code: '${code}'`,
           );
-          await this.generateExample(endpoint.path, code);
-          await this.verifyGeneratedExample(endpoint.path, code);
+          await this.generateExample(
+            endpoint.path,
+            code,
+            withVisualValidation,
+          );
+          await this.verifyGeneratedExample(
+            endpoint.path,
+            code,
+            withVisualValidation,
+          );
           await this.viewExampleDetailsAndReturn(
             endpoint.path,
             code,
@@ -815,12 +832,16 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  private async generateExample(path: string, code: number) {
+  private async generateExample(
+    path: string,
+    code: number,
+    withVisualValidation = true,
+  ) {
     await test.step(`Generate example`, async () => {
       console.log(
         `\tGenerating example for path: '/${path}' and response code: '${code}'`,
       );
-      await this.clickGenerateButton(path, code);
+      await this.clickGenerateButton(path, code, withVisualValidation);
     });
   }
 
@@ -853,14 +874,22 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  private async verifyGeneratedExample(path: string, code: number) {
+  private async verifyGeneratedExample(
+    path: string,
+    code: number,
+    withVisualValidation = true,
+  ) {
     await test.step(`Verify example is generated`, async () => {
       console.log(
         `\tVerifying generated example for path: '/${path}' and response code: '${code}'`,
       );
       await this.verifyGenerateButtonNotVisible(path, code);
-      await this.verifyExampleFileNameVisible(path, code);
-      await this.verifyValidateButtonVisible(path, code);
+      await this.verifyExampleFileNameVisible(
+        path,
+        code,
+        withVisualValidation,
+      );
+      await this.verifyValidateButtonVisible(path, code, withVisualValidation);
     });
   }
 
