@@ -174,7 +174,11 @@ export class ExampleGenerationPage extends BasePage {
     await expect(validateBtn).toBeVisible({ timeout: 4000 });
   }
 
-  private async clickViewDetails(endpoint: string, responseCode: number) {
+  private async clickViewDetails(
+    endpoint: string,
+    responseCode: number,
+    withVisualValidation = true,
+  ) {
     const iframe = await this.waitForExamplesIFrame();
     const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//span[contains(text(), 'View Details')]`;
     const viewDetailsSpan = iframe.locator(xpath);
@@ -184,7 +188,7 @@ export class ExampleGenerationPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `view-details-${endpoint}-${responseCode}`,
-      this.eyes,
+      withVisualValidation ? this.eyes : undefined,
     );
   }
 
@@ -200,7 +204,11 @@ export class ExampleGenerationPage extends BasePage {
     );
   }
 
-  private async clickValidateButton(endpoint: string, responseCode: number) {
+  private async clickValidateButton(
+    endpoint: string,
+    responseCode: number,
+    withVisualValidation = true,
+  ) {
     const iframe = await this.waitForExamplesIFrame();
     const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[@aria-label="Validate"]`;
     const validateBtn = iframe.locator(xpath);
@@ -209,7 +217,7 @@ export class ExampleGenerationPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `clicked-validate-${endpoint}-${responseCode}`,
-      this.eyes,
+      withVisualValidation ? this.eyes : undefined,
     );
     await this.verifyTitleAndCloseDialog("Valid Example");
   }
@@ -275,7 +283,7 @@ export class ExampleGenerationPage extends BasePage {
     return dialogMessage;
   }
 
-  private async saveAndValidate() {
+  private async saveAndValidate(withVisualValidation = true) {
     await test.step(`Click 'Save & Validate' button`, async () => {
       const iframe = await this.waitForExamplesIFrame();
       const saveValidateBtn = iframe.locator("button#bulk-validate");
@@ -287,7 +295,7 @@ export class ExampleGenerationPage extends BasePage {
       await takeAndAttachScreenshot(
         this.page,
         "clicked-save-and-validate",
-        this.eyes,
+        withVisualValidation ? this.eyes : undefined,
       );
     });
   }
@@ -550,16 +558,27 @@ export class ExampleGenerationPage extends BasePage {
   async generateAndValidateForPaths(
     endpoints: { path: string; responseCodes: number[] }[],
   ) {
+    let isFirstIteration = true;
     for (const endpoint of endpoints) {
       for (const code of endpoint.responseCodes) {
+        const withVisualValidation = isFirstIteration;
+        isFirstIteration = false;
         await test.step(`Generate example and validate for path: '/${endpoint.path}' and response code: '${code}'`, async () => {
           console.log(
             `Generating and validating example for path: '/${endpoint.path}' and response code: '${code}'`,
           );
           await this.generateExample(endpoint.path, code);
           await this.verifyGeneratedExample(endpoint.path, code);
-          await this.viewExampleDetailsAndReturn(endpoint.path, code);
-          await this.validateExample(endpoint.path, code);
+          await this.viewExampleDetailsAndReturn(
+            endpoint.path,
+            code,
+            withVisualValidation,
+          );
+          await this.validateExample(
+            endpoint.path,
+            code,
+            withVisualValidation,
+          );
         });
       }
     }
@@ -805,22 +824,30 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  private async validateExample(path: string, code: number) {
+  private async validateExample(
+    path: string,
+    code: number,
+    withVisualValidation = true,
+  ) {
     await test.step(`Validate generated example`, async () => {
       console.log(
         `\tValidating example for path: '/${path}' and response code: '${code}'`,
       );
-      await this.clickValidateButton(path, code);
+      await this.clickValidateButton(path, code, withVisualValidation);
     });
   }
 
-  private async viewExampleDetailsAndReturn(path: string, code: number) {
+  private async viewExampleDetailsAndReturn(
+    path: string,
+    code: number,
+    withVisualValidation = true,
+  ) {
     await test.step(`View details and go back`, async () => {
       console.log(
         `\tViewing details for example of path: '/${path}' and response code: '${code}'`,
       );
-      await this.clickViewDetails(path, code);
-      await this.saveAndValidate();
+      await this.clickViewDetails(path, code, withVisualValidation);
+      await this.saveAndValidate(withVisualValidation);
       await this.verifyTitleAndCloseDialog("Valid Example");
       await this.clickGoBack(path, code);
     });
