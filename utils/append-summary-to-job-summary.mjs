@@ -1,15 +1,19 @@
-# This script reads the failed-tests-summary.md and appends its content to the GitHub Actions job summary using workflow commands.
-import fs from 'fs';
+// Reads failed-tests-summary.md and appends it to the GitHub Actions job summary.
+import fs from "fs";
 
-const summaryPath = 'playwright-report/failed-tests-summary.md';
+const summaryPath = "playwright-report/failed-tests-summary.md";
+const jobSummaryPath = process.env.GITHUB_STEP_SUMMARY;
 
-if (fs.existsSync(summaryPath)) {
-  const summary = fs.readFileSync(summaryPath, 'utf-8');
-  // Write to GitHub Actions summary (job summary)
-  // See: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary
-  fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary + '\n');
-  console.log('Summary appended to GitHub Actions job summary.');
-} else {
-  console.error('Summary file not found:', summaryPath);
+if (!jobSummaryPath) {
+  console.error("GITHUB_STEP_SUMMARY is not set.");
   process.exit(1);
 }
+
+if (!fs.existsSync(summaryPath)) {
+  console.error("Summary file not found:", summaryPath);
+  process.exit(1);
+}
+
+const summary = fs.readFileSync(summaryPath, "utf-8");
+fs.appendFileSync(jobSummaryPath, summary + "\n");
+console.log("Summary appended to GitHub Actions job summary.");
