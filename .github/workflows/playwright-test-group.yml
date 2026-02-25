@@ -72,13 +72,17 @@ jobs:
       - name: Upload Playwright report and Docker logs for ${{ inputs.group_name }} tests
         if: always()
         uses: actions/upload-artifact@v4
+        id: upload_test_artifacts
         with:
           name: test-artifacts-${{ inputs.artifact_name }}-tests-run-${{ github.run_number }}
           path: |
             playwright-report-${{ inputs.artifact_name }}
+            test-results
           retention-days: 30
       - name: Generate ${{ inputs.group_name }} Playwright Summary
         if: always()
+        env:
+          TEST_ARTIFACT_URL: ${{ steps.upload_test_artifacts.outputs.artifact-url }}
         run: npm run test:summary
         continue-on-error: true
       - name: Append ${{ inputs.group_name }} Playwright Summary To Job Summary

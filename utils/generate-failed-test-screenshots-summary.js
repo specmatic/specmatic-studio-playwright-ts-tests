@@ -14,6 +14,7 @@ const outputSummaryPath = path.join(
   __dirname,
   "../playwright-report/failed-tests-summary.md",
 );
+const artifactUrl = process.env.TEST_ARTIFACT_URL || "";
 
 function decodeHtmlEntities(input) {
   if (!input) {
@@ -226,7 +227,10 @@ async function main() {
       for (const test of grouped[specFile]) {
         summary += `\n**${test.name}**\n`;
         if (test.screenshot) {
-          summary += `![Screenshot](${test.screenshot})\n`;
+          if (artifactUrl) {
+            summary += `[Screenshot Artifact](${artifactUrl})\n`;
+          }
+          summary += `\`Screenshot path: ${test.screenshot}\`\n`;
         } else {
           summary += `_No screenshot found_\n`;
         }
