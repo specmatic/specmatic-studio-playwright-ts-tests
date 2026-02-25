@@ -85,6 +85,30 @@ jobs:
         if: always()
         run: node utils/append-summary-to-job-summary.mjs
         continue-on-error: true
+      - name: Append ${{ inputs.group_name }} JUnit Counts To Job Summary
+        if: always()
+        run: |
+          REPORT_PATH="playwright-report-${{ inputs.artifact_name }}/junit-report.xml"
+          if [ -f "$REPORT_PATH" ]; then
+            TESTS=$(xmllint --xpath 'string(sum(//testsuite/@tests))' "$REPORT_PATH")
+            FAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")
+            ERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")
+            SKIPPED=$(xmllint --xpath 'string(sum(//testsuite/@skipped))' "$REPORT_PATH")
+            PASSED=$((TESTS - FAILURES - ERRORS - SKIPPED))
+
+            {
+              echo ""
+              echo "## ${{ inputs.group_name }} JUnit Summary"
+              echo ""
+              echo "| Total | Passed | Failed | Errors | Skipped |"
+              echo "|-------|--------|--------|--------|---------|"
+              echo "| $TESTS | $PASSED | $FAILURES | $ERRORS | $SKIPPED |"
+              echo ""
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "JUnit report not found at $REPORT_PATH; skipping fallback summary append."
+          fi
+        continue-on-error: true
       - name: Fail job if there are test failures
         run: |
           REPORT_PATH="playwright-report-${{ inputs.artifact_name }}/junit-report.xml"

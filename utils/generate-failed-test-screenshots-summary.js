@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // generate-failed-test-screenshots-summary.js
-// This script parses Playwright's junit-report.xml and generates a Markdown summary with links to the last screenshot for each failed test.
+// This script parses Playwright JSON report and generates a Markdown summary
+// with pass/fail counts plus failure details and screenshots.
 
 const fs = require("fs");
 const path = require("path");
-const xml2js = require("xml2js");
 
 const testResultsPath = path.join(
   __dirname,
@@ -15,49 +15,120 @@ const outputSummaryPath = path.join(
   "../playwright-report/failed-tests-summary.md",
 );
 
-function getFailedTestsWithScreenshots() {
-  if (!fs.existsSync(testResultsPath)) {
-    console.error("Playwright JSON report not found:", testResultsPath);
-    process.exit(1);
+function decodeHtmlEntities(input) {
+  if (!input) {
+    return "";
   }
-  const report = JSON.parse(fs.readFileSync(testResultsPath, "utf-8"));
-  const failed = [];
-  function walkSuites(suites, parentTitles = []) {
-    for (const suite of suites) {
-      const titles = [...parentTitles, suite.title];
-      if (suite.specs) {
-        for (const spec of suite.specs) {
-          for (const test of spec.tests || []) {
-            for (const result of test.results || []) {
-              if (result.status === "failed") {
-                // Find the last screenshot attachment, if any
-                let screenshot = null;
-                if (result.attachments) {
-                  // Prefer the last PNG attachment with a path
-                  const pngs = result.attachments.filter(
-                    (a) => a.contentType === "image/png" && a.path,
-                  );
-                  if (pngs.length > 0) {
-                    screenshot = path.relative(
-                      path.join(__dirname, ".."),
-                      pngs[pngs.length - 1].path,
-                    );
-                  }
-                }
-                failed.push({
-                  name: [...titles, spec.title].join(" › "),
-                  screenshot,
-                });
-              }
-            }
-          }
-        }
-      }
-      if (suite.suites) walkSuites(suite.suites, titles);
+
+  const named = {
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: '"',
+    apos: "'",
+    nbsp: " ",
+  };
+
+  return input.replace(/&(#x[0-9a-fA-F]+|#\d+|[a-zA-Z]+);/g, (match, entity) => {
+    if (entity.startsWith("#x") || entity.startsWith("#X")) {
+      const codePoint = parseInt(entity.slice(2), 16);
+      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : match;
+    }
+    if (entity.startsWith("#")) {
+      const codePoint = parseInt(entity.slice(1), 10);
+      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : match;
+    }
+    return named[entity] ?? match;
+  });
+}
+
+function stripAnsi(input) {
+  if (!input) {
+    return "";
+  }
+  // Removes terminal color/control escape sequences that can show up in logs.
+  return input.replace(/\u001b\[[0-9;]*m/g, "");
+}
+
+function normalizeSummaryText(input) {
+  return decodeHtmlEntities(stripAnsi(input));
+}
+
+function pickLastScreenshotPath(result) {
+  if (!result.attachments) {
+    return null;
+  }
+  const pngs = result.attachments.filter(
+    (a) => a && a.contentType === "image/png" && a.path,
+  );
+  if (pngs.length === 0) {
+    return null;
+  }
+  return path.relative(path.join(__dirname, ".."), pngs[pngs.length - 1].path);
+}
+
+function extractTextAttachment(attachment) {
+  if (!attachment || attachment.body == null) {
+    return "";
+  }
+
+  if (typeof attachment.body === "string") {
+    return attachment.body;
+  }
+
+  if (Array.isArray(attachment.body)) {
+    return Buffer.from(attachment.body).toString("utf8");
+  }
+
+  return "";
+}
+
+function extractFailureText(result) {
+  if (!result) {
+    return "";
+  }
+
+  if (result.error) {
+    if (result.error.message) {
+      return result.error.message;
+    }
+    if (result.error.stack) {
+      return result.error.stack;
     }
   }
-  walkSuites(report.suites || []);
-  return failed;
+
+  if (Array.isArray(result.errors) && result.errors.length > 0) {
+    const normalized = result.errors
+      .map((e) => {
+        if (!e) return "";
+        if (typeof e === "string") return e;
+        return e.message || e.stack || "";
+      })
+      .filter(Boolean)
+      .join("\n\n");
+    if (normalized) {
+      return normalized;
+    }
+  }
+
+  if (Array.isArray(result.attachments)) {
+    const textLogs = result.attachments
+      .filter(
+        (a) =>
+          a &&
+          (a.name === "stderr" ||
+            a.name === "stdout" ||
+            a.contentType === "text/plain"),
+      )
+      .map(extractTextAttachment)
+      .filter(Boolean)
+      .join("\n\n");
+    if (textLogs) {
+      return textLogs;
+    }
+  }
+
+  return "";
 }
 
 async function main() {
@@ -108,24 +179,8 @@ async function main() {
             for (const test of spec.tests || []) {
               for (const result of test.results || []) {
                 if (result.status === "failed") {
-                  // Find the last screenshot attachment, if any
-                  let screenshot = null;
-                  if (result.attachments) {
-                    const pngs = result.attachments.filter(
-                      (a) => a.contentType === "image/png" && a.path,
-                    );
-                    if (pngs.length > 0) {
-                      screenshot = path.relative(
-                        path.join(__dirname, ".."),
-                        pngs[pngs.length - 1].path,
-                      );
-                    }
-                  }
-                  // Get error message
-                  let error =
-                    result.error && result.error.message
-                      ? result.error.message
-                      : "";
+                  const screenshot = pickLastScreenshotPath(result);
+                  const error = extractFailureText(result);
                   failed.push({
                     name: [...titles, spec.title].join(" › "),
                     screenshot,
@@ -149,11 +204,12 @@ async function main() {
   const grouped = {};
   for (const test of failedTests) {
     const [specFile, ...rest] = test.name.split(" › ");
-    if (!grouped[specFile]) grouped[specFile] = [];
-    grouped[specFile].push({
-      name: rest.join(" › "),
+    const normalizedSpecFile = normalizeSummaryText(specFile);
+    if (!grouped[normalizedSpecFile]) grouped[normalizedSpecFile] = [];
+    grouped[normalizedSpecFile].push({
+      name: normalizeSummaryText(rest.join(" › ")),
       screenshot: test.screenshot,
-      error: test.error,
+      error: normalizeSummaryText(test.error),
     });
   }
 
@@ -178,14 +234,14 @@ async function main() {
           const errorLines = test.error.split("\n");
           const previewLines = errorLines.slice(0, 8).join("\n");
           summary += `**Error (preview):**\n`;
-          summary += "``\n" + previewLines + "\n";
+          summary += "```\n" + previewLines + "\n";
           if (errorLines.length > 8) {
             summary += "...\n";
           }
-          summary += "``\n";
+          summary += "```\n";
           if (errorLines.length > 8) {
             summary += `<details><summary>Full Error</summary>\n`;
-            summary += "``\n" + test.error + "\n``\n";
+            summary += "```\n" + test.error + "\n```\n";
             summary += `</details>\n`;
           }
         } else {
