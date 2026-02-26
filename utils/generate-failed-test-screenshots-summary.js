@@ -294,7 +294,7 @@ async function main() {
         return;
       }
 
-      summary += `## ${title}\n\n`;
+      summary += `<h2>${title}</h2>\n\n`;
       for (const [specFile, tests] of entries) {
         summary += `<details><summary><strong>${specFile}</strong></summary>\n`;
         for (const test of tests) {
