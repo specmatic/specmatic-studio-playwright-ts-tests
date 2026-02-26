@@ -810,16 +810,15 @@ export class ExampleGenerationPage extends BasePage {
 
         await expect(line).toBeVisible({ timeout: 10000 });
 
-        const originalText = await line.innerText();
-        const leadingSpaces = originalText.match(/^\s*/)?.[0] ?? "";
-
         await line.scrollIntoViewIfNeeded();
         await line.click();
 
+        // In CodeMirror, Home lands at first non-whitespace for indented lines.
+        // Replacing from there keeps existing indentation unchanged.
         await this.page.keyboard.press("Home");
         await this.page.keyboard.press("Shift+End");
 
-        await this.page.keyboard.type(leadingSpaces + edit.changeTo);
+        await this.page.keyboard.type(edit.changeTo);
 
         takeAndAttachScreenshot(
           this.page,
