@@ -30,6 +30,13 @@ export class ServiceSpecConfigPage extends BasePage {
   private readonly alertDismissButton: Locator;
   private readonly bccErrorToggle: Locator;
   private readonly bccErrorContent: Locator;
+  private readonly runSuitebtn: Locator;
+  readonly executionProgressDropdown: Locator;
+  private readonly saveSpecBtn: Locator;
+  readonly executionLog: Locator;
+  readonly alertContainer: Locator;
+  readonly alertTitle: Locator;
+  readonly alertDescription: Locator;
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -59,6 +66,18 @@ export class ServiceSpecConfigPage extends BasePage {
     this.alertDismissButton = this.alertMessage.locator("button");
     this.bccErrorToggle = this.specSection.locator(".bcc-errors-btn");
     this.bccErrorContent = this.specSection.locator(".bcc-errors-content");
+    this.runSuitebtn = this.specSection.locator(".executeBtn");
+    this.executionProgressDropdown = this.specSection.locator(
+      ".execution-progress-panel",
+    );
+    this.saveSpecBtn = this.specSection.locator("button.savebtn.save");
+
+    this.executionLog = this.executionProgressDropdown.locator(
+      ".execution-progress-log",
+    );
+    this.alertContainer = page.locator(".alert-msg.error");
+    this.alertTitle = this.alertContainer.locator("p");
+    this.alertDescription = this.alertContainer.locator("pre");
   }
   async openSpecTab() {
     return this.openApiTabPage.openSpecTab();
@@ -120,6 +139,40 @@ export class ServiceSpecConfigPage extends BasePage {
       this.writeSpecFile(updatedContent);
 
       await this.verifyTextHighlightedInEditor(replaceText.trim());
+    });
+  }
+
+  async deleteSpecLinesInEditor(searchText: string, lineCount: number = 1) {
+    await test.step(`Delete ${lineCount} spec line(s) starting with '${searchText}'`, async () => {
+      const lines = this.specSection.locator(".cm-content .cm-line");
+      await expect(lines.first()).toBeVisible({ timeout: 10000 });
+
+      const editorContent = this.specSection.locator(".cm-content");
+      await editorContent.click();
+      await this.page.keyboard.press("Control+End");
+      await this.page.waitForTimeout(300);
+      await this.page.keyboard.press("Control+Home");
+      await this.page.waitForTimeout(200);
+
+      const targetLine = lines.filter({ hasText: searchText }).first();
+      await expect(targetLine).toBeVisible({ timeout: 10000 });
+      await targetLine.scrollIntoViewIfNeeded();
+      await targetLine.click();
+
+      await this.page.keyboard.press("Home");
+      for (let i = 1; i < lineCount; i++) {
+        await this.page.keyboard.press("Shift+ArrowDown");
+      }
+      await this.page.keyboard.press("Shift+End");
+
+      await this.page.keyboard.press("Shift+Delete");
+
+      const safeFileName = searchText.replace(/[^a-zA-Z0-9]/g, "-");
+      await takeAndAttachScreenshot(
+        this.page,
+        `delete-spec-block-${safeFileName}`,
+        this.eyes,
+      );
     });
   }
 
@@ -321,6 +374,64 @@ export class ServiceSpecConfigPage extends BasePage {
       await this.sideBar.selectSpec(specName);
       // You can even include opening the tab if it's always required
       await this.openSpecTab();
+    });
+  }
+
+  async clickRunSuite() {
+    console.log("Clicked Run suite");
+    await this.runSuitebtn.click();
+    await takeAndAttachScreenshot(this.page, "clicked-run-suite");
+  }
+
+  async waitForExecutionToComplete(
+    pollIntervalMs: number = 3000,
+    timeout: number = 60000,
+  ) {
+    await test.step(`Wait for execution to complete (poll every ${pollIntervalMs}ms, timeout: ${timeout}ms)`, async () => {
+      const dropdown = this.executionProgressDropdown;
+      await expect(dropdown).toHaveAttribute("data-state", "running", {
+        timeout: 15000,
+      });
+      console.log("\tExecution is running — polling until it completes...");
+
+      await expect
+        .poll(
+          async () => {
+            const state = await dropdown.getAttribute("data-state");
+            console.log(`\t[poll] data-state = '${state}'`);
+            return state;
+          },
+          {
+            intervals: [pollIntervalMs],
+            timeout,
+            message: `Execution did not leave 'running' state within ${timeout}ms`,
+          },
+        )
+        .not.toBe("running");
+
+      const finalState = await dropdown.getAttribute("data-state");
+      console.log(`\tExecution completed with state: '${finalState}'`);
+      await takeAndAttachScreenshot(
+        this.page,
+        `execution-completed-state-${finalState}`,
+      );
+    });
+  }
+
+  async expandExecutionProgressDropdown() {
+    await this.executionProgressDropdown.click();
+    await takeAndAttachScreenshot(
+      this.page,
+      "expanded-execution-progress-dropdown",
+    );
+  }
+
+  async clickSaveAfterEdit() {
+    console.log("Saved new spec");
+    await test.step("Click Save button after editing spec", async () => {
+      await this.saveSpecBtn.waitFor({ state: "visible", timeout: 5000 });
+      await this.saveSpecBtn.click();
+      await takeAndAttachScreenshot(this.page, "save-button-clicked");
     });
   }
 }
