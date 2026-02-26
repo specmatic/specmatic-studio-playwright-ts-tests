@@ -3,6 +3,8 @@ import {
   EyesRunner,
   VisualGridRunner,
 } from "@applitools/eyes-playwright";
+import { readdir, rm } from "fs/promises";
+import path from "path";
 
 export const ENABLE_VISUAL = process.env.ENABLE_VISUAL === "true";
 
@@ -79,5 +81,35 @@ if (process.env.GROUP_NAME) {
   Batch.addProperty("group_name", process.env.GROUP_NAME);
 }
 export default async function globalSetup() {
-  // No-op: Applitools batch/runner setup is handled in worker context for each test process.
+  const specsDirectory = path.resolve(
+    process.cwd(),
+    "specmatic-studio-demo",
+    "specs",
+  );
+
+  let entries;
+  try {
+    entries = await readdir(specsDirectory, { withFileTypes: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return;
+    }
+    throw error;
+  }
+
+  await Promise.all(
+    entries
+      .filter(
+        (entry) =>
+          entry.isDirectory() &&
+          (entry.name.startsWith("product_search_bff_v5_") ||
+            entry.name === "proxy_recordings_examples"),
+      )
+      .map((entry) =>
+        rm(path.resolve(specsDirectory, entry.name), {
+          recursive: true,
+          force: true,
+        }),
+      ),
+  );
 }
