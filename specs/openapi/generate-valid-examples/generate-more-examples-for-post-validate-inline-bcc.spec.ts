@@ -45,7 +45,9 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         ],
       );
 
-      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED);
+      const updatedSpecName = getUpdatedSpecName(
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED,
+      );
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined POST examples appear in the updated spec file", async () => {
@@ -77,6 +79,8 @@ test.describe("Validate generated spec after inlining POST request examples", ()
           400,
         );
       });
+
+      //todo - run bcc on updated spec
     },
   );
 });
