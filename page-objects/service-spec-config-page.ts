@@ -33,6 +33,10 @@ export class ServiceSpecConfigPage extends BasePage {
   private readonly runSuitebtn: Locator;
   readonly executionProgressDropdown: Locator;
   private readonly saveSpecBtn: Locator;
+  readonly executionLog: Locator;
+  readonly alertContainer: Locator;
+  readonly alertTitle: Locator;
+  readonly alertDescription: Locator;
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -67,6 +71,13 @@ export class ServiceSpecConfigPage extends BasePage {
       ".execution-progress-panel",
     );
     this.saveSpecBtn = this.specSection.locator("button.savebtn.save");
+
+    this.executionLog = this.executionProgressDropdown.locator(
+      ".execution-progress-log",
+    );
+    this.alertContainer = page.locator(".alert-msg.error");
+    this.alertTitle = this.alertContainer.locator("p");
+    this.alertDescription = this.alertContainer.locator("pre");
   }
   async openSpecTab() {
     return this.openApiTabPage.openSpecTab();

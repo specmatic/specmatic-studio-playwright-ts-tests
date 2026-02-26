@@ -25,10 +25,18 @@ test.describe("Specmatic Config", () => {
 
       await test.step("Click Run Suite and Assert the Status", async () => {
         await configPage.clickRunSuite();
-        // todo - add assertion for error
-        // todo - add assertion for error dialog
+        await assertErrorDialog(configPage, "Failed to execute");
+        await configPage.dismissAlert();
         await configPage.closeRightSidebarByClickingOutside();
         await assertExecutionDropDown(configPage, page, "error", "Failed");
+        await expect(configPage.executionLog).toContainText(
+          "Invalid mock configuration for proxy_generated.yaml",
+        );
+        await takeAndAttachScreenshot(
+          page,
+          "asserted-execution-progress-dropdown",
+          eyes,
+        );
       });
 
       await test.step("Edit Spec, Save and Verify Progress", async () => {
@@ -37,12 +45,26 @@ test.describe("Specmatic Config", () => {
         await configPage.clickRunSuite();
         await configPage.closeRightSidebarByClickingOutside();
         await assertExecutionDropDown(configPage, page, "running", "Running");
-        // todo - visual validation for execution dropdown - expanded and collapsed
-        // bug: kafka error - port is 0
-        // bug: error dialog message is incorrect - `StandaloneCoroutine was cancelled`
-        // bug: activity tab should not open automatically on execution failure or otherwise
+        await takeAndAttachScreenshot(page, "suite-status-running", eyes);
         await configPage.waitForExecutionToComplete();
+        await assertErrorDialog(
+          configPage,
+          "Mock Server Stopped",
+          "StandaloneCoroutine was cancelled",
+        );
+        await configPage.dismissAlert();
         await assertExecutionDropDown(configPage, page, "error", "Failed");
+        await expect(configPage.executionLog).toContainText(
+          "Starting mock: kafka.yaml (port=0)",
+        );
+        await expect(configPage.executionLog).toContainText(
+          "Failed to start mock server for kafka.yaml",
+        );
+        await takeAndAttachScreenshot(
+          page,
+          "execution-progress-assertion-after-spec-change",
+          eyes,
+        );
       });
     },
   );
@@ -66,4 +88,16 @@ async function assertExecutionDropDown(
   await expect(statusText).toHaveText(expectedStatus, { timeout: 5000 });
 
   await takeAndAttachScreenshot(page, `execution-progress-asserted-${state}`);
+}
+
+async function assertErrorDialog(
+  configPage: ServiceSpecConfigPage,
+  expectedTitle: string,
+  expectedDesc?: string,
+) {
+  await expect(configPage.alertContainer).toBeVisible();
+  await expect(configPage.alertTitle).toHaveText(expectedTitle);
+  if (expectedDesc) {
+    await expect(configPage.alertDescription).toContainText(expectedDesc);
+  }
 }
