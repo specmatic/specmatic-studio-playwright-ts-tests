@@ -1,3 +1,4 @@
+import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED } from "../../specNames";
 import {
@@ -51,6 +52,13 @@ test.describe("Validate generated spec after inlining POST request examples", ()
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined POST examples appear in the updated spec file", async () => {
+        const configPage = new ServiceSpecConfigPage(
+          page,
+          testInfo,
+          eyes,
+          updatedSpecName,
+        );
+
         const updatedSpecPage = await navigateToUpdatedSpec(
           page,
           testInfo,
@@ -78,9 +86,11 @@ test.describe("Validate generated spec after inlining POST request examples", ()
           ORDRES,
           400,
         );
-      });
 
-      //todo - run bcc on updated spec
+        await configPage.runBackwardCompatibilityTest();
+        const toastText = await configPage.getAlertMessageText();
+        expect(toastText).toBe("Changes are backward compatible");
+      });
     },
   );
 });
