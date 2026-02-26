@@ -195,9 +195,31 @@ async function main() {
   }
   collectStats(report.suites || []);
 
+  function toSummaryRecord(rawTest) {
+    const [specFile, ...rest] = rawTest.name.split(" › ");
+    return {
+      specFile: normalizeSummaryText(specFile),
+      name: normalizeSummaryText(rest.join(" › ")),
+      screenshot: rawTest.screenshot,
+      error: normalizeSummaryText(rawTest.error),
+      status: rawTest.status,
+      expectedFailure: rawTest.expectedFailure,
+    };
+  }
+
+  function groupBySpec(tests) {
+    const grouped = {};
+    for (const test of tests) {
+      if (!grouped[test.specFile]) grouped[test.specFile] = [];
+      grouped[test.specFile].push(test);
+    }
+    return grouped;
+  }
+
   // Get failed tests with screenshots and errors
-  function getFailedTestsWithScreenshotsAndErrors() {
-    const failed = [];
+  function getFailureBucketsWithDetails() {
+    const unexpectedFailures = [];
+    const expectedFailureTests = [];
     function walkSuites(suites, parentTitles = []) {
       for (const suite of suites) {
         const titles = [...parentTitles, suite.title];
@@ -231,13 +253,19 @@ async function main() {
                 }
               }
 
-              failed.push({
+              const record = {
                 name: [...titles, spec.title].join(" › "),
                 screenshot,
                 error,
                 status: finalResult.status,
                 expectedFailure: isExpectedFailure(test, finalResult.status),
-              });
+              };
+
+              if (record.expectedFailure) {
+                expectedFailureTests.push(record);
+              } else {
+                unexpectedFailures.push(record);
+              }
             }
           }
         }
@@ -245,41 +273,23 @@ async function main() {
       }
     }
     walkSuites(report.suites || []);
-    return failed;
+    return { unexpectedFailures, expectedFailureTests };
   }
 
-  const failedTests = getFailedTestsWithScreenshotsAndErrors();
-
-  // Group by spec file (first part of the name, before the first ' › ')
-  const grouped = {};
-  for (const test of failedTests) {
-    const [specFile, ...rest] = test.name.split(" › ");
-    const normalizedSpecFile = normalizeSummaryText(specFile);
-    if (!grouped[normalizedSpecFile]) grouped[normalizedSpecFile] = [];
-    grouped[normalizedSpecFile].push({
-      name: normalizeSummaryText(rest.join(" › ")),
-      screenshot: test.screenshot,
-      error: normalizeSummaryText(test.error),
-      status: test.status,
-      expectedFailure: test.expectedFailure,
-    });
-  }
+  const { unexpectedFailures, expectedFailureTests } = getFailureBucketsWithDetails();
+  const groupedUnexpected = groupBySpec(unexpectedFailures.map(toSummaryRecord));
+  const groupedExpected = groupBySpec(expectedFailureTests.map(toSummaryRecord));
 
   // HTML output for better formatting and expand/collapse
   // Markdown output with collapsible sections and embedded screenshots
   let summary = `# Playwright Test Results Summary\n\n`;
   summary += `| Total | Passed | Failed | Errors | Expected Failures | Skipped |\n|-------|--------|--------|--------|-------------------|---------|\n| ${total} | ${passed} | ${failed} | ${errored} | ${expectedFailures} | ${skipped} |\n\n`;
 
-  const unexpectedFailures = failedTests.filter((t) => !t.expectedFailure);
-  const expectedFailureTests = failedTests.filter((t) => t.expectedFailure);
-
   if (unexpectedFailures.length === 0 && expectedFailureTests.length === 0) {
     summary += `## No failed tests!\n`;
   } else {
-    function appendTestsByType(title, expectedFailureFlag) {
-      const entries = Object.entries(grouped).filter(([, tests]) =>
-        tests.some((t) => t.expectedFailure === expectedFailureFlag),
-      );
+    function appendGroupedTests(title, groupedTests) {
+      const entries = Object.entries(groupedTests);
       if (entries.length === 0) {
         return;
       }
@@ -288,9 +298,6 @@ async function main() {
       for (const [specFile, tests] of entries) {
         summary += `<details><summary><strong>${specFile}</strong></summary>\n`;
         for (const test of tests) {
-          if (test.expectedFailure !== expectedFailureFlag) {
-            continue;
-          }
           summary += `\n**${test.name}**\n`;
           summary += `_Status: ${test.status}${test.expectedFailure ? " (expected failure)" : ""}_\n`;
           if (test.screenshot) {
@@ -324,8 +331,8 @@ async function main() {
       }
     }
 
-    appendTestsByType("Unexpected Failures", false);
-    appendTestsByType("Expected Failures", true);
+    appendGroupedTests("Unexpected Failures", groupedUnexpected);
+    appendGroupedTests("Expected Failures", groupedExpected);
   }
   fs.writeFileSync(outputSummaryPath, summary);
   console.log("Summary written to", outputSummaryPath);
