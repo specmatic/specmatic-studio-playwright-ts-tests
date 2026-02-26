@@ -4,6 +4,7 @@ import {
   expect,
   type TestInfo,
   Page,
+  type Frame,
   test,
   FrameLocator,
 } from "@playwright/test";
@@ -963,6 +964,15 @@ export class ExampleGenerationPage extends BasePage {
     responseCode: number,
   ) {
     await test.step(`Verify inlined examples in spec file`, async () => {
+      if (method.toLowerCase() === "post") {
+        await this.verifyInlinedPostExamplesInSpec(
+          expectedExampleNames,
+          endpoint,
+          responseCode,
+        );
+        return;
+      }
+
       const specContent = this.readSpecFile();
 
       for (const name of expectedExampleNames) {
@@ -1120,31 +1130,213 @@ export class ExampleGenerationPage extends BasePage {
     isPost: boolean = false,
   ) {
     await test.step(`Capture visual evidence in editor for ${endpoint}`, async () => {
-      const editorContent = this.specEditorSection.locator(".cm-content");
-      await expect(editorContent).toBeVisible({ timeout: 10000 });
-      await editorContent.click();
-      await this.page.keyboard.press("Control+Home");
+      const editorContext = await this.getSpecEditorContext();
+      await expect(editorContext.content).toBeVisible({ timeout: 15000 });
+      await editorContext.content.click();
+
+      await this.loadFullEditorDocument(editorContext.scroller);
+      await editorContext.scroller.evaluate((el) => {
+        el.scrollTop = 0;
+      });
+      await this.page.waitForTimeout(250);
 
       const targets = isPost
         ? [`${exampleName}_request`, `${exampleName}_response`]
         : [`${exampleName}_response`];
 
       for (const searchTerm of targets) {
-        await this.page.keyboard.press("Control+f");
-        await this.page.keyboard.type(searchTerm);
-        await this.page.waitForTimeout(800);
+        const foundByEditorApi = await this.focusTermUsingCodeMirrorApi(
+          editorContext.content,
+          searchTerm,
+        );
+        const foundByWindowFind = foundByEditorApi
+          ? true
+          : await this.findTermUsingWindowFind(
+          editorContext.frame,
+          searchTerm,
+        );
+
+        if (!foundByWindowFind) {
+          await this.scrollToEditorSearchTerm(
+            editorContext.content,
+            editorContext.scroller,
+            editorContext.lines,
+            searchTerm,
+          );
+        }
+
+        await this.page.waitForTimeout(250);
 
         await takeAndAttachScreenshot(
           this.page,
           `visual-${searchTerm}-${endpoint}-${code}`,
         );
+      }
+    });
+  }
 
-        if (targets.length > 1) {
-          await this.page.keyboard.press("Control+a");
-          await this.page.keyboard.press("Backspace");
+  private async getSpecEditorContext(): Promise<{
+    content: Locator;
+    scroller: Locator;
+    lines: Locator;
+    frame?: Frame;
+  }> {
+    for (let attempt = 1; attempt <= 24; attempt++) {
+      const specIframe = this.specEditorSection.locator("iframe").first();
+      if ((await specIframe.count()) > 0) {
+        const iframeElement = await specIframe.elementHandle();
+        const frame = await iframeElement?.contentFrame();
+
+        if (frame) {
+          const content = frame.locator(".cm-content").first();
+          if ((await content.count()) > 0) {
+            const scroller = frame.locator(".cm-scroller").first();
+            const lines = frame.locator(".cm-line");
+            return { content, scroller, lines, frame };
+          }
         }
       }
-      await this.page.keyboard.press("Escape");
+
+      const content = this.specEditorSection.locator(".cm-content").first();
+      if ((await content.count()) > 0) {
+        const scroller = this.specEditorSection.locator(".cm-scroller").first();
+        const lines = this.specEditorSection.locator(".cm-line");
+        return { content, scroller, lines };
+      }
+
+      if (attempt === 8 || attempt === 16) {
+        await this.openSpecTabForCurrentSpec();
+      }
+      await this.page.waitForTimeout(500);
+    }
+
+    await takeAndAttachScreenshot(this.page, "spec-editor-not-found");
+    throw new Error("Spec editor content was not found in visible spec tab");
+  }
+
+  private async findTermUsingWindowFind(
+    frame: Frame | undefined,
+    searchTerm: string,
+  ): Promise<boolean> {
+    if (frame) {
+      return await frame.evaluate((term) => {
+        window.getSelection()?.removeAllRanges();
+        return window.find(term, false, false, true, false, false, false);
+      }, searchTerm);
+    }
+
+    return await this.page.evaluate((term) => {
+      window.getSelection()?.removeAllRanges();
+      return window.find(term, false, false, true, false, false, false);
+    }, searchTerm);
+  }
+
+  private async focusTermUsingCodeMirrorApi(
+    content: Locator,
+    searchTerm: string,
+  ): Promise<boolean> {
+    return await content.evaluate((el, term) => {
+      const cmEditor = el.closest(".cm-editor") as any;
+      const view = cmEditor?.cmView?.view;
+      if (!view) return false;
+
+      const fullText = view.state.doc.toString() as string;
+      const index = fullText.indexOf(term);
+      if (index === -1) return false;
+
+      view.dispatch({
+        selection: { anchor: index, head: index + term.length },
+        scrollIntoView: true,
+      });
+      return true;
+    }, searchTerm);
+  }
+
+  private async loadFullEditorDocument(scroller: Locator): Promise<void> {
+    await expect(scroller).toBeVisible({ timeout: 10000 });
+
+    let unchangedCount = 0;
+    let previousScrollHeight = -1;
+
+    for (let i = 0; i < 60; i++) {
+      const metrics = await scroller.evaluate((el) => {
+        el.scrollTop = el.scrollHeight;
+        return {
+          scrollTop: el.scrollTop,
+          scrollHeight: el.scrollHeight,
+          clientHeight: el.clientHeight,
+        };
+      });
+
+      if (metrics.scrollHeight === previousScrollHeight) {
+        unchangedCount += 1;
+      } else {
+        unchangedCount = 0;
+      }
+
+      previousScrollHeight = metrics.scrollHeight;
+
+      const atBottom =
+        metrics.scrollTop + metrics.clientHeight >= metrics.scrollHeight - 2;
+      if (atBottom && unchangedCount >= 2) {
+        break;
+      }
+
+      await this.page.waitForTimeout(120);
+    }
+  }
+
+  private async scrollToEditorSearchTerm(
+    content: Locator,
+    scroller: Locator,
+    lines: Locator,
+    searchTerm: string,
+  ): Promise<void> {
+    await scroller.evaluate((el) => {
+      el.scrollTop = 0;
     });
+    await this.page.waitForTimeout(120);
+
+    for (let i = 0; i < 250; i++) {
+      const match = lines.filter({ hasText: searchTerm }).first();
+      const count = await match.count();
+
+      if (count > 0) {
+        await match.scrollIntoViewIfNeeded();
+        await match.click();
+        return;
+      }
+
+      const moved = await scroller.evaluate((el) => {
+        const prev = el.scrollTop;
+        el.scrollTop = Math.min(
+          el.scrollTop + Math.max(el.clientHeight * 0.85, 120),
+          el.scrollHeight,
+        );
+        return el.scrollTop > prev;
+      });
+
+      if (!moved) {
+        break;
+      }
+
+      await this.page.waitForTimeout(80);
+    }
+
+    // Fallback: some editor layouts scroll via outer containers, not .cm-scroller.
+    await content.hover();
+    for (let i = 0; i < 280; i++) {
+      const visible = await lines.evaluateAll(
+        (els, term) => els.some((el) => el.textContent?.includes(term)),
+        searchTerm,
+      );
+      if (visible) {
+        return;
+      }
+      await this.page.mouse.wheel(0, 900);
+      await this.page.waitForTimeout(60);
+    }
+
+    throw new Error(`Could not find '${searchTerm}' in the spec editor`);
   }
 }
