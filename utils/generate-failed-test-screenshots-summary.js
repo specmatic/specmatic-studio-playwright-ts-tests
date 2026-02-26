@@ -55,6 +55,11 @@ function normalizeSummaryText(input) {
   return decodeHtmlEntities(stripAnsi(input));
 }
 
+function fencedCode(text) {
+  // Use 4-backtick fences so embedded ``` in logs cannot break markdown.
+  return "````\n" + (text || "") + "\n````\n";
+}
+
 function isFailureLikeStatus(status) {
   return status === "failed" || status === "timedOut" || status === "interrupted";
 }
@@ -313,14 +318,13 @@ async function main() {
             const errorLines = test.error.split("\n");
             const previewLines = errorLines.slice(0, 8).join("\n");
             summary += `**Error (preview):**\n`;
-            summary += "```\n" + previewLines + "\n";
+            summary += fencedCode(previewLines);
             if (errorLines.length > 8) {
               summary += "...\n";
             }
-            summary += "```\n";
             if (errorLines.length > 8) {
               summary += `<details><summary>Full Error</summary>\n`;
-              summary += "```\n" + test.error + "\n```\n";
+              summary += fencedCode(test.error);
               summary += `</details>\n`;
             }
           } else {
