@@ -59,6 +59,26 @@ function isFailureLikeStatus(status) {
   return status === "failed" || status === "timedOut" || status === "interrupted";
 }
 
+function isExpectedFailure(test, finalStatus) {
+  if (!test) {
+    return false;
+  }
+  const expectedStatus = test.expectedStatus;
+  return (
+    isFailureLikeStatus(expectedStatus) &&
+    isFailureLikeStatus(finalStatus) &&
+    expectedStatus === finalStatus
+  );
+}
+
+function getFinalResult(test) {
+  const results = test?.results || [];
+  if (results.length === 0) {
+    return null;
+  }
+  return results[results.length - 1];
+}
+
 function pickLastScreenshotPath(result) {
   if (!result.attachments) {
     return null;
@@ -148,6 +168,7 @@ async function main() {
     passed = 0,
     failed = 0,
     errored = 0,
+    expectedFailures = 0,
     skipped = 0;
   function collectStats(suites) {
     for (const suite of suites) {
@@ -155,24 +176,17 @@ async function main() {
         for (const spec of suite.specs) {
           for (const test of spec.tests || []) {
             total++;
-            let foundFailed = false,
-              foundErrored = false,
-              foundPassed = false,
-              foundSkipped = false;
-            for (const result of test.results || []) {
-              if (result.status === "failed") foundFailed = true;
-              else if (
-                result.status === "timedOut" ||
-                result.status === "interrupted"
-              )
-                foundErrored = true;
-              else if (result.status === "passed") foundPassed = true;
-              else if (result.status === "skipped") foundSkipped = true;
-            }
-            if (foundFailed) failed++;
-            else if (foundErrored) errored++;
-            else if (foundPassed) passed++;
-            else if (foundSkipped) skipped++;
+            const finalResult = getFinalResult(test);
+            const finalStatus = finalResult?.status;
+            if (isExpectedFailure(test, finalStatus)) expectedFailures++;
+            else if (finalStatus === "failed") failed++;
+            else if (
+              finalStatus === "timedOut" ||
+              finalStatus === "interrupted"
+            )
+              errored++;
+            else if (finalStatus === "passed") passed++;
+            else if (finalStatus === "skipped") skipped++;
           }
         }
       }
@@ -190,24 +204,27 @@ async function main() {
         if (suite.specs) {
           for (const spec of suite.specs) {
             for (const test of spec.tests || []) {
-              const failingResults = (test.results || []).filter((result) =>
-                isFailureLikeStatus(result.status),
-              );
-              if (failingResults.length === 0) {
+              const finalResult = getFinalResult(test);
+              if (!finalResult || !isFailureLikeStatus(finalResult.status)) {
                 continue;
               }
 
-              const lastFailingResult = failingResults[failingResults.length - 1];
-              let screenshot = pickLastScreenshotPath(lastFailingResult);
+              let screenshot = pickLastScreenshotPath(finalResult);
               if (!screenshot) {
+                const failingResults = (test.results || []).filter((result) =>
+                  isFailureLikeStatus(result.status),
+                );
                 for (let i = failingResults.length - 1; i >= 0; i--) {
                   screenshot = pickLastScreenshotPath(failingResults[i]);
                   if (screenshot) break;
                 }
               }
 
-              let error = extractFailureText(lastFailingResult);
+              let error = extractFailureText(finalResult);
               if (!error) {
+                const failingResults = (test.results || []).filter((result) =>
+                  isFailureLikeStatus(result.status),
+                );
                 for (let i = failingResults.length - 1; i >= 0; i--) {
                   error = extractFailureText(failingResults[i]);
                   if (error) break;
@@ -218,7 +235,8 @@ async function main() {
                 name: [...titles, spec.title].join(" › "),
                 screenshot,
                 error,
-                status: lastFailingResult.status,
+                status: finalResult.status,
+                expectedFailure: isExpectedFailure(test, finalResult.status),
               });
             }
           }
@@ -243,50 +261,71 @@ async function main() {
       screenshot: test.screenshot,
       error: normalizeSummaryText(test.error),
       status: test.status,
+      expectedFailure: test.expectedFailure,
     });
   }
 
   // HTML output for better formatting and expand/collapse
   // Markdown output with collapsible sections and embedded screenshots
   let summary = `# Playwright Test Results Summary\n\n`;
-  summary += `| Total | Passed | Failed | Errors | Skipped |\n|-------|--------|--------|--------|---------|\n| ${total} | ${passed} | ${failed} | ${errored} | ${skipped} |\n\n`;
+  summary += `| Total | Passed | Failed | Errors | Expected Failures | Skipped |\n|-------|--------|--------|--------|-------------------|---------|\n| ${total} | ${passed} | ${failed} | ${errored} | ${expectedFailures} | ${skipped} |\n\n`;
 
-  if (failedTests.length === 0) {
+  const unexpectedFailures = failedTests.filter((t) => !t.expectedFailure);
+  const expectedFailureTests = failedTests.filter((t) => t.expectedFailure);
+
+  if (unexpectedFailures.length === 0 && expectedFailureTests.length === 0) {
     summary += `## No failed tests!\n`;
   } else {
-    for (const specFile of Object.keys(grouped)) {
-      summary += `<details><summary><strong>${specFile}</strong></summary>\n`;
-      for (const test of grouped[specFile]) {
-        summary += `\n**${test.name}**\n`;
-        summary += `_Status: ${test.status}_\n`;
-        if (test.screenshot) {
-          if (artifactUrl) {
-            summary += `[Screenshot Artifact](${artifactUrl})\n`;
-          }
-          summary += `\`Screenshot path: ${test.screenshot}\`\n`;
-        } else {
-          summary += `_No screenshot found_\n`;
-        }
-        if (test.error) {
-          const errorLines = test.error.split("\n");
-          const previewLines = errorLines.slice(0, 8).join("\n");
-          summary += `**Error (preview):**\n`;
-          summary += "```\n" + previewLines + "\n";
-          if (errorLines.length > 8) {
-            summary += "...\n";
-          }
-          summary += "```\n";
-          if (errorLines.length > 8) {
-            summary += `<details><summary>Full Error</summary>\n`;
-            summary += "```\n" + test.error + "\n```\n";
-            summary += `</details>\n`;
-          }
-        } else {
-          summary += `_No error message_\n`;
-        }
+    function appendTestsByType(title, expectedFailureFlag) {
+      const entries = Object.entries(grouped).filter(([, tests]) =>
+        tests.some((t) => t.expectedFailure === expectedFailureFlag),
+      );
+      if (entries.length === 0) {
+        return;
       }
-      summary += `</details>\n`;
+
+      summary += `## ${title}\n\n`;
+      for (const [specFile, tests] of entries) {
+        summary += `<details><summary><strong>${specFile}</strong></summary>\n`;
+        for (const test of tests) {
+          if (test.expectedFailure !== expectedFailureFlag) {
+            continue;
+          }
+          summary += `\n**${test.name}**\n`;
+          summary += `_Status: ${test.status}${test.expectedFailure ? " (expected failure)" : ""}_\n`;
+          if (test.screenshot) {
+            if (artifactUrl) {
+              summary += `[Screenshot Artifact](${artifactUrl})\n`;
+            }
+            summary += `\`Screenshot path: ${test.screenshot}\`\n`;
+          } else {
+            summary += `_No screenshot found_\n`;
+          }
+
+          if (test.error) {
+            const errorLines = test.error.split("\n");
+            const previewLines = errorLines.slice(0, 8).join("\n");
+            summary += `**Error (preview):**\n`;
+            summary += "```\n" + previewLines + "\n";
+            if (errorLines.length > 8) {
+              summary += "...\n";
+            }
+            summary += "```\n";
+            if (errorLines.length > 8) {
+              summary += `<details><summary>Full Error</summary>\n`;
+              summary += "```\n" + test.error + "\n```\n";
+              summary += `</details>\n`;
+            }
+          } else {
+            summary += `_No error message_\n`;
+          }
+        }
+        summary += `</details>\n`;
+      }
     }
+
+    appendTestsByType("Unexpected Failures", false);
+    appendTestsByType("Expected Failures", true);
   }
   fs.writeFileSync(outputSummaryPath, summary);
   console.log("Summary written to", outputSummaryPath);
