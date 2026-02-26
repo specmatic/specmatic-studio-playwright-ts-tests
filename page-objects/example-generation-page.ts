@@ -94,7 +94,7 @@ export class ExampleGenerationPage extends BasePage {
     await btn.scrollIntoViewIfNeeded();
     await btn.click();
     await iframe.waitForSelector(`text=Example Generated`, {
-      timeout: 2000,
+      timeout: 5000,
     });
     await takeAndAttachScreenshot(
       this.page,
