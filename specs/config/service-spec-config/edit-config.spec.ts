@@ -25,6 +25,8 @@ test.describe("Specmatic Config", () => {
 
       await test.step("Click Run Suite and Assert the Status", async () => {
         await configPage.clickRunSuite();
+        // todo - add assertion for error
+        // todo - add assertion for error dialog
         await configPage.closeRightSidebarByClickingOutside();
         await assertExecutionDropDown(configPage, page, "error", "Failed");
       });
@@ -35,6 +37,10 @@ test.describe("Specmatic Config", () => {
         await configPage.clickRunSuite();
         await configPage.closeRightSidebarByClickingOutside();
         await assertExecutionDropDown(configPage, page, "running", "Running");
+        // todo - visual validation for execution dropdown - expanded and collapsed
+        // bug: kafka error - port is 0
+        // bug: error dialog message is incorrect - `StandaloneCoroutine was cancelled`
+        // bug: activity tab should not open automatically on execution failure or otherwise
         await configPage.waitForExecutionToComplete();
         await assertExecutionDropDown(configPage, page, "error", "Failed");
       });
