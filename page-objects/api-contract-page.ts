@@ -683,7 +683,7 @@ export class ApiContractPage extends BasePage {
 
     await takeAndAttachScreenshot(
       this.page,
-      `filter-applied-${filterType}`,
+      `filter-applied-for-${filterType}-tests`,
       this.eyes,
     );
 
