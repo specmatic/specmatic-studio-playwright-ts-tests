@@ -1,4 +1,4 @@
-import { test, expect } from "../../../utils/eyesFixture";
+import { test } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED } from "../../specNames";
 import {
   filterExampleNames,
@@ -9,8 +9,16 @@ import {
   verifyAndCloseInlineSuccessDialog,
 } from "../helpers/inline-examples-helper";
 
+const SPEC = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED;
 const FIND_AVAILABLE_PRODUCTS = "findAvailableProducts";
 const PRODUCTS = "products";
+
+const PATHS_AND_CODES = [
+  { path: FIND_AVAILABLE_PRODUCTS, method: "get", code: 200 },
+  { path: FIND_AVAILABLE_PRODUCTS, method: "get", code: 400 },
+  { path: PRODUCTS,               method: "post", code: 201 },
+  { path: PRODUCTS,               method: "post", code: 400 },
+];
 
 test.describe("Validate generated spec after inlining GET examples", () => {
   test(
@@ -28,7 +36,7 @@ test.describe("Validate generated spec after inlining GET examples", () => {
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED,
+        SPEC,
         [
           { path: FIND_AVAILABLE_PRODUCTS, responseCodes: [200, 400] },
           { path: PRODUCTS, responseCodes: [201, 400] },
@@ -37,59 +45,23 @@ test.describe("Validate generated spec after inlining GET examples", () => {
 
       const generatedExampleNames = await generateMoreThenValidateAndInline(
         examplePage,
-        [
-          { path: FIND_AVAILABLE_PRODUCTS, code: 200 },
-          { path: FIND_AVAILABLE_PRODUCTS, code: 400 },
-          { path: PRODUCTS, code: 201 },
-          { path: PRODUCTS, code: 400 },
-        ],
+        PATHS_AND_CODES,
       );
 
-      const updatedSpecName = getUpdatedSpecName(
-        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED,
-      );
+      const updatedSpecName = getUpdatedSpecName(SPEC);
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined examples appear in the updated spec file", async () => {
-        const updatedSpecPage = await navigateToUpdatedSpec(
-          page,
-          testInfo,
-          eyes,
-          updatedSpecName,
-        );
+        const updatedSpecPage = await navigateToUpdatedSpec(page, testInfo, eyes, updatedSpecName);
 
-        await updatedSpecPage.verifyInlinedExamplesInSpec(
-          filterExampleNames(
-            generatedExampleNames,
-            FIND_AVAILABLE_PRODUCTS,
-            200,
-          ),
-          FIND_AVAILABLE_PRODUCTS,
-          "get",
-          200,
-        );
-        await updatedSpecPage.verifyInlinedExamplesInSpec(
-          filterExampleNames(
-            generatedExampleNames,
-            FIND_AVAILABLE_PRODUCTS,
-            400,
-          ),
-          FIND_AVAILABLE_PRODUCTS,
-          "get",
-          400,
-        );
-        await updatedSpecPage.verifyInlinedExamplesInSpec(
-          filterExampleNames(generatedExampleNames, PRODUCTS, 201),
-          PRODUCTS,
-          "post",
-          201,
-        );
-        await updatedSpecPage.verifyInlinedExamplesInSpec(
-          filterExampleNames(generatedExampleNames, PRODUCTS, 400),
-          PRODUCTS,
-          "post",
-          400,
-        );
+        for (const { path, method, code } of PATHS_AND_CODES) {
+          await updatedSpecPage.verifyInlinedExamplesInSpec(
+            filterExampleNames(generatedExampleNames, path, code),
+            path,
+            method,
+            code,
+          );
+        }
       });
     },
   );

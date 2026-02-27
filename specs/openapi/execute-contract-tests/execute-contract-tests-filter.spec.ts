@@ -7,25 +7,28 @@ import { ApiContractPage } from "../../../page-objects/api-contract-page";
 import { verifyRightSidebarStatus } from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract Testing - Filtering", () => {
-  test(
-    "Verify filtering by header",
-    { tag: ["@test", "@filterTest", "@eyes"] },
-    async ({ page, eyes }, testInfo) => {
-      const contractPage = new ApiContractPage(
-        page,
+  let contractPage: ApiContractPage;
+
+  test.beforeEach(async ({ page, eyes }, testInfo) => {
+    contractPage = new ApiContractPage(
+      page,
+      testInfo,
+      eyes,
+      PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER,
+    );
+    await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER}'`, async () => {
+      await contractPage.openContractTestTabForSpec(
         testInfo,
         eyes,
         PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER,
       );
+    });
+  });
 
-      await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER}'`, async () => {
-        await contractPage.openContractTestTabForSpec(
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER,
-        );
-      });
-
+  test(
+    "Verify filtering by header",
+    { tag: ["@test", "@filterTest", "@eyes"] },
+    async () => {
       await test.step("Enter service URL and run contract tests", async () => {
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.setGenerativeMode(false);

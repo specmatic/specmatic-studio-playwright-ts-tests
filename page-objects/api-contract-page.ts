@@ -251,7 +251,7 @@ export class ApiContractPage extends BasePage {
     );
   }
 
-  async clickRunContractTests() {
+  async clickRunContractTests(expectSuccess: boolean = true) {
     await test.step("Run Contract Tests", async () => {
       try {
         await expect(this._runButton).toBeEnabled({ timeout: 10000 });
@@ -264,7 +264,11 @@ export class ApiContractPage extends BasePage {
 
         await takeAndAttachScreenshot(this.page, "clicked-run-contract-tests");
 
-        await this.waitForTestCompletion();
+        if (expectSuccess) {
+          await this.waitForTestCompletion();
+        } else {
+          await this.page.waitForTimeout(1000);
+        }
       } catch (e) {
         await takeAndAttachScreenshot(this.page, "error-in-run-contract-tests");
         throw new Error(`Failed to click Run button:`);
@@ -390,6 +394,7 @@ export class ApiContractPage extends BasePage {
     path: string,
     method: string,
     response: string,
+    { captureVisual = true }: { captureVisual?: boolean } = {},
   ) {
     const checkbox = this.exclusionCheckboxLocator(path, method, response);
     try {
@@ -414,11 +419,13 @@ export class ApiContractPage extends BasePage {
     if (!isChecked) {
       await checkbox.click();
     }
-    await takeAndAttachScreenshot(
-      this.page,
-      "excluded-test-" + `${path}-${method}-${response}`,
-      this.eyes,
-    );
+    if (captureVisual) {
+      await takeAndAttachScreenshot(
+        this.page,
+        "excluded-test-" + `${path}-${method}-${response}`,
+        this.eyes,
+      );
+    }
   }
 
   async clickExcludeButton() {
@@ -456,8 +463,14 @@ export class ApiContractPage extends BasePage {
         testItem.path,
         testItem.method,
         testItem.response,
+        { captureVisual: false },
       );
     }
+    await takeAndAttachScreenshot(
+      this.page,
+      `multiple-tests-selected-${testList.length}`,
+      this.eyes,
+    );
   }
 
   async getMixedOperationErrorText(): Promise<string> {
