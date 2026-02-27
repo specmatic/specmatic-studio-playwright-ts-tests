@@ -1221,13 +1221,21 @@ export class ExampleGenerationPage extends BasePage {
     if (frame) {
       return await frame.evaluate((term) => {
         window.getSelection()?.removeAllRanges();
-        return window.find(term, false, false, true, false, false, false);
+        const win = window as Window & { find?: (...args: any[]) => boolean };
+        if (typeof win.find !== "function") {
+          return false;
+        }
+        return win.find(term, false, false, true, false, false, false);
       }, searchTerm);
     }
 
     return await this.page.evaluate((term) => {
       window.getSelection()?.removeAllRanges();
-      return window.find(term, false, false, true, false, false, false);
+      const win = window as Window & { find?: (...args: any[]) => boolean };
+      if (typeof win.find !== "function") {
+        return false;
+      }
+      return win.find(term, false, false, true, false, false, false);
     }, searchTerm);
   }
 
