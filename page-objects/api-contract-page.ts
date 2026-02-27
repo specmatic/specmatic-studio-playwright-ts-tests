@@ -277,7 +277,7 @@ export class ApiContractPage extends BasePage {
   }
 
   async waitforDialogToDismiss(status: string | RegExp) {
-    await expect(this.infoDialog).toContainText(status, {
+    await expect.soft(this.infoDialog).toContainText(status, {
       timeout: 10000,
     });
 
