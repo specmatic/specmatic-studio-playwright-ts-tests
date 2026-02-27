@@ -21,7 +21,11 @@ test.describe("API Specification", () => {
         await configPage.openSpecTab();
       });
 
-      await test.step("Should detect and display backward compatibility errors", async () => {
+      await test.step("Remove summary field from /products endpoint and save", async () => {
+        await configPage.deleteSpecLinesInEditor("summary: Create a new product", 1);
+      });
+
+      await test.step("Should confirm removal of summary is backward compatible", async () => {
         await configPage.runBackwardCompatibilityTest();
         const toastText = await configPage.getAlertMessageText();
         expect(toastText).toBe("Changes are backward compatible");
@@ -30,4 +34,5 @@ test.describe("API Specification", () => {
       });
     },
   );
+
 });
