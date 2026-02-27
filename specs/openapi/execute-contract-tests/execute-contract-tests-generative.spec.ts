@@ -7,7 +7,6 @@ import { ApiContractPage } from "../../../page-objects/api-contract-page";
 import {
   validateSummaryAndTableCounts,
   verifyRightSidebarStatus,
-  waitforDialogToDismiss,
 } from "../helpers/execute-contract-tests-helper";
 
 test.describe(
@@ -40,7 +39,6 @@ test.describe(
       await test.step("Enable Generative Mode and Run Tests", async () => {
         await contractPage.setGenerativeMode(true);
         await contractPage.clickRunContractTests();
-        await waitforDialogToDismiss(contractPage, /Tests? complete/i);
         await verifyRightSidebarStatus(
           contractPage,
           "Done",
@@ -71,7 +69,6 @@ test.describe(
       await test.step("Enable Generative Mode and Run Tests", async () => {
         await contractPage.setGenerativeMode(true);
         await contractPage.clickRunContractTests();
-        await waitforDialogToDismiss(contractPage, /Tests? complete/i);
         await verifyRightSidebarStatus(
           contractPage,
           "Done",

@@ -2,6 +2,7 @@ import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
 import { Locator, expect, type TestInfo, Page, test } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
+import { SpecEditorPage } from "./spec-editor-page";
 
 export interface Edit {
   current: {
@@ -37,6 +38,8 @@ export class ServiceSpecConfigPage extends BasePage {
   readonly alertContainer: Locator;
   readonly alertTitle: Locator;
   readonly alertDescription: Locator;
+  private readonly specEditorHelper: SpecEditorPage;
+
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -78,7 +81,9 @@ export class ServiceSpecConfigPage extends BasePage {
     this.alertContainer = page.locator(".alert-msg.error");
     this.alertTitle = this.alertContainer.locator("p");
     this.alertDescription = this.alertContainer.locator("pre");
+    this.specEditorHelper = new SpecEditorPage(page);
   }
+
   async openSpecTab() {
     return this.openApiTabPage.openSpecTab();
   }
@@ -151,16 +156,16 @@ export class ServiceSpecConfigPage extends BasePage {
       await expect(content).toBeVisible({ timeout: 10000 });
 
       // Phase 1: scroll .cm-scroller to bottom so CodeMirror renders all lines
-      await this.loadFullEditorContent(scroller);
+      await this.specEditorHelper.loadFullEditorDocument(scroller);
       await scroller.evaluate((el) => { el.scrollTop = 0; });
       await this.page.waitForTimeout(200);
 
       // Phase 2: try the CodeMirror API to jump directly to the term
-      const foundByApi = await this.scrollToTextViaCodeMirrorApi(content, searchText);
+      const foundByApi = await this.specEditorHelper.focusTermUsingCodeMirrorApi(content, searchText);
 
       // Phase 3: if the API didn't work, manually scroll to find the line
       if (!foundByApi) {
-        await this.scrollEditorToFindText(content, scroller, lines, searchText);
+        await this.specEditorHelper.scrollEditorToFindTerm(content, scroller, lines, searchText);
       }
 
       const targetLine = lines.filter({ hasText: searchText }).first();
@@ -188,104 +193,6 @@ export class ServiceSpecConfigPage extends BasePage {
     });
   }
 
-  private async loadFullEditorContent(scroller: Locator): Promise<void> {
-    await expect(scroller).toBeVisible({ timeout: 10000 });
-
-    let unchangedCount = 0;
-    let previousScrollHeight = -1;
-
-    for (let i = 0; i < 60; i++) {
-      const metrics = await scroller.evaluate((el) => {
-        el.scrollTop = el.scrollHeight;
-        return {
-          scrollTop: el.scrollTop,
-          scrollHeight: el.scrollHeight,
-          clientHeight: el.clientHeight,
-        };
-      });
-
-      if (metrics.scrollHeight === previousScrollHeight) {
-        unchangedCount += 1;
-      } else {
-        unchangedCount = 0;
-      }
-
-      previousScrollHeight = metrics.scrollHeight;
-
-      const atBottom =
-        metrics.scrollTop + metrics.clientHeight >= metrics.scrollHeight - 2;
-      if (atBottom && unchangedCount >= 2) {
-        break;
-      }
-
-      await this.page.waitForTimeout(120);
-    }
-  }
-
-  private async scrollToTextViaCodeMirrorApi(
-    content: Locator,
-    searchText: string,
-  ): Promise<boolean> {
-    return await content.evaluate((el, term) => {
-      const cmEditor = el.closest(".cm-editor") as any;
-      const view = cmEditor?.cmView?.view;
-      if (!view) return false;
-
-      const fullText = view.state.doc.toString() as string;
-      const index = fullText.indexOf(term);
-      if (index === -1) return false;
-
-      view.dispatch({
-        selection: { anchor: index, head: index + term.length },
-        scrollIntoView: true,
-      });
-      return true;
-    }, searchText);
-  }
-
-  private async scrollEditorToFindText(
-    content: Locator,
-    scroller: Locator,
-    lines: Locator,
-    searchText: string,
-  ): Promise<void> {
-    await scroller.evaluate((el) => { el.scrollTop = 0; });
-    await this.page.waitForTimeout(120);
-
-    for (let i = 0; i < 250; i++) {
-      const match = lines.filter({ hasText: searchText }).first();
-      if ((await match.count()) > 0) {
-        await match.scrollIntoViewIfNeeded();
-        return;
-      }
-
-      const moved = await scroller.evaluate((el) => {
-        const prev = el.scrollTop;
-        el.scrollTop = Math.min(
-          el.scrollTop + Math.max(el.clientHeight * 0.85, 120),
-          el.scrollHeight,
-        );
-        return el.scrollTop > prev;
-      });
-
-      if (!moved) break;
-      await this.page.waitForTimeout(80);
-    }
-
-    // Fallback: hover and mouse-wheel scroll
-    await content.hover();
-    for (let i = 0; i < 280; i++) {
-      const visible = await lines.evaluateAll(
-        (els, term) => els.some((el) => el.textContent?.includes(term)),
-        searchText,
-      );
-      if (visible) return;
-      await this.page.mouse.wheel(0, 900);
-      await this.page.waitForTimeout(60);
-    }
-
-    throw new Error(`Could not find '${searchText}' in the spec editor`);
-  }
 
   async deleteSpecLinesInEditor(searchText: string, lineCount: number = 1) {
     await test.step(`Delete ${lineCount} spec line(s) starting with '${searchText}'`, async () => {

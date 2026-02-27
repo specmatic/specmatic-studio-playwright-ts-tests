@@ -7,7 +7,6 @@ import { ApiContractPage } from "../../../page-objects/api-contract-page";
 import {
   validateSummaryAndTableCounts,
   verifyRightSidebarStatus,
-  waitforDialogToDismiss,
 } from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract testing with test exclusion and inclusion", () => {
@@ -45,7 +44,6 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await contractPage.clickExcludeButton();
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
-        await waitforDialogToDismiss(contractPage, /Tests? complete/i);
         await verifyRightSidebarStatus(
           contractPage,
           "Done",
@@ -84,7 +82,6 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await contractPage.clickIncludeButton();
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
-        await waitforDialogToDismiss(contractPage, /Tests? complete/i);
 
         const tableHeaderTotals = await contractPage.getAllHeaderTotals();
 
@@ -118,7 +115,6 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await contractPage.clickExcludeButton();
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
-        await waitforDialogToDismiss(contractPage, /Tests? complete/i);
         const tableHeaderTotals = await contractPage.getAllHeaderTotals();
 
         expect(
@@ -150,7 +146,6 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await contractPage.clickIncludeButton();
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
-        await waitforDialogToDismiss(contractPage, /Tests? complete/i);
         const tableHeaderTotals = await contractPage.getAllHeaderTotals();
 
         expect(

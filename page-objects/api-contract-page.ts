@@ -272,10 +272,20 @@ export class ApiContractPage extends BasePage {
     });
   }
 
+  async waitforDialogToDismiss(status: string | RegExp) {
+    await expect(this.infoDialog).toContainText(status, {
+      timeout: 10000,
+    });
+
+    await this.infoDialog.waitFor({ state: "hidden", timeout: 10000 });
+  }
+
   private async waitForTestCompletion() {
     await this.waitForTestsToStartRunning();
 
     await this.waitForTestsToCompleteExecution();
+
+    await this.waitforDialogToDismiss(/Tests? complete/i);
 
     await takeAndAttachScreenshot(this.page, "test-completed", this.eyes);
   }

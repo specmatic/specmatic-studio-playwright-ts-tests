@@ -8,7 +8,6 @@ import {
   validateSummaryAndTableCounts,
   toggleFailedTestViewForTableandRaw,
   verifyRightSidebarStatus,
-  waitforDialogToDismiss,
 } from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract Testing", () => {
@@ -34,8 +33,6 @@ test.describe("API Contract Testing", () => {
       await test.step("Enter service URL and run contract tests", async () => {
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
-
-        await waitforDialogToDismiss(contractPage, /Tests? complete/i);
 
         await contractPage.handlePrereqErrorIfVisible();
 

@@ -4,10 +4,7 @@ import {
   ORDER_BFF_SERVICE_URL,
 } from "../../specNames";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
-import {
-  verifyRightSidebarStatus,
-  waitforDialogToDismiss,
-} from "../helpers/execute-contract-tests-helper";
+import { verifyRightSidebarStatus } from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract Testing - Filtering", () => {
   test(
@@ -33,7 +30,6 @@ test.describe("API Contract Testing - Filtering", () => {
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.setGenerativeMode(false);
         await contractPage.clickRunContractTests();
-        await waitforDialogToDismiss(contractPage, /Tests? complete/i);
         await verifyRightSidebarStatus(
           contractPage,
           "Done",
