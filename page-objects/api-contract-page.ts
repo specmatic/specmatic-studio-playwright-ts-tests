@@ -71,6 +71,8 @@ export class ApiContractPage extends BasePage {
 
   private readonly sidebarProcessBar: (specName: string) => Locator;
 
+  readonly infoDialog: Locator;
+
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
@@ -218,6 +220,8 @@ export class ApiContractPage extends BasePage {
     this.includeButton = this.specSection
       .locator("button.clear")
       .filter({ hasText: "Include" });
+
+    this.infoDialog = this.page.locator("#alert-container .alert-msg.info");
   }
 
   //Function Beginning
@@ -762,7 +766,9 @@ export class ApiContractPage extends BasePage {
     const summary = this.getPrereqErrorSummary();
     const message = this.getPrereqErrorMessage();
 
-    const isVisible = await summary.isVisible({ timeout: 3000 }).catch(() => false);
+    const isVisible = await summary
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
     if (!isVisible) {
       console.log("No prerequisite error detected.");
       return;
@@ -775,9 +781,13 @@ export class ApiContractPage extends BasePage {
 
     await summary.click();
 
-    await expect(message).toBeVisible({ timeout: 5000 }).catch(() => {
-      console.warn("Detail message did not become visible after clicking summary");
-    });
+    await expect(message)
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {
+        console.warn(
+          "Detail message did not become visible after clicking summary",
+        );
+      });
 
     await takeAndAttachScreenshot(this.page, "contract-prereq-error-expanded");
 
@@ -787,6 +797,6 @@ export class ApiContractPage extends BasePage {
       : "<not visible>";
 
     console.error(`Prerequisite error summary: ${summaryText}`);
-    console.error(`Prerequisite error detail:  ${detailedMessage}`);  
+    console.error(`Prerequisite error detail:  ${detailedMessage}`);
   }
 }

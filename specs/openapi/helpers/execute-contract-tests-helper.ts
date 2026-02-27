@@ -86,3 +86,16 @@ export async function verifyRightSidebarStatus(
   await contractPage.verifySidebarStatus(specName, status);
   await contractPage.closeRightSidebarByClickingOutside();
 }
+
+export async function waitforDialogToDismiss(
+  contractPage: ApiContractPage,
+  status: string | RegExp,
+) {
+  const infoDialog = contractPage.infoDialog;
+
+  await expect(infoDialog).toContainText(status, {
+    timeout: 10000,
+  });
+
+  await infoDialog.waitFor({ state: "hidden", timeout: 10000 });
+}
