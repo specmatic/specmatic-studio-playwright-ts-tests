@@ -496,7 +496,18 @@ export class ServiceSpecConfigPage extends BasePage {
     await test.step("Click Save button after editing spec", async () => {
       await this.saveSpecBtn.waitFor({ state: "visible", timeout: 5000 });
       await this.saveSpecBtn.click();
-      await takeAndAttachScreenshot(this.page, "save-button-clicked");
+      const saveAlert = this.page.locator(
+        "#alert-container .alert-msg.success",
+      );
+      await expect(saveAlert).toContainText(/Contents saved/i, {
+        timeout: 10000,
+      });
+
+      await takeAndAttachScreenshot(this.page, "spec-saved-successfully");
+
+      await saveAlert.locator("button").click();
+
+      await expect(saveAlert).toBeHidden({ timeout: 5000 });
     });
   }
 }
