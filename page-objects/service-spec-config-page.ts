@@ -40,7 +40,6 @@ export class ServiceSpecConfigPage extends BasePage {
   readonly alertDescription: Locator;
   private readonly specEditorHelper: SpecEditorPage;
 
-
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
@@ -157,15 +156,26 @@ export class ServiceSpecConfigPage extends BasePage {
 
       // Phase 1: scroll .cm-scroller to bottom so CodeMirror renders all lines
       await this.specEditorHelper.loadFullEditorDocument(scroller);
-      await scroller.evaluate((el) => { el.scrollTop = 0; });
+      await scroller.evaluate((el) => {
+        el.scrollTop = 0;
+      });
       await this.page.waitForTimeout(200);
 
       // Phase 2: try the CodeMirror API to jump directly to the term
-      const foundByApi = await this.specEditorHelper.focusTermUsingCodeMirrorApi(content, searchText);
+      const foundByApi =
+        await this.specEditorHelper.focusTermUsingCodeMirrorApi(
+          content,
+          searchText,
+        );
 
       // Phase 3: if the API didn't work, manually scroll to find the line
       if (!foundByApi) {
-        await this.specEditorHelper.scrollEditorToFindTerm(content, scroller, lines, searchText);
+        await this.specEditorHelper.scrollEditorToFindTerm(
+          content,
+          scroller,
+          lines,
+          searchText,
+        );
       }
 
       const targetLine = lines.filter({ hasText: searchText }).first();
@@ -192,7 +202,6 @@ export class ServiceSpecConfigPage extends BasePage {
       );
     });
   }
-
 
   async deleteSpecLinesInEditor(searchText: string, lineCount: number = 1) {
     await test.step(`Delete ${lineCount} spec line(s) starting with '${searchText}'`, async () => {
@@ -357,7 +366,11 @@ export class ServiceSpecConfigPage extends BasePage {
   async runBackwardCompatibilityTest() {
     await this.bccTestButton.click();
     await this.alertMessage.waitFor({ state: "visible", timeout: 5000 });
-    await takeAndAttachScreenshot(this.page, "waiting for alert", this.eyes);
+    await takeAndAttachScreenshot(
+      this.page,
+      "backward compatability passed",
+      this.eyes,
+    );
   }
 
   async getAlertMessageText(): Promise<string> {
