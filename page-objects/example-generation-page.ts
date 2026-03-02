@@ -11,6 +11,8 @@ import {
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { Edit } from "../utils/types/json-edit.types";
+import { SpecEditorPage } from "./spec-editor-page";
+
 
 export class ExampleGenerationPage extends BasePage {
   readonly openApiTabPage: OpenAPISpecTabPage;
@@ -30,6 +32,8 @@ export class ExampleGenerationPage extends BasePage {
   private readonly specSection: Locator;
   private readonly specEditorSection: Locator;
   private readonly specTabLocator: Locator;
+  private readonly specEditorHelper: SpecEditorPage;
+
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -62,7 +66,9 @@ export class ExampleGenerationPage extends BasePage {
     this.bulkValidateBtnSelector = "button#bulk-validate";
     this.inlineBtnSelector = "button#import";
     this.bulkFixBtnSelector = "button#bulk-fix";
+    this.specEditorHelper = new SpecEditorPage(page);
   }
+
 
   private async openExampleGenerationTab() {
     console.log("Opening Example Generation tab");
@@ -1134,7 +1140,7 @@ export class ExampleGenerationPage extends BasePage {
       await expect(editorContext.content).toBeVisible({ timeout: 15000 });
       await editorContext.content.click();
 
-      await this.loadFullEditorDocument(editorContext.scroller);
+      await this.specEditorHelper.loadFullEditorDocument(editorContext.scroller);
       await editorContext.scroller.evaluate((el) => {
         el.scrollTop = 0;
       });
@@ -1145,7 +1151,7 @@ export class ExampleGenerationPage extends BasePage {
         : [`${exampleName}_response`];
 
       for (const searchTerm of targets) {
-        const foundByEditorApi = await this.focusTermUsingCodeMirrorApi(
+        const foundByEditorApi = await this.specEditorHelper.focusTermUsingCodeMirrorApi(
           editorContext.content,
           searchTerm,
         );
@@ -1157,12 +1163,18 @@ export class ExampleGenerationPage extends BasePage {
         );
 
         if (!foundByWindowFind) {
-          await this.scrollToEditorSearchTerm(
+          await this.specEditorHelper.scrollEditorToFindTerm(
             editorContext.content,
             editorContext.scroller,
             editorContext.lines,
             searchTerm,
           );
+          // Click the matched line for visual cursor placement
+          const match = editorContext.lines.filter({ hasText: searchTerm }).first();
+          if ((await match.count()) > 0) {
+            await match.scrollIntoViewIfNeeded();
+            await match.click();
+          }
         }
 
         await this.page.waitForTimeout(250);
@@ -1237,114 +1249,5 @@ export class ExampleGenerationPage extends BasePage {
       }
       return win.find(term, false, false, true, false, false, false);
     }, searchTerm);
-  }
-
-  private async focusTermUsingCodeMirrorApi(
-    content: Locator,
-    searchTerm: string,
-  ): Promise<boolean> {
-    return await content.evaluate((el, term) => {
-      const cmEditor = el.closest(".cm-editor") as any;
-      const view = cmEditor?.cmView?.view;
-      if (!view) return false;
-
-      const fullText = view.state.doc.toString() as string;
-      const index = fullText.indexOf(term);
-      if (index === -1) return false;
-
-      view.dispatch({
-        selection: { anchor: index, head: index + term.length },
-        scrollIntoView: true,
-      });
-      return true;
-    }, searchTerm);
-  }
-
-  private async loadFullEditorDocument(scroller: Locator): Promise<void> {
-    await expect(scroller).toBeVisible({ timeout: 10000 });
-
-    let unchangedCount = 0;
-    let previousScrollHeight = -1;
-
-    for (let i = 0; i < 60; i++) {
-      const metrics = await scroller.evaluate((el) => {
-        el.scrollTop = el.scrollHeight;
-        return {
-          scrollTop: el.scrollTop,
-          scrollHeight: el.scrollHeight,
-          clientHeight: el.clientHeight,
-        };
-      });
-
-      if (metrics.scrollHeight === previousScrollHeight) {
-        unchangedCount += 1;
-      } else {
-        unchangedCount = 0;
-      }
-
-      previousScrollHeight = metrics.scrollHeight;
-
-      const atBottom =
-        metrics.scrollTop + metrics.clientHeight >= metrics.scrollHeight - 2;
-      if (atBottom && unchangedCount >= 2) {
-        break;
-      }
-
-      await this.page.waitForTimeout(120);
-    }
-  }
-
-  private async scrollToEditorSearchTerm(
-    content: Locator,
-    scroller: Locator,
-    lines: Locator,
-    searchTerm: string,
-  ): Promise<void> {
-    await scroller.evaluate((el) => {
-      el.scrollTop = 0;
-    });
-    await this.page.waitForTimeout(120);
-
-    for (let i = 0; i < 250; i++) {
-      const match = lines.filter({ hasText: searchTerm }).first();
-      const count = await match.count();
-
-      if (count > 0) {
-        await match.scrollIntoViewIfNeeded();
-        await match.click();
-        return;
-      }
-
-      const moved = await scroller.evaluate((el) => {
-        const prev = el.scrollTop;
-        el.scrollTop = Math.min(
-          el.scrollTop + Math.max(el.clientHeight * 0.85, 120),
-          el.scrollHeight,
-        );
-        return el.scrollTop > prev;
-      });
-
-      if (!moved) {
-        break;
-      }
-
-      await this.page.waitForTimeout(80);
-    }
-
-    // Fallback: some editor layouts scroll via outer containers, not .cm-scroller.
-    await content.hover();
-    for (let i = 0; i < 280; i++) {
-      const visible = await lines.evaluateAll(
-        (els, term) => els.some((el) => el.textContent?.includes(term)),
-        searchTerm,
-      );
-      if (visible) {
-        return;
-      }
-      await this.page.mouse.wheel(0, 900);
-      await this.page.waitForTimeout(60);
-    }
-
-    throw new Error(`Could not find '${searchTerm}' in the spec editor`);
   }
 }

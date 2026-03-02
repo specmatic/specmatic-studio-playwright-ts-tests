@@ -3,14 +3,15 @@ import { PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE } from "../../specNames
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
 
 test.describe("API Contract Testing - Negative Scenarios", () => {
+  let contractPage: ApiContractPage;
+
   test.beforeEach(async ({ page, eyes }, testInfo) => {
-    const contractPage = new ApiContractPage(
+    contractPage = new ApiContractPage(
       page,
       testInfo,
       eyes,
       PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE,
     );
-
     await contractPage.openContractTestTabForSpec(
       testInfo,
       eyes,
@@ -21,13 +22,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
   test(
     "Verify error for invalid service URL",
     { tag: ["@test", "@negative", "@wrongServiceURL", "@eyes"] },
-    async ({ page, eyes }, testInfo) => {
-      const contractPage = new ApiContractPage(
-        page,
-        testInfo,
-        eyes,
-        PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE,
-      );
+    async () => {
       const invalidUrl = "http://ww.gag.com";
 
       await test.step("Enter invalid service URL", async () => {
@@ -35,7 +30,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
       });
 
       await test.step("Run contract tests and expect error", async () => {
-        await contractPage.clickRunContractTests();
+        await contractPage.clickRunContractTests(false);
       });
 
       await test.step("Verify prerequisite error is visible", async () => {
@@ -49,13 +44,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
   test(
     "Verify error for invalid port",
     { tag: ["@test", "@negative", "@wrongPort", "@eyes"] },
-    async ({ page, eyes }, testInfo) => {
-      const contractPage = new ApiContractPage(
-        page,
-        testInfo,
-        eyes,
-        PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE,
-      );
+    async () => {
       const invalidPortUrl = "http://order-bff:9999";
 
       await test.step("Enter service URL with invalid port", async () => {
@@ -63,7 +52,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
       });
 
       await test.step("Run contract tests and expect error", async () => {
-        await contractPage.clickRunContractTests();
+        await contractPage.clickRunContractTests(false);
       });
 
       await test.step("Verify prerequisite error is visible", async () => {

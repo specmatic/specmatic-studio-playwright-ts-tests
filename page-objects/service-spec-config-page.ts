@@ -2,6 +2,7 @@ import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
 import { Locator, expect, type TestInfo, Page, test } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
+import { SpecEditorPage } from "./spec-editor-page";
 
 export interface Edit {
   current: {
@@ -37,6 +38,8 @@ export class ServiceSpecConfigPage extends BasePage {
   readonly alertContainer: Locator;
   readonly alertTitle: Locator;
   readonly alertDescription: Locator;
+  private readonly specEditorHelper: SpecEditorPage;
+
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -78,7 +81,9 @@ export class ServiceSpecConfigPage extends BasePage {
     this.alertContainer = page.locator(".alert-msg.error");
     this.alertTitle = this.alertContainer.locator("p");
     this.alertDescription = this.alertContainer.locator("pre");
+    this.specEditorHelper = new SpecEditorPage(page);
   }
+
   async openSpecTab() {
     return this.openApiTabPage.openSpecTab();
   }
@@ -141,6 +146,53 @@ export class ServiceSpecConfigPage extends BasePage {
       await this.verifyTextHighlightedInEditor(replaceText.trim());
     });
   }
+
+  async editSpecInEditor(searchText: string, replaceText: string) {
+    await test.step(`Edit spec in editor: '${searchText}' -> '${replaceText}'`, async () => {
+      const content = this.specSection.locator(".cm-content").first();
+      const scroller = this.specSection.locator(".cm-scroller").first();
+      const lines = this.specSection.locator(".cm-content .cm-line");
+
+      await expect(content).toBeVisible({ timeout: 10000 });
+
+      // Phase 1: scroll .cm-scroller to bottom so CodeMirror renders all lines
+      await this.specEditorHelper.loadFullEditorDocument(scroller);
+      await scroller.evaluate((el) => { el.scrollTop = 0; });
+      await this.page.waitForTimeout(200);
+
+      // Phase 2: try the CodeMirror API to jump directly to the term
+      const foundByApi = await this.specEditorHelper.focusTermUsingCodeMirrorApi(content, searchText);
+
+      // Phase 3: if the API didn't work, manually scroll to find the line
+      if (!foundByApi) {
+        await this.specEditorHelper.scrollEditorToFindTerm(content, scroller, lines, searchText);
+      }
+
+      const targetLine = lines.filter({ hasText: searchText }).first();
+      await expect(targetLine).toBeVisible({ timeout: 10000 });
+
+      const originalText = await targetLine.innerText();
+      const leadingSpaces = originalText.match(/^\s*/)?.[0] ?? "";
+
+      await targetLine.scrollIntoViewIfNeeded();
+      await targetLine.click();
+
+      // Home twice: first Home moves past soft indent, second goes to column 0
+      await this.page.keyboard.press("Home");
+      await this.page.keyboard.press("Home");
+      await this.page.keyboard.press("Shift+End");
+      await this.page.keyboard.press("Backspace");
+      await this.page.keyboard.type(leadingSpaces + replaceText.trim());
+
+      const safeFileName = replaceText.trim().replace(/[^a-zA-Z0-9]/g, "-");
+      await takeAndAttachScreenshot(
+        this.page,
+        `spec-editor-edit-${safeFileName}`,
+        this.eyes,
+      );
+    });
+  }
+
 
   async deleteSpecLinesInEditor(searchText: string, lineCount: number = 1) {
     await test.step(`Delete ${lineCount} spec line(s) starting with '${searchText}'`, async () => {

@@ -11,25 +11,28 @@ import {
 } from "../helpers/execute-contract-tests-helper";
 
 test.describe("API Contract Testing", () => {
-  test(
-    "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings",
-    { tag: ["@test", "@runContractTests", "@eyes"] },
-    async ({ page, eyes }, testInfo) => {
-      const contractPage = new ApiContractPage(
-        page,
+  let contractPage: ApiContractPage;
+
+  test.beforeEach(async ({ page, eyes }, testInfo) => {
+    contractPage = new ApiContractPage(
+      page,
+      testInfo,
+      eyes,
+      PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_DEFAULT,
+    );
+    await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_DEFAULT}'`, async () => {
+      await contractPage.openContractTestTabForSpec(
         testInfo,
         eyes,
         PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_DEFAULT,
       );
+    });
+  });
 
-      await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_DEFAULT}'`, async () => {
-        await contractPage.openContractTestTabForSpec(
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_DEFAULT,
-        );
-      });
-
+  test(
+    "Run contract tests for openapi spec product_search_bff_v5.yaml with default settings",
+    { tag: ["@test", "@runContractTests", "@eyes"] },
+    async () => {
       await test.step("Enter service URL and run contract tests", async () => {
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.clickRunContractTests();
@@ -42,6 +45,7 @@ test.describe("API Contract Testing", () => {
           PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_DEFAULT,
         );
       });
+
       await test.step("Verify test results and remarks for executed contract tests", async () => {
         await contractPage.verifyTestResults();
 
@@ -70,6 +74,7 @@ test.describe("API Contract Testing", () => {
           excluded: 0,
         });
       });
+
       await test.step("Identify and Toggle Views for first and last failed Tests", async () => {
         await toggleFailedTestViewForTableandRaw(contractPage);
       });

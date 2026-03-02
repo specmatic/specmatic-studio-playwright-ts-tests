@@ -9,18 +9,44 @@ import {
   verifyRightSidebarStatus,
 } from "../helpers/execute-contract-tests-helper";
 
+
+type Counts = Parameters<typeof validateSummaryAndTableCounts>[1];
+
+async function runAndVerifyCounts(
+  contractPage: ApiContractPage,
+  expectedCounts: Counts,
+) {
+  await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+  await contractPage.clickRunContractTests();
+  await verifyRightSidebarStatus(
+    contractPage,
+    "Done",
+    PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
+  );
+
+  const { path } = await contractPage.getAllHeaderTotals();
+  expect(path, "Path header should match unique paths in table").toBe(
+    await contractPage.getUniqueValuesInColumn(2),
+  );
+
+  await validateSummaryAndTableCounts(contractPage, expectedCounts);
+}
+
+
 test.describe("API Contract testing with test exclusion and inclusion", () => {
   test(
     "Exclude specific tests and verify excluded tests are not executed",
     { tag: ["@test", "@testExclusion", "@eyes", "@expected-failure"] },
     async ({ page, eyes }, testInfo) => {
       test.fail(true, "Needs fixing by the devs");
+
       const contractPage = new ApiContractPage(
         page,
         testInfo,
         eyes,
         PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
       );
+
       await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED}'`, async () => {
         await contractPage.openContractTestTabForSpec(
           testInfo,
@@ -28,168 +54,56 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
           PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
         );
       });
-      await test.step("Exclude single test", async () => {
-        const contractPage = new ApiContractPage(
-          page,
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
-        );
 
-        await contractPage.selectTestForExclusionOrInclusion(
-          "/products",
-          "POST",
-          "201",
-        );
+      await test.step("Exclude single test and verify counts decrease", async () => {
+        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "201");
         await contractPage.clickExcludeButton();
-        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
-        await contractPage.clickRunContractTests();
-        await verifyRightSidebarStatus(
-          contractPage,
-          "Done",
-          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
-        );
-
-        const tableHeaderTotals = await contractPage.getAllHeaderTotals();
-
-        expect(
-          tableHeaderTotals.path,
-          "Path header should match unique paths in table",
-        ).toBe(await contractPage.getUniqueValuesInColumn(2));
-
-        await validateSummaryAndTableCounts(contractPage, {
-          success: 0,
-          failed: 20,
-          total: 23,
-          error: 0,
-          notcovered: 2,
-          excluded: 1,
+        await runAndVerifyCounts(contractPage, {
+          success: 0, failed: 20, total: 23, error: 0, notcovered: 2, excluded: 1,
         });
       });
 
-      await test.step("Include single test", async () => {
-        const contractPage = new ApiContractPage(
-          page,
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
-        );
-        await contractPage.selectTestForExclusionOrInclusion(
-          "/products",
-          "POST",
-          "201",
-        );
+      await test.step("Include single test and verify counts are restored", async () => {
+        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "201");
         await contractPage.clickIncludeButton();
-        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
-        await contractPage.clickRunContractTests();
-
-        const tableHeaderTotals = await contractPage.getAllHeaderTotals();
-
-        expect(
-          tableHeaderTotals.path,
-          "Path header should match unique paths in table",
-        ).toBe(await contractPage.getUniqueValuesInColumn(2));
-
-        await validateSummaryAndTableCounts(contractPage, {
-          success: 12,
-          failed: 20,
-          total: 34,
-          error: 0,
-          notcovered: 2,
-          excluded: 0,
+        await runAndVerifyCounts(contractPage, {
+          success: 12, failed: 20, total: 34, error: 0, notcovered: 2, excluded: 0,
         });
       });
 
       await test.step("Exclude multiple tests across different endpoints", async () => {
-        const contractPage = new ApiContractPage(
-          page,
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
-        );
-
         await contractPage.selectMultipleTests([
           { path: "/products", method: "POST", response: "201" },
           { path: "/findAvailableProducts", method: "GET", response: "200" },
         ]);
         await contractPage.clickExcludeButton();
-        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
-        await contractPage.clickRunContractTests();
-
-        const tableHeaderTotals = await contractPage.getAllHeaderTotals();
-
-        expect(
-          tableHeaderTotals.path,
-          "Path header should match unique paths in table",
-        ).toBe(await contractPage.getUniqueValuesInColumn(2));
-
-        await validateSummaryAndTableCounts(contractPage, {
-          success: 0,
-          failed: 15,
-          total: 19,
-          error: 0,
-          notcovered: 2,
-          excluded: 2,
+        await runAndVerifyCounts(contractPage, {
+          success: 0, failed: 15, total: 19, error: 0, notcovered: 2, excluded: 2,
         });
       });
 
-      await test.step("Include multiple tests across different endpoints", async () => {
-        const contractPage = new ApiContractPage(
-          page,
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
-        );
+      await test.step("Include multiple tests and verify all counts are restored", async () => {
         await contractPage.selectMultipleTests([
           { path: "/products", method: "POST", response: "201" },
           { path: "/findAvailableProducts", method: "GET", response: "200" },
         ]);
         await contractPage.clickIncludeButton();
-        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
-        await contractPage.clickRunContractTests();
-
-        const tableHeaderTotals = await contractPage.getAllHeaderTotals();
-
-        expect(
-          tableHeaderTotals.path,
-          "Path header should match unique paths in table",
-        ).toBe(await contractPage.getUniqueValuesInColumn(2));
-
-        await validateSummaryAndTableCounts(contractPage, {
-          success: 12,
-          failed: 20,
-          total: 34,
-          error: 0,
-          notcovered: 2,
-          excluded: 0,
+        await runAndVerifyCounts(contractPage, {
+          success: 12, failed: 20, total: 34, error: 0, notcovered: 2, excluded: 0,
         });
       });
 
       await test.step("Verify error when mixing inclusive and exclusive operations", async () => {
-        await contractPage.selectTestForExclusionOrInclusion(
-          "/products",
-          "POST",
-          "201",
-        );
+        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "201");
         await contractPage.clickExcludeButton();
 
-        await contractPage.selectTestForExclusionOrInclusion(
-          "/products",
-          "POST",
-          "201",
-        );
-        await contractPage.selectTestForExclusionOrInclusion(
-          "/products",
-          "POST",
-          "202",
-        );
+        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "201");
+        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "202");
 
-        const actualErrorMessage =
-          await contractPage.getMixedOperationErrorText();
-
-        const expectedMessage =
-          "A combination of inclusive and exclusive operations have been selected, Please select only one type";
-        expect(actualErrorMessage).toContain(expectedMessage);
+        const actualErrorMessage = await contractPage.getMixedOperationErrorText();
+        expect(actualErrorMessage).toContain(
+          "A combination of inclusive and exclusive operations have been selected, Please select only one type",
+        );
       });
     },
   );

@@ -15,6 +15,7 @@ export const PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL = "product_search_bff_v
 export const PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED = "product_search_bff_v5_examples_validate_inlined.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED = "product_search_bff_v5_examples_validate_post_inlined.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY = "product_search_bff_v5_backward_compatibility.yaml";
+export const PRODUCT_SEARCH_BFF_SPEC_BACKWARD_INCOMPATIBLE = "product_search_bff_v5_backward_incompatibility.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO = "product_search_bff_v5_fix_typo.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_SAVE_INVALID_SPEC = "product_search_bff_v5_save_invalid_spec.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_UPDATE = "product_search_bff_v5_update.yaml";

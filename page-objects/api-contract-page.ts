@@ -71,6 +71,8 @@ export class ApiContractPage extends BasePage {
 
   private readonly sidebarProcessBar: (specName: string) => Locator;
 
+  readonly infoDialog: Locator;
+
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
@@ -218,6 +220,8 @@ export class ApiContractPage extends BasePage {
     this.includeButton = this.specSection
       .locator("button.clear")
       .filter({ hasText: "Include" });
+
+    this.infoDialog = this.page.locator("#alert-container .alert-msg.info");
   }
 
   //Function Beginning
@@ -247,7 +251,7 @@ export class ApiContractPage extends BasePage {
     );
   }
 
-  async clickRunContractTests() {
+  async clickRunContractTests(expectSuccess: boolean = true) {
     await test.step("Run Contract Tests", async () => {
       try {
         await expect(this._runButton).toBeEnabled({ timeout: 10000 });
@@ -260,7 +264,11 @@ export class ApiContractPage extends BasePage {
 
         await takeAndAttachScreenshot(this.page, "clicked-run-contract-tests");
 
-        await this.waitForTestCompletion();
+        if (expectSuccess) {
+          await this.waitForTestCompletion();
+        } else {
+          await this.page.waitForTimeout(1000);
+        }
       } catch (e) {
         await takeAndAttachScreenshot(this.page, "error-in-run-contract-tests");
         throw new Error(`Failed to click Run button:`);
@@ -268,10 +276,34 @@ export class ApiContractPage extends BasePage {
     });
   }
 
+  async waitforDialogToDismiss(status: string | RegExp) {
+    try {
+      const appeared = await this.infoDialog
+        .waitFor({ state: "visible", timeout: 5000 })
+        .then(() => true)
+        .catch(() => false);
+
+      if (!appeared) {
+        console.log("[INFO] Dialog did not appear — safe to continue");
+        return;
+      }
+
+      await expect.soft(this.infoDialog).toContainText(status, {
+        timeout: 10000,
+      });
+
+      await this.infoDialog.waitFor({ state: "hidden", timeout: 5000 });
+    } catch (e) {
+      console.log("[WARN] Dialog wait issue — continuing:", e);
+    }
+  }
+
   private async waitForTestCompletion() {
     await this.waitForTestsToStartRunning();
 
     await this.waitForTestsToCompleteExecution();
+
+    await this.waitforDialogToDismiss(/Tests? complete/i);
 
     await takeAndAttachScreenshot(this.page, "test-completed", this.eyes);
   }
@@ -376,6 +408,7 @@ export class ApiContractPage extends BasePage {
     path: string,
     method: string,
     response: string,
+    { captureVisual = true }: { captureVisual?: boolean } = {},
   ) {
     const checkbox = this.exclusionCheckboxLocator(path, method, response);
     try {
@@ -400,11 +433,13 @@ export class ApiContractPage extends BasePage {
     if (!isChecked) {
       await checkbox.click();
     }
-    await takeAndAttachScreenshot(
-      this.page,
-      "excluded-test-" + `${path}-${method}-${response}`,
-      this.eyes,
-    );
+    if (captureVisual) {
+      await takeAndAttachScreenshot(
+        this.page,
+        "excluded-test-" + `${path}-${method}-${response}`,
+        this.eyes,
+      );
+    }
   }
 
   async clickExcludeButton() {
@@ -442,8 +477,14 @@ export class ApiContractPage extends BasePage {
         testItem.path,
         testItem.method,
         testItem.response,
+        { captureVisual: false },
       );
     }
+    await takeAndAttachScreenshot(
+      this.page,
+      `multiple-tests-selected-${testList.length}`,
+      this.eyes,
+    );
   }
 
   async getMixedOperationErrorText(): Promise<string> {
@@ -762,7 +803,9 @@ export class ApiContractPage extends BasePage {
     const summary = this.getPrereqErrorSummary();
     const message = this.getPrereqErrorMessage();
 
-    const isVisible = await summary.isVisible({ timeout: 3000 }).catch(() => false);
+    const isVisible = await summary
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
     if (!isVisible) {
       console.log("No prerequisite error detected.");
       return;
@@ -775,9 +818,13 @@ export class ApiContractPage extends BasePage {
 
     await summary.click();
 
-    await expect(message).toBeVisible({ timeout: 5000 }).catch(() => {
-      console.warn("Detail message did not become visible after clicking summary");
-    });
+    await expect(message)
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {
+        console.warn(
+          "Detail message did not become visible after clicking summary",
+        );
+      });
 
     await takeAndAttachScreenshot(this.page, "contract-prereq-error-expanded");
 
@@ -787,6 +834,6 @@ export class ApiContractPage extends BasePage {
       : "<not visible>";
 
     console.error(`Prerequisite error summary: ${summaryText}`);
-    console.error(`Prerequisite error detail:  ${detailedMessage}`);  
+    console.error(`Prerequisite error detail:  ${detailedMessage}`);
   }
 }

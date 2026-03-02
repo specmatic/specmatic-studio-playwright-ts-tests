@@ -1,3 +1,4 @@
+import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED } from "../../specNames";
 import {
@@ -9,8 +10,17 @@ import {
   verifyAndCloseInlineSuccessDialog,
 } from "../helpers/inline-examples-helper";
 
+const SPEC = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED;
 const PRODUCTS = "products";
 const ORDRES = "ordres";
+
+/** All path + response-code combinations exercised by this test. */
+const POST_PATHS_AND_CODES = [
+  { path: PRODUCTS, code: 201 },
+  { path: PRODUCTS, code: 400 },
+  { path: ORDRES, code: 201 },
+  { path: ORDRES, code: 400 },
+];
 
 test.describe("Validate generated spec after inlining POST request examples", () => {
   test(
@@ -28,7 +38,7 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         page,
         testInfo,
         eyes,
-        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED,
+        SPEC,
         [
           { path: PRODUCTS, responseCodes: [201, 400] },
           { path: ORDRES, responseCodes: [201, 400] },
@@ -37,45 +47,28 @@ test.describe("Validate generated spec after inlining POST request examples", ()
 
       const generatedExampleNames = await generateMoreThenValidateAndInline(
         examplePage,
-        [
-          { path: PRODUCTS, code: 201 },
-          { path: PRODUCTS, code: 400 },
-          { path: ORDRES, code: 201 },
-          { path: ORDRES, code: 400 },
-        ],
+        POST_PATHS_AND_CODES,
       );
 
-      const updatedSpecName = getUpdatedSpecName(PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED);
+      const updatedSpecName = getUpdatedSpecName(SPEC);
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined POST examples appear in the updated spec file", async () => {
-        const updatedSpecPage = await navigateToUpdatedSpec(
-          page,
-          testInfo,
-          eyes,
-          updatedSpecName,
-        );
+        const updatedSpecPage = await navigateToUpdatedSpec(page, testInfo, eyes, updatedSpecName);
 
-        await updatedSpecPage.verifyInlinedPostExamplesInSpec(
-          filterExampleNames(generatedExampleNames, PRODUCTS, 201),
-          PRODUCTS,
-          201,
-        );
-        await updatedSpecPage.verifyInlinedPostExamplesInSpec(
-          filterExampleNames(generatedExampleNames, PRODUCTS, 400),
-          PRODUCTS,
-          400,
-        );
-        await updatedSpecPage.verifyInlinedPostExamplesInSpec(
-          filterExampleNames(generatedExampleNames, ORDRES, 201),
-          ORDRES,
-          201,
-        );
-        await updatedSpecPage.verifyInlinedPostExamplesInSpec(
-          filterExampleNames(generatedExampleNames, ORDRES, 400),
-          ORDRES,
-          400,
-        );
+        for (const { path, code } of POST_PATHS_AND_CODES) {
+          await updatedSpecPage.verifyInlinedPostExamplesInSpec(
+            filterExampleNames(generatedExampleNames, path, code),
+            path,
+            code,
+          );
+        }
+      });
+      await test.step("Verify inlined examples are backward compatible", async () => {
+        const configPage = new ServiceSpecConfigPage(page, testInfo, eyes, updatedSpecName);
+        await configPage.runBackwardCompatibilityTest();
+        const toastText = await configPage.getAlertMessageText();
+        expect(toastText).toBe("Changes are backward compatible");
       });
     },
   );
