@@ -17,6 +17,8 @@ export async function navigateToUpdatedSpec(
     eyes,
     updatedSpecName,
   );
+
+  await updatedSpecPage.gotoHomeAndOpenSidebar();
   await updatedSpecPage.sideBar.selectSpec(updatedSpecName);
   await updatedSpecPage.openSpecTabForCurrentSpec();
   return updatedSpecPage;
@@ -28,10 +30,12 @@ export async function verifyAndCloseInlineSuccessDialog(
   const [actualTitle, actualMessage] =
     await examplePage.getDialogTitleAndMessage();
 
+  const displayedFileName = updatedSpecName.split("/").pop()!;
+
   expect.soft(actualTitle).toBe("Examples Inline Complete");
   expect
     .soft(actualMessage)
-    .toBe(`Successfully inlined examples into ${updatedSpecName}`);
+    .toBe(`Successfully inlined examples into ${displayedFileName}`);
 
   await examplePage.closeInlineSuccessDialog("Examples Inline Complete");
 }
@@ -70,7 +74,6 @@ export async function generateMoreThenValidateAndInline(
     return exampleNames;
   });
 }
-
 
 export function filterExampleNames(
   allNames: string[],

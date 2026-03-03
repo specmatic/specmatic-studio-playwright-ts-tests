@@ -42,9 +42,12 @@ export class ServiceSpecConfigPage extends BasePage {
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
+    const specFileName = specName.includes("/")
+      ? specName.split("/").pop()!
+      : specName;
     this.specTree = page.locator("#spec-tree");
     this.specSection = page.locator(
-      `xpath=//div[contains(@id,"${specName}") and @data-mode="spec"]`,
+      `xpath=//div[contains(@id,"${specFileName}") and @data-mode="spec"]`,
     );
     this.specBtn = page.locator('li.tab[data-type="spec"]').first();
     this.editBtn = this.specSection.getByText(/Edit specmatic.yaml/i);
@@ -57,10 +60,10 @@ export class ServiceSpecConfigPage extends BasePage {
     this.contractTestTab = page.locator('li.tab[data-type="test"]').first();
     this.alertMsg = page.locator(".alert-msg p");
     this.validationErrorBtn = page
-      .locator(`[id*="${this.specName}"]`)
+      .locator(`[id*="${specFileName}"]`)
       .locator("button.bcc-errors-btn");
     this.errorContent = page
-      .locator(`[id*="${this.specName}"]`)
+      .locator(`[id*="${specFileName}"]`)
       .locator(".bcc-errors-content");
 
     this.bccTestButton = this.specSection.locator("#bcc-test-btn");
@@ -384,14 +387,23 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async toggleBccErrorSection(shouldExpand: boolean) {
-    const isExpanded = await this.bccErrorToggle.getAttribute("aria-expanded");
+    // Use the content element's CSS class as the source of truth for the
+    // current expanded state. aria-expanded on the toggle button can drift
+    // out of sync with the actual visual state when scenarios run back-to-back
+    // without a page reload.
+    const classes = (await this.bccErrorContent.getAttribute("class")) ?? "";
+    const isCurrentlyExpanded = classes.includes("show");
 
     if (
-      (shouldExpand && isExpanded === "false") ||
-      (!shouldExpand && isExpanded === "true")
+      (shouldExpand && !isCurrentlyExpanded) ||
+      (!shouldExpand && isCurrentlyExpanded)
     ) {
       await this.bccErrorToggle.click();
-      await takeAndAttachScreenshot(this.page, "expanding-error-setion");
+      await takeAndAttachScreenshot(
+        this.page,
+        "expanding-error-section",
+        this.eyes,
+      );
     }
 
     if (shouldExpand) {
@@ -508,6 +520,84 @@ export class ServiceSpecConfigPage extends BasePage {
       await saveAlert.locator("button").click();
 
       await expect(saveAlert).toBeHidden({ timeout: 5000 });
+    });
+  }
+
+  async verifyCompatibilityScenario(
+    scenario: {
+      oldText: string;
+      newText: string;
+      expectedMessage: string | RegExp;
+    },
+    reload: boolean = true,
+  ) {
+    await test.step(`Scenario: ${scenario.oldText} -> ${scenario.newText}`, async () => {
+      if (scenario.newText === "") {
+        await this.deleteSpecLinesInEditor(scenario.oldText, 1);
+      } else {
+        await this.editSpecInEditor(scenario.oldText, scenario.newText);
+      }
+
+      await this.runBackwardCompatibilityTest();
+
+      const actualMessage = await this.getAlertMessageText();
+      expect(actualMessage).toContain(scenario.expectedMessage);
+
+      await this.dismissAlert();
+
+      if (reload) {
+        await this.page.reload();
+        await this.openSpecTab();
+      }
+    });
+  }
+
+  async verifyIncompatibilityScenario(
+    scenario: {
+      oldText: string;
+      newText: string;
+      lineCount: number;
+      expectedErrorCount: number;
+      expectedDetail: string;
+    },
+    reload: boolean = true,
+  ) {
+    // 1. Preconditions: Get back to a clean state (skipped when batching without reload)
+    if (reload) {
+      await test.step("Preconditions for the test", async () => {
+        await this.page.reload();
+        await this.navigateToSpec(this.specName!);
+      });
+    }
+
+    await test.step(`Incompatibility Check for: ${scenario.oldText}`, async () => {
+      if (scenario.lineCount > 0) {
+        await this.deleteSpecLinesInEditor(
+          scenario.oldText,
+          scenario.lineCount,
+        );
+      } else if (scenario.newText !== "") {
+        await this.editSpecInEditor(scenario.oldText, scenario.newText);
+      }
+
+      await this.runBackwardCompatibilityTest();
+
+      const toastText = await this.getAlertMessageText();
+      expect.soft(toastText).toContain("Backward compatibility test failed");
+      await this.dismissAlert();
+
+      await this.toggleBccErrorSection(true);
+      const { summary, details } = await this.getBccErrorDetails();
+
+      // Check for error count and details
+      expect.soft(summary).toContain(`${scenario.expectedErrorCount} error`);
+      const hasMatch = details.some((d) => d.includes(scenario.expectedDetail));
+      expect
+        .soft(
+          hasMatch,
+          `Expected error detail not found: ${scenario.expectedDetail}`,
+        )
+        .toBe(true);
     });
   }
 }
