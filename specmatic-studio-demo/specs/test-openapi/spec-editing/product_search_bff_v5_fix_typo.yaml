@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Order BFF
   description: Sample Order BFF
-  version: '5.0'
+  version: "5.0"
   contact:
     email: devs@specmatic.io
 servers:
@@ -28,30 +28,30 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProductBase'
+              $ref: "#/components/schemas/ProductBase"
       responses:
-        '201':
+        "201":
           description: Product created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Id'
-        '202':
+                $ref: "#/components/schemas/Id"
+        "202":
           description: Product Accepted
           headers:
             Link:
               schema:
-                $ref: '#/components/schemas/MonitorLink'
-        '400':
+                $ref: "#/components/schemas/MonitorLink"
+        "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: "#/components/schemas/BadRequest"
   /findAvailableProducts:
     parameters:
       - schema:
-          $ref : '#/components/schemas/ProductType'
+          $ref: "#/components/schemas/ProductType"
         name: type
         in: query
         required: false
@@ -78,28 +78,28 @@ paths:
       tags:
         - Product
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Product'
-        '429':
+                  $ref: "#/components/schemas/Product"
+        "429":
           description: TooManyRequests
           headers:
             Retry-After:
               schema:
                 type: integer
                 description: The number of seconds to wait before making the next request
-        '400':
+        "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
-  /orders:
+                $ref: "#/components/schemas/BadRequest"
+  /ordres:
     post:
       description: Create a new order
       operationId: createOrder
@@ -109,26 +109,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderBase'
+              $ref: "#/components/schemas/OrderBase"
       responses:
-        '201':
+        "201":
           description: Order created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Id'
-        '202':
+                $ref: "#/components/schemas/Id"
+        "202":
           description: Order accepted
           headers:
             Link:
               schema:
-                $ref: '#/components/schemas/MonitorLink'
-        '400':
+                $ref: "#/components/schemas/MonitorLink"
+        "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: "#/components/schemas/BadRequest"
   /monitor/{id}:
     get:
       description: Retrieves a Monitor by ID
@@ -142,18 +142,18 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Monitor status
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MonitorResponse'
-        '400':
+                $ref: "#/components/schemas/MonitorResponse"
+        "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequest'
+                $ref: "#/components/schemas/BadRequest"
 components:
   schemas:
     ProductInventory:
@@ -187,18 +187,18 @@ components:
         name:
           type: string
         type:
-          $ref: '#/components/schemas/ProductType'
+          $ref: "#/components/schemas/ProductType"
         inventory:
-          $ref: '#/components/schemas/ProductInventory'
+          $ref: "#/components/schemas/ProductInventory"
       required:
         - name
         - type
         - inventory
     Product:
       allOf:
-        - $ref: '#/components/schemas/Id'
-        - $ref: '#/components/schemas/ProductBase'
-        - $ref: '#/components/schemas/CreatedOn'
+        - $ref: "#/components/schemas/Id"
+        - $ref: "#/components/schemas/ProductBase"
+        - $ref: "#/components/schemas/CreatedOn"
     CreatedOn:
       type: object
       required:
@@ -220,8 +220,8 @@ components:
         - count
     Order:
       allOf:
-        - $ref: '#/components/schemas/Id'
-        - $ref: '#/components/schemas/OrderBase'
+        - $ref: "#/components/schemas/Id"
+        - $ref: "#/components/schemas/OrderBase"
         - type: object
           properties:
             status:
@@ -234,9 +234,9 @@ components:
       description: Monitoring of resources
       properties:
         request:
-          $ref: '#/components/schemas/Request'
+          $ref: "#/components/schemas/Request"
         response:
-          $ref: '#/components/schemas/Response'
+          $ref: "#/components/schemas/Response"
     Request:
       type: object
       description: A response to a request
@@ -248,7 +248,7 @@ components:
         headers:
           type: array
           items:
-            $ref: '#/components/schemas/HeaderItem'
+            $ref: "#/components/schemas/HeaderItem"
       required:
         - method
         - body
@@ -264,7 +264,7 @@ components:
         headers:
           type: array
           items:
-            $ref: '#/components/schemas/HeaderItem'
+            $ref: "#/components/schemas/HeaderItem"
       required:
         - statusCode
         - body
