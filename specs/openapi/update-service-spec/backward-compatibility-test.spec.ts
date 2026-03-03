@@ -3,6 +3,14 @@ import { PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY } from "../../specNames"
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { Page } from "playwright/test";
 
+const SCENARIOS = [
+  {
+    oldText: "summary: Create a new product",
+    newText: "summary: Create product",
+    expectedMessage: "Changes are backward compatible",
+  },
+];
+
 test.describe("API Specification", () => {
   test(
     "Backward Compatibility Test",
@@ -11,13 +19,10 @@ test.describe("API Specification", () => {
       const configPage = await setupConfigPage(page, testInfo, eyes);
 
       await test.step("Remove summary field from /products endpoint and save", async () => {
-        await configPage.deleteSpecLinesInEditor(
-          "summary: Create a new product",
-          1,
-        );
+        for (const scenario of SCENARIOS) {
+          await configPage.verifyCompatibilityScenario(scenario);
+        }
       });
-
-      await assertDialog(configPage, page);
     },
   );
 });
