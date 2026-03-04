@@ -516,4 +516,16 @@ export class MockServerPage extends BasePage {
       );
     });
   }
+
+  async assertMockPathVisible(path: string) {
+    const pathCell = this.mockTable.locator(
+      `tbody td[data-key="path"][data-value="${path}"]`,
+    );
+    await expect(pathCell).toBeVisible({ timeout: 10000 });
+    await takeAndAttachScreenshot(
+      this.page,
+      "mock-table-path-verified",
+      this.eyes,
+    );
+  }
 }
