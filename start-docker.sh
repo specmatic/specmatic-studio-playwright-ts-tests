@@ -16,20 +16,28 @@ done
 docker compose -p "$REPO_NAME" -f specmatic-studio-demo/docker-compose.yaml pull
 docker compose -p "$REPO_NAME" -f specmatic-studio-demo/docker-compose.yaml up -d
 
-# Wait until the service is accessible
-BASE_URL="http://localhost:9000/_specmatic/studio"
-echo "Waiting for $BASE_URL to become accessible..."
+# Wait until required endpoints are accessible
 MAX_ATTEMPTS=30
 SLEEP_SECONDS=2
-attempt=1
-while [ $attempt -le $MAX_ATTEMPTS ]; do
-	if curl --silent --fail "$BASE_URL" > /dev/null; then
-		echo "$BASE_URL is accessible."
-		exit 0
-	fi
-	echo "Attempt $attempt/$MAX_ATTEMPTS: $BASE_URL not accessible yet. Waiting $SLEEP_SECONDS seconds..."
-	sleep $SLEEP_SECONDS
-	attempt=$((attempt + 1))
-done
-echo "Error: $BASE_URL was not accessible after $((MAX_ATTEMPTS * SLEEP_SECONDS)) seconds."
-exit 1
+
+wait_for_url() {
+	local url="$1"
+	local attempt=1
+	echo "Waiting for $url to become accessible..."
+	while [ $attempt -le $MAX_ATTEMPTS ]; do
+		if curl --silent --fail "$url" > /dev/null; then
+			echo "$url is accessible."
+			return 0
+		fi
+		echo "Attempt $attempt/$MAX_ATTEMPTS: $url not accessible yet. Waiting $SLEEP_SECONDS seconds..."
+		sleep $SLEEP_SECONDS
+		attempt=$((attempt + 1))
+	done
+	echo "Error: $url was not accessible after $((MAX_ATTEMPTS * SLEEP_SECONDS)) seconds."
+	return 1
+}
+
+wait_for_url "http://localhost:8095/health" || exit 1
+wait_for_url "http://localhost:8090/products" || exit 1
+wait_for_url "http://localhost:8080/health" || exit 1
+wait_for_url "http://localhost:9000/_specmatic/studio" || exit 1

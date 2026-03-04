@@ -41,6 +41,8 @@ services:
   order-api:
     image: specmaticdemo/specmatic-order-api-java:latest
     container_name: order-api
+    ports:
+      - "8090:8090"
     environment:
       INVENTORY_API_URL: http://inventory-api:8095/ws
     depends_on:
