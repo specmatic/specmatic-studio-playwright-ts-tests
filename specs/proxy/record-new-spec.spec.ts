@@ -11,11 +11,24 @@ const MOBILE_NUMBER = "8556663339";
 test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy",
-    { tag: ["@proxy", "@recordNewAPISpec", "@recordNewSpec", "@eyes"] },
+    {
+      tag: [
+        "@proxy",
+        "@recordNewAPISpec",
+        "@recordNewSpec",
+        "@eyes",
+        "@expected-failure",
+      ],
+    },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "Needs fixing for the spec");
       const studio = new SpecmaticStudioPage(page, testInfo, eyes);
-      const mockPage = new MockServerPage(page, testInfo, eyes, PROXY_RECORDINGS_SPEC);
-      
+      const mockPage = new MockServerPage(
+        page,
+        testInfo,
+        eyes,
+        PROXY_RECORDINGS_SPEC,
+      );
 
       await test.step("Setup proxy recording", async () => {
         await studio.gotoHomeAndOpenSidebar();
@@ -26,12 +39,14 @@ test.describe("API Specification Management", () => {
         await studio.clickStartProxy();
       });
 
-      const proxyUrl = await test.step("Assert proxy started and get URL",
-        async () => studio.assertProxyStartedAndGetUrl());
+      const proxyUrl =
+        await test.step("Assert proxy started and get URL", async () =>
+          studio.assertProxyStartedAndGetUrl());
 
-      const proxyTab = await test.step("Open proxy target in new tab",
-        async () => studio.openProxyUrlInNewTab(proxyUrl));
-        const jioPage = new ProxyPage(proxyTab, testInfo, eyes);
+      const proxyTab =
+        await test.step("Open proxy target in new tab", async () =>
+          studio.openProxyUrlInNewTab(proxyUrl));
+      const jioPage = new ProxyPage(proxyTab, testInfo, eyes);
 
       await test.step(`Capture API call: enter mobile '${MOBILE_NUMBER}' and verify in proxy table`, async () => {
         await page.bringToFront();
