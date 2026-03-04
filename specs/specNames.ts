@@ -43,8 +43,10 @@ export const PRODUCT_SEARCH_BFF_SPEC_MOCK_NEGATIVE =
   "test-openapi/mock/product_search_bff_v5_mock_negative.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_MOCK_RUN_SERVER =
   "test-openapi/mock/product_search_bff_v5_mock_run_server.yaml";
+export const PROXY_RECORDINGS_SPEC = "proxy_recordings.yaml";
 export const ORDER_BFF_SERVICE_URL = "http://order-bff:8080";
 export const SPECMATIC_CONFIG = "specmatic.yaml";
 export const MOCK_SERVER_PORT = "8081";
 export const ORDER_API_URL = "http://order-api:8090";
 export const PROXY_PORT = "9090";
+export const PROXY_URL = "https://www.jio.com/";
