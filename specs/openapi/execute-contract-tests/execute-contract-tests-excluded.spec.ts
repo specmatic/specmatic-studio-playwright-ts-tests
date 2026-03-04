@@ -9,7 +9,6 @@ import {
   verifyRightSidebarStatus,
 } from "../helpers/execute-contract-tests-helper";
 
-
 type Counts = Parameters<typeof validateSummaryAndTableCounts>[1];
 
 async function runAndVerifyCounts(
@@ -18,6 +17,7 @@ async function runAndVerifyCounts(
 ) {
   await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
   await contractPage.clickRunContractTests();
+  await contractPage.handlePrereqErrorIfVisible();
   await verifyRightSidebarStatus(
     contractPage,
     "Done",
@@ -31,7 +31,6 @@ async function runAndVerifyCounts(
 
   await validateSummaryAndTableCounts(contractPage, expectedCounts);
 }
-
 
 test.describe("API Contract testing with test exclusion and inclusion", () => {
   test(
@@ -56,18 +55,36 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
       });
 
       await test.step("Exclude single test and verify counts decrease", async () => {
-        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "201");
+        await contractPage.selectTestForExclusionOrInclusion(
+          "/products",
+          "POST",
+          "201",
+        );
         await contractPage.clickExcludeButton();
         await runAndVerifyCounts(contractPage, {
-          success: 0, failed: 20, total: 23, error: 0, notcovered: 2, excluded: 1,
+          success: 0,
+          failed: 20,
+          total: 23,
+          error: 0,
+          notcovered: 2,
+          excluded: 1,
         });
       });
 
       await test.step("Include single test and verify counts are restored", async () => {
-        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "201");
+        await contractPage.selectTestForExclusionOrInclusion(
+          "/products",
+          "POST",
+          "201",
+        );
         await contractPage.clickIncludeButton();
         await runAndVerifyCounts(contractPage, {
-          success: 12, failed: 20, total: 34, error: 0, notcovered: 2, excluded: 0,
+          success: 12,
+          failed: 20,
+          total: 34,
+          error: 0,
+          notcovered: 2,
+          excluded: 0,
         });
       });
 
@@ -78,7 +95,12 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         ]);
         await contractPage.clickExcludeButton();
         await runAndVerifyCounts(contractPage, {
-          success: 0, failed: 15, total: 19, error: 0, notcovered: 2, excluded: 2,
+          success: 0,
+          failed: 15,
+          total: 19,
+          error: 0,
+          notcovered: 2,
+          excluded: 2,
         });
       });
 
@@ -89,18 +111,36 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         ]);
         await contractPage.clickIncludeButton();
         await runAndVerifyCounts(contractPage, {
-          success: 12, failed: 20, total: 34, error: 0, notcovered: 2, excluded: 0,
+          success: 12,
+          failed: 20,
+          total: 34,
+          error: 0,
+          notcovered: 2,
+          excluded: 0,
         });
       });
 
       await test.step("Verify error when mixing inclusive and exclusive operations", async () => {
-        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "201");
+        await contractPage.selectTestForExclusionOrInclusion(
+          "/products",
+          "POST",
+          "201",
+        );
         await contractPage.clickExcludeButton();
 
-        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "201");
-        await contractPage.selectTestForExclusionOrInclusion("/products", "POST", "202");
+        await contractPage.selectTestForExclusionOrInclusion(
+          "/products",
+          "POST",
+          "201",
+        );
+        await contractPage.selectTestForExclusionOrInclusion(
+          "/products",
+          "POST",
+          "202",
+        );
 
-        const actualErrorMessage = await contractPage.getMixedOperationErrorText();
+        const actualErrorMessage =
+          await contractPage.getMixedOperationErrorText();
         expect(actualErrorMessage).toContain(
           "A combination of inclusive and exclusive operations have been selected, Please select only one type",
         );
