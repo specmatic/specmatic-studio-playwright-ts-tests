@@ -147,7 +147,8 @@ async function verifyRightSidebarStatus(
   status: "Running" | "Done" | "Failed",
   specName: string,
 ) {
-  await mockPage.toggleRightSidebar();
-  await mockPage.verifySidebarStatus(specName, status);
-  await mockPage.closeRightSidebarByClickingOutside();
+  await mockPage.rightSidebar.open();
+  const actualStatus = await mockPage.getSidebarStatusText(specName);
+  expect(actualStatus.toLowerCase()).toBe(status.toLowerCase());
+  await mockPage.rightSidebar.close();
 }

@@ -82,7 +82,8 @@ export async function verifyRightSidebarStatus(
   status: "Running" | "Done" | "Failed",
   specName: string,
 ) {
-  await contractPage.toggleRightSidebar();
-  await contractPage.verifySidebarStatus(specName, status);
-  await contractPage.closeRightSidebarByClickingOutside();
+  await contractPage.rightSidebar.open();
+  const actualStatus = await contractPage.getSidebarStatusText(specName);
+  expect(actualStatus.toLowerCase()).toBe(status.toLowerCase());
+  await contractPage.rightSidebar.close();
 }

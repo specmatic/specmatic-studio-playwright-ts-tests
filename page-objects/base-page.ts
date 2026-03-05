@@ -7,11 +7,13 @@ import {
   FrameLocator,
 } from "@playwright/test";
 import type { SideBarPage } from "./side-bar-page";
+import { RightSidebarPage } from "./right-sidebar-page";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
 export class BasePage {
   protected readonly page: Page;
   readonly sideBar: SideBarPage;
+  readonly rightSidebar: RightSidebarPage;
   protected readonly testInfo: TestInfo;
   protected readonly eyes: any;
   protected readonly specTree?: Locator;
@@ -31,6 +33,7 @@ export class BasePage {
     this.specName = specName;
     const SideBarPageClass = require("./side-bar-page").SideBarPage;
     this.sideBar = new SideBarPageClass(page, testInfo, eyes);
+    this.rightSidebar = new RightSidebarPage(page, eyes);
     this.rightSidebarToggle = page.locator("#right-sidebar-toggle");
     this.activityBadge = page.locator("#activity-badge");
   }
@@ -109,13 +112,4 @@ export class BasePage {
     });
   }
 
-  async toggleRightSidebar() {
-    await this.rightSidebarToggle.click();
-    await this.page.waitForTimeout(500);
-  }
-
-  async closeRightSidebarByClickingOutside() {
-    await this.page.locator("body").click({ position: { x: 100, y: 100 } });
-    await this.page.waitForTimeout(500);
-  }
 }

@@ -1,4 +1,4 @@
-import { Locator, expect, type TestInfo, Page } from "@playwright/test";
+import { Locator, expect, type TestInfo, Page, test } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { SideBarPage } from "./side-bar-page";
@@ -31,7 +31,9 @@ export class SpecmaticStudioPage extends BasePage {
     });
     this.startProxyBtn = page.locator("#startProxy");
     this.stopProxyBtn = page.locator("#stopProxy");
-    this.proxyStartedAlert = page.locator("#alert-container .alert-msg.success");
+    this.proxyStartedAlert = page.locator(
+      "#alert-container .alert-msg.success",
+    );
     this.proxyInfoBox = page.locator("#proxy .info-message-box");
     this.proxyTable = page.locator("table#proxyTable");
 
@@ -72,14 +74,18 @@ export class SpecmaticStudioPage extends BasePage {
   }
 
   async clickStopProxy() {
-    await takeAndAttachScreenshot(this.page, "before-clicked-stop-proxy", this.eyes);
+    await takeAndAttachScreenshot(
+      this.page,
+      "before-clicked-stop-proxy",
+      this.eyes,
+    );
     await this.stopProxyBtn.click({ force: true });
     await takeAndAttachScreenshot(this.page, "clicked-stop-proxy", this.eyes);
   }
 
-  async assertProxyStartedAlert() {
+  async assertProxyStartedAlert(expectedText: string) {
     await expect(this.proxyStartedAlert).toBeVisible({ timeout: 10000 });
-    await expect(this.proxyStartedAlert.locator("p")).toHaveText("Proxy Started");
+    await expect(this.proxyStartedAlert.locator("p")).toHaveText(expectedText);
     await takeAndAttachScreenshot(this.page, "proxy-started-alert", this.eyes);
     await this.proxyStartedAlert.locator("button").click();
     await expect(this.proxyStartedAlert).toBeHidden({ timeout: 5000 });
@@ -119,15 +125,17 @@ export class SpecmaticStudioPage extends BasePage {
   }
 
   async assertRightSidebarMockStarted(specName: string) {
-    await this.toggleRightSidebar();
+    await this.rightSidebar.open();
     await this.page.waitForTimeout(1000);
     const processBar = this.replayProcessBar(specName);
-    await expect(processBar).toBeVisible({ timeout: 15000 });
-    await takeAndAttachScreenshot(this.page, "right-sidebar-replay-started", this.eyes);
-    await this.closeRightSidebarByClickingOutside();
+    await this.rightSidebar.assertProcessBarVisible(
+      processBar,
+      "right-sidebar-replay-started",
+    );
+    await this.rightSidebar.close();
   }
 
-  handleProxyErrorDialog() {
+  acceptProxyErrorDialog() {
     this.page.once("dialog", async (dialog) => {
       const allowedMessages = ["Proxy Error"];
       expect(allowedMessages).toContain(dialog.message());
@@ -141,8 +149,12 @@ export class SpecmaticStudioPage extends BasePage {
     return newTab;
   }
 
-  async assertProxyStartedAndGetUrl(): Promise<string> {
-    await this.assertProxyStartedAlert();
-    return this.getProxyUrl();
+  async assertProxyStartedAndGetUrl(
+    expectedAlertText: string,
+  ): Promise<string> {
+    return test.step("Assert proxy started and get URL", async () => {
+      await this.assertProxyStartedAlert(expectedAlertText);
+      return this.getProxyUrl();
+    });
   }
 }
