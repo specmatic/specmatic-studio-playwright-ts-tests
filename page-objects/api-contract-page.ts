@@ -329,7 +329,7 @@ export class ApiContractPage extends BasePage {
           message: "Waiting for contract tests to start",
         })
         .toBe("true");
-      await this.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC, "Running");
+      await this.verifySidebarStatus(this.specName!, "Running");
     } catch (e) {
       await this.handlePrereqErrorIfVisible();
       throw new Error(`Contract tests did not start running: ${e}`);
