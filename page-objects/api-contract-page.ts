@@ -253,49 +253,35 @@ export class ApiContractPage extends BasePage {
 
   async clickRunContractTests(expectSuccess: boolean = true) {
     await test.step("Run Contract Tests", async () => {
-      try {
-        await expect(this._runButton).toBeEnabled({ timeout: 10000 });
+      await expect(this._runButton).toBeEnabled({ timeout: 10000 });
 
-        await expect(this._runButton).toHaveAttribute("data-running", "false", {
-          timeout: 10000,
-        });
+      await expect(this._runButton).toHaveAttribute("data-running", "false", {
+        timeout: 10000,
+      });
 
-        await this._runButton.click();
+      await this._runButton.click();
 
-        await takeAndAttachScreenshot(this.page, "clicked-run-contract-tests");
+      await takeAndAttachScreenshot(this.page, "clicked-run-contract-tests");
 
-        if (expectSuccess) {
-          await this.waitForTestCompletion();
-        } else {
-          await this.page.waitForTimeout(1000);
-        }
-      } catch (e) {
-        await takeAndAttachScreenshot(this.page, "error-in-run-contract-tests");
-        throw new Error(`Failed to click Run button:`);
+      if (expectSuccess) {
+        await this.waitForTestCompletion();
+      } else {
+        await this.page.waitForTimeout(1000);
       }
     });
   }
 
   async waitforDialogToDismiss(status: string | RegExp) {
-    try {
-      const appeared = await this.infoDialog
-        .waitFor({ state: "visible", timeout: 5000 })
-        .then(() => true)
-        .catch(() => false);
+    await this.infoDialog
+      .waitFor({ state: "visible", timeout: 5000 })
+      .then(() => true)
+      .catch(() => false);
 
-      if (!appeared) {
-        console.log("[INFO] Dialog did not appear — safe to continue");
-        return;
-      }
+    await expect.soft(this.infoDialog).toContainText(status, {
+      timeout: 10000,
+    });
 
-      await expect.soft(this.infoDialog).toContainText(status, {
-        timeout: 10000,
-      });
-
-      await this.infoDialog.waitFor({ state: "hidden", timeout: 5000 });
-    } catch (e) {
-      console.log("[WARN] Dialog wait issue — continuing:", e);
-    }
+    await this.infoDialog.waitFor({ state: "hidden", timeout: 5000 });
   }
 
   private async waitForTestCompletion() {
@@ -345,10 +331,8 @@ export class ApiContractPage extends BasePage {
         .toBe("true");
       await this.verifySidebarStatus(PRODUCT_SEARCH_BFF_SPEC, "Running");
     } catch (e) {
-      await takeAndAttachScreenshot(
-        this.page,
-        "error-contract-tests-not-started",
-      );
+      await this.handlePrereqErrorIfVisible();
+      throw new Error(`Contract tests did not start running: ${e}`);
     }
   }
 

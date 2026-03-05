@@ -17,7 +17,6 @@ async function runAndVerifyCounts(
 ) {
   await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
   await contractPage.clickRunContractTests();
-  await contractPage.handlePrereqErrorIfVisible();
   await verifyRightSidebarStatus(
     contractPage,
     "Done",
