@@ -18,11 +18,7 @@ export class ProxyPage extends BasePage {
     await this.page.bringToFront();
   }
 
-  async enterMobileNumberAndProceed(
-    mobileNumber: string,
-    screenshotSuffix = "",
-  ) {
-    const suffix = screenshotSuffix ? `-${screenshotSuffix}` : "";
+  async enterMobileNumberAndProceed(mobileNumber: string) {
     await this.mobileInput.scrollIntoViewIfNeeded();
     await this.mobileInput.click();
     await this.page.keyboard.press("Control+A");
@@ -30,7 +26,7 @@ export class ProxyPage extends BasePage {
     await this.mobileInput.fill(mobileNumber);
     await takeAndAttachScreenshot(
       this.page,
-      `mobile-number-entered${suffix}`,
+      `mobile-number-entered`,
       this.eyes,
     );
 
@@ -44,10 +40,6 @@ export class ProxyPage extends BasePage {
       this.proceedBtn.click(),
     ]);
 
-    await takeAndAttachScreenshot(
-      this.page,
-      `proceed-clicked${suffix}`,
-      this.eyes,
-    );
+    await takeAndAttachScreenshot(this.page, `proceed-clicked`, this.eyes);
   }
 }

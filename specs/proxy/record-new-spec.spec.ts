@@ -64,7 +64,7 @@ test.describe("API Specification Management", () => {
 
       await test.step(`Replay via mock: second API call and verify in mock tab`, async () => {
         await jioPage.bringToFront();
-        await jioPage.enterMobileNumberAndProceed(MOBILE_NUMBER, "2");
+        await jioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
         await page.bringToFront();
         await studio.gotoHomeAndOpenSidebar();
         await studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
