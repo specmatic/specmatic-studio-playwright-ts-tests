@@ -2,7 +2,7 @@ import { Locator, type TestInfo, Page } from "@playwright/test";
 import { BasePage } from "./base-page";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 
-export class ProxyPage extends BasePage {
+export class JioAppInProxyPage extends BasePage {
   private readonly mobileInput: Locator;
   private readonly proceedBtn: Locator;
 
@@ -27,7 +27,6 @@ export class ProxyPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       `mobile-number-entered`,
-      this.eyes,
     );
 
     await Promise.all([
@@ -40,6 +39,6 @@ export class ProxyPage extends BasePage {
       this.proceedBtn.click(),
     ]);
 
-    await takeAndAttachScreenshot(this.page, `proceed-clicked`, this.eyes);
+    await takeAndAttachScreenshot(this.page, `proceed-clicked`);
   }
 }

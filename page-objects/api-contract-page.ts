@@ -797,6 +797,14 @@ export class ApiContractPage extends BasePage {
     });
   }
 
+  async getSidebarStatusText(specName: string): Promise<string> {
+    const processRow = this.sidebarProcessBar(specName);
+    const statusText = processRow.locator(".status-text");
+    await expect(statusText).toBeVisible({ timeout: 10000 });
+    await takeAndAttachScreenshot(this.page, `sidebar-status-${specName}`);
+    return statusText.innerText();
+  }
+
   async handlePrereqErrorIfVisible() {
     console.log("Checking for prerequisite error bar...");
 
