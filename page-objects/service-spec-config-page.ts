@@ -589,8 +589,13 @@ export class ServiceSpecConfigPage extends BasePage {
       await this.toggleBccErrorSection(true);
       const { summary, details } = await this.getBccErrorDetails();
 
-      // Check for error count and details
-      expect.soft(summary).toContain(`${scenario.expectedErrorCount} error`);
+      const errorSuffix =
+        scenario.expectedErrorCount === 1 ? "error" : "errors";
+      expect
+        .soft(summary)
+        .toContain(
+          `Backward Compatibility found ${scenario.expectedErrorCount} ${errorSuffix}`,
+        );
       const hasMatch = details.some((d) => d.includes(scenario.expectedDetail));
       expect
         .soft(

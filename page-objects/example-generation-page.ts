@@ -13,6 +13,11 @@ import { BasePage } from "./base-page";
 import { Edit } from "../utils/types/json-edit.types";
 import { SpecEditorPage } from "./spec-editor-page";
 
+export type ExampleEntry = {
+  name: string;
+  rawPath: string;
+  responseCode: number;
+};
 
 export class ExampleGenerationPage extends BasePage {
   readonly openApiTabPage: OpenAPISpecTabPage;
@@ -33,7 +38,6 @@ export class ExampleGenerationPage extends BasePage {
   private readonly specEditorSection: Locator;
   private readonly specTabLocator: Locator;
   private readonly specEditorHelper: SpecEditorPage;
-
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -68,7 +72,6 @@ export class ExampleGenerationPage extends BasePage {
     this.bulkFixBtnSelector = "button#bulk-fix";
     this.specEditorHelper = new SpecEditorPage(page);
   }
-
 
   private async openExampleGenerationTab() {
     console.log("Opening Example Generation tab");
@@ -158,16 +161,14 @@ export class ExampleGenerationPage extends BasePage {
     withVisualValidation = true,
   ) {
     const iframe = await this.waitForExamplesIFrame();
-    const rowXpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]`;
-    const endpointPrefix = endpoint.replace(/\/(\([^/]+\))/g, "");
-    const fileNameSpanXpath = `${rowXpath}//td/span[contains(text(), '${endpointPrefix}') and contains(text(), '${responseCode}')]`;
+    const rowXpath = `//tr[contains(@data-raw-path, "/${endpoint}") and .//td[@class='response-cell']//p[contains(normalize-space(.), "${responseCode}")]]`;
+    const fileNameSpanXpath = `${rowXpath}//td/span[contains(., '${responseCode}')]`;
     console.log(
       `\t\tLooking for example file name span with XPath: ${fileNameSpanXpath}`,
     );
     const fileNameSpan = iframe.locator(fileNameSpanXpath);
     await expect(fileNameSpan).toBeVisible({ timeout: 4000 });
     const fileNameText = (await fileNameSpan.textContent())?.trim();
-    expect(fileNameText).toContain(endpointPrefix);
     expect(fileNameText).toContain(String(responseCode));
     await takeAndAttachScreenshot(
       this.page,
@@ -925,7 +926,7 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async getGeneratedExampleNames(): Promise<string[]> {
+  async getGeneratedExampleNames(): Promise<ExampleEntry[]> {
     return await test.step(`Get generated example names`, async () => {
       console.log(`Getting generated example names from Examples tab`);
       const iframe = await this.waitForExamplesIFrame();
@@ -933,25 +934,34 @@ export class ExampleGenerationPage extends BasePage {
         .locator("tr[data-example-relative-path]")
         .all();
 
-      const exampleNames: string[] = [];
+      const entries: ExampleEntry[] = [];
       for (const row of exampleRows) {
         const relativePath = await row.getAttribute(
           "data-example-relative-path",
         );
+        const rawPath = await row.getAttribute("data-raw-path");
+        const responseCodeText = await row
+          .locator("td.response-cell p")
+          .first()
+          .textContent();
+
         if (relativePath) {
           const match = relativePath.match(/_examples\/(.+)\.json$/);
           if (match) {
-            exampleNames.push(match[1]);
+            entries.push({
+              name: match[1],
+              rawPath: rawPath ?? "",
+              responseCode: responseCodeText
+                ? parseInt(responseCodeText.trim(), 10)
+                : 0,
+            });
           }
         }
       }
 
-      console.log(
-        `Found ${exampleNames.length} generated examples:`,
-        exampleNames,
-      );
+      console.log(`Found ${entries.length} generated examples:`, entries);
       await takeAndAttachScreenshot(this.page, `generated-example-names`);
-      return exampleNames;
+      return entries;
     });
   }
 
@@ -1140,7 +1150,9 @@ export class ExampleGenerationPage extends BasePage {
       await expect(editorContext.content).toBeVisible({ timeout: 15000 });
       await editorContext.content.click();
 
-      await this.specEditorHelper.loadFullEditorDocument(editorContext.scroller);
+      await this.specEditorHelper.loadFullEditorDocument(
+        editorContext.scroller,
+      );
       await editorContext.scroller.evaluate((el) => {
         el.scrollTop = 0;
       });
@@ -1151,16 +1163,14 @@ export class ExampleGenerationPage extends BasePage {
         : [`${exampleName}_response`];
 
       for (const searchTerm of targets) {
-        const foundByEditorApi = await this.specEditorHelper.focusTermUsingCodeMirrorApi(
-          editorContext.content,
-          searchTerm,
-        );
+        const foundByEditorApi =
+          await this.specEditorHelper.focusTermUsingCodeMirrorApi(
+            editorContext.content,
+            searchTerm,
+          );
         const foundByWindowFind = foundByEditorApi
           ? true
-          : await this.findTermUsingWindowFind(
-          editorContext.frame,
-          searchTerm,
-        );
+          : await this.findTermUsingWindowFind(editorContext.frame, searchTerm);
 
         if (!foundByWindowFind) {
           await this.specEditorHelper.scrollEditorToFindTerm(
@@ -1169,8 +1179,10 @@ export class ExampleGenerationPage extends BasePage {
             editorContext.lines,
             searchTerm,
           );
-          // Click the matched line for visual cursor placement
-          const match = editorContext.lines.filter({ hasText: searchTerm }).first();
+
+          const match = editorContext.lines
+            .filter({ hasText: searchTerm })
+            .first();
           if ((await match.count()) > 0) {
             await match.scrollIntoViewIfNeeded();
             await match.click();

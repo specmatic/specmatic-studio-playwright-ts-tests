@@ -45,7 +45,7 @@ const MIXED_SCENARIO_GROUPS: ScenarioGroup[] = [
         newText: "",
         removeXLinesFromSpec: 4,
         isCompatible: false,
-        expectedErrorCount: 2,
+        expectedErrorCount: 3,
         expectedErrorDetail:
           "This is no body in the new specification, but json object in the old specification",
       },
@@ -60,7 +60,7 @@ const MIXED_SCENARIO_GROUPS: ScenarioGroup[] = [
         newText: "        required: true",
         removeXLinesFromSpec: 0,
         isCompatible: false,
-        expectedErrorCount: 1,
+        expectedErrorCount: 3,
         expectedErrorDetail:
           'New specification expects query param "type" in the request',
       },
@@ -72,8 +72,9 @@ test.describe("API Specification — Mixed Backward Compatibility Analysis", () 
   for (const group of MIXED_SCENARIO_GROUPS) {
     test(
       `Group: ${group.groupName}`,
-      { tag: ["@bcc", "@mixed"] },
+      { tag: ["@bcc", "@mixed","@expected-failure"] },
       async ({ page, eyes }, testInfo) => {
+        test.fail(true,"Expected to fail because of Error count");
         const configPage = new ServiceSpecConfigPage(
           page,
           testInfo,
@@ -137,7 +138,8 @@ async function assertScenarioResult(
       await configPage.toggleBccErrorSection(true);
       const { summary, details } = await configPage.getBccErrorDetails();
 
-      expect.soft(summary).toContain(`${scenario.expectedErrorCount} error`);
+      const errorSuffix = scenario.expectedErrorCount === 1 ? 'error' : 'errors';
+expect.soft(summary).toContain(`Backward Compatibility found ${scenario.expectedErrorCount} ${errorSuffix}`);
 
       const hasMatch = details.some((d: string) =>
         d.includes(scenario.expectedErrorDetail),

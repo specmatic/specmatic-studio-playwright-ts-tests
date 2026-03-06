@@ -1,5 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
+import { ExampleGenerationPage, ExampleEntry } from "../../../page-objects/example-generation-page";
 
 export function getUpdatedSpecName(specName: string): string {
   return specName.replace(/.yaml$/, "-updated.yaml");
@@ -57,30 +57,35 @@ export async function setupExampleGenerationPage(
 export async function generateMoreThenValidateAndInline(
   examplePage: ExampleGenerationPage,
   pathsAndCodes: { path: string; code: number }[],
-): Promise<string[]> {
+): Promise<ExampleEntry[]> {
   return await test.step("Generate more examples, validate all, and inline", async () => {
     for (const { path, code } of pathsAndCodes) {
       await examplePage.clickGenerateMoreButton(path, code);
     }
 
-    const exampleNames = await examplePage.getGeneratedExampleNames();
+    const exampleEntries = await examplePage.getGeneratedExampleNames();
     console.log(
-      `  Captured ${exampleNames.length} example names before inlining`,
+      `  Captured ${exampleEntries.length} example entries before inlining`,
     );
 
     await examplePage.validateAllExamples();
     await examplePage.inlineExamples();
 
-    return exampleNames;
+    return exampleEntries;
   });
 }
 
+
 export function filterExampleNames(
-  allNames: string[],
+  allEntries: ExampleEntry[],
   pathKeyword: string,
   responseCode: number,
 ): string[] {
-  return allNames.filter(
-    (name) => name.includes(pathKeyword) && name.includes(`_${responseCode}_`),
-  );
+  return allEntries
+    .filter(
+      (entry) =>
+        entry.rawPath.includes(`/${pathKeyword}`) &&
+        entry.responseCode === responseCode,
+    )
+    .map((entry) => entry.name);
 }

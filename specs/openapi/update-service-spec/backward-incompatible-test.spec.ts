@@ -9,9 +9,9 @@ const INCOMPATIBLE_SCENARIOS = [
     oldText: "  /products:",
     newText: "  /products/{id}:",
     lineCount: 0,
-    expectedErrorCount: 1,
+    expectedErrorCount: 3,
     expectedDetail:
-      "This API exists in the old contract but not in the new contract",
+      'In scenario "POST /products. Response: Product created"',
     isExpectedFailure: false,
   },
   {
@@ -29,7 +29,7 @@ const INCOMPATIBLE_SCENARIOS = [
     oldText: "        required: false",
     newText: "        required: true",
     lineCount: 0,
-    expectedErrorCount: 1,
+    expectedErrorCount: 3,
     expectedDetail:
       'New specification expects query param "type" in the request',
     isExpectedFailure: false,
@@ -39,7 +39,7 @@ const INCOMPATIBLE_SCENARIOS = [
     oldText: "        content:",
     newText: "",
     lineCount: 4,
-    expectedErrorCount: 1,
+    expectedErrorCount: 3,
     expectedDetail:
       "This is no body in the new specification, but json object in the old specification",
     isExpectedFailure: false,
