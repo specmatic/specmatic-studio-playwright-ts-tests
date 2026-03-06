@@ -12,10 +12,9 @@ import {
 test.describe(
   "Generative Test Suite - Include/Exclude Combinations",
   {
-    tag: ["@test", "@generativeTests", "@eyes", "@expected-failure"],
+    tag: ["@test", "@generativeTests", "@eyes"],
   },
   () => {
-    test.fail(true, "Needs fixing by the devs");
     let contractPage: ApiContractPage;
 
     test.beforeEach(async ({ page, eyes }, testInfo) => {

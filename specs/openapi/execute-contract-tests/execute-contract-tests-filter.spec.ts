@@ -27,9 +27,8 @@ test.describe("API Contract Testing - Filtering", () => {
 
   test(
     "Verify filtering by header",
-    { tag: ["@test", "@filterTest", "@eyes", "@expected-failure"] },
+    { tag: ["@test", "@filterTest", "@eyes"] },
     async () => {
-      test.fail(true, "Needs fixing by the devs");
       await test.step("Enter service URL and run contract tests", async () => {
         await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
         await contractPage.setGenerativeMode(false);
