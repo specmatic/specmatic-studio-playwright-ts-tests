@@ -146,6 +146,10 @@ export class MockServerPage extends BasePage {
       );
   }
 
+  private async openRunMockTab() {
+    return this.openApiTabPage.openRunMockServerTab();
+  }
+
   async openRunMockServerTab(specName: string) {
     await this.gotoHome();
     await this.sideBar.selectSpec(specName);
@@ -207,7 +211,21 @@ export class MockServerPage extends BasePage {
     return rawUrl;
   }
 
-  async clickContractTests() {
+  async assertAsyncMockStarted(
+    expectedText: string | RegExp = /Kafka mock broker/i,
+  ): Promise<void> {
+    await expect(this.infoMessageBox).toBeVisible({ timeout: 10000 });
+    await expect(this.infoMessageBox).toContainText(expectedText, {
+      timeout: 10000,
+    });
+    await takeAndAttachScreenshot(
+      this.page,
+      "async-mock-started-verified",
+      this.eyes,
+    );
+  }
+
+  async clickContractTestsTab() {
     await this.contractTestBtn.click();
     await takeAndAttachScreenshot(this.page, "navigated-to-contract-tests");
   }
@@ -535,5 +553,109 @@ export class MockServerPage extends BasePage {
       "mock-table-path-verified",
       this.eyes,
     );
+  }
+
+  async getSoapMockSummaryHeaderTotals() {
+    const keys = ["success", "failed", "error", "notcovered", "total"] as const;
+
+    const values = await Promise.all(
+      keys.map((key) => this.getMockSummaryHeaderValue(key)),
+    );
+
+    return {
+      success: values[0],
+      failed: values[1],
+      error: values[2],
+      notcovered: values[3],
+      total: values[4],
+    };
+  }
+
+  async getSoapMockTableHeadersData() {
+    const keys = ["coverage", "port", "soapAction"] as const;
+    const headerData: any = {};
+
+    for (const key of keys) {
+      const element = this.mockTableHeaderByKey(key);
+      await element.waitFor({ state: "visible", timeout: 5000 });
+
+      headerData[key] = {
+        text: await element.innerText(),
+        total: await element.getAttribute("data-total"),
+        enabled: await element.getAttribute("data-enabled"),
+        disabled: await element.getAttribute("data-disabled"),
+      };
+    }
+
+    return headerData;
+  }
+
+  async clickFirstMockTableRemark(): Promise<void> {
+    const firstRemarkCell = this.mockTable
+      .locator('tbody tr td[data-key="remark"]')
+      .first();
+    await firstRemarkCell.waitFor({ state: "visible", timeout: 5000 });
+    await firstRemarkCell.click();
+    await takeAndAttachScreenshot(
+      this.page,
+      "drill-down-opened-first-row",
+      this.eyes,
+    );
+  }
+
+  async ensureInMemoryBrokerChecked(): Promise<void> {
+    const checkbox = this.specSection.locator("#asyncInMemoryBroker");
+    await checkbox.waitFor({ state: "visible", timeout: 5000 });
+    const isChecked = await checkbox.isChecked();
+    if (!isChecked) {
+      await checkbox.check();
+    }
+    await takeAndAttachScreenshot(
+      this.page,
+      "async-in-memory-broker-checked",
+      this.eyes,
+    );
+  }
+
+  async getAsyncMockSummaryHeaderTotals() {
+    const keys = ["success", "failed", "error", "notcovered", "total"] as const;
+
+    const values = await Promise.all(
+      keys.map((key) => this.getMockSummaryHeaderValue(key)),
+    );
+
+    return {
+      success: values[0],
+      failed: values[1],
+      error: values[2],
+      notcovered: values[3],
+      total: values[4],
+    };
+  }
+
+  async getAsyncMockTableHeadersData() {
+    const keys = ["coverage", "operation", "channel", "action"] as const;
+    const headerData: any = {};
+
+    for (const key of keys) {
+      const element = this.mockTableHeaderByKey(key);
+      await element.waitFor({ state: "visible", timeout: 5000 });
+
+      headerData[key] = {
+        text: await element.innerText(),
+        total: await element.getAttribute("data-total"),
+        enabled: await element.getAttribute("data-enabled"),
+        disabled: await element.getAttribute("data-disabled"),
+      };
+    }
+
+    return headerData;
+  }
+
+  async openMockTabViaSidebar(specName: string) {
+    await test.step(`Select '${specName}' via sidebar and open Contract Tests tab`, async () => {
+      await this.sideBar.selectSpec(specName);
+      await this.openRunMockTab();
+    });
   }
 }

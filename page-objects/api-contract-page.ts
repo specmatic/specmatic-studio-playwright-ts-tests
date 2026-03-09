@@ -23,6 +23,8 @@ export class ApiContractPage extends BasePage {
   private readonly pathHeader: Locator;
   private readonly responseHeader: Locator;
   private readonly uniqueContainer: Locator;
+  private readonly asyncRunButton: Locator;
+  private readonly summaryValueLocator: (type: string) => Locator;
 
   // Aliases set in constructor
   private readonly rowLocator: (
@@ -82,7 +84,7 @@ export class ApiContractPage extends BasePage {
     const scoped = (selector: string) => this.specSection.locator(selector);
 
     this.serviceUrlInput = this.specSection.locator("#testBaseUrl");
-    this._runButton = scoped("#openapi-run-test");
+    this._runButton = scoped('button[data-type="test"]');
     this.runningButton = scoped('button.run[data-type="test"]');
     this.countsContainer = this.specSection.locator(
       'div.test ol.counts[data-filter="total"]',
@@ -222,11 +224,24 @@ export class ApiContractPage extends BasePage {
       .filter({ hasText: "Include" });
 
     this.infoDialog = this.page.locator("#alert-container .alert-msg.info");
+
+    this.asyncRunButton = page
+      .locator(`[id$="${this.specName}"] #async-run-test`)
+      .filter({ visible: true });
+
+    this.summaryValueLocator = (type: string) =>
+      this.page.locator(
+        `[id$="${this.specName}"] .header ol.counts:visible li[data-type="${type}"] span[data-value]`,
+      );
   }
 
   //Function Beginning
   private async openExecuteContractTestsTab() {
     return this.openApiTabPage.openExecuteContractTestsTab();
+  }
+
+  async openContractTestTabForAsync() {
+    await this.openApiTabPage.openExecuteContractTestsTab();
   }
 
   async enterServiceUrl(serviceUrl: string) {
@@ -537,10 +552,28 @@ export class ApiContractPage extends BasePage {
   async getSummaryHeaderValue(
     type: "success" | "failed" | "error" | "notcovered" | "excluded" | "total",
   ): Promise<number> {
-    const value = await this.summaryCount(type)
-      .first()
-      .getAttribute("data-value");
-    return parseInt(value || "0", 10);
+    const countElement = this.summaryValueLocator(type);
+    try {
+      const elementCount = await countElement.count();
+      if (elementCount === 0) {
+        return 0;
+      }
+      await countElement.first().waitFor({ state: "visible", timeout: 5000 });
+
+      let value = await countElement.first().getAttribute("data-value");
+
+      if (!value) {
+        await this.page.waitForTimeout(500);
+        value = await countElement.first().getAttribute("data-value");
+      }
+
+      return parseInt(value || "0", 10);
+    } catch (e) {
+      console.warn(
+        `Failed to get summary header value for type "${type}": ${e}`,
+      );
+      return 0;
+    }
   }
 
   async getAggregateTableResults() {
@@ -611,6 +644,40 @@ export class ApiContractPage extends BasePage {
       notcovered: values[3],
       excluded: values[4],
       total: values[5],
+    };
+  }
+
+  async getSoapSummaryHeaderTotals() {
+    await takeAndAttachScreenshot(
+      this.page,
+      "calculating SOAP summary header results",
+    );
+
+    const getSpanValue = async (span: Locator): Promise<number> => {
+      try {
+        await span.waitFor({ state: "visible", timeout: 5000 });
+        const value = await span.getAttribute("data-value");
+        return parseInt(value || "0", 10);
+      } catch (e) {
+        const text = await span.innerText().catch(() => "0");
+        return parseInt(text || "0", 10);
+      }
+    };
+
+    const [success, failed, error, notcovered, total] = await Promise.all([
+      getSpanValue(this.successCountSpan),
+      getSpanValue(this.failedCountSpan),
+      getSpanValue(this.errorCountSpan),
+      getSpanValue(this.notcoveredCountSpan),
+      getSpanValue(this.totalSpan),
+    ]);
+
+    return {
+      success,
+      failed,
+      error,
+      notcovered,
+      total,
     };
   }
 
@@ -750,6 +817,13 @@ export class ApiContractPage extends BasePage {
     });
   }
 
+  async openContractTestTabViaSidebar(specName: string) {
+    await test.step(`Select '${specName}' via sidebar and open Contract Tests tab`, async () => {
+      await this.sideBar.selectSpec(specName);
+      await this.openExecuteContractTestsTab();
+    });
+  }
+
   // Getters for accessing private locators from tests
   get failedResultCountSpans(): Locator {
     return this._failedResultCountSpans;
@@ -827,5 +901,32 @@ export class ApiContractPage extends BasePage {
 
     console.error(`Prerequisite error summary: ${summaryText}`);
     console.error(`Prerequisite error detail:  ${detailedMessage}`);
+  }
+
+  async clickAsyncRunContractTests() {
+    await test.step("Click Async Run Contract Tests", async () => {
+      const btn = this.asyncRunButton.filter({ visible: true });
+      await this.asyncRunButton.scrollIntoViewIfNeeded();
+      await this.asyncRunButton.click();
+      await expect(btn).toHaveAttribute("data-running", "true", {
+        timeout: 8000,
+      });
+      await expect(btn).toHaveAttribute("data-running", "false", {
+        timeout: 45000,
+      });
+    });
+  }
+
+  async getAsyncSummaryHeaderTotals() {
+    const totals = await this.getSummaryHeaderTotals();
+
+    return {
+      success: totals.success,
+      failed: totals.failed,
+      error: totals.error,
+      notcovered: totals.notcovered,
+      total: totals.total,
+      excluded: 0,
+    };
   }
 }

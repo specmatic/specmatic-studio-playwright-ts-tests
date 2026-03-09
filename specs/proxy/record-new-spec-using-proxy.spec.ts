@@ -77,7 +77,7 @@ class RecordNewSpecSteps {
       await jioPage.bringToFront();
       await jioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
       await this.page.bringToFront();
-      await this.studio.gotoHomeAndOpenSidebar();
+      await this.studio.sideBar.ensureSidebarOpen();
       await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
       await this.mockPage.goBackToMockServerTab();
       await this.mockPage.assertMockPathVisible(CAPTURED_PATH);
@@ -101,11 +101,9 @@ test.describe("API Specification Management", () => {
         "@recordNewAPISpec",
         "@recordNewSpec",
         "@eyes",
-        "@expected-failure",
       ],
     },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "Needs fixing for the spec");
       const steps = new RecordNewSpecSteps(page, testInfo, eyes);
 
       await steps.setupProxyRecording();
