@@ -607,9 +607,10 @@ export class MockServerPage extends BasePage {
     const checkbox = this.specSection.locator("#asyncInMemoryBroker");
     await checkbox.waitFor({ state: "visible", timeout: 5000 });
     const isChecked = await checkbox.isChecked();
-    if (!isChecked) {
-      await checkbox.check();
-    }
+    expect
+      .soft(isChecked, "Async In-Memory Broker checkbox should be checked")
+      .toBeTruthy();
+    await checkbox.check();
     await takeAndAttachScreenshot(
       this.page,
       "async-in-memory-broker-checked",
