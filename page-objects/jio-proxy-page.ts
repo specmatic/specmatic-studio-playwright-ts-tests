@@ -8,7 +8,9 @@ export class JioAppInProxyPage extends BasePage {
 
   constructor(page: Page, testInfo: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
-    this.mobileInput = page.locator('input[data-testid="JDSInput-input"]');
+    this.mobileInput = page.locator(
+      'input[data-testid="JDSInput-input"][name="mobileNumber"]',
+    );
     this.proceedBtn = page
       .locator('[data-testid="JDSActionButton-jds-text"]')
       .filter({ hasText: "Proceed" });
@@ -24,10 +26,7 @@ export class JioAppInProxyPage extends BasePage {
     await this.page.keyboard.press("Control+A");
     await this.page.keyboard.press("Backspace");
     await this.mobileInput.fill(mobileNumber);
-    await takeAndAttachScreenshot(
-      this.page,
-      `mobile-number-entered`,
-    );
+    await takeAndAttachScreenshot(this.page, `mobile-number-entered`);
 
     await Promise.all([
       this.page.waitForResponse(
