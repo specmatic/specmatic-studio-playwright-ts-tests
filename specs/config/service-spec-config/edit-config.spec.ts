@@ -27,7 +27,7 @@ test.describe("Specmatic Config", () => {
         await configPage.clickRunSuite();
         await assertErrorDialog(configPage, "Failed to execute");
         await configPage.dismissAlert();
-        await configPage.closeRightSidebarByClickingOutside();
+        await configPage.rightSidebar.close();
         await assertExecutionDropDown(configPage, page, "error", "Failed");
         await expect(configPage.executionLog).toContainText(
           "Invalid mock configuration for proxy_generated.yaml",
@@ -43,7 +43,7 @@ test.describe("Specmatic Config", () => {
         await configPage.deleteSpecLinesInEditor("- port: 9090", 3);
         await configPage.clickSaveAfterEdit();
         await configPage.clickRunSuite();
-        await configPage.closeRightSidebarByClickingOutside();
+        await configPage.rightSidebar.close();
         await assertExecutionDropDown(configPage, page, "running", "Running");
         await takeAndAttachScreenshot(page, "suite-status-running", eyes);
         await configPage.waitForExecutionToComplete();

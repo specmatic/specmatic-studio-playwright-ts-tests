@@ -72,9 +72,8 @@ test.describe("API Specification — Mixed Backward Compatibility Analysis", () 
   for (const group of MIXED_SCENARIO_GROUPS) {
     test(
       `Group: ${group.groupName}`,
-      { tag: ["@bcc", "@mixed","@expected-failure"] },
+      { tag: ["@bcc", "@mixed"] },
       async ({ page, eyes }, testInfo) => {
-        test.fail(true,"Expected to fail because of Error count");
         const configPage = new ServiceSpecConfigPage(
           page,
           testInfo,
@@ -98,7 +97,6 @@ test.describe("API Specification — Mixed Backward Compatibility Analysis", () 
     );
   }
 });
-
 
 async function applyScenarioChange(
   configPage: ServiceSpecConfigPage,
@@ -138,8 +136,13 @@ async function assertScenarioResult(
       await configPage.toggleBccErrorSection(true);
       const { summary, details } = await configPage.getBccErrorDetails();
 
-      const errorSuffix = scenario.expectedErrorCount === 1 ? 'error' : 'errors';
-expect.soft(summary).toContain(`Backward Compatibility found ${scenario.expectedErrorCount} ${errorSuffix}`);
+      const errorSuffix =
+        scenario.expectedErrorCount === 1 ? "error" : "errors";
+      expect
+        .soft(summary)
+        .toContain(
+          `Backward Compatibility found ${scenario.expectedErrorCount} ${errorSuffix}`,
+        );
 
       const hasMatch = details.some((d: string) =>
         d.includes(scenario.expectedErrorDetail),

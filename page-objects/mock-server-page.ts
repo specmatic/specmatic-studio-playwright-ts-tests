@@ -516,4 +516,24 @@ export class MockServerPage extends BasePage {
       );
     });
   }
+
+  async getSidebarStatusText(specName: string): Promise<string> {
+    const processRow = this.sidebarProcessBar(specName);
+    const statusText = processRow.locator(".status-text");
+    await expect(statusText).toBeVisible({ timeout: 10000 });
+    await takeAndAttachScreenshot(this.page, `sidebar-status-${specName}`);
+    return statusText.innerText();
+  }
+
+  async assertMockPathVisible(path: string) {
+    const pathCell = this.mockTable.locator(
+      `tbody td[data-key="path"][data-value="${path}"]`,
+    );
+    await expect(pathCell).toBeVisible({ timeout: 10000 });
+    await takeAndAttachScreenshot(
+      this.page,
+      "mock-table-path-verified",
+      this.eyes,
+    );
+  }
 }
