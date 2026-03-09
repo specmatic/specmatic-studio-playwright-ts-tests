@@ -27,7 +27,7 @@ class RecordNewSpecSteps {
     );
   }
 
-  async setupProxyRecording(): Promise<void> {
+  async startProxyRecording(): Promise<void> {
     await test.step("Setup proxy recording", async () => {
       await this.studio.gotoHomeAndOpenSidebar();
       await this.studio.clickRecordSpec();
@@ -94,7 +94,7 @@ class RecordNewSpecSteps {
 
 test.describe("API Specification Management", () => {
   test(
-    "Record New API Specification via Proxy",
+    "Record New API Specification via Live Proxy",
     {
       tag: [
         "@proxy",
@@ -106,15 +106,15 @@ test.describe("API Specification Management", () => {
     },
     async ({ page, eyes }, testInfo) => {
       test.fail(true, "Needs fixing for the spec");
-      const steps = new RecordNewSpecSteps(page, testInfo, eyes);
+      const proxySteps = new RecordNewSpecSteps(page, testInfo, eyes);
 
-      await steps.setupProxyRecording();
-      const proxyUrl = await steps.assertProxyStartedAndGetUrl();
-      const jioPage = await steps.openProxyTargetTab(proxyUrl);
-      await steps.captureApiCallAndVerifyInProxyTable(jioPage);
-      await steps.startMockReplayAndVerifySidebar();  
-      await steps.replayViaMockAndVerifyMockTab(jioPage);
-      await steps.viewDrillDownDetails();
+      await proxySteps.startProxyRecording();
+      const proxyUrl = await proxySteps.assertProxyStartedAndGetUrl();
+      const jioPage = await proxySteps.openProxyTargetTab(proxyUrl);
+      await proxySteps.captureApiCallAndVerifyInProxyTable(jioPage);
+      await proxySteps.startMockReplayAndVerifySidebar();  
+      await proxySteps.replayViaMockAndVerifyMockTab(jioPage);
+      await proxySteps.viewDrillDownDetails();
     },
   );
 });
