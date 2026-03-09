@@ -40,7 +40,7 @@ class RecordNewSpecSteps {
 
   async assertProxyStartedAndGetUrl(): Promise<string> {
     return test.step("Assert proxy started and get URL", () =>
-      this.studio.assertProxyStartedAndGetUrl('Proxy Started'));
+      this.studio.assertProxyStartedAndGetUrl("Proxy Started"));
   }
 
   async openProxyTargetTab(proxyUrl: string): Promise<JioAppInProxyPage> {
@@ -50,18 +50,17 @@ class RecordNewSpecSteps {
     });
   }
 
-  async captureApiCallAndVerifyInProxyTable(jioPage: JioAppInProxyPage): Promise<void> {
-    await test.step(
-      `Capture API call: enter mobile '${MOBILE_NUMBER}' and verify in proxy table`,
-      async () => {
-        await this.page.bringToFront();
-        await this.studio.assertProxyTableVisible();
-        await jioPage.bringToFront();
-        await jioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
-        await this.page.bringToFront();
-        await this.studio.assertProxyTableRowByPath(CAPTURED_PATH, 1);
-      },
-    );
+  async captureApiCallAndVerifyInProxyTable(
+    jioPage: JioAppInProxyPage,
+  ): Promise<void> {
+    await test.step(`Capture API call: enter mobile '${MOBILE_NUMBER}' and verify in proxy table`, async () => {
+      await this.page.bringToFront();
+      await this.studio.assertProxyTableVisible();
+      await jioPage.bringToFront();
+      await jioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
+      await this.page.bringToFront();
+      await this.studio.assertProxyTableRowByPath(CAPTURED_PATH, 1);
+    });
   }
 
   async startMockReplayAndVerifySidebar(): Promise<void> {
@@ -71,8 +70,9 @@ class RecordNewSpecSteps {
     });
   }
 
-
-  async replayViaMockAndVerifyMockTab(jioPage: JioAppInProxyPage): Promise<void> {
+  async replayViaMockAndVerifyMockTab(
+    jioPage: JioAppInProxyPage,
+  ): Promise<void> {
     await test.step(`Replay via mock: second API call and verify in mock tab`, async () => {
       await jioPage.bringToFront();
       await jioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
@@ -112,7 +112,7 @@ test.describe("API Specification Management", () => {
       const proxyUrl = await steps.assertProxyStartedAndGetUrl();
       const jioPage = await steps.openProxyTargetTab(proxyUrl);
       await steps.captureApiCallAndVerifyInProxyTable(jioPage);
-      await steps.startMockReplayAndVerifySidebar();  
+      await steps.startMockReplayAndVerifySidebar();
       await steps.replayViaMockAndVerifyMockTab(jioPage);
       await steps.viewDrillDownDetails();
     },
