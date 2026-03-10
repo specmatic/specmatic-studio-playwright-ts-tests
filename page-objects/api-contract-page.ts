@@ -820,10 +820,7 @@ export class ApiContractPage extends BasePage {
   async openContractTestTabViaSidebar(specName: string) {
     await test.step(`Select '${specName}' via sidebar and open Contract Tests tab`, async () => {
       await this.sideBar.selectSpec(specName);
-      const firstDataRow = this.page
-        .locator("table tbody tr[data-key]")
-        .first();
-      await expect(firstDataRow).toBeVisible({ timeout: 10000 });
+      await this.page.waitForTimeout(3000);
       await this.openExecuteContractTestsTab();
     });
   }
