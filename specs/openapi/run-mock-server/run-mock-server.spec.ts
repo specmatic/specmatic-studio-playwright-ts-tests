@@ -41,7 +41,7 @@ test.describe("API Mocking", () => {
       });
 
       await test.step("Navigate to Contract Tests tab and Update Service URL", async () => {
-        await mockPage.clickContractTests();
+        await mockPage.clickContractTestsTab();
         await mockPage.enterServiceBaseURL(mockUrl);
       });
 
