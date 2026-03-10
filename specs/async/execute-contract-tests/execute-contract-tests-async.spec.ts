@@ -98,7 +98,6 @@ async function validateAsyncMockSummaryAndTableCounts(
       total: expected.total,
       error: expected.error ?? 0,
       notcovered: expected.notcovered ?? 0,
-      excluded: 0,
     });
 }
 

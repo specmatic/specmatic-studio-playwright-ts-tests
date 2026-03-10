@@ -92,7 +92,6 @@ async function verifyKafkaMockResults(kafkaMockPage: MockServerPage) {
       total: 5,
       error: 0,
       notcovered: 0,
-      excluded: 0,
     });
 
     // Integrated metadata check
