@@ -23,8 +23,9 @@ export class JioAppInProxyPage extends BasePage {
   async enterMobileNumberAndProceed(mobileNumber: string) {
     await this.mobileInput.scrollIntoViewIfNeeded();
     await this.mobileInput.click();
-    await this.page.keyboard.press("Control+A");
-    await this.page.keyboard.press("Backspace");
+    await this.page.waitForTimeout(1000);
+
+    await this.mobileInput.fill("");
     await this.mobileInput.fill(mobileNumber);
     await takeAndAttachScreenshot(this.page, `mobile-number-entered`);
 
