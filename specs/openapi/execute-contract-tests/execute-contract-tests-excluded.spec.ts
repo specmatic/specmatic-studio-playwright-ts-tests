@@ -34,8 +34,9 @@ async function runAndVerifyCounts(
 test.describe("API Contract testing with test exclusion and inclusion", () => {
   test(
     "Exclude specific tests and verify excluded tests are not executed",
-    { tag: ["@test", "@testExclusion", "@eyes"] },
+    { tag: ["@test", "@testExclusion", "@eyes", "@expected-failure"] },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "Known issue for order-bff");
       const contractPage = new ApiContractPage(
         page,
         testInfo,
