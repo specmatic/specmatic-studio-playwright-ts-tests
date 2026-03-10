@@ -55,7 +55,7 @@ test.describe("Specmatic Config", () => {
         await configPage.dismissAlert();
         await assertExecutionDropDown(configPage, page, "error", "Failed");
         await expect(configPage.executionLog).toContainText(
-          "Starting mock: kafka.yaml (port=0)",
+          "Starting mock: kafka.yaml (specification dependent port)",
         );
         await expect(configPage.executionLog).toContainText(
           "Failed to start mock server for kafka.yaml",
