@@ -63,7 +63,7 @@ async function returnToMockAndVerifyResults(mockPage: MockServerPage) {
 async function verifyContractTestResults(contractPage: ApiContractPage) {
   await test.step("Verify Contract Test Header and Table Integrity", async () => {
     const headerTotals = await contractPage.getSummaryHeaderTotals();
-    expect(headerTotals).toStrictEqual({
+    expect.soft(headerTotals).toStrictEqual({
       success: 17,
       failed: 15,
       error: 0,
@@ -75,10 +75,10 @@ async function verifyContractTestResults(contractPage: ApiContractPage) {
     const tableHeaderTotals = await contractPage.getAllHeaderTotals();
     const actualRows = await contractPage.getActualRowCount();
 
-    expect(tableHeaderTotals.response).toBe(actualRows);
-    expect(tableHeaderTotals.path).toBe(
-      await contractPage.getUniqueValuesInColumn(2),
-    );
+    expect.soft(tableHeaderTotals.response).toBe(actualRows);
+    expect
+      .soft(tableHeaderTotals.path)
+      .toBe(await contractPage.getUniqueValuesInColumn(2));
   });
 }
 
@@ -86,7 +86,7 @@ async function verifyKafkaMockResults(kafkaMockPage: MockServerPage) {
   await test.step("Verify Kafka Mock Summary and Metadata", async () => {
     // Integrated summary helper
     const headerTotals = await kafkaMockPage.getAsyncMockSummaryHeaderTotals();
-    expect(headerTotals).toStrictEqual({
+    expect.soft(headerTotals).toStrictEqual({
       success: 5,
       failed: 0,
       total: 5,
@@ -98,11 +98,15 @@ async function verifyKafkaMockResults(kafkaMockPage: MockServerPage) {
     // Integrated metadata check
     const headers = await kafkaMockPage.getAsyncMockTableHeadersData();
     const expectedMeta = { total: "1", enabled: "1", disabled: "0" };
-    expect(headers.operation).toMatchObject({
+    expect.soft(headers.operation).toMatchObject({
       text: "Operation",
       ...expectedMeta,
     });
-    expect(headers.channel).toMatchObject({ text: "Channel", ...expectedMeta });
-    expect(headers.action).toMatchObject({ text: "Action", ...expectedMeta });
+    expect
+      .soft(headers.channel)
+      .toMatchObject({ text: "Channel", ...expectedMeta });
+    expect
+      .soft(headers.action)
+      .toMatchObject({ text: "Action", ...expectedMeta });
   });
 }

@@ -57,16 +57,18 @@ async function validateSoapMockSummaryAndTableCounts(
 ) {
   const headerTotals = await mockPage.getSoapMockSummaryHeaderTotals();
 
-  expect(
-    headerTotals,
-    "Business Check: SOAP Mock header counts must match expected values",
-  ).toStrictEqual({
-    success: expected.success,
-    failed: expected.failed,
-    total: expected.total,
-    error: expected.error ?? 0,
-    notcovered: expected.notcovered ?? 0,
-  });
+  expect
+    .soft(
+      headerTotals,
+      "Business Check: SOAP Mock header counts must match expected values",
+    )
+    .toStrictEqual({
+      success: expected.success,
+      failed: expected.failed,
+      total: expected.total,
+      error: expected.error ?? 0,
+      notcovered: expected.notcovered ?? 0,
+    });
 }
 
 async function performMockVerifications(mockPage: MockServerPage) {
@@ -95,22 +97,28 @@ async function verifyDrillDown(mockPage: MockServerPage) {
     expect(count, "Drill-down should have at least 1 scenario").toBeGreaterThan(
       0,
     );
-    expect(
-      await mockPage.areAllDrillDownsSuccess(),
-      "Expected all drill-down scenarios to be 'Success'",
-    ).toBe(true);
+    expect
+      .soft(
+        await mockPage.areAllDrillDownsSuccess(),
+        "Expected all drill-down scenarios to be 'Success'",
+      )
+      .toBe(true);
 
     const indicesToCheck = count > 1 ? [0, count - 1] : [0];
     for (const index of indicesToCheck) {
       const state = await mockPage.getDrillDownState(index);
-      expect(
-        state.requestVisible,
-        "Drill-down request block should be visible",
-      ).toBe(true);
-      expect(
-        state.responseVisible,
-        "Drill-down response block should be visible",
-      ).toBe(true);
+      expect
+        .soft(
+          state.requestVisible,
+          "Drill-down request block should be visible",
+        )
+        .toBe(true);
+      expect
+        .soft(
+          state.responseVisible,
+          "Drill-down response block should be visible",
+        )
+        .toBe(true);
     }
 
     await mockPage.goBackFromDrillDown();
@@ -121,13 +129,13 @@ async function validateTableHeaders(mockPage: MockServerPage) {
   await test.step("Validate Port and SoapAction Headers", async () => {
     const headers = await mockPage.getSoapMockTableHeadersData();
 
-    expect(headers.port).toMatchObject({
+    expect.soft(headers.port).toMatchObject({
       text: "Port",
       total: "1",
       enabled: "1",
       disabled: "0",
     });
-    expect(headers.soapAction).toMatchObject({
+    expect.soft(headers.soapAction).toMatchObject({
       text: "SoapAction",
       total: "3",
       enabled: "3",

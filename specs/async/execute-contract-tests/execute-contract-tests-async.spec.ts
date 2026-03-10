@@ -62,17 +62,19 @@ async function verifyKafkaContractResults(contractPage: ApiContractPage) {
   await test.step("Verify Kafka Contract Test Results", async () => {
     const headerTotals = await contractPage.getAsyncSummaryHeaderTotals();
 
-    expect(
-      headerTotals,
-      "Contract test results for Kafka should be fully successful",
-    ).toStrictEqual({
-      success: 1,
-      failed: 0,
-      error: 0,
-      notcovered: 0,
-      total: 1,
-      excluded: 0,
-    });
+    expect
+      .soft(
+        headerTotals,
+        "Contract test results for Kafka should be fully successful",
+      )
+      .toStrictEqual({
+        success: 1,
+        failed: 0,
+        error: 0,
+        notcovered: 0,
+        total: 1,
+        excluded: 0,
+      });
   });
 }
 
@@ -88,24 +90,25 @@ async function validateAsyncMockSummaryAndTableCounts(
 ) {
   const headerTotals = await mockPage.getAsyncMockSummaryHeaderTotals();
 
-  expect(
-    headerTotals,
-    "Async Mock header counts must match expected values",
-  ).toStrictEqual({
-    success: expected.success,
-    failed: expected.failed,
-    total: expected.total,
-    error: expected.error ?? 0,
-    notcovered: expected.notcovered ?? 0,
-    excluded: 0,
-  });
+  expect
+    .soft(headerTotals, "Async Mock header counts must match expected values")
+    .toStrictEqual({
+      success: expected.success,
+      failed: expected.failed,
+      total: expected.total,
+      error: expected.error ?? 0,
+      notcovered: expected.notcovered ?? 0,
+      excluded: 0,
+    });
 }
 
 async function verifyKafkaMockTableHeaders(mockPage: MockServerPage) {
   const headers = await mockPage.getAsyncMockTableHeadersData();
   const expected = { total: "1", enabled: "1", disabled: "0" };
 
-  expect(headers.operation).toMatchObject({ text: "Operation", ...expected });
-  expect(headers.channel).toMatchObject({ text: "Channel", ...expected });
-  expect(headers.action).toMatchObject({ text: "Action", ...expected });
+  expect
+    .soft(headers.operation)
+    .toMatchObject({ text: "Operation", ...expected });
+  expect.soft(headers.channel).toMatchObject({ text: "Channel", ...expected });
+  expect.soft(headers.action).toMatchObject({ text: "Action", ...expected });
 }

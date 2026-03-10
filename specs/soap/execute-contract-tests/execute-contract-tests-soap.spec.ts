@@ -57,23 +57,27 @@ async function verifySoapContractSummary(contractPage: ApiContractPage) {
   await test.step("Verify SOAP Summary Header Totals", async () => {
     const totals = await contractPage.getSoapSummaryHeaderTotals();
 
-    expect(
-      totals,
-      "Summary counts should match the Inventory WSDL execution results",
-    ).toStrictEqual({
-      success: 3,
-      failed: 0,
-      error: 0,
-      notcovered: 0,
-      total: 3,
-    });
+    expect
+      .soft(
+        totals,
+        "Summary counts should match the Inventory WSDL execution results",
+      )
+      .toStrictEqual({
+        success: 3,
+        failed: 0,
+        error: 0,
+        notcovered: 0,
+        total: 3,
+      });
   });
 }
 
 async function verifySoapContractTableHeaders(contractPage: ApiContractPage) {
   await test.step("Verify SOAP Table Headers (Port and SoapAction)", async () => {
     const portHeaderCount = await contractPage.getTableHeaderCount("port");
-    expect(portHeaderCount, "Expected Port header to show count of 1").toBe(1);
+    expect
+      .soft(portHeaderCount, "Expected Port header to show count of 1")
+      .toBe(1);
 
     const soapActionHeaderCount =
       await contractPage.getTableHeaderCount("soapAction");
@@ -89,13 +93,11 @@ async function verifySoapActionOperations(contractPage: ApiContractPage) {
     const rowCount = await contractPage.getActualRowCount();
     const uniqueActions = await contractPage.getUniqueValuesInColumn(2);
 
-    expect(
-      rowCount,
-      "Total rows should match the 3 operations in the WSDL",
-    ).toBe(3);
-    expect(
-      uniqueActions,
-      "Each SOAP operation should be unique in the table",
-    ).toBe(3);
+    expect
+      .soft(rowCount, "Total rows should match the 3 operations in the WSDL")
+      .toBe(3);
+    expect
+      .soft(uniqueActions, "Each SOAP operation should be unique in the table")
+      .toBe(3);
   });
 }
