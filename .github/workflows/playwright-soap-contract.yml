@@ -1,0 +1,17 @@
+name: Studio - SOAP Contract Tests
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  execute-async-contract-tests:
+    uses: ./.github/workflows/playwright-test-group.yml
+    with:
+      test_path: specs/soap/execute-contract-tests
+      artifact_name: execute-contract-tests-soap
+      group_name: SOAP Contract
+    secrets:
+      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+      SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
