@@ -41,4 +41,12 @@ export class JioAppInProxyPage extends BasePage {
 
     await takeAndAttachScreenshot(this.page, `proceed-clicked`);
   }
+
+  async assertPlansPageVisible(): Promise<void> {
+    const plansContainer = this.page.locator(
+      '[data-testid="desktopChangeCategory"]',
+    );
+    await plansContainer.waitFor({ state: "visible", timeout: 15000 });
+    await takeAndAttachScreenshot(this.page, "plans-page-visible");
+  }
 }

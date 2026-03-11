@@ -49,7 +49,7 @@ export const SPECMATIC_CONFIG = "specmatic.yaml";
 export const MOCK_SERVER_PORT = "8081";
 export const ORDER_API_URL = "http://order-api:8090";
 export const PROXY_PORT = "9090";
-export const JIO_PAGE_URL = "https://www.jio.com/";
+export const JIO_PAGE_URL = "https://www.jio.com";
 export const INVENTORY_WSDL_MOCK_RUN_SERVER =
   "test-soap/mock/inventory_mock.wsdl";
 export const KAFKA_MOCK_SPEC = "test-async/kafka_mock.yaml";
