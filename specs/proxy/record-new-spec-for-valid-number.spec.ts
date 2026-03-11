@@ -1,5 +1,16 @@
-import { test } from "../../utils/eyesFixture";
-import { JIO_PAGE_URL, PROXY_PORT, PROXY_RECORDINGS_SPEC } from "../specNames";
+import { test, expect } from "../../utils/eyesFixture";
+import {
+  JIO_PAGE_URL,
+  PROXY_PORT,
+  PROXY_RECORDINGS_SPEC,
+  JIO_RECHARGE_NUMBER_PATH,
+  JIO_RECHARGE_PLANS_PATH,
+  JIO_RECHARGE_NUMBER_RAW_PATH,
+  JIO_RECHARGE_PLANS_RAW_PATH,
+  VALID_JIO_NUMBER,
+  NEW_JIO_NUMBER,
+  JIO_RECHARGE_RESPONSE_CODE,
+} from "../specNames";
 import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
 import { MockServerPage } from "../../page-objects/mock-server-page";
 import { JioAppInProxyPage } from "../../page-objects/jio-proxy-page";
@@ -7,29 +18,17 @@ import { ExampleGenerationPage } from "../../page-objects/example-generation-pag
 import { Edit } from "../../utils/types/json-edit.types";
 import { Page, TestInfo } from "@playwright/test";
 
-const NUMBER_PATH =
-  "/api/jio-recharge-service/recharge/mobility/number/{param}";
-const PLANS_PATH = "/api/jio-recharge-service/recharge/plans/serviceId/{param}";
-
-const NUMBER_RAW_PATH =
-  "api/jio-recharge-service/recharge/mobility/number/(param:number)";
-const PLANS_RAW_PATH =
-  "api/jio-recharge-service/recharge/plans/serviceId/(param:number)";
-
-const VALID_NUMBER = "9321124338";
-const NEW_NUMBER = "9000000000";
-
 const NUMBER_ENDPOINT_EDITS: Edit[] = [
   {
     current: {
       mode: "exact",
-      value: `"path": "/api/jio-recharge-service/recharge/mobility/number/${VALID_NUMBER}"`,
+      value: `"path": "/api/jio-recharge-service/recharge/mobility/number/${VALID_JIO_NUMBER}"`,
     },
-    changeTo: `  "path": "/api/jio-recharge-service/recharge/mobility/number/${NEW_NUMBER}",`,
+    changeTo: `  "path": "/api/jio-recharge-service/recharge/mobility/number/${NEW_JIO_NUMBER}",`,
   },
   {
     current: { mode: "keyOnly", key: "serviceId" },
-    changeTo: `  "serviceId": "${NEW_NUMBER}",`,
+    changeTo: `  "serviceId": "${NEW_JIO_NUMBER}",`,
   },
 ];
 
@@ -37,9 +36,9 @@ const PLANS_ENDPOINT_EDITS: Edit[] = [
   {
     current: {
       mode: "exact",
-      value: `"path": "/api/jio-recharge-service/recharge/plans/serviceId/${VALID_NUMBER}"`,
+      value: `"path": "/api/jio-recharge-service/recharge/plans/serviceId/${VALID_JIO_NUMBER}"`,
     },
-    changeTo: `  "path": "/api/jio-recharge-service/recharge/plans/serviceId/${NEW_NUMBER}",`,
+    changeTo: `  "path": "/api/jio-recharge-service/recharge/plans/serviceId/${NEW_JIO_NUMBER}",`,
   },
 ];
 
@@ -94,56 +93,68 @@ class RecordValidNumberSteps {
   async captureAndVerifyBothEndpoints(
     jioPage: JioAppInProxyPage,
   ): Promise<void> {
-    await test.step(`Enter valid number '${VALID_NUMBER}' and verify both endpoints in proxy table`, async () => {
+    await test.step(`Capture both endpoints with valid number '${VALID_JIO_NUMBER}'`, async () => {
       await this.page.bringToFront();
       await this.studio.assertProxyTableVisible();
+
       await jioPage.bringToFront();
-      await jioPage.enterMobileNumberAndProceed(VALID_NUMBER);
+      await jioPage.enterMobileNumberAndProceed(VALID_JIO_NUMBER);
+
       await this.page.bringToFront();
-      await this.studio.assertProxyTableRowByPath(NUMBER_PATH, 1);
-      await this.studio.assertProxyTableRowByPath(PLANS_PATH, 1);
+      await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_NUMBER_PATH, 1);
+      await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_PLANS_PATH, 1);
     });
   }
 
   async startMockReplayAndVerifySidebar(): Promise<void> {
-    await test.step("Start mock replay for both endpoints and verify sidebar", async () => {
+    await test.step("Start mock replay for both endpoints", async () => {
       await this.studio.clickProxyApiFilter();
-      await this.studio.clickReplayForPath(NUMBER_PATH);
+      await this.studio.clickReplayForPath(JIO_RECHARGE_NUMBER_PATH);
       await this.studio.assertRightSidebarMockStarted(PROXY_RECORDINGS_SPEC);
-      await this.studio.clickReplayForPath(PLANS_PATH);
+
+      await this.studio.clickReplayForPath(JIO_RECHARGE_PLANS_PATH);
       await this.studio.assertRightSidebarMockStarted(PROXY_RECORDINGS_SPEC);
     });
   }
 
   async replayViaMockAndVerifyMockTab(proxyUrl: string): Promise<void> {
-    await test.step(`Replay via mock: enter '${VALID_NUMBER}' again and verify mock tab`, async () => {
+    await test.step(`Verify mock replay serves both endpoints`, async () => {
       const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
       const newJioPage = new JioAppInProxyPage(
         proxyTab,
         this.testInfo,
         this.eyes,
       );
-      await newJioPage.enterMobileNumberAndProceed(VALID_NUMBER);
+
+      await newJioPage.enterMobileNumberAndProceed(VALID_JIO_NUMBER);
       await newJioPage.assertPlansPageVisible();
+
       await this.page.bringToFront();
       await this.studio.sideBar.ensureSidebarOpen();
       await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
       await this.mockPage.goBackToMockServerTab();
-      await this.mockPage.assertMockPathVisible(NUMBER_PATH);
-      await this.mockPage.assertMockPathVisible(PLANS_PATH);
+
+      await this.mockPage.assertMockPathVisible(JIO_RECHARGE_NUMBER_PATH);
+      await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH);
     });
   }
 
   async navigateToExampleGeneration(): Promise<void> {
-    await test.step(`Navigate to '${PROXY_RECORDINGS_SPEC}' and open Example Generation tab`, async () => {
+    await test.step(`Open Example Generation tab for ${PROXY_RECORDINGS_SPEC}`, async () => {
       await this.examplePage.openExampleGenerationTabFromTab();
     });
   }
 
   async generateMoreExamplesForBothEndpoints(): Promise<void> {
     await test.step("Generate more examples for both endpoints", async () => {
-      await this.examplePage.clickGenerateMoreButton(NUMBER_RAW_PATH, 200);
-      await this.examplePage.clickGenerateMoreButton(PLANS_RAW_PATH, 200);
+      await this.examplePage.clickGenerateMoreButton(
+        JIO_RECHARGE_NUMBER_RAW_PATH,
+        JIO_RECHARGE_RESPONSE_CODE,
+      );
+      await this.examplePage.clickGenerateMoreButton(
+        JIO_RECHARGE_PLANS_RAW_PATH,
+        JIO_RECHARGE_RESPONSE_CODE,
+      );
     });
   }
 
@@ -152,12 +163,22 @@ class RecordValidNumberSteps {
     endpoint: "number" | "plans",
     edits: Edit[],
   ): Promise<void> {
-    await test.step(`Copy-paste and replace number for ${endpoint} endpoint`, async () => {
-      await this.examplePage.clickViewDetails(rawPath, 200);
+    await test.step(`Edit and save example for ${endpoint} endpoint`, async () => {
+      // Copy from first path-method-response combination
+      await this.examplePage.clickViewDetails(
+        rawPath,
+        JIO_RECHARGE_RESPONSE_CODE,
+      );
       await this.examplePage.copyEditorContent();
       await this.examplePage.goBackFromExample();
 
-      await this.examplePage.clickViewDetails(rawPath, 200, true, true);
+      // Paste into newly generated example (generated with Generate More)
+      await this.examplePage.clickViewDetails(
+        rawPath,
+        JIO_RECHARGE_RESPONSE_CODE,
+        true,
+        true,
+      );
       await this.examplePage.pasteIntoEditor();
       await this.examplePage.editExample(edits);
       await this.examplePage.saveEditedExample("Valid Example");
@@ -167,7 +188,7 @@ class RecordValidNumberSteps {
 
   async copyPasteAndReplaceForNumberEndpoint(): Promise<void> {
     await this.copyPasteAndReplaceForEndpoint(
-      NUMBER_RAW_PATH,
+      JIO_RECHARGE_NUMBER_RAW_PATH,
       "number",
       NUMBER_ENDPOINT_EDITS,
     );
@@ -175,25 +196,27 @@ class RecordValidNumberSteps {
 
   async copyPasteAndReplaceForPlansEndpoint(): Promise<void> {
     await this.copyPasteAndReplaceForEndpoint(
-      PLANS_RAW_PATH,
+      JIO_RECHARGE_PLANS_RAW_PATH,
       "plans",
       PLANS_ENDPOINT_EDITS,
     );
   }
 
   async enterNewNumberAndVerifyPlans(proxyUrl: string): Promise<void> {
-    await test.step(`Enter new number '${NEW_NUMBER}' via Jio app and verify plans are served by mock`, async () => {
+    await test.step(`Verify mock serves plans for new number '${NEW_JIO_NUMBER}'`, async () => {
       const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
       const newJioPage = new JioAppInProxyPage(
         proxyTab,
         this.testInfo,
         this.eyes,
       );
-      await newJioPage.enterMobileNumberAndProceed(NEW_NUMBER);
+
+      await newJioPage.enterMobileNumberAndProceed(NEW_JIO_NUMBER);
       await newJioPage.assertPlansPageVisible();
+
       await this.page.bringToFront();
       await this.mockPage.goBackToMockServerTab();
-      await this.mockPage.assertMockPathVisible(PLANS_PATH);
+      await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH);
     });
   }
 }
@@ -207,20 +230,25 @@ test.describe("API Specification Management", () => {
     async ({ page, eyes }, testInfo) => {
       const steps = new RecordValidNumberSteps(page, testInfo, eyes);
 
+      // Setup: Record API calls via proxy
       await steps.setupProxyRecording();
       const proxyUrl = await steps.assertProxyStartedAndGetUrl();
       const jioPage = await steps.openProxyTargetTab(proxyUrl);
 
+      // Capture: Record both endpoints
       await steps.captureAndVerifyBothEndpoints(jioPage);
+
+      // Mock Replay: Start mock servers and verify sidebar
       await steps.startMockReplayAndVerifySidebar();
       await steps.replayViaMockAndVerifyMockTab(proxyUrl);
 
+      // Example Generation: Generate and modify examples
       await steps.navigateToExampleGeneration();
       await steps.generateMoreExamplesForBothEndpoints();
-
       await steps.copyPasteAndReplaceForNumberEndpoint();
       await steps.copyPasteAndReplaceForPlansEndpoint();
 
+      // Verify: Confirm mock serves new number
       await steps.enterNewNumberAndVerifyPlans(proxyUrl);
     },
   );
