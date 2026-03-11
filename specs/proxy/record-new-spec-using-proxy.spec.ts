@@ -71,11 +71,12 @@ class RecordNewSpecSteps {
   }
 
   async replayViaMockAndVerifyMockTab(
-    jioPage: JioAppInProxyPage,
+    proxyUrl: string
   ): Promise<void> {
     await test.step(`Replay via mock: second API call and verify in mock tab`, async () => {
-      await jioPage.bringToFront();
-      await jioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
+      const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
+    const newJioPage = new JioAppInProxyPage(proxyTab, this.testInfo, this.eyes);
+      await newJioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
       await this.page.bringToFront();
       await this.studio.sideBar.ensureSidebarOpen();
       await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
@@ -111,7 +112,7 @@ test.describe("API Specification Management", () => {
       const jioPage = await steps.openProxyTargetTab(proxyUrl);
       await steps.captureApiCallAndVerifyInProxyTable(jioPage);
       await steps.startMockReplayAndVerifySidebar();
-      await steps.replayViaMockAndVerifyMockTab(jioPage);
+      await steps.replayViaMockAndVerifyMockTab(proxyUrl);
       await steps.viewDrillDownDetails();
     },
   );
