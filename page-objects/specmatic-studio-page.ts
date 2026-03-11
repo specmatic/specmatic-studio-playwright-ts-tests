@@ -117,6 +117,13 @@ export class SpecmaticStudioPage extends BasePage {
     );
   }
 
+  async clickProxyApiFilter() {
+    const apiFilterBtn = this.page.locator('li.count[data-type="api"]');
+    await expect(apiFilterBtn).toBeVisible({ timeout: 5000 });
+    await apiFilterBtn.click();
+    await takeAndAttachScreenshot(this.page, "proxy-api-filter-clicked", this.eyes);
+  }
+
   async clickReplayForPath(path: string) {
     const replayBtn = this.replayBtnByPath(path);
     await expect(replayBtn).toBeVisible({ timeout: 5000 });

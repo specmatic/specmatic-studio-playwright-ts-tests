@@ -193,16 +193,31 @@ export class ExampleGenerationPage extends BasePage {
     await expect(validateBtn).toBeVisible({ timeout: 4000 });
   }
 
-  private async clickViewDetails(
+  async clickViewDetails(
     endpoint: string,
     responseCode: number,
     withVisualValidation = true,
+    targetNewlyGenerated = false,
   ) {
     const iframe = await this.waitForExamplesIFrame();
-    const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//span[contains(text(), 'View Details')]`;
-    const viewDetailsSpan = iframe.locator(xpath);
-    await expect(viewDetailsSpan).toBeVisible({ timeout: 4000 });
-    await viewDetailsSpan.click();
+    let viewDetailsSpan: Locator;
+
+    if (targetNewlyGenerated) {
+      // Target the last non-main row – the one just created by Generate More.
+      // These rows have class="response-cell hidden" so we use a CSS selector
+      // and force:true to click the hidden span without needing hover.
+      const row = iframe
+        .locator(`tr[data-raw-path="/${endpoint}"][data-main="false"]`)
+        .last();
+      await expect(row).toBeAttached({ timeout: 5000 });
+      viewDetailsSpan = row.locator('span:has-text("View Details")');
+    } else {
+      const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//span[contains(text(), 'View Details')]`;
+      viewDetailsSpan = iframe.locator(xpath);
+      await expect(viewDetailsSpan).toBeVisible({ timeout: 4000 });
+    }
+
+    await viewDetailsSpan.click({ force: true });
     await this.page.waitForTimeout(2000);
     await takeAndAttachScreenshot(
       this.page,
@@ -913,6 +928,23 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+  async openExampleGenerationTabFromTab(): Promise<void> {
+    await test.step("Open Example Generation tab (no page reload)", async () => {
+      const examplesTabLi = this.page
+        .locator('li.tab[data-type="example"]')
+        .first();
+      await examplesTabLi.waitFor({ state: "visible", timeout: 10000 });
+      const isActive =
+        (await examplesTabLi.getAttribute("data-active")) === "true";
+      if (!isActive) {
+        await examplesTabLi.click({ force: true, timeout: 10000 });
+        await this.page.waitForTimeout(500);
+      }
+      await this.waitForExamplesIFrame();
+      await takeAndAttachScreenshot(this.page, "example-tab-opened");
+    });
+  }
+
   async clickGenerateMoreButton(path: string, responseCode: number) {
     await test.step(`Click Generate More for ${path} - ${responseCode}`, async () => {
       const iframe = await this.waitForExamplesIFrame();
@@ -1236,6 +1268,47 @@ export class ExampleGenerationPage extends BasePage {
 
     await takeAndAttachScreenshot(this.page, "spec-editor-not-found");
     throw new Error("Spec editor content was not found in visible spec tab");
+  }
+
+  async copyEditorContent(): Promise<void> {
+    await test.step("Copy editor content to clipboard", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      await expect(editor).toBeVisible({ timeout: 5000 });
+      await editor.click();
+      await this.page.keyboard.press("Control+a");
+      await this.page.keyboard.press("Control+c");
+      await this.page.waitForTimeout(500);
+      await takeAndAttachScreenshot(this.page, "editor-content-copied");
+    });
+  }
+
+  async pasteIntoEditor(): Promise<void> {
+    await test.step("Paste content into editor", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      await expect(editor).toBeVisible({ timeout: 5000 });
+      await editor.click();
+      await this.page.keyboard.press("Control+a");
+      await this.page.keyboard.press("Control+v");
+      await this.page.waitForTimeout(500);
+      await this.page.keyboard.press("Control+Home");
+      await this.page.waitForTimeout(300);
+      await takeAndAttachScreenshot(this.page, "editor-content-pasted");
+    });
+  }
+
+  async goBackFromExample(): Promise<void> {
+    await test.step("Go back to examples list", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const goBackBtn = iframe.getByRole("button", {
+        name: /Go Back|← Go Back/,
+      });
+      await expect(goBackBtn).toBeVisible({ timeout: 4000 });
+      await goBackBtn.click();
+      await this.page.waitForTimeout(1000);
+      await takeAndAttachScreenshot(this.page, "went-back-to-examples-list");
+    });
   }
 
   private async findTermUsingWindowFind(
