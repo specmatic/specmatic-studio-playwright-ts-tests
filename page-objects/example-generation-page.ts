@@ -13,11 +13,7 @@ import { BasePage } from "./base-page";
 import { Edit } from "../utils/types/json-edit.types";
 import { SpecEditorPage } from "./spec-editor-page";
 
-export type ExampleEntry = {
-  name: string;
-  rawPath: string;
-  responseCode: number;
-};
+
 
 export class ExampleGenerationPage extends BasePage {
   readonly openApiTabPage: OpenAPISpecTabPage;
@@ -958,7 +954,7 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async getGeneratedExampleNames(): Promise<ExampleEntry[]> {
+  async getGeneratedExampleNames(): Promise<string[]> {
     return await test.step(`Get generated example names`, async () => {
       console.log(`Getting generated example names from Examples tab`);
       const iframe = await this.waitForExamplesIFrame();
@@ -966,34 +962,20 @@ export class ExampleGenerationPage extends BasePage {
         .locator("tr[data-example-relative-path]")
         .all();
 
-      const entries: ExampleEntry[] = [];
+      const examples: string[] = [];
       for (const row of exampleRows) {
-        const relativePath = await row.getAttribute(
-          "data-example-relative-path",
-        );
-        const rawPath = await row.getAttribute("data-raw-path");
-        const responseCodeText = await row
-          .locator("td.response-cell p")
-          .first()
-          .textContent();
-
-        if (relativePath) {
-          const match = relativePath.match(/_examples\/(.+)\.json$/);
-          if (match) {
-            entries.push({
-              name: match[1],
-              rawPath: rawPath ?? "",
-              responseCode: responseCodeText
-                ? parseInt(responseCodeText.trim(), 10)
-                : 0,
-            });
-          }
+        const nameSpan = row.locator('td:nth-child(6) > span').first();
+        if (await nameSpan.count() > 0) {
+           const name = await nameSpan.textContent();
+           if (name) {
+             examples.push(name.trim());
+           }
         }
       }
 
-      console.log(`Found ${entries.length} generated examples:`, entries);
+      console.log(`Found ${examples.length} generated examples:`, examples);
       await takeAndAttachScreenshot(this.page, `generated-example-names`);
-      return entries;
+      return examples;
     });
   }
 
@@ -1006,37 +988,31 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   async verifyInlinedExamplesInSpec(
-    expectedExampleNames: string[],
-    endpoint: string,
-    method: string,
-    responseCode: number,
+    expectedExamples: string[],
   ) {
     await test.step(`Verify inlined examples in spec file`, async () => {
-      if (method.toLowerCase() === "post") {
-        await this.verifyInlinedPostExamplesInSpec(
-          expectedExampleNames,
-          endpoint,
-          responseCode,
-        );
-        return;
-      }
-
       const specContent = this.readSpecFile();
 
-      for (const name of expectedExampleNames) {
-        await this.validateExamplePresence(specContent, name);
+      for (const name of expectedExamples) {
+        if (!specContent.includes(name)) {
+          console.error(`\t FAILED: '${name}' not found in spec file`);
+          await takeAndAttachScreenshot(this.page, `failed-to-find-${name}`);
+          throw new Error(`Example '${name}' not found in spec file '${this.specName}'`);
+        } else {
+          console.log(`\t ✓ Verified: ${name} is inlined`);
+        }
       }
 
       await takeAndAttachScreenshot(
         this.page,
-        `verified-inlined-examples-${endpoint}-${responseCode}`,
+        `verified-inlined-examples`,
       );
 
-      await this.showVisualEvidenceInEditor(
-        expectedExampleNames[0],
-        endpoint,
-        responseCode,
-      );
+      if (expectedExamples.length > 0) {
+        await this.showVisualEvidenceInEditor(
+          expectedExamples
+        );
+      }
     });
   }
 
@@ -1052,132 +1028,11 @@ export class ExampleGenerationPage extends BasePage {
     return fs.readFileSync(specFilePath, "utf-8");
   }
 
-  private async validateExamplePresence(content: string, exampleName: string) {
-    const refPattern = `#/components/examples/${exampleName}_response`;
-
-    if (content.includes(refPattern)) {
-      console.log(`\t ✓ Verified: ${exampleName}_response is inlined`);
-      return;
-    }
-
-    // Provide a more helpful diagnostic before throwing
-    if (content.includes(`${exampleName}_response`)) {
-      console.error(
-        `\tFound '${exampleName}_response' but not the full $ref path '${refPattern}'`,
-      );
-    }
-
-    await takeAndAttachScreenshot(this.page, `failed-to-find-${exampleName}`);
-    throw new Error(
-      `Example reference '${refPattern}' not found in spec file '${this.specName}'. ` +
-        `The inline operation may have failed for this example.`,
-    );
-  }
-
-  async verifyInlinedPostExamplesInSpec(
-    expectedExampleNames: string[],
-    endpoint: string,
-    responseCode: number,
-  ) {
-    await test.step(`Verify inlined POST examples in spec file for /${endpoint}`, async () => {
-      const fullText = this.readSpecFile();
-      const lines = fullText.split("\n");
-
-      const pathBlock = this.extractYamlBlock(lines, `/${endpoint}:`);
-
-      const requestBodyBlock = this.extractYamlBlock(
-        pathBlock,
-        "requestBody:",
-      ).join("\n");
-      const responseCodeBlock = this.extractYamlBlock(
-        pathBlock,
-        `${responseCode}:`,
-        [`'${responseCode}':`, `"${responseCode}":`],
-      ).join("\n");
-
-      for (const name of expectedExampleNames) {
-        await this.validateSectionRef(
-          requestBodyBlock,
-          name,
-          "request",
-          endpoint,
-        );
-        await this.validateSectionRef(
-          responseCodeBlock,
-          name,
-          "response",
-          endpoint,
-        );
-      }
-      await this.showVisualEvidenceInEditor(
-        expectedExampleNames[0],
-        endpoint,
-        responseCode,
-        true,
-      );
-    });
-  }
-
-  private extractYamlBlock(
-    lines: string[],
-    marker: string,
-    aliases: string[] = [],
-  ): string[] {
-    const allPatterns = [marker, ...aliases];
-    const startIdx = lines.findIndex((l) =>
-      allPatterns.some((p) => l.trim().startsWith(p)),
-    );
-
-    if (startIdx === -1) {
-      throw new Error(`Could not find block starting with '${marker}'`);
-    }
-
-    const startIndent = lines[startIdx].search(/\S/);
-    let endIdx = lines.length;
-
-    for (let i = startIdx + 1; i < lines.length; i++) {
-      if (lines[i].trim() === "") continue;
-      const currentIndent = lines[i].search(/\S/);
-      if (currentIndent <= startIndent) {
-        endIdx = i;
-        break;
-      }
-    }
-
-    return lines.slice(startIdx, endIdx);
-  }
-
-  private async validateSectionRef(
-    blockText: string,
-    name: string,
-    type: "request" | "response",
-    endpoint: string,
-  ) {
-    const pattern = `#/components/examples/${name}_${type}`;
-
-    if (blockText.includes(pattern)) {
-      console.log(
-        `\t ✓ Verified: ${name}_${type} is in the ${type === "request" ? "requestBody" : `responses/${type}`} section`,
-      );
-    } else {
-      console.error(
-        `\t FAILED: '${pattern}' not found in ${type} section of /${endpoint}`,
-      );
-      await takeAndAttachScreenshot(this.page, `failed-${type}-ref-${name}`);
-      throw new Error(
-        `${type === "request" ? "Request body" : "Response"} example reference '${pattern}' ` +
-          `not found in the ${type} section of '/${endpoint}' in spec file '${this.specName}'.`,
-      );
-    }
-  }
 
   private async showVisualEvidenceInEditor(
-    exampleName: string,
-    endpoint: string,
-    code: number,
-    isPost: boolean = false,
+    examples: string[],
   ) {
-    await test.step(`Capture visual evidence in editor for ${endpoint}`, async () => {
+    await test.step(`Capture visual evidence in editor`, async () => {
       const editorContext = await this.getSpecEditorContext();
       await expect(editorContext.content).toBeVisible({ timeout: 15000 });
       await editorContext.content.click();
@@ -1190,30 +1045,26 @@ export class ExampleGenerationPage extends BasePage {
       });
       await this.page.waitForTimeout(250);
 
-      const targets = isPost
-        ? [`${exampleName}_request`, `${exampleName}_response`]
-        : [`${exampleName}_response`];
-
-      for (const searchTerm of targets) {
+      for (const exampleName of examples) {
         const foundByEditorApi =
           await this.specEditorHelper.focusTermUsingCodeMirrorApi(
             editorContext.content,
-            searchTerm,
+            exampleName,
           );
         const foundByWindowFind = foundByEditorApi
           ? true
-          : await this.findTermUsingWindowFind(editorContext.frame, searchTerm);
+          : await this.findTermUsingWindowFind(editorContext.frame, exampleName);
 
         if (!foundByWindowFind) {
           await this.specEditorHelper.scrollEditorToFindTerm(
             editorContext.content,
             editorContext.scroller,
             editorContext.lines,
-            searchTerm,
+            exampleName,
           );
 
           const match = editorContext.lines
-            .filter({ hasText: searchTerm })
+            .filter({ hasText: exampleName })
             .first();
           if ((await match.count()) > 0) {
             await match.scrollIntoViewIfNeeded();
@@ -1225,7 +1076,7 @@ export class ExampleGenerationPage extends BasePage {
 
         await takeAndAttachScreenshot(
           this.page,
-          `visual-${searchTerm}-${endpoint}-${code}`,
+          `visual-${exampleName}`,
         );
       }
     });

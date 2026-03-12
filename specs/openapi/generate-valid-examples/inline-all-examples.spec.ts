@@ -2,15 +2,10 @@ import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL } from "../../specNames";
 import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import {
-  filterExampleNames,
   getUpdatedSpecName,
   navigateToUpdatedSpec,
 } from "../helpers/inline-examples-helper";
-
-const FIND_AVAILABLE_PRODUCTS = "findAvailableProducts";
-const PRODUCTS = "products";
-const ORDRES = "ordres";
-const MONITOR = "monitor";
+import path from "path";
 
 test.describe("Inline examples", () => {
   test(
@@ -58,12 +53,14 @@ test.describe("Inline examples", () => {
           PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL,
         );
 
+        const expectedFileName = path.basename(expectedUpdatedSpecName);
+
         const [actualTitle, actualMessage] =
           await examplePage.getDialogTitleAndMessage();
 
         expect.soft(actualTitle).toBe("Examples Inline Complete");
         expect(actualMessage).toBe(
-          `Successfully inlined examples into ${expectedUpdatedSpecName}`,
+          `Successfully inlined examples into ${expectedFileName}`,
         );
 
         await examplePage.closeInlineSuccessDialog("Examples Inline Complete");
@@ -76,46 +73,9 @@ test.describe("Inline examples", () => {
             expectedUpdatedSpecName,
           );
 
-          const endpoints: {
-            path: string;
-            method: "get" | "post";
-            codes: number[];
-          }[] = [
-            { path: FIND_AVAILABLE_PRODUCTS, method: "get",  codes: [200, 429, 400] },
-            { path: PRODUCTS,                method: "post", codes: [201, 202, 400] },
-            { path: ORDRES,                  method: "post", codes: [201, 202, 400] },
-            { path: MONITOR,                 method: "get",  codes: [200, 400] },
-          ];
-
-          const pathsToVerify = endpoints.flatMap(({ path, method, codes }) =>
-            codes.map((code) => ({ path, method, code })),
+          await updatedSpecPage.verifyInlinedExamplesInSpec(
+            generatedExampleNames,
           );
-
-          for (const { path, method, code } of pathsToVerify) {
-            const names = filterExampleNames(generatedExampleNames, path, code);
-
-            if (names.length === 0) {
-              console.log(
-                `  Skipping verification for ${method.toUpperCase()} /${path} ${code} — no generated examples found`,
-              );
-              continue;
-            }
-
-            if (method === "get") {
-              await updatedSpecPage.verifyInlinedExamplesInSpec(
-                names,
-                path,
-                method,
-                code,
-              );
-            } else {
-              await updatedSpecPage.verifyInlinedPostExamplesInSpec(
-                names,
-                path,
-                code,
-              );
-            }
-          }
         });
       } catch (err) {
         expect

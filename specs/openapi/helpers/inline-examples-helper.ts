@@ -1,5 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
-import { ExampleGenerationPage, ExampleEntry } from "../../../page-objects/example-generation-page";
+import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 
 export function getUpdatedSpecName(specName: string): string {
   return specName.replace(/.yaml$/, "-updated.yaml");
@@ -57,7 +57,7 @@ export async function setupExampleGenerationPage(
 export async function generateMoreThenValidateAndInline(
   examplePage: ExampleGenerationPage,
   pathsAndCodes: { path: string; code: number }[],
-): Promise<ExampleEntry[]> {
+): Promise<string[]> {
   return await test.step("Generate more examples, validate all, and inline", async () => {
     for (const { path, code } of pathsAndCodes) {
       await examplePage.clickGenerateMoreButton(path, code);
@@ -75,17 +75,3 @@ export async function generateMoreThenValidateAndInline(
   });
 }
 
-
-export function filterExampleNames(
-  allEntries: ExampleEntry[],
-  pathKeyword: string,
-  responseCode: number,
-): string[] {
-  return allEntries
-    .filter(
-      (entry) =>
-        entry.rawPath.includes(`/${pathKeyword}`) &&
-        entry.responseCode === responseCode,
-    )
-    .map((entry) => entry.name);
-}
