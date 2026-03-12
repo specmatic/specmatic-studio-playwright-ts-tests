@@ -1,22 +1,55 @@
-import { test, expect } from "../../utils/eyesFixture";
+import { Page, TestInfo } from "@playwright/test";
+import { ExampleGenerationPage } from "../../page-objects/example-generation-page";
+import { JioAppInProxyPage } from "../../page-objects/jio-proxy-page";
+import { MockServerPage } from "../../page-objects/mock-server-page";
+import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
+import { test } from "../../utils/eyesFixture";
+import { Edit } from "../../utils/types/json-edit.types";
 import {
   JIO_PAGE_URL,
+  JIO_RECHARGE_NUMBER_PATH,
+  JIO_RECHARGE_NUMBER_RAW_PATH,
+  JIO_RECHARGE_PLANS_PATH,
+  JIO_RECHARGE_PLANS_RAW_PATH,
+  JIO_RECHARGE_RESPONSE_CODE,
+  NEW_JIO_NUMBER,
   PROXY_PORT,
   PROXY_RECORDINGS_SPEC,
-  JIO_RECHARGE_NUMBER_PATH,
-  JIO_RECHARGE_PLANS_PATH,
-  JIO_RECHARGE_NUMBER_RAW_PATH,
-  JIO_RECHARGE_PLANS_RAW_PATH,
   VALID_JIO_NUMBER,
-  NEW_JIO_NUMBER,
-  JIO_RECHARGE_RESPONSE_CODE,
 } from "../specNames";
-import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
-import { MockServerPage } from "../../page-objects/mock-server-page";
-import { JioAppInProxyPage } from "../../page-objects/jio-proxy-page";
-import { ExampleGenerationPage } from "../../page-objects/example-generation-page";
-import { Edit } from "../../utils/types/json-edit.types";
-import { Page, TestInfo } from "@playwright/test";
+
+test.describe("API Specification Management", () => {
+  test(
+    "Record New API Specification via Proxy for Valid Prepaid Number",
+    {
+      tag: ["@proxy", "@recordValidNumber", "@recordNewSpec", "@eyes"],
+    },
+    async ({ page, eyes }, testInfo) => {
+      const steps = new RecordValidNumberSteps(page, testInfo, eyes);
+
+      // Setup: Record API calls via proxy
+      await steps.setupProxyRecording();
+      const proxyUrl = await steps.assertProxyStartedAndGetUrl();
+      const jioPage = await steps.openProxyTargetTab(proxyUrl);
+
+      // Capture: Record both endpoints
+      await steps.captureAndVerifyBothEndpoints(jioPage);
+
+      // Mock Replay: Start mock servers and verify sidebar
+      await steps.startMockReplayAndVerifySidebar();
+      await steps.replayViaMockAndVerifyMockTab(proxyUrl);
+
+      // Example Generation: Generate and modify examples
+      await steps.navigateToExampleGeneration();
+      await steps.generateMoreExamplesForBothEndpoints();
+      await steps.copyPasteAndReplacePhoneNumberEndpoint();
+      await steps.copyPasteAndReplaceForPlansEndpoint();
+
+      // // Verify: Confirm mock serves new number
+      await steps.enterNewNumberAndVerifyPlans(proxyUrl);
+    },
+  );
+});
 
 const NUMBER_ENDPOINT_EDITS: Edit[] = [
   {
@@ -158,7 +191,7 @@ class RecordValidNumberSteps {
     });
   }
 
-  private async copyPasteAndReplaceForEndpoint(
+  private async copyPasteAndReplacePhoneEndpoint(
     rawPath: string,
     endpoint: "number" | "plans",
     edits: Edit[],
@@ -186,8 +219,8 @@ class RecordValidNumberSteps {
     });
   }
 
-  async copyPasteAndReplaceForNumberEndpoint(): Promise<void> {
-    await this.copyPasteAndReplaceForEndpoint(
+  async copyPasteAndReplacePhoneNumberEndpoint(): Promise<void> {
+    await this.copyPasteAndReplacePhoneEndpoint(
       JIO_RECHARGE_NUMBER_RAW_PATH,
       "number",
       NUMBER_ENDPOINT_EDITS,
@@ -195,7 +228,7 @@ class RecordValidNumberSteps {
   }
 
   async copyPasteAndReplaceForPlansEndpoint(): Promise<void> {
-    await this.copyPasteAndReplaceForEndpoint(
+    await this.copyPasteAndReplacePhoneEndpoint(
       JIO_RECHARGE_PLANS_RAW_PATH,
       "plans",
       PLANS_ENDPOINT_EDITS,
@@ -220,36 +253,3 @@ class RecordValidNumberSteps {
     });
   }
 }
-
-test.describe("API Specification Management", () => {
-  test(
-    "Record New API Specification via Proxy for Valid Prepaid Number",
-    {
-      tag: ["@proxy", "@recordValidNumber", "@recordNewSpec", "@eyes"],
-    },
-    async ({ page, eyes }, testInfo) => {
-      const steps = new RecordValidNumberSteps(page, testInfo, eyes);
-
-      // Setup: Record API calls via proxy
-      await steps.setupProxyRecording();
-      const proxyUrl = await steps.assertProxyStartedAndGetUrl();
-      const jioPage = await steps.openProxyTargetTab(proxyUrl);
-
-      // Capture: Record both endpoints
-      await steps.captureAndVerifyBothEndpoints(jioPage);
-
-      // Mock Replay: Start mock servers and verify sidebar
-      await steps.startMockReplayAndVerifySidebar();
-      await steps.replayViaMockAndVerifyMockTab(proxyUrl);
-
-      // Example Generation: Generate and modify examples
-      await steps.navigateToExampleGeneration();
-      await steps.generateMoreExamplesForBothEndpoints();
-      await steps.copyPasteAndReplaceForNumberEndpoint();
-      await steps.copyPasteAndReplaceForPlansEndpoint();
-
-      // Verify: Confirm mock serves new number
-      await steps.enterNewNumberAndVerifyPlans(proxyUrl);
-    },
-  );
-});
