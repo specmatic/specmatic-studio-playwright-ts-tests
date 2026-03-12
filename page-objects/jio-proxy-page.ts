@@ -39,6 +39,10 @@ export class JioAppInProxyPage extends BasePage {
       this.proceedBtn.click(),
     ]);
 
+    await this.page.getByText("Top Trending True 5G Unlimited Plans").waitFor({
+      state: "visible",
+      timeout: 5000,
+    });
     await takeAndAttachScreenshot(this.page, `proceed-clicked`);
   }
 
