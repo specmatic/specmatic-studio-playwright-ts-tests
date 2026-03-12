@@ -1276,8 +1276,8 @@ export class ExampleGenerationPage extends BasePage {
       const editor = iframe.locator("#example-pre .cm-content");
       await expect(editor).toBeVisible({ timeout: 5000 });
       await editor.click();
-      await this.page.keyboard.press("Control+a");
-      await this.page.keyboard.press("Control+c");
+      await this.page.keyboard.press("ControlOrMeta+A");
+      await this.page.keyboard.press("ControlOrMeta+C");
       await this.page.waitForTimeout(500);
       await takeAndAttachScreenshot(this.page, "editor-content-copied");
     });
@@ -1287,12 +1287,16 @@ export class ExampleGenerationPage extends BasePage {
     await test.step("Paste content into editor", async () => {
       const iframe = await this.waitForExamplesIFrame();
       const editor = iframe.locator("#example-pre .cm-content");
+      const editorScroller = iframe.locator("#example-pre .cm-scroller");
       await expect(editor).toBeVisible({ timeout: 5000 });
       await editor.click();
-      await this.page.keyboard.press("Control+a");
-      await this.page.keyboard.press("Control+v");
+      await this.page.keyboard.press("ControlOrMeta+A");
+      await this.page.keyboard.press("ControlOrMeta+V");
       await this.page.waitForTimeout(500);
-      await this.page.keyboard.press("Control+Home");
+      await expect(editorScroller).toBeVisible({ timeout: 5000 });
+      await editorScroller.evaluate((el) => {
+        el.scrollTop = 0;
+      });
       await this.page.waitForTimeout(300);
       await takeAndAttachScreenshot(this.page, "editor-content-pasted");
     });
