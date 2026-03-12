@@ -1,7 +1,6 @@
 import { test } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED } from "../../specNames";
 import {
-  filterExampleNames,
   generateMoreThenValidateAndInline,
   getUpdatedSpecName,
   navigateToUpdatedSpec,
@@ -54,14 +53,9 @@ test.describe("Validate generated spec after inlining GET examples", () => {
       await test.step("Verify inlined examples appear in the updated spec file", async () => {
         const updatedSpecPage = await navigateToUpdatedSpec(page, testInfo, eyes, updatedSpecName);
 
-        for (const { path, method, code } of PATHS_AND_CODES) {
-          await updatedSpecPage.verifyInlinedExamplesInSpec(
-            filterExampleNames(generatedExampleNames, path, code),
-            path,
-            method,
-            code,
-          );
-        }
+        await updatedSpecPage.verifyInlinedExamplesInSpec(
+          generatedExampleNames
+        );
       });
     },
   );
