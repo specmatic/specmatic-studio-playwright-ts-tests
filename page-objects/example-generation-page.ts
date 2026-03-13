@@ -13,8 +13,6 @@ import { BasePage } from "./base-page";
 import { Edit } from "../utils/types/json-edit.types";
 import { SpecEditorPage } from "./spec-editor-page";
 
-
-
 export class ExampleGenerationPage extends BasePage {
   readonly openApiTabPage: OpenAPISpecTabPage;
   protected readonly specTree: Locator;
@@ -199,12 +197,9 @@ export class ExampleGenerationPage extends BasePage {
     let viewDetailsSpan: Locator;
 
     if (targetNewlyGenerated) {
-      // Target the last non-main row – the one just created by Generate More.
-      // These rows have class="response-cell hidden" so we use a CSS selector
-      // and force:true to click the hidden span without needing hover.
-      const row = iframe
-        .locator(`tr[data-raw-path="/${endpoint}"][data-main="false"]`)
-        .last();
+      const row = iframe.locator(
+        `tr[data-raw-path*="${endpoint}"][data-example-relative-path$="_2.json"]`,
+      );
       await expect(row).toBeAttached({ timeout: 5000 });
       viewDetailsSpan = row.locator('span:has-text("View Details")');
     } else {
@@ -214,7 +209,11 @@ export class ExampleGenerationPage extends BasePage {
     }
 
     await viewDetailsSpan.click({ force: true });
-    await this.page.waitForTimeout(2000);
+
+    // Wait for the details view/editor to fully load in the iframe
+    await this.waitForDetailsViewToLoad();
+    await this.page.waitForTimeout(1000);
+
     await takeAndAttachScreenshot(
       this.page,
       `view-details-${endpoint}-${responseCode}`,
@@ -416,7 +415,7 @@ export class ExampleGenerationPage extends BasePage {
     }
   }
 
-  private async waitForExamplesIFrame() {
+  async waitForExamplesIFrame() {
     await this.examplesIframe.waitFor({ state: "attached", timeout: 10000 });
     const iframeElement = await this.examplesIframe.elementHandle();
     if (!iframeElement) {
@@ -789,6 +788,8 @@ export class ExampleGenerationPage extends BasePage {
   async saveEditedExample(expectedDialogTitle: string) {
     await test.step(`Save edited example`, async () => {
       console.log(`Saving edited example`);
+      // Wait for editor to be stable before saving
+      await this.page.waitForTimeout(500);
       await this.saveAndValidate();
       await this.verifyTitleAndCloseDialog(expectedDialogTitle);
     });
@@ -954,6 +955,19 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+  async getExampleFilesForEndpoint(rawPath: string): Promise<string[]> {
+    const iframe = await this.waitForExamplesIFrame();
+    const rows = iframe.locator(`tr[data-raw-path="/${rawPath}"]`);
+    const count = await rows.count();
+    const filePaths: string[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const filePath = await rows.nth(i).getAttribute("data-example-path");
+      if (filePath) filePaths.push(filePath);
+    }
+    return filePaths;
+  }
+
   async getGeneratedExampleNames(): Promise<string[]> {
     return await test.step(`Get generated example names`, async () => {
       console.log(`Getting generated example names from Examples tab`);
@@ -964,12 +978,12 @@ export class ExampleGenerationPage extends BasePage {
 
       const examples: string[] = [];
       for (const row of exampleRows) {
-        const nameSpan = row.locator('td:nth-child(6) > span').first();
-        if (await nameSpan.count() > 0) {
-           const name = await nameSpan.textContent();
-           if (name) {
-             examples.push(name.trim());
-           }
+        const nameSpan = row.locator("td:nth-child(6) > span").first();
+        if ((await nameSpan.count()) > 0) {
+          const name = await nameSpan.textContent();
+          if (name) {
+            examples.push(name.trim());
+          }
         }
       }
 
@@ -987,9 +1001,7 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async verifyInlinedExamplesInSpec(
-    expectedExamples: string[],
-  ) {
+  async verifyInlinedExamplesInSpec(expectedExamples: string[]) {
     await test.step(`Verify inlined examples in spec file`, async () => {
       const specContent = this.readSpecFile();
 
@@ -997,21 +1009,18 @@ export class ExampleGenerationPage extends BasePage {
         if (!specContent.includes(name)) {
           console.error(`\t FAILED: '${name}' not found in spec file`);
           await takeAndAttachScreenshot(this.page, `failed-to-find-${name}`);
-          throw new Error(`Example '${name}' not found in spec file '${this.specName}'`);
+          throw new Error(
+            `Example '${name}' not found in spec file '${this.specName}'`,
+          );
         } else {
           console.log(`\t ✓ Verified: ${name} is inlined`);
         }
       }
 
-      await takeAndAttachScreenshot(
-        this.page,
-        `verified-inlined-examples`,
-      );
+      await takeAndAttachScreenshot(this.page, `verified-inlined-examples`);
 
       if (expectedExamples.length > 0) {
-        await this.showVisualEvidenceInEditor(
-          expectedExamples
-        );
+        await this.showVisualEvidenceInEditor(expectedExamples);
       }
     });
   }
@@ -1028,10 +1037,7 @@ export class ExampleGenerationPage extends BasePage {
     return fs.readFileSync(specFilePath, "utf-8");
   }
 
-
-  private async showVisualEvidenceInEditor(
-    examples: string[],
-  ) {
+  private async showVisualEvidenceInEditor(examples: string[]) {
     await test.step(`Capture visual evidence in editor`, async () => {
       const editorContext = await this.getSpecEditorContext();
       await expect(editorContext.content).toBeVisible({ timeout: 15000 });
@@ -1053,7 +1059,10 @@ export class ExampleGenerationPage extends BasePage {
           );
         const foundByWindowFind = foundByEditorApi
           ? true
-          : await this.findTermUsingWindowFind(editorContext.frame, exampleName);
+          : await this.findTermUsingWindowFind(
+              editorContext.frame,
+              exampleName,
+            );
 
         if (!foundByWindowFind) {
           await this.specEditorHelper.scrollEditorToFindTerm(
@@ -1074,10 +1083,7 @@ export class ExampleGenerationPage extends BasePage {
 
         await this.page.waitForTimeout(250);
 
-        await takeAndAttachScreenshot(
-          this.page,
-          `visual-${exampleName}`,
-        );
+        await takeAndAttachScreenshot(this.page, `visual-${exampleName}`);
       }
     });
   }
@@ -1215,9 +1221,56 @@ export class ExampleGenerationPage extends BasePage {
       });
       await expect(goBackBtn).toBeVisible({ timeout: 4000 });
       await goBackBtn.click();
-      await this.page.waitForTimeout(1000);
+
+      // Wait for the examples list to fully load
+      await this.waitForExamplesListToLoad();
+      await this.page.waitForTimeout(500);
+
       await takeAndAttachScreenshot(this.page, "went-back-to-examples-list");
     });
+  }
+
+  private async waitForDetailsViewToLoad(): Promise<void> {
+    const iframe = await this.waitForExamplesIFrame();
+
+    // Wait for editor content or viewer content to be visible
+    // This could be CodeMirror editor (.cm-content), or other viewer elements
+    await Promise.race([
+      iframe
+        .locator(".cm-content")
+        .first()
+        .waitFor({ state: "visible", timeout: 8000 }),
+      iframe
+        .locator(".cm-editor")
+        .first()
+        .waitFor({ state: "visible", timeout: 8000 }),
+      iframe
+        .locator('[role="presentation"]')
+        .first()
+        .waitFor({ state: "visible", timeout: 8000 }),
+    ]).catch(() => {
+      // If none of the expected content appears, continue anyway
+      // as different examples might have different viewer types
+      console.log(
+        "Details view content selectors not found, proceeding with timeout",
+      );
+    });
+  }
+
+  private async waitForExamplesListToLoad(): Promise<void> {
+    const iframe = await this.waitForExamplesIFrame();
+
+    // Wait for the examples table to be visible and stable
+    await iframe
+      .locator("table, tr[data-raw-path]")
+      .first()
+      .waitFor({
+        state: "visible",
+        timeout: 8000,
+      })
+      .catch(() => {
+        console.log("Examples list not found, proceeding with timeout");
+      });
   }
 
   private async findTermUsingWindowFind(
