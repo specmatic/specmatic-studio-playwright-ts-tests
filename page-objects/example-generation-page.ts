@@ -1134,6 +1134,60 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+  async getEditorContent(): Promise<string> {
+    return test.step("Read editor content", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      await expect(editor).toBeVisible({ timeout: 5000 });
+      return await editor.evaluate((el) => {
+        const cmEditor = el.closest(".cm-editor") as {
+          cmView?: { view?: { state?: { doc?: { toString(): string } } } };
+        } | null;
+        const fullText = cmEditor?.cmView?.view?.state?.doc?.toString();
+        if (fullText) return fullText;
+        return el.textContent?.trim() ?? "";
+      });
+    });
+  }
+
+  async replaceEditorContent(content: string): Promise<void> {
+    await test.step("Replace editor content", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      const editorScroller = iframe.locator("#example-pre .cm-scroller");
+      await expect(editor).toBeVisible({ timeout: 5000 });
+      await editor.click();
+      await this.page.keyboard.press("ControlOrMeta+A");
+      await this.page.keyboard.insertText(content);
+      await this.page.waitForTimeout(500);
+      await expect(editorScroller).toBeVisible({ timeout: 5000 });
+      await editorScroller.evaluate((el) => {
+        el.scrollTop = 0;
+      });
+      await this.page.waitForTimeout(300);
+      await takeAndAttachScreenshot(this.page, "editor-content-replaced");
+    });
+  }
+
+  async getCurrentExampleRelativeFilePath(): Promise<string> {
+    return test.step("Read current example file path", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const filePathLabel = iframe
+        .locator("p")
+        .filter({ hasText: "File path:" })
+        .first();
+      await expect(filePathLabel).toBeVisible({ timeout: 5000 });
+
+      const rawText = (await filePathLabel.textContent())?.trim() ?? "";
+      const relativePath = rawText.replace(/^File path:\s*/, "");
+      if (!relativePath.startsWith("./")) {
+        throw new Error(`Unexpected example file path: '${rawText}'`);
+      }
+
+      return relativePath;
+    });
+  }
+
   async pasteIntoEditor(): Promise<void> {
     await test.step("Paste content into editor", async () => {
       const iframe = await this.waitForExamplesIFrame();

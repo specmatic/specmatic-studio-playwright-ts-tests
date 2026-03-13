@@ -1,4 +1,6 @@
 import { Page, TestInfo } from "@playwright/test";
+import { promises as fs } from "fs";
+import path from "path";
 import { ExampleGenerationPage } from "../../page-objects/example-generation-page";
 import { JioAppInProxyPage } from "../../page-objects/jio-proxy-page";
 import { MockServerPage } from "../../page-objects/mock-server-page";
@@ -37,7 +39,7 @@ test.describe("API Specification Management", () => {
 
       // Mock Replay: Start mock servers and verify sidebar
       await steps.startMockReplayAndVerifySidebar();
-      await steps.replayViaMockAndVerifyMockTab(proxyUrl);
+      await steps.replayViaMockAndVerifyMockTab(jioPage, proxyUrl);
 
       // Example Generation: Generate and modify examples
       await steps.navigateToExampleGeneration();
@@ -45,8 +47,12 @@ test.describe("API Specification Management", () => {
       await steps.copyPasteAndReplacePhoneNumberEndpoint();
       await steps.copyPasteAndReplaceForPlansEndpoint();
 
-      // // Verify: Confirm mock serves new number
-      await steps.enterNewNumberAndVerifyPlans(proxyUrl);
+      // Verify: Confirm mock serves new number
+      await steps.enterNewNumberAndVerifyPlans(jioPage, proxyUrl);
+
+      // Update example to remove all popular plans
+      await steps.removeAllPopularPlans();
+      await steps.reloadAndVerifyNoPopularPlansForNewNumber(jioPage, proxyUrl);
     },
   );
 });
@@ -74,6 +80,21 @@ const PLANS_ENDPOINT_EDITS: Edit[] = [
     changeTo: `  "path": "/api/jio-recharge-service/recharge/plans/serviceId/${NEW_JIO_NUMBER}",`,
   },
 ];
+
+const REMOVE_ALL_POPULAR_PLANS_PATH = [
+  "http-response",
+  "body",
+  "planCategories",
+  0,
+  "subCategories",
+  0,
+  "plans",
+] as const;
+const PROXY_RECORDINGS_EXAMPLES_DIR = path.join(
+  process.cwd(),
+  "specmatic-studio-demo",
+  "specs",
+);
 
 class RecordValidNumberSteps {
   private readonly studio: SpecmaticStudioPage;
@@ -150,17 +171,15 @@ class RecordValidNumberSteps {
     });
   }
 
-  async replayViaMockAndVerifyMockTab(proxyUrl: string): Promise<void> {
+  async replayViaMockAndVerifyMockTab(
+    jioPage: JioAppInProxyPage,
+    proxyUrl: string,
+  ): Promise<void> {
     await test.step(`Verify mock replay serves both endpoints`, async () => {
-      const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
-      const newJioPage = new JioAppInProxyPage(
-        proxyTab,
-        this.testInfo,
-        this.eyes,
-      );
-
-      await newJioPage.enterMobileNumberAndProceed(VALID_JIO_NUMBER);
-      await newJioPage.assertPlansPageVisible();
+      await jioPage.bringToFront();
+      await jioPage.goto(proxyUrl);
+      await jioPage.enterMobileNumberAndProceed(VALID_JIO_NUMBER);
+      await jioPage.assertPlansPageVisible();
 
       await this.page.bringToFront();
       await this.studio.sideBar.ensureSidebarOpen();
@@ -235,21 +254,100 @@ class RecordValidNumberSteps {
     );
   }
 
-  async enterNewNumberAndVerifyPlans(proxyUrl: string): Promise<void> {
-    await test.step(`Verify mock serves plans for new number '${NEW_JIO_NUMBER}'`, async () => {
-      const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
-      const newJioPage = new JioAppInProxyPage(
-        proxyTab,
-        this.testInfo,
-        this.eyes,
-      );
+  private updateJsonPathValue(
+    jsonContent: string,
+    path: readonly (string | number)[],
+    value: unknown,
+  ): string {
+    const parsedContent = JSON.parse(jsonContent) as Record<string, unknown>;
 
-      await newJioPage.enterMobileNumberAndProceed(NEW_JIO_NUMBER);
-      await newJioPage.assertPlansPageVisible();
+    let currentNode: unknown = parsedContent;
+    for (let index = 0; index < path.length - 1; index++) {
+      const segment = path[index];
+
+      if (
+        currentNode === null ||
+        currentNode === undefined ||
+        typeof currentNode !== "object" ||
+        !(segment in currentNode)
+      ) {
+        throw new Error(`Could not resolve JSON path segment '${segment}'`);
+      }
+
+      currentNode = (currentNode as Record<string | number, unknown>)[segment];
+    }
+
+    const lastSegment = path[path.length - 1];
+    if (
+      currentNode === null ||
+      currentNode === undefined ||
+      typeof currentNode !== "object"
+    ) {
+      throw new Error(
+        `Could not resolve final JSON path segment '${lastSegment}'`,
+      );
+    }
+
+    (currentNode as Record<string | number, unknown>)[lastSegment] = value;
+    return JSON.stringify(parsedContent, null, 4);
+  }
+
+  async enterNewNumberAndVerifyPlans(
+    jioPage: JioAppInProxyPage,
+    proxyUrl: string,
+  ): Promise<void> {
+    await test.step(`Verify mock serves plans for new number '${NEW_JIO_NUMBER}'`, async () => {
+      await jioPage.bringToFront();
+      await jioPage.goto(proxyUrl);
+      await jioPage.enterMobileNumberAndProceed(NEW_JIO_NUMBER);
+      await jioPage.assertPlansPageVisible();
 
       await this.page.bringToFront();
       await this.mockPage.goBackToMockServerTab();
       await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH);
+    });
+  }
+
+  async removeAllPopularPlans(): Promise<void> {
+    await test.step("Remove all popular plans from the generated plans example", async () => {
+      await this.examplePage.openExampleGenerationTabFromTab();
+      await this.examplePage.clickViewDetails(
+        JIO_RECHARGE_PLANS_RAW_PATH,
+        JIO_RECHARGE_RESPONSE_CODE,
+        true,
+        true,
+      );
+
+      const relativeExamplePath =
+        await this.examplePage.getCurrentExampleRelativeFilePath();
+      const currentExample = await fs.readFile(
+        path.join(
+          PROXY_RECORDINGS_EXAMPLES_DIR,
+          relativeExamplePath.replace(/^\.\//, ""),
+        ),
+        "utf-8",
+      );
+      const updatedExample = this.updateJsonPathValue(
+        currentExample,
+        REMOVE_ALL_POPULAR_PLANS_PATH,
+        [],
+      );
+
+      await this.examplePage.replaceEditorContent(updatedExample);
+      await this.examplePage.saveEditedExample("Valid Example");
+      await this.examplePage.goBackFromExample();
+    });
+  }
+
+  async reloadAndVerifyNoPopularPlansForNewNumber(
+    jioPage: JioAppInProxyPage,
+    proxyUrl: string,
+  ): Promise<void> {
+    await test.step(`Reload Jio page and verify no plans message for '${NEW_JIO_NUMBER}'`, async () => {
+      await jioPage.bringToFront();
+      await jioPage.goto(proxyUrl);
+      await jioPage.enterMobileNumberAndProceedExpectingNoPlans(NEW_JIO_NUMBER);
+      await jioPage.assertNoPlansMessageVisible();
     });
   }
 }
