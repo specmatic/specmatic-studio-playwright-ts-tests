@@ -18,6 +18,7 @@ export class SpecmaticStudioPage extends BasePage {
   private readonly proxyTableRowByPath: (path: string) => Locator;
   private readonly replayBtnByPath: (path: string) => Locator;
   private readonly replayProcessBar: (specName: string) => Locator;
+  private readonly stopBtnByPath: (path: string) => Locator;
 
   constructor(page: Page, testInfo?: TestInfo, eyes?: any) {
     super(page, testInfo || ({} as TestInfo), eyes);
@@ -26,9 +27,9 @@ export class SpecmaticStudioPage extends BasePage {
     this.specTree = page.locator("#spec-tree");
     this.sideBar = new SideBarPage(page, testInfo, eyes);
 
-    this.recordSpecBtn = page.getByRole("button", {
-      name: /Record a specification/i,
-    });
+    this.recordSpecBtn = page.locator(".left-sidebar-labels .proxy-btn", { 
+  hasText: "Record a specification" 
+});
     this.startProxyBtn = page.locator("#startProxy");
     this.stopProxyBtn = page.locator("#stopProxy");
     this.proxyStartedAlert = page.locator(
@@ -49,6 +50,10 @@ export class SpecmaticStudioPage extends BasePage {
       page.locator(
         `#accordion-group-REPLAY .process-bar[data-spec-path*="${specName}"]`,
       );
+    this.stopBtnByPath = (path) =>
+      page
+        .locator(`table#proxyTable tbody tr[data-key="${path}-GET"]`)
+        .locator("button.proxy-btn[data-value='unmock']");
   }
 
   async clickRecordSpec() {
@@ -117,11 +122,29 @@ export class SpecmaticStudioPage extends BasePage {
     );
   }
 
+  async clickProxyApiFilter() {
+    const apiFilterBtn = this.page.locator('li.count[data-type="api"]');
+    await expect(apiFilterBtn).toBeVisible({ timeout: 5000 });
+    await apiFilterBtn.click();
+    await takeAndAttachScreenshot(
+      this.page,
+      "proxy-api-filter-clicked",
+      this.eyes,
+    );
+  }
+
   async clickReplayForPath(path: string) {
     const replayBtn = this.replayBtnByPath(path);
     await expect(replayBtn).toBeVisible({ timeout: 5000 });
     await replayBtn.click();
     await takeAndAttachScreenshot(this.page, "replay-clicked", this.eyes);
+  }
+
+  async clickStopReplayForPath(path: string) {
+    const stopBtn = this.stopBtnByPath(path);
+    await expect(stopBtn).toBeVisible({ timeout: 5000 });
+    await stopBtn.click();
+    await takeAndAttachScreenshot(this.page, "stop-clicked");
   }
 
   async assertRightSidebarMockStarted(specName: string) {

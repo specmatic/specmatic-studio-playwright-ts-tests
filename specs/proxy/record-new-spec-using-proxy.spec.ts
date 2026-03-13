@@ -1,12 +1,15 @@
 import { test } from "../../utils/eyesFixture";
-import { JIO_PAGE_URL, PROXY_PORT, PROXY_RECORDINGS_SPEC } from "../specNames";
+import {
+  JIO_PAGE_URL,
+  PROXY_PORT,
+  PROXY_RECORDINGS_SPEC,
+  JIO_RECHARGE_NUMBER_PATH,
+} from "../specNames";
 import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
 import { MockServerPage } from "../../page-objects/mock-server-page";
 import { JioAppInProxyPage } from "../../page-objects/jio-proxy-page";
 import { Page, TestInfo } from "@playwright/test";
 
-const CAPTURED_PATH =
-  "/api/jio-recharge-service/recharge/mobility/number/{param}";
 const MOBILE_NUMBER = "8556663339";
 
 class RecordNewSpecSteps {
@@ -53,41 +56,47 @@ class RecordNewSpecSteps {
   async captureApiCallAndVerifyInProxyTable(
     jioPage: JioAppInProxyPage,
   ): Promise<void> {
-    await test.step(`Capture API call: enter mobile '${MOBILE_NUMBER}' and verify in proxy table`, async () => {
+    await test.step(`Capture API call with mobile number '${MOBILE_NUMBER}'`, async () => {
       await this.page.bringToFront();
       await this.studio.assertProxyTableVisible();
+
       await jioPage.bringToFront();
       await jioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
+
       await this.page.bringToFront();
-      await this.studio.assertProxyTableRowByPath(CAPTURED_PATH, 1);
+      await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_NUMBER_PATH, 1);
     });
   }
 
   async startMockReplayAndVerifySidebar(): Promise<void> {
     await test.step("Start mock replay and verify in right sidebar", async () => {
-      await this.studio.clickReplayForPath(CAPTURED_PATH);
+      await this.studio.clickReplayForPath(JIO_RECHARGE_NUMBER_PATH);
       await this.studio.assertRightSidebarMockStarted(PROXY_RECORDINGS_SPEC);
     });
   }
 
-  async replayViaMockAndVerifyMockTab(
-    proxyUrl: string
-  ): Promise<void> {
-    await test.step(`Replay via mock: second API call and verify in mock tab`, async () => {
+  async replayViaMockAndVerifyMockTab(proxyUrl: string): Promise<void> {
+    await test.step("Verify mock replay serves the endpoint", async () => {
       const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
-    const newJioPage = new JioAppInProxyPage(proxyTab, this.testInfo, this.eyes);
+      const newJioPage = new JioAppInProxyPage(
+        proxyTab,
+        this.testInfo,
+        this.eyes,
+      );
+
       await newJioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
+
       await this.page.bringToFront();
       await this.studio.sideBar.ensureSidebarOpen();
       await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
       await this.mockPage.goBackToMockServerTab();
-      await this.mockPage.assertMockPathVisible(CAPTURED_PATH);
+      await this.mockPage.assertMockPathVisible(JIO_RECHARGE_NUMBER_PATH);
     });
   }
 
   async viewDrillDownDetails(): Promise<void> {
-    await test.step("View drill-down details for intercepted API result", async () => {
-      await this.mockPage.clickMockTableRemark(CAPTURED_PATH, "400");
+    await test.step("View drill-down details for API result", async () => {
+      await this.mockPage.clickMockTableRemark(JIO_RECHARGE_NUMBER_PATH, "400");
       await this.mockPage.getDrillDownState(0);
     });
   }
@@ -97,22 +106,26 @@ test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy",
     {
-      tag: [
-        "@proxy",
-        "@recordNewAPISpec",
-        "@recordNewSpec",
-        "@eyes",
-      ],
+      tag: ["@proxy", "@recordNewSpec", "@eyes"],
     },
     async ({ page, eyes }, testInfo) => {
       const steps = new RecordNewSpecSteps(page, testInfo, eyes);
 
+      // Setup: Record API calls via proxy
       await steps.setupProxyRecording();
       const proxyUrl = await steps.assertProxyStartedAndGetUrl();
       const jioPage = await steps.openProxyTargetTab(proxyUrl);
+
+      // Capture: Record API endpoint
       await steps.captureApiCallAndVerifyInProxyTable(jioPage);
+
+      // Mock Replay: Start mock server
       await steps.startMockReplayAndVerifySidebar();
+
+      // Verify: Confirm mock serves the endpoint
       await steps.replayViaMockAndVerifyMockTab(proxyUrl);
+
+      // Drill-down: View details of intercepted API result
       await steps.viewDrillDownDetails();
     },
   );
