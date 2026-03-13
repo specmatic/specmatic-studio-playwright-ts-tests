@@ -1,4 +1,4 @@
-import { Page, TestInfo } from "@playwright/test";
+import { Page, TestInfo, Locator } from "@playwright/test";
 import { promises as fs } from "fs";
 import path from "path";
 import { ExampleGenerationPage } from "../../page-objects/example-generation-page";
@@ -47,11 +47,14 @@ test.describe("API Specification Management", () => {
       await steps.copyPasteAndReplacePhoneNumberEndpoint();
       await steps.copyPasteAndReplaceForPlansEndpoint();
 
+      await steps.stopAndReplayPlansEndpoint();
+
       // Verify: Confirm mock serves new number
       await steps.enterNewNumberAndVerifyPlans(jioPage, proxyUrl);
 
       // Update example to remove all popular plans
       await steps.removeAllPopularPlans();
+      await steps.stopAndReplayPlansEndpoint();
       await steps.reloadAndVerifyNoPopularPlansForNewNumber(jioPage, proxyUrl);
     },
   );
@@ -100,6 +103,7 @@ class RecordValidNumberSteps {
   private readonly studio: SpecmaticStudioPage;
   private readonly mockPage: MockServerPage;
   private readonly examplePage: ExampleGenerationPage;
+  plansExamplePath: string | null = null;
 
   constructor(
     private readonly page: Page,
@@ -254,6 +258,23 @@ class RecordValidNumberSteps {
     );
   }
 
+  async stopAndReplayPlansEndpoint(): Promise<void> {
+    if (process.platform !== "win32" && process.platform !== "linux") {
+      return;
+    }
+
+    await test.step("Stop and replay plans endpoint on record page", async () => {
+      await this.page.bringToFront();
+
+      await this.studio.sideBar.ensureSidebarOpen();
+      await this.studio.clickRecordSpec();
+      await this.studio.assertProxyTableVisible();
+
+      await this.studio.clickStopReplayForPath(JIO_RECHARGE_PLANS_PATH);
+      await this.studio.clickReplayForPath(JIO_RECHARGE_PLANS_PATH);
+    });
+  }
+
   private updateJsonPathValue(
     jsonContent: string,
     path: readonly (string | number)[],
@@ -303,6 +324,8 @@ class RecordValidNumberSteps {
       await jioPage.assertPlansPageVisible();
 
       await this.page.bringToFront();
+      await this.studio.sideBar.ensureSidebarOpen();
+      await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
       await this.mockPage.goBackToMockServerTab();
       await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH);
     });
