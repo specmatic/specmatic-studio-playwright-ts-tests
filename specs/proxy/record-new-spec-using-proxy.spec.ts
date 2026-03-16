@@ -76,13 +76,14 @@ class RecordNewSpecSteps {
   }
 
   async replayViaMockAndVerifyMockTab(proxyUrl: string): Promise<void> {
-    await test.step(`Replay via mock: second API call and verify in mock tab`, async () => {
+    await test.step("Verify mock replay serves the endpoint", async () => {
       const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
       const newJioPage = new JioAppInProxyPage(
         proxyTab,
         this.testInfo,
         this.eyes,
       );
+
       await newJioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
 
       await this.page.bringToFront();
