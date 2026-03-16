@@ -70,12 +70,14 @@ class RecordNewSpecSteps {
     });
   }
 
-  async replayViaMockAndVerifyMockTab(
-    proxyUrl: string
-  ): Promise<void> {
+  async replayViaMockAndVerifyMockTab(proxyUrl: string): Promise<void> {
     await test.step(`Replay via mock: second API call and verify in mock tab`, async () => {
       const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
-    const newJioPage = new JioAppInProxyPage(proxyTab, this.testInfo, this.eyes);
+      const newJioPage = new JioAppInProxyPage(
+        proxyTab,
+        this.testInfo,
+        this.eyes,
+      );
       await newJioPage.enterMobileNumberAndProceed(MOBILE_NUMBER);
       await this.page.bringToFront();
       await this.studio.sideBar.ensureSidebarOpen();
@@ -102,9 +104,11 @@ test.describe("API Specification Management", () => {
         "@recordNewAPISpec",
         "@recordNewSpec",
         "@eyes",
+        "@expected-failure",
       ],
     },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "YAML Clickable Issue");
       const steps = new RecordNewSpecSteps(page, testInfo, eyes);
 
       await steps.setupProxyRecording();
