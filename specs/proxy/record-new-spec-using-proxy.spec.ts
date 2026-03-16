@@ -106,9 +106,16 @@ test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy",
     {
-      tag: ["@proxy", "@recordNewSpec", "@eyes"],
+      tag: [
+        "@proxy",
+        "@recordNewAPISpec",
+        "@recordNewSpec",
+        "@eyes",
+        "@expected-failure",
+      ],
     },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "YAML Clickable Issue");
       const steps = new RecordNewSpecSteps(page, testInfo, eyes);
 
       // Setup: Record API calls via proxy
