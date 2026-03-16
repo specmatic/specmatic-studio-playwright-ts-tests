@@ -11,16 +11,9 @@ test.describe("Inline examples", () => {
   test(
     `Inline all examples for '${PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL}'`,
     {
-      tag: [
-        "@examples",
-        "@inlineExamples",
-        "@inlineAllExamples",
-        "@eyes",
-        "@expected-failure",
-      ],
+      tag: ["@examples", "@inlineExamples", "@inlineAllExamples", "@eyes"],
     },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "Issue needs to be fixed by dev");
       try {
         console.log(`Starting test: ${testInfo.title}`);
         const examplePage = new ExampleGenerationPage(
