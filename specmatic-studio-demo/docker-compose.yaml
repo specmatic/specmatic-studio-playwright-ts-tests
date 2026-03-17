@@ -18,6 +18,13 @@ services:
         listeners=PLAINTEXT://0.0.0.0:9092
         listener.security.protocol.map=PLAINTEXT:PLAINTEXT
         inter.broker.listener.name=PLAINTEXT
+    depends_on:
+      inventory-api:
+        condition: service_healthy
+      order-api:
+        condition: service_healthy
+      order-bff:
+        condition: service_healthy
 
   order-bff:
     image: specmaticdemo/specmatic-order-bff-java:latest

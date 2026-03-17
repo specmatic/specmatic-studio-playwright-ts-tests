@@ -6,7 +6,7 @@ on:
     branches: [main, master]
 
 jobs:
-  execute-async-contract-tests:
+  execute-soap-contract-tests:
     uses: ./.github/workflows/playwright-test-group.yml
     with:
       test_path: specs/soap/execute-contract-tests
