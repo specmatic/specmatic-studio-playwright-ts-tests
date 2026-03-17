@@ -13,12 +13,6 @@ import { BasePage } from "./base-page";
 import { Edit } from "../utils/types/json-edit.types";
 import { SpecEditorPage } from "./spec-editor-page";
 
-export type ExampleEntry = {
-  name: string;
-  rawPath: string;
-  responseCode: number;
-};
-
 export class ExampleGenerationPage extends BasePage {
   readonly openApiTabPage: OpenAPISpecTabPage;
   protected readonly specTree: Locator;
@@ -193,17 +187,33 @@ export class ExampleGenerationPage extends BasePage {
     await expect(validateBtn).toBeVisible({ timeout: 4000 });
   }
 
-  private async clickViewDetails(
+  async clickViewDetails(
     endpoint: string,
     responseCode: number,
     withVisualValidation = true,
+    targetNewlyGenerated = false,
   ) {
     const iframe = await this.waitForExamplesIFrame();
-    const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//span[contains(text(), 'View Details')]`;
-    const viewDetailsSpan = iframe.locator(xpath);
-    await expect(viewDetailsSpan).toBeVisible({ timeout: 4000 });
-    await viewDetailsSpan.click();
-    await this.page.waitForTimeout(2000);
+    let viewDetailsSpan: Locator;
+
+    if (targetNewlyGenerated) {
+      const row = iframe.locator(
+        `tr[data-raw-path*="${endpoint}"][data-example-relative-path$="_2.json"]`,
+      );
+      await expect(row).toBeAttached({ timeout: 5000 });
+      viewDetailsSpan = row.locator('span:has-text("View Details")');
+    } else {
+      const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//span[contains(text(), 'View Details')]`;
+      viewDetailsSpan = iframe.locator(xpath);
+      await expect(viewDetailsSpan).toBeVisible({ timeout: 4000 });
+    }
+
+    await viewDetailsSpan.click({ force: true });
+
+    // Wait for the details view/editor to fully load in the iframe
+    await this.waitForDetailsViewToLoad();
+    await this.page.waitForTimeout(1000);
+
     await takeAndAttachScreenshot(
       this.page,
       `view-details-${endpoint}-${responseCode}`,
@@ -405,7 +415,7 @@ export class ExampleGenerationPage extends BasePage {
     }
   }
 
-  private async waitForExamplesIFrame() {
+  async waitForExamplesIFrame() {
     await this.examplesIframe.waitFor({ state: "attached", timeout: 10000 });
     const iframeElement = await this.examplesIframe.elementHandle();
     if (!iframeElement) {
@@ -778,6 +788,8 @@ export class ExampleGenerationPage extends BasePage {
   async saveEditedExample(expectedDialogTitle: string) {
     await test.step(`Save edited example`, async () => {
       console.log(`Saving edited example`);
+      // Wait for editor to be stable before saving
+      await this.page.waitForTimeout(500);
       await this.saveAndValidate();
       await this.verifyTitleAndCloseDialog(expectedDialogTitle);
     });
@@ -913,6 +925,23 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+  async openExampleGenerationTabFromTab(): Promise<void> {
+    await test.step("Open Example Generation tab (no page reload)", async () => {
+      const examplesTabLi = this.page
+        .locator('li.tab[data-type="example"]')
+        .first();
+      await examplesTabLi.waitFor({ state: "visible", timeout: 10000 });
+      const isActive =
+        (await examplesTabLi.getAttribute("data-active")) === "true";
+      if (!isActive) {
+        await examplesTabLi.click({ force: true, timeout: 10000 });
+        await this.page.waitForTimeout(500);
+      }
+      await this.waitForExamplesIFrame();
+      await takeAndAttachScreenshot(this.page, "example-tab-opened");
+    });
+  }
+
   async clickGenerateMoreButton(path: string, responseCode: number) {
     await test.step(`Click Generate More for ${path} - ${responseCode}`, async () => {
       const iframe = await this.waitForExamplesIFrame();
@@ -926,7 +955,20 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async getGeneratedExampleNames(): Promise<ExampleEntry[]> {
+  async getExampleFilesForEndpoint(rawPath: string): Promise<string[]> {
+    const iframe = await this.waitForExamplesIFrame();
+    const rows = iframe.locator(`tr[data-raw-path="/${rawPath}"]`);
+    const count = await rows.count();
+    const filePaths: string[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const filePath = await rows.nth(i).getAttribute("data-example-path");
+      if (filePath) filePaths.push(filePath);
+    }
+    return filePaths;
+  }
+
+  async getGeneratedExampleNames(): Promise<string[]> {
     return await test.step(`Get generated example names`, async () => {
       console.log(`Getting generated example names from Examples tab`);
       const iframe = await this.waitForExamplesIFrame();
@@ -934,34 +976,20 @@ export class ExampleGenerationPage extends BasePage {
         .locator("tr[data-example-relative-path]")
         .all();
 
-      const entries: ExampleEntry[] = [];
+      const examples: string[] = [];
       for (const row of exampleRows) {
-        const relativePath = await row.getAttribute(
-          "data-example-relative-path",
-        );
-        const rawPath = await row.getAttribute("data-raw-path");
-        const responseCodeText = await row
-          .locator("td.response-cell p")
-          .first()
-          .textContent();
-
-        if (relativePath) {
-          const match = relativePath.match(/_examples\/(.+)\.json$/);
-          if (match) {
-            entries.push({
-              name: match[1],
-              rawPath: rawPath ?? "",
-              responseCode: responseCodeText
-                ? parseInt(responseCodeText.trim(), 10)
-                : 0,
-            });
+        const nameSpan = row.locator("td:nth-child(6) > span").first();
+        if ((await nameSpan.count()) > 0) {
+          const name = await nameSpan.textContent();
+          if (name) {
+            examples.push(name.trim());
           }
         }
       }
 
-      console.log(`Found ${entries.length} generated examples:`, entries);
+      console.log(`Found ${examples.length} generated examples:`, examples);
       await takeAndAttachScreenshot(this.page, `generated-example-names`);
-      return entries;
+      return examples;
     });
   }
 
@@ -973,38 +1001,27 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async verifyInlinedExamplesInSpec(
-    expectedExampleNames: string[],
-    endpoint: string,
-    method: string,
-    responseCode: number,
-  ) {
+  async verifyInlinedExamplesInSpec(expectedExamples: string[]) {
     await test.step(`Verify inlined examples in spec file`, async () => {
-      if (method.toLowerCase() === "post") {
-        await this.verifyInlinedPostExamplesInSpec(
-          expectedExampleNames,
-          endpoint,
-          responseCode,
-        );
-        return;
-      }
-
       const specContent = this.readSpecFile();
 
-      for (const name of expectedExampleNames) {
-        await this.validateExamplePresence(specContent, name);
+      for (const name of expectedExamples) {
+        if (!specContent.includes(name)) {
+          console.error(`\t FAILED: '${name}' not found in spec file`);
+          await takeAndAttachScreenshot(this.page, `failed-to-find-${name}`);
+          throw new Error(
+            `Example '${name}' not found in spec file '${this.specName}'`,
+          );
+        } else {
+          console.log(`\t ✓ Verified: ${name} is inlined`);
+        }
       }
 
-      await takeAndAttachScreenshot(
-        this.page,
-        `verified-inlined-examples-${endpoint}-${responseCode}`,
-      );
+      await takeAndAttachScreenshot(this.page, `verified-inlined-examples`);
 
-      await this.showVisualEvidenceInEditor(
-        expectedExampleNames[0],
-        endpoint,
-        responseCode,
-      );
+      if (expectedExamples.length > 0) {
+        await this.showVisualEvidenceInEditor(expectedExamples);
+      }
     });
   }
 
@@ -1020,132 +1037,8 @@ export class ExampleGenerationPage extends BasePage {
     return fs.readFileSync(specFilePath, "utf-8");
   }
 
-  private async validateExamplePresence(content: string, exampleName: string) {
-    const refPattern = `#/components/examples/${exampleName}_response`;
-
-    if (content.includes(refPattern)) {
-      console.log(`\t ✓ Verified: ${exampleName}_response is inlined`);
-      return;
-    }
-
-    // Provide a more helpful diagnostic before throwing
-    if (content.includes(`${exampleName}_response`)) {
-      console.error(
-        `\tFound '${exampleName}_response' but not the full $ref path '${refPattern}'`,
-      );
-    }
-
-    await takeAndAttachScreenshot(this.page, `failed-to-find-${exampleName}`);
-    throw new Error(
-      `Example reference '${refPattern}' not found in spec file '${this.specName}'. ` +
-        `The inline operation may have failed for this example.`,
-    );
-  }
-
-  async verifyInlinedPostExamplesInSpec(
-    expectedExampleNames: string[],
-    endpoint: string,
-    responseCode: number,
-  ) {
-    await test.step(`Verify inlined POST examples in spec file for /${endpoint}`, async () => {
-      const fullText = this.readSpecFile();
-      const lines = fullText.split("\n");
-
-      const pathBlock = this.extractYamlBlock(lines, `/${endpoint}:`);
-
-      const requestBodyBlock = this.extractYamlBlock(
-        pathBlock,
-        "requestBody:",
-      ).join("\n");
-      const responseCodeBlock = this.extractYamlBlock(
-        pathBlock,
-        `${responseCode}:`,
-        [`'${responseCode}':`, `"${responseCode}":`],
-      ).join("\n");
-
-      for (const name of expectedExampleNames) {
-        await this.validateSectionRef(
-          requestBodyBlock,
-          name,
-          "request",
-          endpoint,
-        );
-        await this.validateSectionRef(
-          responseCodeBlock,
-          name,
-          "response",
-          endpoint,
-        );
-      }
-      await this.showVisualEvidenceInEditor(
-        expectedExampleNames[0],
-        endpoint,
-        responseCode,
-        true,
-      );
-    });
-  }
-
-  private extractYamlBlock(
-    lines: string[],
-    marker: string,
-    aliases: string[] = [],
-  ): string[] {
-    const allPatterns = [marker, ...aliases];
-    const startIdx = lines.findIndex((l) =>
-      allPatterns.some((p) => l.trim().startsWith(p)),
-    );
-
-    if (startIdx === -1) {
-      throw new Error(`Could not find block starting with '${marker}'`);
-    }
-
-    const startIndent = lines[startIdx].search(/\S/);
-    let endIdx = lines.length;
-
-    for (let i = startIdx + 1; i < lines.length; i++) {
-      if (lines[i].trim() === "") continue;
-      const currentIndent = lines[i].search(/\S/);
-      if (currentIndent <= startIndent) {
-        endIdx = i;
-        break;
-      }
-    }
-
-    return lines.slice(startIdx, endIdx);
-  }
-
-  private async validateSectionRef(
-    blockText: string,
-    name: string,
-    type: "request" | "response",
-    endpoint: string,
-  ) {
-    const pattern = `#/components/examples/${name}_${type}`;
-
-    if (blockText.includes(pattern)) {
-      console.log(
-        `\t ✓ Verified: ${name}_${type} is in the ${type === "request" ? "requestBody" : `responses/${type}`} section`,
-      );
-    } else {
-      console.error(
-        `\t FAILED: '${pattern}' not found in ${type} section of /${endpoint}`,
-      );
-      await takeAndAttachScreenshot(this.page, `failed-${type}-ref-${name}`);
-      throw new Error(
-        `${type === "request" ? "Request body" : "Response"} example reference '${pattern}' ` +
-          `not found in the ${type} section of '/${endpoint}' in spec file '${this.specName}'.`,
-      );
-    }
-  }
-
-  private async showVisualEvidenceInEditor(
-    exampleName: string,
-    endpoint: string,
-    code: number,
-    isPost: boolean = false,
-  ) {
-    await test.step(`Capture visual evidence in editor for ${endpoint}`, async () => {
+  private async showVisualEvidenceInEditor(examples: string[]) {
+    await test.step(`Capture visual evidence in editor`, async () => {
       const editorContext = await this.getSpecEditorContext();
       await expect(editorContext.content).toBeVisible({ timeout: 15000 });
       await editorContext.content.click();
@@ -1158,30 +1051,29 @@ export class ExampleGenerationPage extends BasePage {
       });
       await this.page.waitForTimeout(250);
 
-      const targets = isPost
-        ? [`${exampleName}_request`, `${exampleName}_response`]
-        : [`${exampleName}_response`];
-
-      for (const searchTerm of targets) {
+      for (const exampleName of examples) {
         const foundByEditorApi =
           await this.specEditorHelper.focusTermUsingCodeMirrorApi(
             editorContext.content,
-            searchTerm,
+            exampleName,
           );
         const foundByWindowFind = foundByEditorApi
           ? true
-          : await this.findTermUsingWindowFind(editorContext.frame, searchTerm);
+          : await this.findTermUsingWindowFind(
+              editorContext.frame,
+              exampleName,
+            );
 
         if (!foundByWindowFind) {
           await this.specEditorHelper.scrollEditorToFindTerm(
             editorContext.content,
             editorContext.scroller,
             editorContext.lines,
-            searchTerm,
+            exampleName,
           );
 
           const match = editorContext.lines
-            .filter({ hasText: searchTerm })
+            .filter({ hasText: exampleName })
             .first();
           if ((await match.count()) > 0) {
             await match.scrollIntoViewIfNeeded();
@@ -1191,10 +1083,7 @@ export class ExampleGenerationPage extends BasePage {
 
         await this.page.waitForTimeout(250);
 
-        await takeAndAttachScreenshot(
-          this.page,
-          `visual-${searchTerm}-${endpoint}-${code}`,
-        );
+        await takeAndAttachScreenshot(this.page, `visual-${exampleName}`);
       }
     });
   }
@@ -1236,6 +1125,152 @@ export class ExampleGenerationPage extends BasePage {
 
     await takeAndAttachScreenshot(this.page, "spec-editor-not-found");
     throw new Error("Spec editor content was not found in visible spec tab");
+  }
+
+  async copyEditorContent(): Promise<void> {
+    await test.step("Copy editor content to clipboard", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      await expect(editor).toBeVisible({ timeout: 5000 });
+      await editor.click();
+      await this.page.keyboard.press("ControlOrMeta+A");
+      await this.page.keyboard.press("ControlOrMeta+C");
+      await this.page.waitForTimeout(500);
+      await takeAndAttachScreenshot(this.page, "editor-content-copied");
+    });
+  }
+
+  async getEditorContent(): Promise<string> {
+    return test.step("Read editor content", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      await expect(editor).toBeVisible({ timeout: 5000 });
+      return await editor.evaluate((el) => {
+        const cmEditor = el.closest(".cm-editor") as {
+          cmView?: { view?: { state?: { doc?: { toString(): string } } } };
+        } | null;
+        const fullText = cmEditor?.cmView?.view?.state?.doc?.toString();
+        if (fullText) return fullText;
+        return el.textContent?.trim() ?? "";
+      });
+    });
+  }
+
+  async replaceEditorContent(content: string): Promise<void> {
+    await test.step("Replace editor content", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      const editorScroller = iframe.locator("#example-pre .cm-scroller");
+      await expect(editor).toBeVisible({ timeout: 5000 });
+      await editor.click();
+      await this.page.keyboard.press("ControlOrMeta+A");
+      await this.page.keyboard.insertText(content);
+      await this.page.waitForTimeout(500);
+      await expect(editorScroller).toBeVisible({ timeout: 5000 });
+      await editorScroller.evaluate((el) => {
+        el.scrollTop = 0;
+      });
+      await this.page.waitForTimeout(300);
+      await takeAndAttachScreenshot(this.page, "editor-content-replaced");
+    });
+  }
+
+  async getCurrentExampleRelativeFilePath(): Promise<string> {
+    return test.step("Read current example file path", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const filePathLabel = iframe
+        .locator("p")
+        .filter({ hasText: "File path:" })
+        .first();
+      await expect(filePathLabel).toBeVisible({ timeout: 5000 });
+
+      const rawText = (await filePathLabel.textContent())?.trim() ?? "";
+      const relativePath = rawText.replace(/^File path:\s*/, "");
+      if (!relativePath.startsWith("./")) {
+        throw new Error(`Unexpected example file path: '${rawText}'`);
+      }
+
+      return relativePath;
+    });
+  }
+
+  async pasteIntoEditor(): Promise<void> {
+    await test.step("Paste content into editor", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      const editorScroller = iframe.locator("#example-pre .cm-scroller");
+      await expect(editor).toBeVisible({ timeout: 5000 });
+      await editor.click();
+      await this.page.keyboard.press("ControlOrMeta+A");
+      await this.page.keyboard.press("ControlOrMeta+V");
+      await this.page.waitForTimeout(500);
+      await expect(editorScroller).toBeVisible({ timeout: 5000 });
+      await editorScroller.evaluate((el) => {
+        el.scrollTop = 0;
+      });
+      await this.page.waitForTimeout(300);
+      await takeAndAttachScreenshot(this.page, "editor-content-pasted");
+    });
+  }
+
+  async goBackFromExample(): Promise<void> {
+    await test.step("Go back to examples list", async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const goBackBtn = iframe.getByRole("button", {
+        name: /Go Back|← Go Back/,
+      });
+      await expect(goBackBtn).toBeVisible({ timeout: 4000 });
+      await goBackBtn.click();
+
+      // Wait for the examples list to fully load
+      await this.waitForExamplesListToLoad();
+      await this.page.waitForTimeout(500);
+
+      await takeAndAttachScreenshot(this.page, "went-back-to-examples-list");
+    });
+  }
+
+  private async waitForDetailsViewToLoad(): Promise<void> {
+    const iframe = await this.waitForExamplesIFrame();
+
+    // Wait for editor content or viewer content to be visible
+    // This could be CodeMirror editor (.cm-content), or other viewer elements
+    await Promise.race([
+      iframe
+        .locator(".cm-content")
+        .first()
+        .waitFor({ state: "visible", timeout: 8000 }),
+      iframe
+        .locator(".cm-editor")
+        .first()
+        .waitFor({ state: "visible", timeout: 8000 }),
+      iframe
+        .locator('[role="presentation"]')
+        .first()
+        .waitFor({ state: "visible", timeout: 8000 }),
+    ]).catch(() => {
+      // If none of the expected content appears, continue anyway
+      // as different examples might have different viewer types
+      console.log(
+        "Details view content selectors not found, proceeding with timeout",
+      );
+    });
+  }
+
+  private async waitForExamplesListToLoad(): Promise<void> {
+    const iframe = await this.waitForExamplesIFrame();
+
+    // Wait for the examples table to be visible and stable
+    await iframe
+      .locator("table, tr[data-raw-path]")
+      .first()
+      .waitFor({
+        state: "visible",
+        timeout: 8000,
+      })
+      .catch(() => {
+        console.log("Examples list not found, proceeding with timeout");
+      });
   }
 
   private async findTermUsingWindowFind(

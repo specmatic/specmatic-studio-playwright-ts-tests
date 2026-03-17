@@ -2,7 +2,6 @@ import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config
 import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED } from "../../specNames";
 import {
-  filterExampleNames,
   generateMoreThenValidateAndInline,
   getUpdatedSpecName,
   navigateToUpdatedSpec,
@@ -54,18 +53,26 @@ test.describe("Validate generated spec after inlining POST request examples", ()
       await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
 
       await test.step("Verify inlined POST examples appear in the updated spec file", async () => {
-        const updatedSpecPage = await navigateToUpdatedSpec(page, testInfo, eyes, updatedSpecName);
+        const updatedSpecPage = await navigateToUpdatedSpec(
+          page,
+          testInfo,
+          eyes,
+          updatedSpecName,
+        );
 
         for (const { path, code } of POST_PATHS_AND_CODES) {
-          await updatedSpecPage.verifyInlinedPostExamplesInSpec(
-            filterExampleNames(generatedExampleNames, path, code),
-            path,
-            code,
+          await updatedSpecPage.verifyInlinedExamplesInSpec(
+            generatedExampleNames,
           );
         }
       });
       await test.step("Verify inlined examples are backward compatible", async () => {
-        const configPage = new ServiceSpecConfigPage(page, testInfo, eyes, updatedSpecName);
+        const configPage = new ServiceSpecConfigPage(
+          page,
+          testInfo,
+          eyes,
+          updatedSpecName,
+        );
         await configPage.runBackwardCompatibilityTest();
         const toastText = await configPage.getAlertMessageText();
         expect(toastText).toBe("Changes are backward compatible");

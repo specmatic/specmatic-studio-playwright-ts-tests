@@ -49,7 +49,7 @@ export const SPECMATIC_CONFIG = "specmatic.yaml";
 export const MOCK_SERVER_PORT = "8081";
 export const ORDER_API_URL = "http://order-api:8090";
 export const PROXY_PORT = "9090";
-export const JIO_PAGE_URL = "https://www.jio.com/";
+export const JIO_PAGE_URL = "https://www.jio.com";
 export const INVENTORY_WSDL_MOCK_RUN_SERVER =
   "test-soap/mock/inventory_mock.wsdl";
 export const KAFKA_MOCK_SPEC = "test-async/kafka_mock.yaml";
@@ -57,3 +57,16 @@ export const KAFKA_CONTRACT_TESTS = "test-async/kafka_contract_test.yaml";
 export const INVENTORY_WSDL_CONTRACT_TESTS =
   "test-soap/contract-tests/inventory_contract_test.wsdl";
 export const INVENTROY_SERVICE_URL = "http://inventory-api:8095/ws";
+
+// Proxy Recording Test Constants
+export const JIO_RECHARGE_NUMBER_PATH =
+  "/api/jio-recharge-service/recharge/mobility/number/{param}";
+export const JIO_RECHARGE_PLANS_PATH =
+  "/api/jio-recharge-service/recharge/plans/serviceId/{param}";
+export const JIO_RECHARGE_NUMBER_RAW_PATH =
+  "api/jio-recharge-service/recharge/mobility/number/(param:number)";
+export const JIO_RECHARGE_PLANS_RAW_PATH =
+  "api/jio-recharge-service/recharge/plans/serviceId/(param:number)";
+export const VALID_JIO_NUMBER = "9321124338";
+export const NEW_JIO_NUMBER = "9000000000";
+export const JIO_RECHARGE_RESPONSE_CODE = 200;
