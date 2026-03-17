@@ -107,19 +107,16 @@ class RecordInvalidNumberSteps extends ProxyRecordingSteps {
   async captureApiCallAndVerifyInProxyTable(
     jioPage: JioAppInProxyPage,
   ): Promise<void> {
-    await test.step(
-      `Capture API call with mobile number '${INVALID_JIO_NUMBER}'`,
-      async () => {
-        await this.page.bringToFront();
-        await this.studio.assertProxyTableVisible();
+    await test.step(`Capture API call with mobile number '${INVALID_JIO_NUMBER}'`, async () => {
+      await this.page.bringToFront();
+      await this.studio.assertProxyTableVisible();
 
-        await jioPage.bringToFront();
-        await jioPage.enterMobileNumberAndProceed(INVALID_JIO_NUMBER);
+      await jioPage.bringToFront();
+      await jioPage.enterMobileNumberAndProceed(INVALID_JIO_NUMBER);
 
-        await this.page.bringToFront();
-        await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_NUMBER_PATH, 1);
-      },
-    );
+      await this.page.bringToFront();
+      await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_NUMBER_PATH, 1);
+    });
   }
 
   async startMockReplayAndVerifySidebar(): Promise<void> {
@@ -172,20 +169,17 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
   async captureAndVerifyBothEndpoints(
     jioPage: JioAppInProxyPage,
   ): Promise<void> {
-    await test.step(
-      `Capture both endpoints with valid number '${VALID_JIO_NUMBER}'`,
-      async () => {
-        await this.page.bringToFront();
-        await this.studio.assertProxyTableVisible();
+    await test.step(`Capture both endpoints with valid number '${VALID_JIO_NUMBER}'`, async () => {
+      await this.page.bringToFront();
+      await this.studio.assertProxyTableVisible();
 
-        await jioPage.bringToFront();
-        await jioPage.enterMobileNumberAndProceed(VALID_JIO_NUMBER);
+      await jioPage.bringToFront();
+      await jioPage.enterMobileNumberAndProceed(VALID_JIO_NUMBER);
 
-        await this.page.bringToFront();
-        await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_NUMBER_PATH, 1);
-        await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_PLANS_PATH, 1);
-      },
-    );
+      await this.page.bringToFront();
+      await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_NUMBER_PATH, 1);
+      await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_PLANS_PATH, 1);
+    });
   }
 
   async startMockReplayAndVerifySidebar(): Promise<void> {
@@ -220,12 +214,9 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
   }
 
   async navigateToExampleGeneration(): Promise<void> {
-    await test.step(
-      `Open Example Generation tab for ${PROXY_RECORDINGS_SPEC}`,
-      async () => {
-        await this.examplePage.openExampleGenerationTabFromTab();
-      },
-    );
+    await test.step(`Open Example Generation tab for ${PROXY_RECORDINGS_SPEC}`, async () => {
+      await this.examplePage.openExampleGenerationTabFromTab();
+    });
   }
 
   async generateMoreExamplesForBothEndpoints(): Promise<void> {
@@ -342,21 +333,18 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
     jioPage: JioAppInProxyPage,
     proxyUrl: string,
   ): Promise<void> {
-    await test.step(
-      `Verify mock serves plans for new number '${NEW_JIO_NUMBER}'`,
-      async () => {
-        await jioPage.bringToFront();
-        await jioPage.goto(proxyUrl);
-        await jioPage.enterMobileNumberAndProceed(NEW_JIO_NUMBER);
-        await jioPage.assertPlansPageVisible();
+    await test.step(`Verify mock serves plans for new number '${NEW_JIO_NUMBER}'`, async () => {
+      await jioPage.bringToFront();
+      await jioPage.goto(proxyUrl);
+      await jioPage.enterMobileNumberAndProceed(NEW_JIO_NUMBER);
+      await jioPage.assertPlansPageVisible();
 
-        await this.page.bringToFront();
-        await this.studio.sideBar.ensureSidebarOpen();
-        await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
-        await this.mockPage.goBackToMockServerTab();
-        await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH);
-      },
-    );
+      await this.page.bringToFront();
+      await this.studio.sideBar.ensureSidebarOpen();
+      await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
+      await this.mockPage.goBackToMockServerTab();
+      await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH);
+    });
   }
 
   async removeAllPopularPlans(): Promise<void> {
@@ -394,17 +382,12 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
     jioPage: JioAppInProxyPage,
     proxyUrl: string,
   ): Promise<void> {
-    await test.step(
-      `Reload Jio page and verify no plans message for '${NEW_JIO_NUMBER}'`,
-      async () => {
-        await jioPage.bringToFront();
-        await jioPage.goto(proxyUrl);
-        await jioPage.enterMobileNumberAndProceedExpectingNoPlans(
-          NEW_JIO_NUMBER,
-        );
-        await jioPage.assertNoPlansMessageVisible();
-      },
-    );
+    await test.step(`Reload Jio page and verify no plans message for '${NEW_JIO_NUMBER}'`, async () => {
+      await jioPage.bringToFront();
+      await jioPage.goto(proxyUrl);
+      await jioPage.enterMobileNumberAndProceedExpectingNoPlans(NEW_JIO_NUMBER);
+      await jioPage.assertNoPlansMessageVisible();
+    });
   }
 }
 
@@ -412,7 +395,7 @@ test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy",
     {
-      tag: ["@proxy", "@recordNewSpec", "@eyes"],
+      tag: ["@proxy", "@recordNewSpec", "@eyes", "@expected-failure"],
     },
     async ({ page, eyes }, testInfo) => {
       test.fail(true, "YAML Clickable Issue");
@@ -432,9 +415,16 @@ test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy for Valid Prepaid Number",
     {
-      tag: ["@proxy", "@recordValidNumber", "@recordNewSpec", "@eyes"],
+      tag: [
+        "@proxy",
+        "@recordValidNumber",
+        "@recordNewSpec",
+        "@eyes",
+        "@expected-failure",
+      ],
     },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "YAML Clickable Issue");
       const steps = new RecordValidNumberSteps(page, testInfo, eyes);
 
       await steps.setupProxyRecording();
