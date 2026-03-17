@@ -54,7 +54,9 @@ export class ServiceSpecConfigPage extends BasePage {
     this.updateTab = this.specSection
       .locator('li.tab[data-type="spec"]')
       .first();
-    this.saveBtn = this.specSection.locator('button[data-validate="/openapi"]');
+    this.saveBtn = this.specSection
+      .locator('button[data-validate="/openapi"], button.savebtn.save')
+      .first();
     this.openApiTabPage = new OpenAPISpecTabPage(this);
     this.editorLines = this.specSection.locator(".cm-content .cm-line");
     this.contractTestTab = page.locator('li.tab[data-type="test"]').first();
@@ -295,6 +297,22 @@ export class ServiceSpecConfigPage extends BasePage {
     await this.saveBtn.click({ force: true });
     await takeAndAttachScreenshot(this.page, "save-clicked", this.eyes);
     return this.saveBtn;
+  }
+
+  async saveSpecAndAssertSuccessDialog() {
+    await test.step("Save spec and verify success dialog", async () => {
+      await this.clickSaveOpenApi();
+
+      const saveAlert = this.page.locator("#alert-container .alert-msg.success");
+      await expect(saveAlert).toContainText(/Contents saved/i, {
+        timeout: 10000,
+      });
+
+      await takeAndAttachScreenshot(this.page, "spec-saved-successfully");
+
+      await saveAlert.locator("button").click();
+      await expect(saveAlert).toBeHidden({ timeout: 5000 });
+    });
   }
 
   private async scrollEditorToRevealAllLines() {
