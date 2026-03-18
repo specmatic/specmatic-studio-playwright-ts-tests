@@ -6,6 +6,7 @@ import { JioAppInProxyPage } from "../../page-objects/jio-proxy-page";
 import { MockServerPage } from "../../page-objects/mock-server-page";
 import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
 import { test } from "../../utils/eyesFixture";
+import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { Edit } from "../../utils/types/json-edit.types";
 import {
   JIO_PAGE_URL,
@@ -19,6 +20,61 @@ import {
   PROXY_RECORDINGS_SPEC,
   VALID_JIO_NUMBER,
 } from "../specNames";
+
+test.describe("API Specification Management", () => {
+  test(
+    "Record New API Specification via Proxy",
+    {
+      tag: ["@proxy", "@recordNewSpec", "@eyes", "@expected-failure"],
+    },
+    async ({ page, eyes }, testInfo) => {
+      test.fail(true, "YAML Clickable Issue");
+      const steps = new RecordInvalidNumberSteps(page, testInfo, eyes);
+
+      await steps.setupProxyRecording();
+      const proxyUrl = await steps.assertProxyStartedAndGetUrl();
+      const jioPage = await steps.openProxyTargetTab(proxyUrl);
+
+      await steps.captureApiCallAndVerifyInProxyTable(jioPage);
+      await steps.startMockReplayAndVerifySidebar();
+      await steps.replayViaMockAndVerifyMockTab(proxyUrl);
+      await steps.viewDrillDownDetails();
+    },
+  );
+
+  test(
+    "Record New API Specification via Proxy for Valid Prepaid Number",
+    {
+      tag: [
+        "@proxy",
+        "@recordValidNumber",
+        "@recordNewSpec",
+        "@eyes",
+        "@expected-failure",
+      ],
+    },
+    async ({ page, eyes }, testInfo) => {
+      const steps = new RecordValidNumberSteps(page, testInfo, eyes);
+
+      await steps.setupProxyRecording();
+      const proxyUrl = await steps.assertProxyStartedAndGetUrl();
+      const jioPage = await steps.openProxyTargetTab(proxyUrl);
+
+      await steps.captureAndVerifyBothEndpoints(jioPage);
+      await steps.startMockReplayAndVerifySidebar();
+      await steps.replayViaMockAndVerifyMockTab(jioPage, proxyUrl);
+      await steps.navigateToExampleGeneration();
+      await steps.generateMoreExamplesForBothEndpoints();
+      await steps.copyPasteAndReplacePhoneNumberEndpoint();
+      await steps.copyPasteAndReplaceForPlansEndpoint();
+      await steps.stopAndReplayPlansEndpoint();
+      await steps.enterNewNumberAndVerifyPlans(jioPage, proxyUrl);
+      await steps.removeAllPopularPlans();
+      await steps.stopAndReplayPlansEndpoint();
+      await steps.reloadAndVerifyNoPopularPlansForNewNumber(jioPage, proxyUrl);
+    },
+  );
+});
 
 const INVALID_JIO_NUMBER = "8556663339";
 const PROXY_RECORDINGS_EXAMPLES_DIR = path.join(
@@ -204,7 +260,7 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
       await jioPage.assertPlansPageVisible();
 
       await this.page.bringToFront();
-      await this.studio.sideBar.ensureSidebarOpen();
+      await this.studio.sideBar.ensureSidebarOpen(true);
       await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
       await this.mockPage.goBackToMockServerTab();
 
@@ -255,6 +311,11 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
       await this.examplePage.editExample(edits);
       await this.examplePage.saveEditedExample("Valid Example");
       await this.examplePage.goBackFromExample();
+      await takeAndAttachScreenshot(
+        this.page,
+        `edited-and-saved-${endpoint}-endpoint-example`,
+        this.eyes,
+      );
     });
   }
 
@@ -276,10 +337,15 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
 
   async stopAndReplayPlansEndpoint(): Promise<void> {
     if (process.platform !== "win32" && process.platform !== "linux") {
-      return;
+      await test.step("Skipping stop and replay steps for plans endpoint because File Watcher issue is not there on MacOS", async () => {
+        console.log(
+          "\tSkipping stop and replay steps for plans endpoint because File Watcher issue is not there on MacOS",
+        );
+        return;
+      });
     }
 
-    await test.step("Stop and replay plans endpoint on record page", async () => {
+    await test.step("Stop and replay plans endpoint on record page to avoid File Watcher issue on Windows/Linux", async () => {
       await this.page.bringToFront();
 
       await this.studio.sideBar.ensureSidebarOpen();
@@ -390,59 +456,3 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
     });
   }
 }
-
-test.describe("API Specification Management", () => {
-  test(
-    "Record New API Specification via Proxy",
-    {
-      tag: ["@proxy", "@recordNewSpec", "@eyes", "@expected-failure"],
-    },
-    async ({ page, eyes }, testInfo) => {
-      test.fail(true, "YAML Clickable Issue");
-      const steps = new RecordInvalidNumberSteps(page, testInfo, eyes);
-
-      await steps.setupProxyRecording();
-      const proxyUrl = await steps.assertProxyStartedAndGetUrl();
-      const jioPage = await steps.openProxyTargetTab(proxyUrl);
-
-      await steps.captureApiCallAndVerifyInProxyTable(jioPage);
-      await steps.startMockReplayAndVerifySidebar();
-      await steps.replayViaMockAndVerifyMockTab(proxyUrl);
-      await steps.viewDrillDownDetails();
-    },
-  );
-
-  test(
-    "Record New API Specification via Proxy for Valid Prepaid Number",
-    {
-      tag: [
-        "@proxy",
-        "@recordValidNumber",
-        "@recordNewSpec",
-        "@eyes",
-        "@expected-failure",
-      ],
-    },
-    async ({ page, eyes }, testInfo) => {
-      test.fail(true, "YAML Clickable Issue");
-      const steps = new RecordValidNumberSteps(page, testInfo, eyes);
-
-      await steps.setupProxyRecording();
-      const proxyUrl = await steps.assertProxyStartedAndGetUrl();
-      const jioPage = await steps.openProxyTargetTab(proxyUrl);
-
-      await steps.captureAndVerifyBothEndpoints(jioPage);
-      await steps.startMockReplayAndVerifySidebar();
-      await steps.replayViaMockAndVerifyMockTab(jioPage, proxyUrl);
-      await steps.navigateToExampleGeneration();
-      await steps.generateMoreExamplesForBothEndpoints();
-      await steps.copyPasteAndReplacePhoneNumberEndpoint();
-      await steps.copyPasteAndReplaceForPlansEndpoint();
-      await steps.stopAndReplayPlansEndpoint();
-      await steps.enterNewNumberAndVerifyPlans(jioPage, proxyUrl);
-      await steps.removeAllPopularPlans();
-      await steps.stopAndReplayPlansEndpoint();
-      await steps.reloadAndVerifyNoPopularPlansForNewNumber(jioPage, proxyUrl);
-    },
-  );
-});
