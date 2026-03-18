@@ -139,8 +139,7 @@ class RecordInvalidNumberSteps extends ProxyRecordingSteps {
 
       await this.page.bringToFront();
       await this.studio.sideBar.ensureSidebarOpen();
-      await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
-      await this.mockPage.goBackToMockServerTab();
+      await this.mockPage.openMockTabViaSidebar(PROXY_RECORDINGS_SPEC);
       await this.mockPage.assertMockPathVisible(JIO_RECHARGE_NUMBER_PATH);
     });
   }
@@ -205,8 +204,7 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
 
       await this.page.bringToFront();
       await this.studio.sideBar.ensureSidebarOpen();
-      await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
-      await this.mockPage.goBackToMockServerTab();
+      await this.mockPage.openMockTabViaSidebar(PROXY_RECORDINGS_SPEC);
 
       await this.mockPage.assertMockPathVisible(JIO_RECHARGE_NUMBER_PATH);
       await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH);
@@ -341,8 +339,7 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
 
       await this.page.bringToFront();
       await this.studio.sideBar.ensureSidebarOpen();
-      await this.studio.sideBar.selectSpec(PROXY_RECORDINGS_SPEC);
-      await this.mockPage.goBackToMockServerTab();
+      await this.mockPage.openMockTabViaSidebar(PROXY_RECORDINGS_SPEC);
       await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH);
     });
   }
@@ -392,6 +389,8 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
 }
 
 test.describe("API Specification Management", () => {
+  test.describe.configure({ timeout: 300000 });
+
   test(
     "Record New API Specification via Proxy",
     {

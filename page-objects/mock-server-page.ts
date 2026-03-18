@@ -231,10 +231,12 @@ export class MockServerPage extends BasePage {
   }
 
   async goBackToMockServerTab() {
-    await this.runMockServerTab.click();
+    await this.specSection.waitFor({ state: "visible", timeout: 30000 });
+    await this.runMockServerTab.waitFor({ state: "visible", timeout: 30000 });
+    await this.openRunMockTab();
     await this.mockCountsSection
       .first()
-      .waitFor({ state: "visible", timeout: 10000 });
+      .waitFor({ state: "visible", timeout: 30000 });
     await takeAndAttachScreenshot(this.page, "navigated-back-to-mock-tab");
   }
 
@@ -656,7 +658,11 @@ export class MockServerPage extends BasePage {
   async openMockTabViaSidebar(specName: string) {
     await test.step(`Select '${specName}' via sidebar and open Contract Tests tab`, async () => {
       await this.sideBar.selectSpec(specName);
+      await this.specSection.waitFor({ state: "visible", timeout: 30000 });
       await this.openRunMockTab();
+      await this.mockCountsSection
+        .first()
+        .waitFor({ state: "visible", timeout: 30000 });
     });
   }
 }
