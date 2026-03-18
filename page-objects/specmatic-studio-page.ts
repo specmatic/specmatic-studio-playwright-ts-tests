@@ -85,7 +85,15 @@ export class SpecmaticStudioPage extends BasePage {
       this.eyes,
     );
     await this.stopProxyBtn.click({ force: true });
+    await expect(this.startProxyBtn).toBeVisible({ timeout: 10000 });
+    await expect(this.stopProxyBtn).toBeHidden({ timeout: 10000 });
     await takeAndAttachScreenshot(this.page, "clicked-stop-proxy", this.eyes);
+  }
+
+  async stopProxyIfRunning() {
+    if (await this.stopProxyBtn.isVisible()) {
+      await this.clickStopProxy();
+    }
   }
 
   async assertProxyStartedAlert(expectedText: string) {

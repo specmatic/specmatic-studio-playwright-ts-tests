@@ -6,6 +6,7 @@ export class JioAppInProxyPage extends BasePage {
   private readonly mobileInput: Locator;
   private readonly proceedBtn: Locator;
   private readonly noPlansMessage: Locator;
+  private readonly invalidNumberMessage: Locator;
 
   constructor(page: Page, testInfo: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
@@ -17,6 +18,9 @@ export class JioAppInProxyPage extends BasePage {
       .filter({ hasText: "Proceed" });
     this.noPlansMessage = page.getByText(
       "We searched far and wide and couldn’t find what you were looking for. Try something else.",
+    );
+    this.invalidNumberMessage = page.getByText(
+      "It seems you have entered a non-Jio number. Please try again with a Jio number",
     );
   }
 
@@ -75,6 +79,15 @@ export class JioAppInProxyPage extends BasePage {
     );
   }
 
+  async enterMobileNumberAndProceedExpectingInvalidNumber(
+    mobileNumber: string,
+  ) {
+    await this.enterMobileNumberAndProceedAndWaitForText(
+      mobileNumber,
+      "It seems you have entered a non-Jio number. Please try again with a Jio number",
+    );
+  }
+
   async assertPlansPageVisible(): Promise<void> {
     const plansContainer = this.page.locator(
       '[data-testid="desktopChangeCategory"]',
@@ -86,5 +99,10 @@ export class JioAppInProxyPage extends BasePage {
   async assertNoPlansMessageVisible(): Promise<void> {
     await this.noPlansMessage.waitFor({ state: "visible", timeout: 15000 });
     await takeAndAttachScreenshot(this.page, "plans-empty-state-visible");
+  }
+
+  async assertInvalidNumberMessageVisible(): Promise<void> {
+    await this.invalidNumberMessage.waitFor({ state: "visible", timeout: 15000 });
+    await takeAndAttachScreenshot(this.page, "invalid-number-message-visible");
   }
 }
