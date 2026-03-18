@@ -14,7 +14,7 @@ export class SideBarPage {
     this.eyes = eyes;
   }
 
-  async ensureSidebarOpen(): Promise<void> {
+  async ensureSidebarOpen(withVisualValidation = false): Promise<void> {
     console.log("\tEnsuring sidebar is open");
     await expect(this.leftSidebar).toBeAttached();
     const isExpanded = await this.leftSidebar.getAttribute("aria-expanded");
@@ -24,7 +24,11 @@ export class SideBarPage {
         if (sidebar) sidebar.setAttribute("aria-expanded", "true");
       });
       await expect(this.leftSidebar).toHaveAttribute("aria-expanded", "true");
-      await takeAndAttachScreenshot(this.page, "sidebar-opened");
+      await takeAndAttachScreenshot(
+        this.page,
+        "sidebar-opened",
+        withVisualValidation ? this.eyes : undefined,
+      );
     }
   }
 

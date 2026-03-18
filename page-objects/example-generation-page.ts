@@ -1,16 +1,15 @@
-import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
 import {
   Locator,
-  expect,
-  type TestInfo,
   Page,
-  type Frame,
+  expect,
   test,
-  FrameLocator,
+  type Frame,
+  type TestInfo,
 } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
-import { BasePage } from "./base-page";
 import { Edit } from "../utils/types/json-edit.types";
+import { BasePage } from "./base-page";
+import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
 import { SpecEditorPage } from "./spec-editor-page";
 
 export class ExampleGenerationPage extends BasePage {
@@ -952,6 +951,11 @@ export class ExampleGenerationPage extends BasePage {
       await generateMoreBtn.click();
       await this.page.waitForTimeout(1000);
       await this.verifyTitleAndCloseDialog("Example Generated");
+      await takeAndAttachScreenshot(
+        this.page,
+        `clicked-generate-more-${responseCode}`,
+        this.eyes,
+      );
     });
   }
 
