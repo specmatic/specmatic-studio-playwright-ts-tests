@@ -32,6 +32,30 @@ yarn install
 npx playwright init-agents --loop=vscode
 ```
 
+## Using the Codex Skill
+
+This repo includes a Codex skill for working on these Playwright tests:
+`$specmatic-studio-playwright`
+
+Use it explicitly in a prompt when you want Codex to follow this repo's testing, page-object, screenshot, and visual-validation conventions.
+
+Example prompts:
+
+```text
+Use $specmatic-studio-playwright to add a new OpenAPI test that saves a valid spec and verifies the success flow.
+
+Use $specmatic-studio-playwright to refactor screenshot handling so Applitools validation only runs when explicitly requested.
+
+Use $specmatic-studio-playwright to add an @eyes visual test for the example generation flow.
+
+Use $specmatic-studio-playwright to create a page-object method for opening the right sidebar and asserting a process bar is visible.
+
+Use $specmatic-studio-playwright to review this Playwright spec and align it with the repo's page-object and screenshot conventions.
+```
+
+You can also ask naturally without naming the skill, but mentioning
+`$specmatic-studio-playwright` makes the intended guidance much more reliable.
+
 ### Running Tests
 
 To run all Playwright end-to-end tests.
