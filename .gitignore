@@ -17,3 +17,10 @@ coverage/
 reports/
 storageState.json
 temp
+
+# Codex
+.codex/*
+!.codex/skills/
+!.codex/skills/**
+**/__pycache__/
+*.pyc

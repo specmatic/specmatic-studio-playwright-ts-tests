@@ -1,0 +1,7 @@
+interface:
+  display_name: "Specmatic Studio Playwright"
+  short_description: "Work on Specmatic Studio Playwright tests"
+  icon_small: "./assets/specmatic-studio-playwright-small.svg"
+  icon_large: "./assets/specmatic-studio-playwright.svg"
+  brand_color: "#14B8A6"
+  default_prompt: "Use $specmatic-studio-playwright to add or update Specmatic Studio Playwright tests in this repository."

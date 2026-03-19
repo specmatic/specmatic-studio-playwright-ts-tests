@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Specmatic Studio Playwright">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="40" fill="url(#bg)" />
+  <rect x="34" y="42" width="188" height="150" rx="22" fill="#E2E8F0" />
+  <rect x="48" y="58" width="132" height="14" rx="7" fill="#0F172A" opacity="0.12" />
+  <path d="M66 110h102M66 140h62" stroke="#0F172A" stroke-width="16" stroke-linecap="round" />
+  <path d="M150 162l34-34-34-34" fill="none" stroke="#14B8A6" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="68" cy="176" r="16" fill="#F97316" />
+</svg>
