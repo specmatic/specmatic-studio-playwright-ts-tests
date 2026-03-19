@@ -70,3 +70,7 @@ export const JIO_RECHARGE_PLANS_RAW_PATH =
 export const VALID_JIO_NUMBER = "9321124338";
 export const NEW_JIO_NUMBER = "9000000000";
 export const JIO_RECHARGE_RESPONSE_CODE = 200;
+
+// Config Test
+export const PRODUCT_SEARCH_BFF_SPEC_CONFIG_MOCK =
+  "test-specmatic-config/product_search_bff_v5_config_mock.yaml";

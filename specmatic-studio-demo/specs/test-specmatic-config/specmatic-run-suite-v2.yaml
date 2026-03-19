@@ -1,0 +1,33 @@
+version: 2
+contracts:
+- filesystem:
+    directory: .
+  provides:
+  - baseUrl: http://order-bff:8080
+    specs:
+    - product_search_bff_v5.yaml
+    resiliencyTests:
+      enable: none
+  consumes:
+  - specs:
+    - kafka.yaml
+    specType: asyncapi
+    config:
+      inMemoryBroker:
+        host: studio
+        port: 9092
+      servers:
+      - host: studio:9092
+        protocol: kafka
+  - port: 8095
+    specs:
+    - inventory.wsdl
+report:
+  types:
+    APICoverage:
+      OpenAPI:
+        successCriteria:
+          minThresholdPercentage: 70
+          maxMissedEndpointsInSpec: 0
+          enforce: true
+fuzzy: true
