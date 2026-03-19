@@ -29,7 +29,7 @@ test.describe("Specmatic Config V3", () => {
     async ({ page, eyes }, testInfo) => {
       const configPage = createConfigPage(page, eyes, testInfo);
 
-      await runBaseV3Suite(configPage, page);
+      await runBaseV3Suite(configPage, page, eyes);
       await runMockBackedV3Suite({
         page,
         eyes,
@@ -69,13 +69,18 @@ function createConfigPage(page: Page, eyes: any, testInfo: TestInfo) {
   return new ServiceSpecConfigPage(page, testInfo, eyes, CONFIG_NAME);
 }
 
-async function runBaseV3Suite(configPage: ServiceSpecConfigPage, page: Page) {
+async function runBaseV3Suite(
+  configPage: ServiceSpecConfigPage,
+  page: Page,
+  eyes: any,
+) {
   await test.step("Run Suite against the configured backend", async () => {
     await openSpecmaticConfig(configPage);
     await runSuite(configPage);
     await expectExecutionState(
       configPage,
       page,
+      eyes,
       "running",
       "Running",
       RUNNING_LOG_LINES,
@@ -85,6 +90,7 @@ async function runBaseV3Suite(configPage: ServiceSpecConfigPage, page: Page) {
     await expectExecutionState(
       configPage,
       page,
+      eyes,
       "error",
       "Failed",
       FAILED_LOG_LINES,
@@ -138,15 +144,22 @@ async function runSuite(configPage: ServiceSpecConfigPage) {
 async function expectExecutionState(
   configPage: ServiceSpecConfigPage,
   page: Page,
+  eyes: any,
   state: "error" | "completed" | "running",
   expectedStatus: string,
   expectedLogLines: string[],
   screenshotName: string,
 ) {
   await test.step(`Execution progress shows '${expectedStatus}'`, async () => {
-    await assertExecutionDropDown(configPage, page, state, expectedStatus);
+    await assertExecutionDropDown(
+      configPage,
+      page,
+      eyes,
+      state,
+      expectedStatus,
+    );
     await expectExecutionLog(configPage, expectedLogLines);
-    await takeAndAttachScreenshot(page, screenshotName);
+    await takeAndAttachScreenshot(page, screenshotName, eyes);
   });
 }
 
@@ -165,6 +178,7 @@ async function expectExecutionLog(
 async function assertExecutionDropDown(
   configPage: ServiceSpecConfigPage,
   page: Page,
+  eyes: any,
   state: "error" | "completed" | "running",
   expectedStatus: string,
 ) {
@@ -187,5 +201,9 @@ async function assertExecutionDropDown(
     expect.soft(await statusText.textContent()).toBe(expectedStatus);
   }
 
-  await takeAndAttachScreenshot(page, `execution-progress-asserted-${state}`);
+  await takeAndAttachScreenshot(
+    page,
+    `execution-progress-asserted-${state}`,
+    eyes,
+  );
 }

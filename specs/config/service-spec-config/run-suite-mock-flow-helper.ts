@@ -198,6 +198,7 @@ export async function runMockBackedConfigFlow({
   await expectExecutionState(
     configPage,
     page,
+    eyes,
     "running",
     "Running",
     runningLogLines,
@@ -207,6 +208,7 @@ export async function runMockBackedConfigFlow({
   await expectExecutionState(
     configPage,
     page,
+    eyes,
     "success",
     "Completed",
     buildCompletedLogLines(mockUrl),
@@ -218,15 +220,22 @@ export async function runMockBackedConfigFlow({
 export async function expectExecutionState(
   configPage: ServiceSpecConfigPage,
   page: Page,
+  eyes: any,
   state: "error" | "success" | "running",
   expectedStatus: string,
   expectedLogLines: string[],
   screenshotName: string,
 ) {
   await test.step(`Execution progress shows '${expectedStatus}'`, async () => {
-    await assertExecutionDropDown(configPage, page, state, expectedStatus);
+    await assertExecutionDropDown(
+      configPage,
+      page,
+      eyes,
+      state,
+      expectedStatus,
+    );
     await expectExecutionLog(configPage, expectedLogLines);
-    await takeAndAttachScreenshot(page, screenshotName);
+    await takeAndAttachScreenshot(page, screenshotName, eyes);
   });
 }
 
@@ -264,6 +273,7 @@ async function expectExecutionLog(
 async function assertExecutionDropDown(
   configPage: ServiceSpecConfigPage,
   page: Page,
+  eyes: any,
   state: "error" | "success" | "running",
   expectedStatus: string,
 ) {
@@ -288,5 +298,9 @@ async function assertExecutionDropDown(
     expect.soft(await statusText.textContent()).toBe(expectedStatus);
   }
 
-  await takeAndAttachScreenshot(page, `execution-progress-asserted-${state}`);
+  await takeAndAttachScreenshot(
+    page,
+    `execution-progress-asserted-${state}`,
+    eyes,
+  );
 }

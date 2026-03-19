@@ -36,7 +36,7 @@ test.describe("Specmatic Config V2", () => {
 
       const configPage = createConfigPage(page, eyes, testInfo);
       await installUnexpectedStubFailureDialogWatcher(page);
-      const dialogState = await runBaseV2Suite(configPage, page);
+      const dialogState = await runBaseV2Suite(configPage, page, eyes);
       await runMockBackedV2Suite({
         page,
         eyes,
@@ -77,13 +77,18 @@ function createConfigPage(page: Page, eyes: any, testInfo: TestInfo) {
   return new ServiceSpecConfigPage(page, testInfo, eyes, CONFIG_NAME);
 }
 
-async function runBaseV2Suite(configPage: ServiceSpecConfigPage, page: Page) {
+async function runBaseV2Suite(
+  configPage: ServiceSpecConfigPage,
+  page: Page,
+  eyes: any,
+) {
   return await test.step("Run Suite against the configured backend", async () => {
     await openSpecmaticConfig(configPage);
     await runSuite(configPage);
     await expectExecutionState(
       configPage,
       page,
+      eyes,
       "running",
       "Running",
       RUNNING_LOG_LINES,
@@ -93,13 +98,14 @@ async function runBaseV2Suite(configPage: ServiceSpecConfigPage, page: Page) {
     await expectExecutionState(
       configPage,
       page,
+      eyes,
       "error",
       "Failed",
       FAILED_LOG_LINES,
       "run-suite-v2-failed",
     );
 
-    return await finalizeUnexpectedStubFailureDialogWatch(page, configPage);
+    return await finalizeUnexpectedStubFailureDialogWatch(page, configPage, eyes);
   });
 }
 
@@ -210,6 +216,7 @@ async function installUnexpectedStubFailureDialogWatcher(page: Page) {
 async function finalizeUnexpectedStubFailureDialogWatch(
   page: Page,
   configPage: ServiceSpecConfigPage,
+  eyes: any,
 ) {
   return await test.step("Capture unexpected stub-server dialog state for the base run", async () => {
     const dialogState = await page.evaluate(() => {
@@ -222,14 +229,18 @@ async function finalizeUnexpectedStubFailureDialogWatch(
       return watch.state;
     });
 
-    const visibleUnexpectedDialog = await configPage.alertContainer
-      .isVisible()
-      .catch(() => false);
+      const visibleUnexpectedDialog = await configPage.alertContainer
+        .isVisible()
+        .catch(() => false);
 
-    if (visibleUnexpectedDialog) {
-      await takeAndAttachScreenshot(page, "run-suite-v2-unexpected-dialog");
-      await configPage.dismissAlert();
-    }
+      if (visibleUnexpectedDialog) {
+        await takeAndAttachScreenshot(
+          page,
+          "run-suite-v2-unexpected-dialog",
+          eyes,
+        );
+        await configPage.dismissAlert();
+      }
 
     return dialogState;
   });
@@ -241,7 +252,7 @@ async function assertUnexpectedStubFailureDialogNeverAppeared(
   await test.step("Assert unexpected stub-server dialog never appeared", async () => {
     if (dialogState?.seen) {
       throw new Error(
-        `Unexpected stub-s erver dialog appeared during the base run: ${dialogState.title} :: ${dialogState.description}`,
+        `Unexpected stub-server dialog appeared during the base run: ${dialogState.title} :: ${dialogState.description}`,
       );
     }
   });
@@ -250,15 +261,22 @@ async function assertUnexpectedStubFailureDialogNeverAppeared(
 async function expectExecutionState(
   configPage: ServiceSpecConfigPage,
   page: Page,
+  eyes: any,
   state: "error" | "completed" | "running",
   expectedStatus: string,
   expectedLogLines: string[],
   screenshotName: string,
 ) {
   await test.step(`Execution progress shows '${expectedStatus}'`, async () => {
-    await assertExecutionDropDown(configPage, page, state, expectedStatus);
+    await assertExecutionDropDown(
+      configPage,
+      page,
+      eyes,
+      state,
+      expectedStatus,
+    );
     await expectExecutionLog(configPage, expectedLogLines);
-    await takeAndAttachScreenshot(page, screenshotName);
+    await takeAndAttachScreenshot(page, screenshotName, eyes);
   });
 }
 
@@ -277,6 +295,7 @@ async function expectExecutionLog(
 async function assertExecutionDropDown(
   configPage: ServiceSpecConfigPage,
   page: Page,
+  eyes: any,
   state: "error" | "completed" | "running",
   expectedStatus: string,
 ) {
@@ -299,5 +318,9 @@ async function assertExecutionDropDown(
     expect.soft(await statusText.textContent()).toBe(expectedStatus);
   }
 
-  await takeAndAttachScreenshot(page, `execution-progress-asserted-${state}`);
+  await takeAndAttachScreenshot(
+    page,
+    `execution-progress-asserted-${state}`,
+    eyes,
+  );
 }
