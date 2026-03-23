@@ -7,6 +7,8 @@ import {
 } from "../helpers/inline-examples-helper";
 import path from "path";
 
+const SPEC = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL;
+
 test.describe("Inline examples", () => {
   test(
     `Inline all examples for '${PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL}'`,
@@ -42,11 +44,7 @@ test.describe("Inline examples", () => {
 
         await examplePage.inlineExamples();
 
-        const expectedUpdatedSpecName = getUpdatedSpecName(
-          PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL,
-        );
-
-        const expectedFileName = path.basename(expectedUpdatedSpecName);
+        const expectedFileName = path.basename(SPEC);
 
         const [actualTitle, actualMessage] =
           await examplePage.getDialogTitleAndMessage();
@@ -63,7 +61,7 @@ test.describe("Inline examples", () => {
             page,
             testInfo,
             eyes,
-            expectedUpdatedSpecName,
+            SPEC,
           );
 
           await updatedSpecPage.verifyInlinedExamplesInSpec(
