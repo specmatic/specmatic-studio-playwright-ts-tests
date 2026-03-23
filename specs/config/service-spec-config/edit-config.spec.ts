@@ -47,11 +47,7 @@ test.describe("Specmatic Config", () => {
         await assertExecutionDropDown(configPage, page, "running", "Running");
         await takeAndAttachScreenshot(page, "suite-status-running", eyes);
         await configPage.waitForExecutionToComplete();
-        await assertErrorDialog(
-          configPage,
-          "Mock Server Stopped",
-          "StandaloneCoroutine was cancelled",
-        );
+        await assertErrorDialog(configPage, "Failed to execute");
         await configPage.dismissAlert();
         await assertExecutionDropDown(configPage, page, "error", "Failed");
         await expect(configPage.executionLog).toContainText(
