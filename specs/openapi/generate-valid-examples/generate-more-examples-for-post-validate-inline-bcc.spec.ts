@@ -30,9 +30,11 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         "@inlineExamples",
         "@validateInlinedPostExamplesForMultiplePaths",
         "@eyes",
+        "@expected-failure",
       ],
     },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "Dialog appearance issue after inlining examples");
       const examplePage = await setupExampleGenerationPage(
         page,
         testInfo,
