@@ -495,8 +495,14 @@ export class MockServerPage extends BasePage {
   async getErrorMessage(): Promise<{ title: string; detail: string }> {
     await this.alertMessage.waitFor({ state: "visible", timeout: 5000 });
 
-    const title = await this.alertMessage.locator("p").innerText();
-    const detail = await this.alertMessage.locator("pre").innerText();
+    const titleLocator = this.alertMessage.locator("p");
+    const detailLocator = this.alertMessage.locator("pre");
+
+    await expect(titleLocator).toBeVisible({ timeout: 5000 });
+    await expect(detailLocator).toBeVisible({ timeout: 5000 });
+
+    const title = await titleLocator.innerText();
+    const detail = await detailLocator.innerText();
 
     await takeAndAttachScreenshot(
       this.page,
