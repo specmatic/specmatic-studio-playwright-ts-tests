@@ -26,7 +26,15 @@ test.describe("SOAP Inventory Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid SOAP service URL",
-    { tag: ["@soap", "@soapContractTest", "@negative", "@wrongServiceURL", "@eyes"] },
+    {
+      tag: [
+        "@soap",
+        "@soapContractTest",
+        "@negative",
+        "@wrongServiceURL",
+        "@eyes",
+      ],
+    },
     async () => {
       await test.step("Enter invalid SOAP service URL", async () => {
         await contractPage.enterServiceUrl(INVALID_SERVICE_URL);
@@ -44,8 +52,21 @@ test.describe("SOAP Inventory Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid SOAP service port",
-    { tag: ["@soap", "@soapContractTest", "@negative", "@wrongPort", "@eyes"] },
+    {
+      tag: [
+        "@soap",
+        "@soapContractTest",
+        "@negative",
+        "@wrongPort",
+        "@eyes",
+        "@expected-failure",
+      ],
+    },
     async () => {
+      test.fail(
+        true,
+        "Covergae % inconsistency causing visual validation failure",
+      );
       await test.step("Enter SOAP service URL with invalid port", async () => {
         await contractPage.enterServiceUrl(INVALID_PORT_URL);
       });
