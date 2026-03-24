@@ -27,9 +27,9 @@ export class SpecmaticStudioPage extends BasePage {
     this.specTree = page.locator("#spec-tree");
     this.sideBar = new SideBarPage(page, testInfo, eyes);
 
-    this.recordSpecBtn = page.locator(".left-sidebar-labels .proxy-btn", { 
-  hasText: "Record a specification" 
-});
+    this.recordSpecBtn = page.locator(".left-sidebar-labels .proxy-btn", {
+      hasText: "Record a specification",
+    });
     this.startProxyBtn = page.locator("#startProxy");
     this.stopProxyBtn = page.locator("#stopProxy");
     this.proxyStartedAlert = page.locator(
@@ -123,11 +123,6 @@ export class SpecmaticStudioPage extends BasePage {
       .locator("..")
       .locator(`td[data-key="count"][data-value="${expectedCount}"]`);
     await expect(countCell).toBeVisible({ timeout: 5000 });
-    await takeAndAttachScreenshot(
-      this.page,
-      `proxy-row-${path.replace(/\//g, "-")}`,
-      this.eyes,
-    );
   }
 
   async clickProxyApiFilter() {
