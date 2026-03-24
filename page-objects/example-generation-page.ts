@@ -559,6 +559,7 @@ export class ExampleGenerationPage extends BasePage {
       await expect(inlineBtn).toBeVisible({ timeout: 4000 });
       await expect(inlineBtn).toBeEnabled({ timeout: 4000 });
       await inlineBtn.click();
+      await this.waitForInlineToComplete(iframe);
       await takeAndAttachScreenshot(
         this.page,
         `all-examples-inlined`,
@@ -588,7 +589,8 @@ export class ExampleGenerationPage extends BasePage {
         const { alert } = await this.getAlertContainerFrameAndLocator();
         const dialogContent = alert.locator("p, pre").first();
         const isDialogVisible = await dialogContent
-          .isVisible({ timeout })
+          .waitFor({ state: "visible", timeout })
+          .then(() => true)
           .catch(() => false);
 
         if (!isDialogVisible) {
@@ -613,6 +615,27 @@ export class ExampleGenerationPage extends BasePage {
         return [title, message];
       },
     );
+  }
+
+  private async waitForInlineToComplete(
+    iframe: import("@playwright/test").Frame,
+  ) {
+    console.log(`\t\tWaiting for inline operation to complete...`);
+    const inlineBtn = iframe.locator(this.inlineBtnSelector);
+    const processingInlineBtn = iframe.locator(this.inlineBtnSelector, {
+      hasText: "Processing",
+    });
+
+    await processingInlineBtn
+      .waitFor({ state: "visible", timeout: 5000 })
+      .catch(() => {
+        console.log(
+          "\t\tInline button did not switch to 'Processing' within 5 seconds, checking whether the action already completed",
+        );
+      });
+
+    await expect(processingInlineBtn).toBeHidden({ timeout: 60000 });
+    await expect(inlineBtn).toBeEnabled({ timeout: 10000 });
   }
   async generateAndValidateForPaths(
     endpoints: { path: string; responseCodes: number[] }[],
