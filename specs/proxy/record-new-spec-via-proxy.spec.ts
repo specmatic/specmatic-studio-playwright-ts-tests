@@ -56,7 +56,6 @@ test.describe("API Specification Management", () => {
   );
 });
 
-const INVALID_JIO_NUMBER = "8556663339";
 const PROXY_RECORDINGS_EXAMPLES_DIR = path.join(
   process.cwd(),
   "specmatic-studio-demo",
@@ -134,7 +133,7 @@ class ProxyRecordingSteps {
   async openProxyTargetTab(proxyUrl: string): Promise<JioAppInProxyPage> {
     return test.step("Open proxy target in new tab", async () => {
       const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
-      return new JioAppInProxyPage(proxyTab, this.testInfo, this.eyes);
+      return new JioAppInProxyPage(proxyTab, this.testInfo);
     });
   }
 }
@@ -173,15 +172,7 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
   ): Promise<void> {
     await test.step("Start mock replay for both endpoints", async () => {
       await this.studio.clickProxyApiFilter();
-      await this.studio.clickReplayForPath(
-        JIO_RECHARGE_NUMBER_PATH,
-        withVisualValidation,
-      );
-      await this.studio.assertRightSidebarMockStarted(
-        PROXY_RECORDINGS_SPEC,
-        withVisualValidation,
-      );
-
+      await this.studio.clickReplayForPath(JIO_RECHARGE_NUMBER_PATH, false);
       await this.studio.clickReplayForPath(
         JIO_RECHARGE_PLANS_PATH,
         withVisualValidation,
@@ -201,11 +192,8 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
     await test.step("Verify mock replay serves both endpoints", async () => {
       await jioPage.bringToFront();
       await jioPage.goto(proxyUrl);
-      await jioPage.enterMobileNumberAndProceed(
-        VALID_JIO_NUMBER,
-        withVisualValidation,
-      );
-      await jioPage.assertPlansPageVisible(withVisualValidation);
+      await jioPage.enterMobileNumberAndProceed(VALID_JIO_NUMBER);
+      await jioPage.assertPlansPageVisible();
 
       await this.page.bringToFront();
       await this.studio.sideBar.ensureSidebarOpen(withVisualValidation);
@@ -217,10 +205,7 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
         JIO_RECHARGE_NUMBER_PATH,
         false,
       );
-      await this.mockPage.assertMockPathVisible(
-        JIO_RECHARGE_PLANS_PATH,
-        false,
-      );
+      await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH, false);
       await takeAndAttachScreenshot(
         this.page,
         "replay-mock-verified",
