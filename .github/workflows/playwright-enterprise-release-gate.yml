@@ -1,0 +1,85 @@
+name: Studio - Enterprise Release Gate
+run-name: Gate ent:${{ inputs.enterprise_sha }} pw:${{ github.sha }} cid:${{ inputs.correlation_id || github.run_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      enterprise_sha:
+        description: Enterprise main commit SHA this gate validates
+        required: true
+        type: string
+      enterprise_check_run_id:
+        description: Enterprise check run id to complete on callback
+        required: false
+        type: string
+      enterprise_artifact_url:
+        description: Published enterprise snapshot artifact URL for this run
+        required: false
+        type: string
+      correlation_id:
+        description: Correlation id from enterprise release run
+        required: true
+        type: string
+      gate_source:
+        description: Source of gate trigger (main_push/release)
+        required: false
+        default: release
+        type: string
+      callback_repository:
+        description: Repository to send completion callback to (owner/repo)
+        required: false
+        default: specmatic/enterprise
+        type: string
+      callback_event_type:
+        description: repository_dispatch event type for callback
+        required: false
+        default: playwright_release_result
+        type: string
+      enterprise_run_id:
+        description: Enterprise workflow run id
+        required: false
+        type: string
+
+jobs:
+  release-gate-tests:
+    name: Playwright Release Gate Tests
+    uses: ./.github/workflows/playwright-test-group.yml
+    with:
+      test_path: specs
+      artifact_name: enterprise-release-gate
+      group_name: Enterprise Release Gate
+      enterprise_artifact_url: ${{ inputs.enterprise_artifact_url }}
+    secrets:
+      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+      SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
+
+  callback-enterprise:
+    name: Callback Enterprise With Gate Result
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - release-gate-tests
+    steps:
+      - name: Send callback to enterprise repository
+        env:
+          SPECMATIC_GITHUB_TOKEN: ${{ secrets.SPECMATIC_GITHUB_TOKEN }}
+          CALLBACK_REPOSITORY: ${{ inputs.callback_repository }}
+          CALLBACK_EVENT_TYPE: ${{ inputs.callback_event_type }}
+          CORRELATION_ID: ${{ inputs.correlation_id }}
+          ENTERPRISE_RUN_ID: ${{ inputs.enterprise_run_id }}
+          ENTERPRISE_SHA: ${{ inputs.enterprise_sha }}
+          ENTERPRISE_CHECK_RUN_ID: ${{ inputs.enterprise_check_run_id }}
+          SPECMATIC_STUDIO_JAR_URL: ${{ inputs.enterprise_artifact_url }}
+          PLAYWRIGHT_SHA: ${{ github.sha }}
+          GATE_SOURCE: ${{ inputs.gate_source }}
+          GATE_RESULT: ${{ needs.release-gate-tests.result }}
+          PLAYWRIGHT_RUN_ID: ${{ github.run_id }}
+          PLAYWRIGHT_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          echo "Sending callback for correlation_id=${CORRELATION_ID} with result=${GATE_RESULT}, enterprise_sha=${ENTERPRISE_SHA}, playwright_sha=${PLAYWRIGHT_SHA}"
+          curl -sS -X POST \
+            -H "Authorization: Bearer ${SPECMATIC_GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${CALLBACK_REPOSITORY}/dispatches" \
+            -d '{"event_type":"'"${CALLBACK_EVENT_TYPE}"'","client_payload":{"correlation_id":"'"${CORRELATION_ID}"'","result":"'"${GATE_RESULT}"'","gate_source":"'"${GATE_SOURCE}"'","enterprise_run_id":"'"${ENTERPRISE_RUN_ID}"'","enterprise_sha":"'"${ENTERPRISE_SHA}"'","enterprise_check_run_id":"'"${ENTERPRISE_CHECK_RUN_ID}"'","enterprise_artifact_url":"'"${ENTERPRISE_ARTIFACT_URL}"'","playwright_repo":"'"${GITHUB_REPOSITORY}"'","playwright_sha":"'"${PLAYWRIGHT_SHA}"'","playwright_run_id":"'"${PLAYWRIGHT_RUN_ID}"'","playwright_run_url":"'"${PLAYWRIGHT_RUN_URL}"'"}}'
