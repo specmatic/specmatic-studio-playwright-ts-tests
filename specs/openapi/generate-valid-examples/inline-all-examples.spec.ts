@@ -1,11 +1,10 @@
-import { test, expect } from "../../../utils/eyesFixture";
+import { test } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL } from "../../specNames";
 import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import {
-  getUpdatedSpecName,
   navigateToUpdatedSpec,
+  verifyAndCloseInlineSuccessDialog,
 } from "../helpers/inline-examples-helper";
-import path from "path";
 
 const SPEC = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL;
 
@@ -23,63 +22,45 @@ test.describe("Inline examples", () => {
     },
     async ({ page, eyes }, testInfo) => {
       test.fail(true, "Dilaog appearence issue after inlining examples");
-      try {
-        console.log(`Starting test: ${testInfo.title}`);
-        const examplePage = new ExampleGenerationPage(
+      const examplePage = new ExampleGenerationPage(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL,
+      );
+      await examplePage.openExampleGenerationTabForSpec(
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL,
+      );
+
+      await examplePage.deleteGeneratedExamples();
+
+      await examplePage.generateAllExamples();
+      await examplePage.closeExamplesGenerationCompletedDialog(
+        "Example Generations Complete",
+      );
+      await examplePage.validateAllExamples();
+
+      // Capture example names before inlining so we can verify them in the updated spec
+      const generatedExampleNames =
+        await examplePage.getGeneratedExampleNames();
+
+      await examplePage.inlineExamples();
+      await verifyAndCloseInlineSuccessDialog(examplePage, SPEC);
+
+      await test.step("Verify inlined examples appear in the updated spec file", async () => {
+        const updatedSpecPage = await navigateToUpdatedSpec(
           page,
           testInfo,
           eyes,
-          PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL,
-        );
-        await examplePage.openExampleGenerationTabForSpec(
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL,
+          SPEC,
         );
 
-        await examplePage.deleteGeneratedExamples();
-
-        await examplePage.generateAllExamples();
-        await examplePage.closeExamplesGenerationCompletedDialog(
-          "Example Generations Complete",
+        await updatedSpecPage.verifyInlinedExamplesInSpec(
+          generatedExampleNames,
         );
-        await examplePage.validateAllExamples();
-
-        // Capture example names before inlining so we can verify them in the updated spec
-        const generatedExampleNames =
-          await examplePage.getGeneratedExampleNames();
-
-        await examplePage.inlineExamples();
-
-        const expectedFileName = path.basename(SPEC);
-
-        const [actualTitle, actualMessage] =
-          await examplePage.getDialogTitleAndMessage();
-
-        expect.soft(actualTitle).toBe("Examples Inline Complete");
-        expect(actualMessage).toBe(
-          `Successfully inlined examples into ${expectedFileName}`,
-        );
-
-        await examplePage.closeInlineSuccessDialog("Examples Inline Complete");
-
-        await test.step("Verify inlined examples appear in the updated spec file", async () => {
-          const updatedSpecPage = await navigateToUpdatedSpec(
-            page,
-            testInfo,
-            eyes,
-            SPEC,
-          );
-
-          await updatedSpecPage.verifyInlinedExamplesInSpec(
-            generatedExampleNames,
-          );
-        });
-      } catch (err) {
-        expect
-          .soft(err, `Unexpected error in test: ${testInfo.title}`)
-          .toBeUndefined();
-      }
+      });
     },
   );
 });

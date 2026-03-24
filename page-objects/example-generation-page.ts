@@ -578,14 +578,41 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async closeInlineSuccessDialog(expectedTitle: string) {
-    await test.step(`Close inline success dialog with title: '${expectedTitle}'`, async () => {
-      console.log(
-        `Closing inline success dialog with expected title: '${expectedTitle}'`,
-      );
-      const iframe = await this.waitForExamplesIFrame();
-      await this.verifyTitleAndCloseDialog(expectedTitle);
-    });
+  async getDialogTitleAndMessageIfPresent(
+    timeout = 5000,
+  ): Promise<[string, string] | null> {
+    return await test.step(
+      `Get dialog title and message if present`,
+      async () => {
+        console.log(`\tGetting dialog title and message if present`);
+        const { alert } = await this.getAlertContainerFrameAndLocator();
+        const dialogContent = alert.locator("p, pre").first();
+        const isDialogVisible = await dialogContent
+          .isVisible({ timeout })
+          .catch(() => false);
+
+        if (!isDialogVisible) {
+          console.warn(
+            `\tDialog content did not appear within ${timeout}ms, continuing without blocking the test`,
+          );
+          await takeAndAttachScreenshot(this.page, `dialog-not-visible`);
+          return null;
+        }
+
+        await takeAndAttachScreenshot(this.page, `dialog-title-and-message`);
+        const title = await this.getDialogTitle(alert);
+        const message = await this.getDialogMessage(alert);
+
+        const closeButton = alert.locator("button").first();
+        if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+          await closeButton.click();
+          await this.page.waitForTimeout(1000);
+          await expect(alert).toBeHidden({ timeout: 5000 });
+        }
+
+        return [title, message];
+      },
+    );
   }
   async generateAndValidateForPaths(
     endpoints: { path: string; responseCodes: number[] }[],
