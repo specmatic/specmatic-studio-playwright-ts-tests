@@ -113,7 +113,7 @@ export class SpecmaticStudioPage extends BasePage {
 
   async assertProxyTableVisible() {
     await expect(this.proxyTable).toBeVisible({ timeout: 15000 });
-    await takeAndAttachScreenshot(this.page, "proxy-table-visible", this.eyes);
+    await takeAndAttachScreenshot(this.page, "proxy-table-visible");
   }
 
   async assertProxyTableRowByPath(path: string, expectedCount: number) {
@@ -127,8 +127,12 @@ export class SpecmaticStudioPage extends BasePage {
 
   async clickProxyApiFilter() {
     const apiFilterBtn = this.page.locator('li.count[data-type="api"]');
+    const pathHeader = this.proxyTable.locator('thead th[data-key="path"]');
     await expect(apiFilterBtn).toBeVisible({ timeout: 5000 });
     await apiFilterBtn.click();
+    await expect(pathHeader).toHaveAttribute("data-total", "5", {
+      timeout: 10000,
+    });
     await takeAndAttachScreenshot(
       this.page,
       "proxy-api-filter-clicked",
@@ -138,8 +142,11 @@ export class SpecmaticStudioPage extends BasePage {
 
   async clickReplayForPath(path: string) {
     const replayBtn = this.replayBtnByPath(path);
+    const stopBtn = this.stopBtnByPath(path);
     await expect(replayBtn).toBeVisible({ timeout: 5000 });
     await replayBtn.click();
+    await expect(stopBtn).toBeVisible({ timeout: 10000 });
+    await expect(stopBtn).toHaveText("stop", { timeout: 10000 });
     await takeAndAttachScreenshot(this.page, "replay-clicked", this.eyes);
   }
 
