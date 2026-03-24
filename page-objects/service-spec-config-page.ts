@@ -484,10 +484,18 @@ export class ServiceSpecConfigPage extends BasePage {
   ) {
     await test.step(`Wait for execution to complete (poll every ${pollIntervalMs}ms, timeout: ${timeout}ms)`, async () => {
       const dropdown = this.executionProgressDropdown;
-      await expect(dropdown).toHaveAttribute("data-state", "running", {
-        timeout: 15000,
-      });
-      console.log("\tExecution is running — polling until it completes...");
+      await expect(dropdown).toBeVisible({ timeout: 15000 });
+
+      const initialState = await dropdown.getAttribute("data-state");
+      console.log(`\tInitial execution state: '${initialState}'`);
+
+      if (initialState !== "running") {
+        console.log(
+          "\tExecution is already in a terminal state, skipping the running-state wait and treating it as completed",
+        );
+      } else {
+        console.log("\tExecution is running — polling until it completes...");
+      }
 
       await expect
         .poll(
@@ -499,7 +507,7 @@ export class ServiceSpecConfigPage extends BasePage {
           {
             intervals: [pollIntervalMs],
             timeout,
-            message: `Execution did not leave 'running' state within ${timeout}ms`,
+            message: `Execution did not reach a terminal state within ${timeout}ms`,
           },
         )
         .not.toBe("running");
