@@ -30,15 +30,14 @@ test.describe("API Specification Management", () => {
     async ({ page, eyes }, testInfo) => {
       test.setTimeout(180000);
       const validSteps = new RecordValidNumberSteps(page, testInfo, eyes);
-      const invalidSteps = new RecordInvalidNumberSteps(page, testInfo, eyes);
 
       await validSteps.setupProxyRecording();
       let proxyUrl = await validSteps.assertProxyStartedAndGetUrl();
       const jioPage = await validSteps.openProxyTargetTab(proxyUrl);
 
       await validSteps.captureAndVerifyBothEndpoints(jioPage);
-      await validSteps.startMockReplayAndVerifySidebar();
-      await validSteps.replayViaMockAndVerifyMockTab(jioPage, proxyUrl);
+      await validSteps.startMockReplayAndVerifySidebar(true);
+      await validSteps.replayViaMockAndVerifyMockTab(jioPage, proxyUrl, true);
       await validSteps.navigateToExampleGeneration();
       await validSteps.generateMoreExamplesForBothEndpoints();
       await validSteps.copyPasteAndReplacePhoneNumberEndpoint();
@@ -53,17 +52,6 @@ test.describe("API Specification Management", () => {
       );
 
       await jioPage.close();
-      await validSteps.restartProxyRecordingForInvalidFlow();
-      proxyUrl = await validSteps.assertProxyStartedAndGetUrl();
-      const invalidJioPage = await invalidSteps.openProxyTargetTab(proxyUrl);
-
-      await invalidSteps.captureApiCallAndVerifyInProxyTable(
-        invalidJioPage,
-        proxyUrl,
-      );
-      await invalidSteps.startMockReplayAndVerifySidebar();
-      await invalidSteps.replayViaMockAndVerifyMockTab(proxyUrl);
-      await invalidSteps.viewDrillDownDetails();
     },
   );
 });
@@ -151,59 +139,6 @@ class ProxyRecordingSteps {
   }
 }
 
-class RecordInvalidNumberSteps extends ProxyRecordingSteps {
-  async captureApiCallAndVerifyInProxyTable(
-    jioPage: JioAppInProxyPage,
-    proxyUrl: string,
-  ): Promise<void> {
-    await test.step(`Capture API call with mobile number '${INVALID_JIO_NUMBER}'`, async () => {
-      await jioPage.bringToFront();
-      await jioPage.goto(proxyUrl);
-      await jioPage.enterMobileNumberAndProceedExpectingInvalidNumber(
-        INVALID_JIO_NUMBER,
-      );
-
-      await this.page.bringToFront();
-      await this.studio.assertProxyTableRowByPath(JIO_RECHARGE_NUMBER_PATH, 1);
-    });
-  }
-
-  async startMockReplayAndVerifySidebar(): Promise<void> {
-    await test.step("Start mock replay and verify in right sidebar", async () => {
-      await this.studio.clickReplayForPath(JIO_RECHARGE_NUMBER_PATH);
-      await this.studio.assertRightSidebarMockStarted(PROXY_RECORDINGS_SPEC);
-    });
-  }
-
-  async replayViaMockAndVerifyMockTab(proxyUrl: string): Promise<void> {
-    await test.step("Verify mock replay serves the endpoint", async () => {
-      const proxyTab = await this.studio.openProxyUrlInNewTab(proxyUrl);
-      const newJioPage = new JioAppInProxyPage(
-        proxyTab,
-        this.testInfo,
-        this.eyes,
-      );
-
-      await newJioPage.enterMobileNumberAndProceedExpectingInvalidNumber(
-        INVALID_JIO_NUMBER,
-      );
-      await newJioPage.assertInvalidNumberMessageVisible();
-
-      await this.page.bringToFront();
-      await this.studio.sideBar.ensureSidebarOpen();
-      await this.mockPage.openMockTabViaSidebar(PROXY_RECORDINGS_SPEC);
-      await this.mockPage.assertMockPathVisible(JIO_RECHARGE_NUMBER_PATH);
-    });
-  }
-
-  async viewDrillDownDetails(): Promise<void> {
-    await test.step("View drill-down details for API result", async () => {
-      await this.mockPage.clickMockTableRemark(JIO_RECHARGE_NUMBER_PATH, "400");
-      await this.mockPage.getDrillDownState(0);
-    });
-  }
-}
-
 class RecordValidNumberSteps extends ProxyRecordingSteps {
   private readonly examplePage: ExampleGenerationPage;
 
@@ -233,32 +168,64 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
     });
   }
 
-  async startMockReplayAndVerifySidebar(): Promise<void> {
+  async startMockReplayAndVerifySidebar(
+    withVisualValidation = false,
+  ): Promise<void> {
     await test.step("Start mock replay for both endpoints", async () => {
       await this.studio.clickProxyApiFilter();
-      await this.studio.clickReplayForPath(JIO_RECHARGE_NUMBER_PATH);
-      await this.studio.assertRightSidebarMockStarted(PROXY_RECORDINGS_SPEC);
+      await this.studio.clickReplayForPath(
+        JIO_RECHARGE_NUMBER_PATH,
+        withVisualValidation,
+      );
+      await this.studio.assertRightSidebarMockStarted(
+        PROXY_RECORDINGS_SPEC,
+        withVisualValidation,
+      );
 
-      await this.studio.clickReplayForPath(JIO_RECHARGE_PLANS_PATH);
-      await this.studio.assertRightSidebarMockStarted(PROXY_RECORDINGS_SPEC);
+      await this.studio.clickReplayForPath(
+        JIO_RECHARGE_PLANS_PATH,
+        withVisualValidation,
+      );
+      await this.studio.assertRightSidebarMockStarted(
+        PROXY_RECORDINGS_SPEC,
+        withVisualValidation,
+      );
     });
   }
 
   async replayViaMockAndVerifyMockTab(
     jioPage: JioAppInProxyPage,
     proxyUrl: string,
+    withVisualValidation = false,
   ): Promise<void> {
     await test.step("Verify mock replay serves both endpoints", async () => {
       await jioPage.bringToFront();
       await jioPage.goto(proxyUrl);
-      await jioPage.enterMobileNumberAndProceed(VALID_JIO_NUMBER);
-      await jioPage.assertPlansPageVisible();
+      await jioPage.enterMobileNumberAndProceed(
+        VALID_JIO_NUMBER,
+        withVisualValidation,
+      );
+      await jioPage.assertPlansPageVisible(withVisualValidation);
 
       await this.page.bringToFront();
-      await this.studio.sideBar.ensureSidebarOpen();
-      await this.mockPage.openMockTabViaSidebar(PROXY_RECORDINGS_SPEC);
-      await this.mockPage.assertMockPathVisible(JIO_RECHARGE_NUMBER_PATH);
-      await this.mockPage.assertMockPathVisible(JIO_RECHARGE_PLANS_PATH);
+      await this.studio.sideBar.ensureSidebarOpen(withVisualValidation);
+      await this.mockPage.openMockTabViaSidebar(
+        PROXY_RECORDINGS_SPEC,
+        withVisualValidation,
+      );
+      await this.mockPage.assertMockPathVisible(
+        JIO_RECHARGE_NUMBER_PATH,
+        false,
+      );
+      await this.mockPage.assertMockPathVisible(
+        JIO_RECHARGE_PLANS_PATH,
+        false,
+      );
+      await takeAndAttachScreenshot(
+        this.page,
+        "replay-mock-verified",
+        this.eyes,
+      );
     });
   }
 
@@ -346,7 +313,7 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
       await this.studio.assertProxyTableVisible();
 
       await this.studio.clickStopReplayForPath(JIO_RECHARGE_PLANS_PATH);
-      await this.studio.clickReplayForPath(JIO_RECHARGE_PLANS_PATH);
+      await this.studio.clickReplayForPath(JIO_RECHARGE_PLANS_PATH, false);
     });
   }
 

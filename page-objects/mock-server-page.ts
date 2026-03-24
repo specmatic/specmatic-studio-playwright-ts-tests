@@ -545,7 +545,7 @@ export class MockServerPage extends BasePage {
     return statusText.innerText();
   }
 
-  async assertMockPathVisible(path: string) {
+  async assertMockPathVisible(path: string, withVisualValidation = false) {
     const pathCell = this.mockTable.locator(
       `tbody td[data-key="path"][data-value="${path}"]`,
     );
@@ -553,7 +553,7 @@ export class MockServerPage extends BasePage {
     await takeAndAttachScreenshot(
       this.page,
       "mock-table-path-verified",
-      this.eyes,
+      withVisualValidation ? this.eyes : undefined,
     );
   }
 
@@ -655,7 +655,7 @@ export class MockServerPage extends BasePage {
     return headerData;
   }
 
-  async openMockTabViaSidebar(specName: string) {
+  async openMockTabViaSidebar(specName: string, withVisualValidation = false) {
     await test.step(`Select '${specName}' via sidebar and open Contract Tests tab`, async () => {
       await this.sideBar.selectSpec(specName);
       await this.specSection.waitFor({ state: "visible", timeout: 30000 });
@@ -663,6 +663,11 @@ export class MockServerPage extends BasePage {
       await this.mockCountsSection
         .first()
         .waitFor({ state: "visible", timeout: 30000 });
+      await takeAndAttachScreenshot(
+        this.page,
+        "mock-tab-opened-via-sidebar",
+        withVisualValidation ? this.eyes : undefined,
+      );
     });
   }
 }

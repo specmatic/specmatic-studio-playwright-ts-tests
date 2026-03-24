@@ -25,8 +25,13 @@ export class RightSidebarPage {
   async assertProcessBarVisible(
     processBarLocator: Locator,
     screenshotLabel: string,
+    withVisualValidation = false,
   ): Promise<void> {
     await expect(processBarLocator).toBeVisible({ timeout: 15000 });
-    await takeAndAttachScreenshot(this.page, screenshotLabel, this.eyes);
+    await takeAndAttachScreenshot(
+      this.page,
+      screenshotLabel,
+      withVisualValidation ? this.eyes : undefined,
+    );
   }
 }

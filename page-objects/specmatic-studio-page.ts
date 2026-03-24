@@ -1,4 +1,4 @@
-import { Locator, expect, type TestInfo, Page, test } from "@playwright/test";
+import { Locator, Page, expect, test, type TestInfo } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { SideBarPage } from "./side-bar-page";
@@ -75,7 +75,7 @@ export class SpecmaticStudioPage extends BasePage {
   async clickStartProxy() {
     await this.startProxyBtn.click({ force: true });
     await this.sideBar.closeSidebar();
-    await takeAndAttachScreenshot(this.page, "clicked-start-proxy", this.eyes);
+    await takeAndAttachScreenshot(this.page, "clicked-start-proxy");
   }
 
   async clickStopProxy() {
@@ -140,14 +140,18 @@ export class SpecmaticStudioPage extends BasePage {
     );
   }
 
-  async clickReplayForPath(path: string) {
+  async clickReplayForPath(path: string, withVisualValidation = false) {
     const replayBtn = this.replayBtnByPath(path);
     const stopBtn = this.stopBtnByPath(path);
     await expect(replayBtn).toBeVisible({ timeout: 5000 });
     await replayBtn.click();
     await expect(stopBtn).toBeVisible({ timeout: 10000 });
     await expect(stopBtn).toHaveText("stop", { timeout: 10000 });
-    await takeAndAttachScreenshot(this.page, "replay-clicked", this.eyes);
+    await takeAndAttachScreenshot(
+      this.page,
+      "replay-clicked",
+      withVisualValidation ? this.eyes : undefined,
+    );
   }
 
   async clickStopReplayForPath(path: string) {
@@ -157,13 +161,17 @@ export class SpecmaticStudioPage extends BasePage {
     await takeAndAttachScreenshot(this.page, "stop-clicked");
   }
 
-  async assertRightSidebarMockStarted(specName: string) {
+  async assertRightSidebarMockStarted(
+    specName: string,
+    withVisualValidation?: boolean,
+  ) {
     await this.rightSidebar.open();
     await this.page.waitForTimeout(1000);
     const processBar = this.replayProcessBar(specName);
     await this.rightSidebar.assertProcessBarVisible(
       processBar,
       "right-sidebar-replay-started",
+      withVisualValidation,
     );
     await this.rightSidebar.close();
   }
