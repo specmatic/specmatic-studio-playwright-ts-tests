@@ -36,10 +36,15 @@ export class JioAppInProxyPage extends BasePage {
     await this.page.reload({ waitUntil: "domcontentloaded" });
   }
 
+  async close() {
+    await this.page.close();
+  }
+
   private async enterMobileNumberAndProceedAndWaitForText(
     mobileNumber: string,
     expectedText: string,
   ) {
+    await this.mobileInput.waitFor({ state: "visible", timeout: 15000 });
     await this.mobileInput.scrollIntoViewIfNeeded();
     await this.mobileInput.click();
     await this.page.waitForTimeout(1000);

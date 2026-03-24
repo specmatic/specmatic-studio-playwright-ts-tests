@@ -27,17 +27,24 @@ export async function verifyAndCloseInlineSuccessDialog(
   examplePage: ExampleGenerationPage,
   updatedSpecName: string,
 ) {
-  const [actualTitle, actualMessage] =
-    await examplePage.getDialogTitleAndMessage();
+  const dialogDetails =
+    await examplePage.getDialogTitleAndMessageIfPresent();
 
   const displayedFileName = updatedSpecName.split("/").pop()!;
 
+  expect
+    .soft(dialogDetails, "Inline success dialog did not appear after inlining")
+    .not.toBeNull();
+
+  if (!dialogDetails) {
+    return;
+  }
+
+  const [actualTitle, actualMessage] = dialogDetails;
   expect.soft(actualTitle).toBe("Examples Inline Complete");
   expect
     .soft(actualMessage)
     .toBe(`Successfully inlined examples into ${displayedFileName}`);
-
-  await examplePage.closeInlineSuccessDialog("Examples Inline Complete");
 }
 
 export async function setupExampleGenerationPage(

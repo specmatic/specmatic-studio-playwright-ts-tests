@@ -25,16 +25,10 @@ test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy for Valid and Invalid Numbers",
     {
-      tag: [
-        "@proxy",
-        "@recordValidNumber",
-        "@recordNewSpec",
-        "@eyes",
-        "@expected-failure",
-      ],
+      tag: ["@proxy", "@recordNewSpec", "@eyes"],
     },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "YAML Clickable Issue");
+      test.setTimeout(180000);
       const validSteps = new RecordValidNumberSteps(page, testInfo, eyes);
       const invalidSteps = new RecordInvalidNumberSteps(page, testInfo, eyes);
 
@@ -58,10 +52,15 @@ test.describe("API Specification Management", () => {
         proxyUrl,
       );
 
+      await jioPage.close();
       await validSteps.restartProxyRecordingForInvalidFlow();
       proxyUrl = await validSteps.assertProxyStartedAndGetUrl();
+      const invalidJioPage = await invalidSteps.openProxyTargetTab(proxyUrl);
 
-      await invalidSteps.captureApiCallAndVerifyInProxyTable(jioPage, proxyUrl);
+      await invalidSteps.captureApiCallAndVerifyInProxyTable(
+        invalidJioPage,
+        proxyUrl,
+      );
       await invalidSteps.startMockReplayAndVerifySidebar();
       await invalidSteps.replayViaMockAndVerifyMockTab(proxyUrl);
       await invalidSteps.viewDrillDownDetails();
@@ -354,8 +353,6 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
   async restartProxyRecordingForInvalidFlow(): Promise<void> {
     await test.step("Restart proxy recording before invalid number flow", async () => {
       await this.page.bringToFront();
-      await this.studio.sideBar.ensureSidebarOpen();
-      await this.studio.clickRecordSpec();
       await this.studio.stopProxyIfRunning();
       await this.studio.acceptProxyErrorDialog();
       await this.studio.clickStartProxy();

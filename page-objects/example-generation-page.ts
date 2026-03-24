@@ -559,6 +559,7 @@ export class ExampleGenerationPage extends BasePage {
       await expect(inlineBtn).toBeVisible({ timeout: 4000 });
       await expect(inlineBtn).toBeEnabled({ timeout: 4000 });
       await inlineBtn.click();
+      await this.waitForInlineToComplete(iframe);
       await takeAndAttachScreenshot(
         this.page,
         `all-examples-inlined`,
@@ -578,14 +579,63 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async closeInlineSuccessDialog(expectedTitle: string) {
-    await test.step(`Close inline success dialog with title: '${expectedTitle}'`, async () => {
-      console.log(
-        `Closing inline success dialog with expected title: '${expectedTitle}'`,
-      );
-      const iframe = await this.waitForExamplesIFrame();
-      await this.verifyTitleAndCloseDialog(expectedTitle);
+  async getDialogTitleAndMessageIfPresent(
+    timeout = 5000,
+  ): Promise<[string, string] | null> {
+    return await test.step(
+      `Get dialog title and message if present`,
+      async () => {
+        console.log(`\tGetting dialog title and message if present`);
+        const { alert } = await this.getAlertContainerFrameAndLocator();
+        const dialogContent = alert.locator("p, pre").first();
+        const isDialogVisible = await dialogContent
+          .waitFor({ state: "visible", timeout })
+          .then(() => true)
+          .catch(() => false);
+
+        if (!isDialogVisible) {
+          console.warn(
+            `\tDialog content did not appear within ${timeout}ms, continuing without blocking the test`,
+          );
+          await takeAndAttachScreenshot(this.page, `dialog-not-visible`);
+          return null;
+        }
+
+        await takeAndAttachScreenshot(this.page, `dialog-title-and-message`);
+        const title = await this.getDialogTitle(alert);
+        const message = await this.getDialogMessage(alert);
+
+        const closeButton = alert.locator("button").first();
+        if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+          await closeButton.click();
+          await this.page.waitForTimeout(1000);
+          await expect(alert).toBeHidden({ timeout: 5000 });
+        }
+
+        return [title, message];
+      },
+    );
+  }
+
+  private async waitForInlineToComplete(
+    iframe: import("@playwright/test").Frame,
+  ) {
+    console.log(`\t\tWaiting for inline operation to complete...`);
+    const inlineBtn = iframe.locator(this.inlineBtnSelector);
+    const processingInlineBtn = iframe.locator(this.inlineBtnSelector, {
+      hasText: "Processing",
     });
+
+    await processingInlineBtn
+      .waitFor({ state: "visible", timeout: 5000 })
+      .catch(() => {
+        console.log(
+          "\t\tInline button did not switch to 'Processing' within 5 seconds, checking whether the action already completed",
+        );
+      });
+
+    await expect(processingInlineBtn).toBeHidden({ timeout: 60000 });
+    await expect(inlineBtn).toBeEnabled({ timeout: 10000 });
   }
   async generateAndValidateForPaths(
     endpoints: { path: string; responseCodes: number[] }[],

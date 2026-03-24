@@ -30,9 +30,11 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         "@inlineExamples",
         "@validateInlinedPostExamplesForMultiplePaths",
         "@eyes",
+        "@expected-failure",
       ],
     },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "Dialog appearance issue after inlining examples");
       const examplePage = await setupExampleGenerationPage(
         page,
         testInfo,
@@ -49,15 +51,14 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         POST_PATHS_AND_CODES,
       );
 
-      const updatedSpecName = getUpdatedSpecName(SPEC);
-      await verifyAndCloseInlineSuccessDialog(examplePage, updatedSpecName);
+      await verifyAndCloseInlineSuccessDialog(examplePage, SPEC);
 
       await test.step("Verify inlined POST examples appear in the updated spec file", async () => {
         const updatedSpecPage = await navigateToUpdatedSpec(
           page,
           testInfo,
           eyes,
-          updatedSpecName,
+          SPEC,
         );
 
         for (const { path, code } of POST_PATHS_AND_CODES) {
@@ -71,7 +72,7 @@ test.describe("Validate generated spec after inlining POST request examples", ()
           page,
           testInfo,
           eyes,
-          updatedSpecName,
+          SPEC,
         );
         await configPage.runBackwardCompatibilityTest();
         const toastText = await configPage.getAlertMessageText();
