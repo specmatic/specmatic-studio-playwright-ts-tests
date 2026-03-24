@@ -5,6 +5,8 @@ import {
 } from "@applitools/eyes-playwright";
 import { readdir, rm } from "fs/promises";
 import path from "path";
+const studioRuntime = require("./specmatic-studio-runtime");
+const { ensureSpecmaticStudioForRun, isJarModeEnabled } = studioRuntime;
 
 export const ENABLE_VISUAL = process.env.ENABLE_VISUAL === "true";
 
@@ -81,6 +83,10 @@ if (process.env.GROUP_NAME) {
   Batch.addProperty("group_name", process.env.GROUP_NAME);
 }
 export default async function globalSetup() {
+  if (isJarModeEnabled()) {
+    await ensureSpecmaticStudioForRun();
+  }
+
   const specsDirectory = path.resolve(
     process.cwd(),
     "specmatic-studio-demo",

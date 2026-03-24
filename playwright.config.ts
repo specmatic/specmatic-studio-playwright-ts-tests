@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import path from "path";
 import fs from "fs";
+const studioRuntime = require("./utils/specmatic-studio-runtime");
 const isCI = !!process.env.CI;
 // Decide which env file to load
 const envName = process.env.ENV_NAME || (isCI ? "ci" : "local");
@@ -21,9 +22,6 @@ if (fs.existsSync(envFile)) {
 } else {
   throw new Error(`❌ Could not load required CI env file: ${envFile}`);
 }
-
-const baseURL =
-  process.env.BASE_URL || "http://localhost:9000/_specmatic/studio";
 
 /**
  * Read environment variables from file.
@@ -39,6 +37,20 @@ const baseURL =
 const isDocker = process.env.USE_DOCKER === "true";
 const isWindows = process.platform === "win32";
 const dockerScript = isWindows ? "start-docker.bat" : "./start-docker.sh";
+const { isJarModeEnabled } = studioRuntime;
+const isJarMode = isJarModeEnabled();
+
+if (isJarMode) {
+  if (isDocker) {
+    console.log(
+      "[specmatic] SPECMATIC_STUDIO_JAR_URL is set. Skipping Docker startup and using the jar instead.",
+    );
+  }
+  process.env.BASE_URL = "http://127.0.0.1:9000/_specmatic/studio";
+}
+
+const baseURL =
+  process.env.BASE_URL || "http://localhost:9000/_specmatic/studio";
 
 export default defineConfig({
   testDir: "./",
@@ -88,7 +100,7 @@ export default defineConfig({
   ],
   globalSetup: path.resolve(__dirname, "./utils/global-setup.ts"),
   globalTeardown: path.resolve(__dirname, "./utils/global-teardown.ts"),
-  ...(isDocker
+  ...(!isJarMode && isDocker
     ? {
         webServer: {
           command: dockerScript,

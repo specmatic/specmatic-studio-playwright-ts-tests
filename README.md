@@ -93,6 +93,27 @@ Auto generate tests with Codegen.
   npx playwright codegen
 ```
 
+### Running Against a Specmatic Studio Jar
+
+If `SPECMATIC_STUDIO_JAR_URL` is set, the test run will start Specmatic
+Studio from that jar instead of using Docker.
+
+```bash
+SPECMATIC_STUDIO_JAR_URL="https://repo.example.com/executable-all-1.8.1.jar" \
+SPECMATIC_STUDIO_JAR_OVERWRITE=false \
+npx playwright test
+```
+
+What happens in jar mode:
+
+- The jar is downloaded into the OS temp directory and reused on later runs.
+- Set `SPECMATIC_STUDIO_JAR_OVERWRITE=true` to force a fresh download.
+- The test run starts `java -jar <downloaded-jar> studio --port 9000`.
+- Playwright uses `http://127.0.0.1:9000/_specmatic/studio` as the `BASE_URL` for the run.
+- If Java is not installed or `java` is not available on `PATH`, the run fails with a clear error.
+- If port `9000` is already in use, the run fails with a clear error.
+- Global teardown stops the Java process after the tests complete.
+
 ### Running Tests by Tag
 
 To run tests with a specific tag (e.g., `@dashboard-overview`), use the following npm script:
