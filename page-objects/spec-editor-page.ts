@@ -2,6 +2,34 @@ import { Locator, Page, expect } from "@playwright/test";
 
 export class SpecEditorPage {
   constructor(private readonly page: Page) {}
+
+  async getDocumentText(
+    content: Locator,
+    scroller: Locator,
+    lines: Locator,
+  ): Promise<string> {
+    await expect(content).toBeVisible({ timeout: 10000 });
+
+    const textFromApi = await content.evaluate((el) => {
+      const cmEditor = el.closest(".cm-editor") as any;
+      const view = cmEditor?.cmView?.view;
+      return view?.state?.doc?.toString?.() ?? "";
+    });
+
+    if (textFromApi.trim().length > 0) {
+      return textFromApi.trim();
+    }
+
+    await this.loadFullEditorDocument(scroller);
+    const textFromLines = (await lines.allInnerTexts()).join("\n").trim();
+
+    if (textFromLines.length === 0) {
+      throw new Error("Could not read text from the spec editor");
+    }
+
+    return textFromLines;
+  }
+
   async loadFullEditorDocument(scroller: Locator): Promise<void> {
     await expect(scroller).toBeVisible({ timeout: 10000 });
 

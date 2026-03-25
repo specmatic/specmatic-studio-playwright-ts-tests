@@ -22,11 +22,14 @@ export class ServiceSpecConfigPage extends BasePage {
   readonly saveBtn: Locator;
   private readonly specSection: Locator;
   private readonly contractTestTab: Locator;
+  readonly editorContent: Locator;
+  readonly editorScroller: Locator;
   readonly editorLines: Locator;
   readonly alertMsg: Locator;
   readonly validationErrorBtn: Locator;
   readonly errorContent: Locator;
   private readonly bccTestButton: Locator;
+  private readonly dictionaryGenerateButton: Locator;
   private readonly alertMessage: Locator;
   private readonly alertDismissButton: Locator;
   private readonly bccErrorToggle: Locator;
@@ -58,6 +61,8 @@ export class ServiceSpecConfigPage extends BasePage {
       .locator('button[data-validate="/openapi"], button.savebtn.save')
       .first();
     this.openApiTabPage = new OpenAPISpecTabPage(this);
+    this.editorContent = this.specSection.locator(".cm-content").first();
+    this.editorScroller = this.specSection.locator(".cm-scroller").first();
     this.editorLines = this.specSection.locator(".cm-content .cm-line");
     this.contractTestTab = page.locator('li.tab[data-type="test"]').first();
     this.alertMsg = page.locator(".alert-msg p");
@@ -69,6 +74,7 @@ export class ServiceSpecConfigPage extends BasePage {
       .locator(".bcc-errors-content");
 
     this.bccTestButton = this.specSection.locator("#bcc-test-btn");
+    this.dictionaryGenerateButton = this.specSection.locator("button.dictGen");
     this.alertMessage = this.page.locator(".alert-msg");
     this.alertDismissButton = this.alertMessage.locator("button");
     this.bccErrorToggle = this.specSection.locator(".bcc-errors-btn");
@@ -153,9 +159,9 @@ export class ServiceSpecConfigPage extends BasePage {
 
   async editSpecInEditor(searchText: string, replaceText: string) {
     await test.step(`Edit spec in editor: '${searchText}' -> '${replaceText}'`, async () => {
-      const content = this.specSection.locator(".cm-content").first();
-      const scroller = this.specSection.locator(".cm-scroller").first();
-      const lines = this.specSection.locator(".cm-content .cm-line");
+      const content = this.editorContent;
+      const scroller = this.editorScroller;
+      const lines = this.editorLines;
 
       await expect(content).toBeVisible({ timeout: 10000 });
 
@@ -211,9 +217,8 @@ export class ServiceSpecConfigPage extends BasePage {
   async deleteSpecLinesInEditor(searchText: string, lineCount: number = 1) {
     await test.step(`Delete ${lineCount} spec line(s) starting with '${searchText}'`, async () => {
       const lines = this.specSection.locator(".cm-content .cm-line");
+      const editorContent = this.editorContent;
       await expect(lines.first()).toBeVisible({ timeout: 10000 });
-
-      const editorContent = this.specSection.locator(".cm-content");
       await editorContent.click();
       await this.page.keyboard.press("Control+End");
       await this.page.waitForTimeout(300);
@@ -244,9 +249,8 @@ export class ServiceSpecConfigPage extends BasePage {
 
   private async verifyTextHighlightedInEditor(text: string) {
     await test.step(`Visual evidence: highlight '${text}' in editor`, async () => {
-      const editorContent = this.specSection.locator(".cm-content");
-      await expect(editorContent).toBeVisible({ timeout: 10000 });
-      await editorContent.click();
+      await expect(this.editorContent).toBeVisible({ timeout: 10000 });
+      await this.editorContent.click();
 
       await this.page.keyboard.press("Control+f");
       await this.page.keyboard.type(text);
@@ -316,8 +320,7 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   private async scrollEditorToRevealAllLines() {
-    const editorContent = this.specSection.locator(".cm-content");
-    await editorContent.click();
+    await this.editorContent.click();
 
     await this.page.keyboard.press("Control+End");
     await this.page.waitForTimeout(400);
@@ -398,10 +401,70 @@ export class ServiceSpecConfigPage extends BasePage {
     return (await this.alertMessage.locator("pre").innerText()).trim();
   }
 
+  async getAlertTitleText(): Promise<string> {
+    return (await this.alertMessage.locator("p").innerText()).trim();
+  }
+
   async dismissAlert() {
     await this.alertDismissButton.click();
     await this.alertMessage.waitFor({ state: "hidden" });
     await takeAndAttachScreenshot(this.page, "dismissing alert");
+  }
+
+  async generateDictionary() {
+    await test.step("Generate dictionary", async () => {
+      await expect(this.dictionaryGenerateButton).toBeVisible({
+        timeout: 10000,
+      });
+      await this.dictionaryGenerateButton.click();
+      await expect(this.page.locator("#alert-container .alert-msg.success"))
+        .toBeVisible({
+          timeout: 10000,
+        });
+      await takeAndAttachScreenshot(
+        this.page,
+        "dictionary-generated",
+        this.eyes,
+      );
+    });
+  }
+
+  async assertGeneratedDictionaryDialog(expectedDictionaryPath: string) {
+    await test.step("Assert generated dictionary dialog", async () => {
+      await expect(this.page.locator("#alert-container .alert-msg.success p"))
+        .toHaveText("Generated Dictionary", {
+          timeout: 10000,
+        });
+      await expect(
+        this.page.locator("#alert-container .alert-msg.success pre"),
+      ).toHaveText(expectedDictionaryPath);
+    });
+  }
+
+  async getEditorDocumentText(): Promise<string> {
+    return this.specEditorHelper.getDocumentText(
+      this.editorContent,
+      this.editorScroller,
+      this.editorLines,
+    );
+  }
+
+  async replaceEditorDocumentText(updatedContent: string) {
+    await test.step("Replace full editor content", async () => {
+      await expect(this.editorContent).toBeVisible({ timeout: 10000 });
+      await this.editorContent.click();
+      await this.page.keyboard.press("ControlOrMeta+A");
+      await this.page.keyboard.insertText(updatedContent);
+      await this.page.waitForTimeout(300);
+      await this.editorScroller.evaluate((el) => {
+        el.scrollTop = 0;
+      });
+      await takeAndAttachScreenshot(
+        this.page,
+        "replaced-editor-document-content",
+        this.eyes,
+      );
+    });
   }
 
   async toggleBccErrorSection(shouldExpand: boolean) {
