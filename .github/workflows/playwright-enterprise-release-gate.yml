@@ -78,6 +78,23 @@ jobs:
         run: |
           set -euo pipefail
           ENTERPRISE_ARTIFACT_URL="${ENTERPRISE_ARTIFACT_URL:-}"
+          CONCLUSION="failure"
+          SUMMARY="Playwright callback reported failure."
+          if [ "${GATE_RESULT}" = "success" ]; then
+            CONCLUSION="success"
+            SUMMARY="Playwright callback reported success."
+          fi
+
+          # Best-effort direct completion of the enterprise check-run so the status
+          # doesn't stay in-progress if callback workflow execution has issues.
+          if [ "${GATE_SOURCE}" = "main_push" ] && [ -n "${ENTERPRISE_CHECK_RUN_ID:-}" ]; then
+            curl -sS -X PATCH \
+              -H "Authorization: Bearer ${SPECMATIC_GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${CALLBACK_REPOSITORY}/check-runs/${ENTERPRISE_CHECK_RUN_ID}" \
+              -d '{"status":"completed","conclusion":"'"${CONCLUSION}"'","details_url":"'"${PLAYWRIGHT_RUN_URL}"'","output":{"title":"Playwright Gate","summary":"'"${SUMMARY}"'"}}' || true
+          fi
+
           echo "Sending callback for correlation_id=${CORRELATION_ID} with result=${GATE_RESULT}, enterprise_sha=${ENTERPRISE_SHA}, playwright_sha=${PLAYWRIGHT_SHA}"
           curl -sS -X POST \
             -H "Authorization: Bearer ${SPECMATIC_GITHUB_TOKEN}" \
