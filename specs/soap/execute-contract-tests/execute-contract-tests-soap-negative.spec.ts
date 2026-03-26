@@ -5,7 +5,7 @@ import { INVENTORY_WSDL_CONTRACT_TESTS } from "../../specNames";
 const INVALID_SERVICE_URL = "http://localhost:8080";
 const INVALID_PORT_URL = "http://inventory-api:9999/ws";
 const PREREQ_ERROR_SUMMARY =
-  "Tests could not run due to errors in specification or example(s)";
+  "Tests could not run due to specification/example errors and governance criteria were not satisfied";
 
 test.describe("SOAP Inventory Contract Testing - Negative Scenarios", () => {
   let contractPage: ApiContractPage;

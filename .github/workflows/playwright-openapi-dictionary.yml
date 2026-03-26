@@ -1,0 +1,16 @@
+name: Studio - OpenAPI Generate Dictionary
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+jobs:
+  generate-dictionary:
+    uses: ./.github/workflows/playwright-test-group.yml
+    with:
+      test_path: specs/openapi/dictionary
+      artifact_name: generate-dictionary
+      group_name: dictionary
+    secrets:
+      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+      SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
