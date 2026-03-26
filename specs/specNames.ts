@@ -33,6 +33,10 @@ export const PRODUCT_SEARCH_BFF_SPEC_BACKWARD_INCOMPATIBLE =
   "test-openapi/bcc/product_search_bff_v5_backward_incompatibility.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO =
   "test-openapi/spec-editing/product_search_bff_v5_fix_typo.yaml";
+export const PRODUCT_SEARCH_BFF_SPEC_GENERATE_DICTIONARY =
+  "test-openapi/spec-editing/product_search_bff_v5_dictionary_generation.yaml";
+export const PRODUCT_SEARCH_BFF_SPEC_GENERATE_MORE_FROM_DICTIONARY =
+  "test-openapi/spec-editing/product_search_bff_v5_dictionary_generate_more";
 export const PRODUCT_SEARCH_BFF_SPEC_SAVE_INVALID_SPEC =
   "test-openapi/spec-editing/product_search_bff_v5_save_invalid_spec.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_UPDATE =

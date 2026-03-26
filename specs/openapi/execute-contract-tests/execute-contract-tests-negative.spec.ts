@@ -35,7 +35,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
       await test.step("Verify prerequisite error is visible", async () => {
         await contractPage.verifyPrereqErrorVisible(
-          "Tests could not run due to errors in specification or example(s)",
+          "Tests could not run due to specification/example errors and governance criteria were not satisfied",
         );
       });
     },
@@ -57,7 +57,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
       await test.step("Verify prerequisite error is visible", async () => {
         await contractPage.verifyPrereqErrorVisible(
-          "Tests could not run due to errors in specification or example(s)",
+          "Tests could not run due to specification/example errors and governance criteria were not satisfied",
         );
       });
     },

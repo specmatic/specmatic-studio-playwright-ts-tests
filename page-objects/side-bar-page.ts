@@ -71,12 +71,27 @@ export class SideBarPage {
       }
 
       await expect(specLocator).toBeVisible({ timeout: 5000 });
+      await specLocator.scrollIntoViewIfNeeded();
+      await this.page.waitForTimeout(200);
 
-      await specLocator.evaluate((node) =>
-        node.scrollIntoView({ block: "center", behavior: "smooth" }),
-      );
+      let clickSuccessful = false;
+      let lastClickError: unknown;
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        try {
+          await expect(specLocator).toBeVisible({ timeout: 5000 });
+          await specLocator.click({ timeout: 5000 });
+          clickSuccessful = true;
+          break;
+        } catch (error) {
+          lastClickError = error;
+          await this.page.waitForTimeout(250 * attempt);
+          await specLocator.scrollIntoViewIfNeeded();
+        }
+      }
 
-      await specLocator.click();
+      if (!clickSuccessful) {
+        throw lastClickError;
+      }
 
       await this.closeSidebar();
     });

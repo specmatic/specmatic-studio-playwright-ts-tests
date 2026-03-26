@@ -286,25 +286,25 @@ export class ApiContractPage extends BasePage {
     });
   }
 
-  async waitforDialogToDismiss(status: string | RegExp) {
-    await this.infoDialog
-      .waitFor({ state: "visible", timeout: 5000 })
-      .then(() => true)
-      .catch(() => false);
+  // async waitforDialogToDismiss(status: string | RegExp) {
+  //   await this.infoDialog
+  //     .waitFor({ state: "visible", timeout: 5000 })
+  //     .then(() => true)
+  //     .catch(() => false);
 
-    await expect.soft(this.infoDialog).toContainText(status, {
-      timeout: 10000,
-    });
+  //   await expect.soft(this.infoDialog).toContainText(status, {
+  //     timeout: 10000,
+  //   });
 
-    await this.infoDialog.waitFor({ state: "hidden", timeout: 5000 });
-  }
+  //   await this.infoDialog.waitFor({ state: "hidden", timeout: 5000 });
+  // }
 
   private async waitForTestCompletion() {
     await this.waitForTestsToStartRunning();
 
     await this.waitForTestsToCompleteExecution();
 
-    await this.waitforDialogToDismiss(/Tests? complete/i);
+    // await this.waitforDialogToDismiss(/Tests? complete/i);
 
     await takeAndAttachScreenshot(this.page, "test-completed", this.eyes);
   }

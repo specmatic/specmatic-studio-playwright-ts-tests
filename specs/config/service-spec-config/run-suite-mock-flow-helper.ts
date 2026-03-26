@@ -44,6 +44,8 @@ type MockBackedRunOptions = {
   buildCompletedLogLines: (mockUrl: string) => string[];
   runningScreenshotName: string;
   completedScreenshotName: string;
+  terminalState?: "error" | "success";
+  terminalStatus?: string;
 };
 
 export function createMockFlowPages(page: Page, eyes: any, testInfo: TestInfo) {
@@ -178,6 +180,8 @@ export async function runMockBackedConfigFlow({
   buildCompletedLogLines,
   runningScreenshotName,
   completedScreenshotName,
+  terminalState = "success",
+  terminalStatus = "Completed",
 }: MockBackedRunOptions) {
   const { mockPage, configPage, contractPage } = createMockFlowPages(
     page,
@@ -209,8 +213,8 @@ export async function runMockBackedConfigFlow({
     configPage,
     page,
     eyes,
-    "success",
-    "Completed",
+    terminalState,
+    terminalStatus,
     buildCompletedLogLines(mockUrl),
     completedScreenshotName,
   );
@@ -261,10 +265,7 @@ async function expectExecutionLog(
     const logText = await configPage.executionLog.innerText().catch(() => "");
     for (const line of expectedLogLines) {
       expect
-        .soft(
-          logText.includes(line),
-          `Execution log should contain: ${line}`,
-        )
+        .soft(logText.includes(line), `Execution log should contain: ${line}`)
         .toBe(true);
     }
   }
@@ -285,9 +286,7 @@ async function assertExecutionDropDown(
       timeout: 15000,
     });
   } catch {
-    expect
-      .soft(await dropdown.getAttribute("data-state"))
-      .toBe(state);
+    expect.soft(await dropdown.getAttribute("data-state")).toBe(state);
   }
   expect.soft(await dropdown.getAttribute("open")).toBe("");
 

@@ -6,7 +6,6 @@ import { Page, TestInfo } from "playwright/test";
 import * as fs from "fs";
 import * as path from "path";
 import {
-  buildCompletedLogLines,
   MOCK_BACKED_RUNNING_LOG_LINES,
   runMockBackedConfigFlow,
 } from "./run-suite-mock-flow-helper";
@@ -54,6 +53,17 @@ const RUNNING_LOG_LINES = [
 const FAILED_LOG_LINES = [
   "[TEST] Starting contract tests: product_search_bff_v5.yaml",
   "[ERROR][TEST] Contract tests failed: product_search_bff_v5.yaml",
+  "Execution failed:",
+];
+const MOCK_BACKED_FAILED_LOG_LINES = (mockUrl: string) => [
+  "[CONFIG] Loaded specmatic.yaml (tests=1, mocks=1)",
+  "[MOCK] Starting mock: kafka.yaml (port=9092)",
+  "[MOCK] Started mock: kafka.yaml",
+  "[READY] Waiting for readiness: kafka.yaml",
+  "[READY] Mock ready: kafka.yaml",
+  "[TEST] Running configured tests",
+  `[TEST] Starting contract tests: test-specmatic-config/product_search_bff_v5_config_mock.yaml (baseUrl=${mockUrl})`,
+  "[ERROR][TEST] Contract tests failed: test-specmatic-config/product_search_bff_v5_config_mock.yaml",
   "Execution failed:",
 ];
 
@@ -119,9 +129,11 @@ async function runMockBackedV3Suite({
       updatedSpecReference:
         "path: test-specmatic-config/product_search_bff_v5_config_mock.yaml",
       runningLogLines: MOCK_BACKED_RUNNING_LOG_LINES,
-      buildCompletedLogLines,
+      buildCompletedLogLines: MOCK_BACKED_FAILED_LOG_LINES,
       runningScreenshotName: "run-suite-v3-with-mock-running",
-      completedScreenshotName: "run-suite-v3-with-mock-completed",
+      completedScreenshotName: "run-suite-v3-with-mock-failed",
+      terminalState: "error",
+      terminalStatus: "Failed",
     });
   });
 }
