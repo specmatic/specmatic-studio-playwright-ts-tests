@@ -77,7 +77,7 @@ jobs:
           PLAYWRIGHT_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
-          ENTERPRISE_ARTIFACT_URL="${ENTERPRISE_ARTIFACT_URL:-}"
+          SPECMATIC_STUDIO_JAR_URL="${SPECMATIC_STUDIO_JAR_URL:-}"
           CONCLUSION="failure"
           SUMMARY="Playwright callback reported failure."
           if [ "${GATE_RESULT}" = "success" ]; then
@@ -100,4 +100,4 @@ jobs:
             -H "Authorization: Bearer ${SPECMATIC_GITHUB_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${CALLBACK_REPOSITORY}/dispatches" \
-            -d '{"event_type":"'"${CALLBACK_EVENT_TYPE}"'","client_payload":{"correlation_id":"'"${CORRELATION_ID}"'","result":"'"${GATE_RESULT}"'","gate_source":"'"${GATE_SOURCE}"'","enterprise_run_id":"'"${ENTERPRISE_RUN_ID}"'","enterprise_sha":"'"${ENTERPRISE_SHA}"'","enterprise_check_run_id":"'"${ENTERPRISE_CHECK_RUN_ID}"'","enterprise_artifact_url":"'"${ENTERPRISE_ARTIFACT_URL}"'","playwright_repo":"'"${GITHUB_REPOSITORY}"'","playwright_sha":"'"${PLAYWRIGHT_SHA}"'","playwright_run_id":"'"${PLAYWRIGHT_RUN_ID}"'","playwright_run_url":"'"${PLAYWRIGHT_RUN_URL}"'"}}'
+            -d '{"event_type":"'"${CALLBACK_EVENT_TYPE}"'","client_payload":{"correlation_id":"'"${CORRELATION_ID}"'","result":"'"${GATE_RESULT}"'","gate_source":"'"${GATE_SOURCE}"'","enterprise_run_id":"'"${ENTERPRISE_RUN_ID}"'","enterprise_sha":"'"${ENTERPRISE_SHA}"'","enterprise_check_run_id":"'"${ENTERPRISE_CHECK_RUN_ID}"'","enterprise_artifact_url":"'"${SPECMATIC_STUDIO_JAR_URL}"'","playwright_repo":"'"${GITHUB_REPOSITORY}"'","playwright_sha":"'"${PLAYWRIGHT_SHA}"'","playwright_run_id":"'"${PLAYWRIGHT_RUN_ID}"'","playwright_run_url":"'"${PLAYWRIGHT_RUN_URL}"'"}}'
