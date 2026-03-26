@@ -1,5 +1,6 @@
 import { expect, test } from "../../../utils/eyesFixture";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
+import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC_GENERATE_DICTIONARY } from "../../specNames";
 
 interface DictionaryTestContext {
@@ -57,6 +58,7 @@ async function generateDictionaryAndReadContents(
   page: any,
   testInfo: any,
   eyes: any,
+  runLabel: string,
 ) {
   await context.sourceSpecPage.generateDictionary();
   await context.sourceSpecPage.assertGeneratedDictionaryDialog(
@@ -71,7 +73,15 @@ async function generateDictionaryAndReadContents(
     testInfo,
     eyes,
   );
-  return dictionaryPage.getEditorDocumentText();
+  const dictionaryContent = await dictionaryPage.getEditorDocumentText();
+  await page.waitForTimeout(300);
+  await takeAndAttachScreenshot(
+    page,
+    `dictionary-editor-opened-${runLabel}`,
+    eyes,
+  );
+
+  return dictionaryContent;
 }
 
 test.describe("Generate Dictionary", () => {
@@ -105,6 +115,7 @@ test.describe("Generate Dictionary", () => {
             page,
             testInfo,
             eyes,
+            "first-run",
           );
         expect(firstGeneratedDictionaryContents).not.toBe("");
       });
@@ -117,6 +128,7 @@ test.describe("Generate Dictionary", () => {
             page,
             testInfo,
             eyes,
+            "second-run",
           );
 
         expect(secondGeneratedDictionaryContents).toBe(
