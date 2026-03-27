@@ -347,6 +347,23 @@ export class ApiContractPage extends BasePage {
       await this.verifySidebarStatus(this.specName!, "Running");
     } catch (e) {
       await this.handlePrereqErrorIfVisible();
+
+      const startedAfterWarning = await expect
+        .poll(this.pollDataRunning, {
+          timeout: 10000,
+          intervals: [1000, 2000],
+          message:
+            "Waiting for contract tests to start after prerequisite warning",
+        })
+        .toBe("true")
+        .then(() => true)
+        .catch(() => false);
+
+      if (startedAfterWarning) {
+        await this.verifySidebarStatus(this.specName!, "Running");
+        return;
+      }
+
       throw new Error(`Contract tests did not start running: ${e}`);
     }
   }
@@ -902,6 +919,19 @@ export class ApiContractPage extends BasePage {
 
     console.error(`Prerequisite error summary: ${summaryText}`);
     console.error(`Prerequisite error detail:  ${detailedMessage}`);
+
+    if (isMessageVisible) {
+      await summary.click();
+      await expect(message).toBeHidden({ timeout: 5000 }).catch(() => {
+        console.warn(
+          "Prerequisite warning detail did not collapse after clicking summary again",
+        );
+      });
+      await takeAndAttachScreenshot(
+        this.page,
+        "contract-prereq-error-collapsed-after-expand",
+      );
+    }
   }
 
   async clickAsyncRunContractTests() {

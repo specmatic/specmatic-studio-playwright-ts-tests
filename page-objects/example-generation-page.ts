@@ -358,6 +358,51 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+  async deleteGeneratedExampleForPath(path: string, responseCode: number) {
+    await test.step(
+      `Delete generated example for /${path} ${responseCode}`,
+      async () => {
+        const iframe = await this.waitForExamplesIFrame();
+        const generatedRow = iframe.locator(
+          `//tr[@data-raw-path="/${path}" and @data-example-relative-path and .//td[@class='response-cell']/p[text()="${responseCode}"]]`,
+        );
+        await expect(generatedRow.first()).toBeVisible({ timeout: 5000 });
+
+        const generatedFilePath =
+          await generatedRow.first().getAttribute("data-example-relative-path");
+        const rowCheckbox = generatedRow
+          .first()
+          .locator('input[type="checkbox"]')
+          .first();
+        await expect(rowCheckbox).toBeVisible({ timeout: 3000 });
+        await rowCheckbox.check({ force: true });
+
+        await takeAndAttachScreenshot(
+          this.page,
+          `selected-generated-example-${path}-${responseCode}`,
+        );
+
+        const bulkDeleteBtn = iframe.locator(this.bulkDeleteBtnSelector);
+        await expect(bulkDeleteBtn).toBeVisible({ timeout: 3000 });
+        await bulkDeleteBtn.click();
+        await this.verifyTitleAndCloseDialog("Delete Examples Complete");
+
+        if (generatedFilePath) {
+          await expect(
+            iframe.locator(
+              `tr[data-example-relative-path="${generatedFilePath}"]`,
+            ),
+          ).toHaveCount(0, { timeout: 5000 });
+        }
+
+        await takeAndAttachScreenshot(
+          this.page,
+          `deleted-generated-example-${path}-${responseCode}`,
+        );
+      },
+    );
+  }
+
   private async selectAll(iframe: import("@playwright/test").Frame) {
     const selectAll = iframe.locator(this.selectAllCheckboxSelector);
     await selectAll.waitFor({ timeout: 3000 });
@@ -582,39 +627,36 @@ export class ExampleGenerationPage extends BasePage {
   async getDialogTitleAndMessageIfPresent(
     timeout = 5000,
   ): Promise<[string, string] | null> {
-    return await test.step(
-      `Get dialog title and message if present`,
-      async () => {
-        console.log(`\tGetting dialog title and message if present`);
-        const { alert } = await this.getAlertContainerFrameAndLocator();
-        const dialogContent = alert.locator("p, pre").first();
-        const isDialogVisible = await dialogContent
-          .waitFor({ state: "visible", timeout })
-          .then(() => true)
-          .catch(() => false);
+    return await test.step(`Get dialog title and message if present`, async () => {
+      console.log(`\tGetting dialog title and message if present`);
+      const { alert } = await this.getAlertContainerFrameAndLocator();
+      const dialogContent = alert.locator("p, pre").first();
+      const isDialogVisible = await dialogContent
+        .waitFor({ state: "visible", timeout })
+        .then(() => true)
+        .catch(() => false);
 
-        if (!isDialogVisible) {
-          console.warn(
-            `\tDialog content did not appear within ${timeout}ms, continuing without blocking the test`,
-          );
-          await takeAndAttachScreenshot(this.page, `dialog-not-visible`);
-          return null;
-        }
+      if (!isDialogVisible) {
+        console.warn(
+          `\tDialog content did not appear within ${timeout}ms, continuing without blocking the test`,
+        );
+        await takeAndAttachScreenshot(this.page, `dialog-not-visible`);
+        return null;
+      }
 
-        await takeAndAttachScreenshot(this.page, `dialog-title-and-message`);
-        const title = await this.getDialogTitle(alert);
-        const message = await this.getDialogMessage(alert);
+      await takeAndAttachScreenshot(this.page, `dialog-title-and-message`);
+      const title = await this.getDialogTitle(alert);
+      const message = await this.getDialogMessage(alert);
 
-        const closeButton = alert.locator("button").first();
-        if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-          await closeButton.click();
-          await this.page.waitForTimeout(1000);
-          await expect(alert).toBeHidden({ timeout: 5000 });
-        }
+      const closeButton = alert.locator("button").first();
+      if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await closeButton.click();
+        await this.page.waitForTimeout(1000);
+        await expect(alert).toBeHidden({ timeout: 5000 });
+      }
 
-        return [title, message];
-      },
-    );
+      return [title, message];
+    });
   }
 
   private async waitForInlineToComplete(
@@ -1207,6 +1249,24 @@ export class ExampleGenerationPage extends BasePage {
         if (fullText) return fullText;
         return el.textContent?.trim() ?? "";
       });
+    });
+  }
+
+  async captureCurrentExampleView(
+    screenshotName: string,
+    withVisualValidation = true,
+  ): Promise<void> {
+    await test.step(`Capture current example view: '${screenshotName}'`, async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      await expect(editor).toBeVisible({ timeout: 5000 });
+      await editor.click();
+      await this.page.waitForTimeout(250);
+      await takeAndAttachScreenshot(
+        this.page,
+        screenshotName,
+        withVisualValidation ? this.eyes : undefined,
+      );
     });
   }
 

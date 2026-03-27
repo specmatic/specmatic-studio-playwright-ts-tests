@@ -23,7 +23,7 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
     "Verify error for invalid service URL",
     { tag: ["@test", "@negative", "@wrongServiceURL", "@eyes"] },
     async () => {
-      const invalidUrl = "http://ww.gag.com";
+      const invalidUrl = "http://localhost:3124";
 
       await test.step("Enter invalid service URL", async () => {
         await contractPage.enterServiceUrl(invalidUrl);

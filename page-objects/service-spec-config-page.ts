@@ -95,7 +95,20 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async openSpecTab() {
-    return this.openApiTabPage.openSpecTab();
+    return test.step("Open Spec tab", async () => {
+      await this.openApiTabPage.openSpecTab(this.specBtn);
+
+      const editorVisible = await this.editorContent
+        .isVisible()
+        .catch(() => false);
+
+      if (!editorVisible) {
+        await this.page.waitForTimeout(500);
+        await this.openApiTabPage.openSpecTab(this.specBtn);
+      }
+
+      await expect(this.editorContent).toBeVisible({ timeout: 15000 });
+    });
   }
   async openContractTestTab() {
     await test.step(`Open Contract Test tab`, async () => {
@@ -158,6 +171,14 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async editSpecInEditor(searchText: string, replaceText: string) {
+    await this.editSpecInEditorByOccurrence(searchText, replaceText, 0);
+  }
+
+  async editSpecInEditorByOccurrence(
+    searchText: string,
+    replaceText: string,
+    occurrenceIndex: number,
+  ) {
     await test.step(`Edit spec in editor: '${searchText}' -> '${replaceText}'`, async () => {
       const content = this.editorContent;
       const scroller = this.editorScroller;
@@ -189,7 +210,15 @@ export class ServiceSpecConfigPage extends BasePage {
         );
       }
 
-      const targetLine = lines.filter({ hasText: searchText }).first();
+      const matchingLines = lines.filter({ hasText: searchText });
+      const matchCount = await matchingLines.count();
+      if (matchCount <= occurrenceIndex) {
+        throw new Error(
+          `Could not find occurrence ${occurrenceIndex + 1} of '${searchText}' in the spec editor`,
+        );
+      }
+
+      const targetLine = matchingLines.nth(occurrenceIndex);
       await expect(targetLine).toBeVisible({ timeout: 10000 });
 
       const originalText = await targetLine.innerText();
@@ -307,7 +336,9 @@ export class ServiceSpecConfigPage extends BasePage {
     await test.step("Save spec and verify success dialog", async () => {
       await this.clickSaveOpenApi();
 
-      const saveAlert = this.page.locator("#alert-container .alert-msg.success");
+      const saveAlert = this.page.locator(
+        "#alert-container .alert-msg.success",
+      );
       await expect(saveAlert).toContainText(/Contents saved/i, {
         timeout: 10000,
       });
@@ -333,6 +364,7 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async editSpec(edits: Edit[]) {
+    await this.openSpecTab();
     await expect(this.editorLines.first()).toBeVisible({ timeout: 10000 });
     await this.scrollEditorToRevealAllLines();
 
@@ -406,8 +438,25 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async dismissAlert() {
-    await this.alertDismissButton.click();
-    await this.alertMessage.waitFor({ state: "hidden" });
+    const visibleAlert = this.page
+      .locator("#alert-container .alert-msg:visible")
+      .first();
+    const isVisible = await visibleAlert.isVisible().catch(() => false);
+
+    if (!isVisible) {
+      return;
+    }
+
+    const dismissButton = visibleAlert.locator("button").first();
+    const buttonVisible = await dismissButton.isVisible().catch(() => false);
+
+    if (buttonVisible) {
+      await dismissButton.click();
+    }
+
+    await expect(visibleAlert)
+      .toBeHidden({ timeout: 5000 })
+      .catch(() => {});
     await takeAndAttachScreenshot(this.page, "dismissing alert");
   }
 
@@ -417,10 +466,11 @@ export class ServiceSpecConfigPage extends BasePage {
         timeout: 10000,
       });
       await this.dictionaryGenerateButton.click();
-      await expect(this.page.locator("#alert-container .alert-msg.success"))
-        .toBeVisible({
-          timeout: 10000,
-        });
+      await expect(
+        this.page.locator("#alert-container .alert-msg.success"),
+      ).toBeVisible({
+        timeout: 10000,
+      });
       await takeAndAttachScreenshot(
         this.page,
         "dictionary-generated",
@@ -431,10 +481,11 @@ export class ServiceSpecConfigPage extends BasePage {
 
   async assertGeneratedDictionaryDialog(expectedDictionaryPath: string) {
     await test.step("Assert generated dictionary dialog", async () => {
-      await expect(this.page.locator("#alert-container .alert-msg.success p"))
-        .toHaveText("Generated Dictionary", {
-          timeout: 10000,
-        });
+      await expect(
+        this.page.locator("#alert-container .alert-msg.success p"),
+      ).toHaveText("Generated Dictionary", {
+        timeout: 10000,
+      });
       await expect(
         this.page.locator("#alert-container .alert-msg.success pre"),
       ).toHaveText(expectedDictionaryPath);
@@ -612,14 +663,11 @@ export class ServiceSpecConfigPage extends BasePage {
     });
   }
 
-  async verifyCompatibilityScenario(
-    scenario: {
-      oldText: string;
-      newText: string;
-      expectedMessage: string | RegExp;
-    },
-    reload: boolean = true,
-  ) {
+  async verifyCompatibilityScenario(scenario: {
+    oldText: string;
+    newText: string;
+    expectedMessage: string | RegExp;
+  }) {
     await test.step(`Scenario: ${scenario.oldText} -> ${scenario.newText}`, async () => {
       if (scenario.newText === "") {
         await this.deleteSpecLinesInEditor(scenario.oldText, 1);
@@ -633,11 +681,6 @@ export class ServiceSpecConfigPage extends BasePage {
       expect(actualMessage).toContain(scenario.expectedMessage);
 
       await this.dismissAlert();
-
-      if (reload) {
-        await this.page.reload();
-        await this.openSpecTab();
-      }
     });
   }
 

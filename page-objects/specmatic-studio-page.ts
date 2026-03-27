@@ -12,6 +12,7 @@ export class SpecmaticStudioPage extends BasePage {
   private readonly startProxyBtn: Locator;
   private readonly stopProxyBtn: Locator;
   private readonly proxyStartedAlert: Locator;
+  private readonly proxyErrorAlert: Locator;
   private readonly proxyInfoBox: Locator;
   private readonly proxyTable: Locator;
 
@@ -35,6 +36,7 @@ export class SpecmaticStudioPage extends BasePage {
     this.proxyStartedAlert = page.locator(
       "#alert-container .alert-msg.success",
     );
+    this.proxyErrorAlert = page.locator("#alert-container .alert-msg.error");
     this.proxyInfoBox = page.locator("#proxy .info-message-box");
     this.proxyTable = page.locator("table#proxyTable");
 
@@ -144,7 +146,50 @@ export class SpecmaticStudioPage extends BasePage {
     const replayBtn = this.replayBtnByPath(path);
     const stopBtn = this.stopBtnByPath(path);
     await expect(replayBtn).toBeVisible({ timeout: 5000 });
-    await replayBtn.click();
+
+    const tryStartReplay = async (): Promise<"started" | "error"> => {
+      await replayBtn.click();
+
+      const outcome = await Promise.race([
+        stopBtn
+          .waitFor({ state: "visible", timeout: 10000 })
+          .then(() => "started" as const),
+        this.proxyErrorAlert
+          .waitFor({ state: "visible", timeout: 10000 })
+          .then(() => "error" as const),
+      ]);
+
+      return outcome;
+    };
+
+    let outcome = await tryStartReplay();
+
+    if (outcome === "error") {
+      const errorTitle =
+        (await this.proxyErrorAlert.locator("p").textContent())?.trim() ?? "";
+      const errorDetails =
+        (await this.proxyErrorAlert.locator("pre").textContent())?.trim() ?? "";
+      const dismissButton = this.proxyErrorAlert.locator("button").first();
+
+      if (
+        errorDetails.includes("ConcurrentModificationException") &&
+        (await dismissButton.isVisible().catch(() => false))
+      ) {
+        await dismissButton.click();
+        await expect(this.proxyErrorAlert).toBeHidden({ timeout: 5000 }).catch(
+          () => {},
+        );
+        await this.page.waitForTimeout(1000);
+        outcome = await tryStartReplay();
+      }
+
+      if (outcome === "error") {
+        throw new Error(
+          `Replay failed for path '${path}'. ${errorTitle}${errorDetails ? `: ${errorDetails}` : ""}`,
+        );
+      }
+    }
+
     await expect(stopBtn).toBeVisible({ timeout: 10000 });
     await expect(stopBtn).toHaveText("stop", { timeout: 10000 });
     await takeAndAttachScreenshot(
