@@ -336,7 +336,9 @@ export class ServiceSpecConfigPage extends BasePage {
     await test.step("Save spec and verify success dialog", async () => {
       await this.clickSaveOpenApi();
 
-      const saveAlert = this.page.locator("#alert-container .alert-msg.success");
+      const saveAlert = this.page.locator(
+        "#alert-container .alert-msg.success",
+      );
       await expect(saveAlert).toContainText(/Contents saved/i, {
         timeout: 10000,
       });
@@ -452,7 +454,9 @@ export class ServiceSpecConfigPage extends BasePage {
       await dismissButton.click();
     }
 
-    await expect(visibleAlert).toBeHidden({ timeout: 5000 }).catch(() => {});
+    await expect(visibleAlert)
+      .toBeHidden({ timeout: 5000 })
+      .catch(() => {});
     await takeAndAttachScreenshot(this.page, "dismissing alert");
   }
 
@@ -462,10 +466,11 @@ export class ServiceSpecConfigPage extends BasePage {
         timeout: 10000,
       });
       await this.dictionaryGenerateButton.click();
-      await expect(this.page.locator("#alert-container .alert-msg.success"))
-        .toBeVisible({
-          timeout: 10000,
-        });
+      await expect(
+        this.page.locator("#alert-container .alert-msg.success"),
+      ).toBeVisible({
+        timeout: 10000,
+      });
       await takeAndAttachScreenshot(
         this.page,
         "dictionary-generated",
@@ -476,10 +481,11 @@ export class ServiceSpecConfigPage extends BasePage {
 
   async assertGeneratedDictionaryDialog(expectedDictionaryPath: string) {
     await test.step("Assert generated dictionary dialog", async () => {
-      await expect(this.page.locator("#alert-container .alert-msg.success p"))
-        .toHaveText("Generated Dictionary", {
-          timeout: 10000,
-        });
+      await expect(
+        this.page.locator("#alert-container .alert-msg.success p"),
+      ).toHaveText("Generated Dictionary", {
+        timeout: 10000,
+      });
       await expect(
         this.page.locator("#alert-container .alert-msg.success pre"),
       ).toHaveText(expectedDictionaryPath);
@@ -657,14 +663,11 @@ export class ServiceSpecConfigPage extends BasePage {
     });
   }
 
-  async verifyCompatibilityScenario(
-    scenario: {
-      oldText: string;
-      newText: string;
-      expectedMessage: string | RegExp;
-    },
-    reload: boolean = true,
-  ) {
+  async verifyCompatibilityScenario(scenario: {
+    oldText: string;
+    newText: string;
+    expectedMessage: string | RegExp;
+  }) {
     await test.step(`Scenario: ${scenario.oldText} -> ${scenario.newText}`, async () => {
       if (scenario.newText === "") {
         await this.deleteSpecLinesInEditor(scenario.oldText, 1);
@@ -678,11 +681,6 @@ export class ServiceSpecConfigPage extends BasePage {
       expect(actualMessage).toContain(scenario.expectedMessage);
 
       await this.dismissAlert();
-
-      if (reload) {
-        await this.page.reload();
-        await this.openSpecTab();
-      }
     });
   }
 
