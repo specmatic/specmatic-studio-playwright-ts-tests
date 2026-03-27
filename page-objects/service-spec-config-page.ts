@@ -95,7 +95,20 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async openSpecTab() {
-    return this.openApiTabPage.openSpecTab();
+    return test.step("Open Spec tab", async () => {
+      await this.openApiTabPage.openSpecTab(this.specBtn);
+
+      const editorVisible = await this.editorContent
+        .isVisible()
+        .catch(() => false);
+
+      if (!editorVisible) {
+        await this.page.waitForTimeout(500);
+        await this.openApiTabPage.openSpecTab(this.specBtn);
+      }
+
+      await expect(this.editorContent).toBeVisible({ timeout: 15000 });
+    });
   }
   async openContractTestTab() {
     await test.step(`Open Contract Test tab`, async () => {
@@ -349,6 +362,7 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async editSpec(edits: Edit[]) {
+    await this.openSpecTab();
     await expect(this.editorLines.first()).toBeVisible({ timeout: 10000 });
     await this.scrollEditorToRevealAllLines();
 

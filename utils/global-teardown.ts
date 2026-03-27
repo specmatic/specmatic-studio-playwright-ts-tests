@@ -30,7 +30,24 @@ export default async function globalTeardown() {
           serverUrl,
           apiKey,
         });
-        await batchClose.close();
+        try {
+          await batchClose.close();
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          const isNotFoundError =
+            errorMessage.includes("Not Found(404)") ||
+            errorMessage.includes("status Not Found(404)") ||
+            errorMessage.includes("404");
+
+          if (isNotFoundError) {
+            console.warn(
+              "Applitools batch close returned 404. This can happen when Eyes sessions were already aborted or finalized after a failed test. Continuing teardown.",
+            );
+          } else {
+            throw error;
+          }
+        }
       } else {
         console.warn(
           "APPLITOOLS_API_KEY is not set. Skipping Applitools batch close.",
