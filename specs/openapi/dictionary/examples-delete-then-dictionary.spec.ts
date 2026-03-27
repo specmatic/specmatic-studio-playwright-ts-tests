@@ -6,6 +6,7 @@ import {
   extractJsonStringValue,
   generateDictionaryAndOpenIt,
   openExamplesTab,
+  openSourceSpec,
   type DictionaryExamplesContext,
 } from "./dictionary-test-utils";
 
@@ -129,6 +130,7 @@ async function assertDictionaryReflectsRemainingExamples(
   eyes: any,
   capturedValues: CapturedExampleValues,
 ) {
+  await openSourceSpec(context);
   const dictionaryPage = await generateDictionaryAndOpenIt(
     context,
     page,
