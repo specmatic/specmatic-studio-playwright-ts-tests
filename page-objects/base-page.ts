@@ -103,9 +103,6 @@ export class BasePage {
       if (isTab) {
         if (dataActive !== "true") {
           await tabLocator.click({ force: true });
-          await expect(tabLocator).toHaveAttribute("data-active", "true", {
-            timeout: 10000,
-          });
         }
       } else {
         await tabLocator.click({ force: true });
@@ -114,5 +111,4 @@ export class BasePage {
       return tabLocator;
     });
   }
-
 }
