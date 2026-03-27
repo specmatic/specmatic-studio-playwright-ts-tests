@@ -358,6 +358,51 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+  async deleteGeneratedExampleForPath(path: string, responseCode: number) {
+    await test.step(
+      `Delete generated example for /${path} ${responseCode}`,
+      async () => {
+        const iframe = await this.waitForExamplesIFrame();
+        const generatedRow = iframe.locator(
+          `//tr[@data-raw-path="/${path}" and @data-example-relative-path and .//td[@class='response-cell']/p[text()="${responseCode}"]]`,
+        );
+        await expect(generatedRow.first()).toBeVisible({ timeout: 5000 });
+
+        const generatedFilePath =
+          await generatedRow.first().getAttribute("data-example-relative-path");
+        const rowCheckbox = generatedRow
+          .first()
+          .locator('input[type="checkbox"]')
+          .first();
+        await expect(rowCheckbox).toBeVisible({ timeout: 3000 });
+        await rowCheckbox.check({ force: true });
+
+        await takeAndAttachScreenshot(
+          this.page,
+          `selected-generated-example-${path}-${responseCode}`,
+        );
+
+        const bulkDeleteBtn = iframe.locator(this.bulkDeleteBtnSelector);
+        await expect(bulkDeleteBtn).toBeVisible({ timeout: 3000 });
+        await bulkDeleteBtn.click();
+        await this.verifyTitleAndCloseDialog("Delete Examples Complete");
+
+        if (generatedFilePath) {
+          await expect(
+            iframe.locator(
+              `tr[data-example-relative-path="${generatedFilePath}"]`,
+            ),
+          ).toHaveCount(0, { timeout: 5000 });
+        }
+
+        await takeAndAttachScreenshot(
+          this.page,
+          `deleted-generated-example-${path}-${responseCode}`,
+        );
+      },
+    );
+  }
+
   private async selectAll(iframe: import("@playwright/test").Frame) {
     const selectAll = iframe.locator(this.selectAllCheckboxSelector);
     await selectAll.waitFor({ timeout: 3000 });
