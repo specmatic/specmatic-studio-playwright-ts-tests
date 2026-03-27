@@ -1,8 +1,80 @@
 import { expect, test } from "../../../utils/eyesFixture";
-import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC_GENERATE_MORE_FROM_DICTIONARY } from "../../specNames";
+import {
+  createDictionaryExamplesContext,
+  extractAllJsonStringValues,
+  extractJsonStringValue,
+  generateDictionaryAndOpenIt,
+  openExamplesTab,
+  type DictionaryExamplesContext,
+} from "./dictionary-test-utils";
+
+test.describe("Examples Dictionary Generate More", () => {
+  test(
+    "Generate more examples after updating the dictionary and use the updated request and response values",
+    {
+      tag: [
+        "@spec",
+        "@generateMoreExamplesFromDictionary",
+        "@eyes",
+        "@expected-failure",
+      ],
+    },
+    async ({ page, eyes }, testInfo) => {
+      test.fail(
+        true,
+        "Enum values are not picked in http-response of examples generated with the help of dictionary",
+      );
+
+      const context = createDictionaryExamplesContext(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC_GENERATE_MORE_FROM_DICTIONARY,
+      );
+      let initialGeneratedValues!: InitialGeneratedValues;
+
+      await test.step("Generate initial examples for the endpoints before creating the dictionary", async () => {
+        initialGeneratedValues = await generateInitialExamples(
+          context,
+          page,
+          testInfo,
+          eyes,
+        );
+      });
+
+      await test.step("Generate dictionary and update request and response values", async () => {
+        const dictionaryPage = await generateDictionaryAndOpenIt(
+          context,
+          page,
+          testInfo,
+          eyes,
+        );
+        await updateDictionaryAndSave(dictionaryPage, initialGeneratedValues);
+      });
+
+      await test.step("Generate more /products 201 example and verify the updated name is used", async () => {
+        await openExamplesTab(context, testInfo, eyes);
+        await assertGenerateMoreProductsExampleUsesUpdatedName(
+          context,
+          page,
+          eyes,
+        );
+      });
+
+      await test.step("Generate more /findAvailableProducts 200 example and verify query, header, and response values", async () => {
+        await openExamplesTab(context, testInfo, eyes, false);
+        await assertGenerateMoreFindAvailableProductsExampleUsesUpdatedValues(
+          context,
+          page,
+          eyes,
+        );
+      });
+    },
+  );
+});
 
 const PRODUCTS_PATH = "products";
 const FIND_AVAILABLE_PRODUCTS_PATH = "findAvailableProducts";
@@ -12,38 +84,9 @@ const UPDATED_PRODUCT_NAME = "George";
 const UPDATED_PAGE_SIZE = "876";
 const UPDATED_QUERY_TYPE = "gadget";
 
-interface DictionaryGenerateMoreContext {
-  sourceSpecName: string;
-  dictionarySpecName: string;
-  sourceSpecPage: ServiceSpecConfigPage;
-  examplePage: ExampleGenerationPage;
-}
-
 interface InitialGeneratedValues {
   productName: string;
   pageSize: string;
-}
-
-function getDictionarySpecName(specName: string): string {
-  return specName.replace(/\.yaml$/, "_dictionary.yaml");
-}
-
-function shouldReloadBeforeOpeningDictionary(): boolean {
-  return process.platform === "win32" || process.platform === "linux";
-}
-
-function extractJsonStringValue(
-  content: string,
-  key: string,
-): string | undefined {
-  const match = content.match(new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`));
-  return match?.[1];
-}
-
-function extractAllJsonStringValues(content: string, key: string): string[] {
-  return Array.from(
-    content.matchAll(new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`, "g")),
-  ).map((match) => match[1]);
 }
 
 async function waitForDictionarySections(
@@ -74,7 +117,7 @@ async function waitForDictionarySections(
   return loadedContent;
 }
 
-async function updateDictionaryThroughEditor(
+async function updateDictionaryAndSave(
   dictionaryPage: ServiceSpecConfigPage,
   initialValues: InitialGeneratedValues,
 ) {
@@ -95,80 +138,11 @@ async function updateDictionaryThroughEditor(
     `- ${UPDATED_QUERY_TYPE}`,
     1,
   );
-}
-
-async function openSpecFromSidebar(
-  specPage: ServiceSpecConfigPage,
-  specName: string,
-) {
-  await specPage.gotoHomeAndOpenSidebar();
-  await specPage.sideBar.selectSpec(specName);
-}
-
-async function openSourceSpec(context: DictionaryGenerateMoreContext) {
-  await openSpecFromSidebar(context.sourceSpecPage, context.sourceSpecName);
-  await context.sourceSpecPage.openSpecTab();
-}
-
-async function openExamplesTab(
-  context: DictionaryGenerateMoreContext,
-  testInfo: any,
-  eyes: any,
-  reopenFromSidebar = true,
-) {
-  if (reopenFromSidebar) {
-    await context.examplePage.openExampleGenerationTabForSpec(
-      testInfo,
-      eyes,
-      context.sourceSpecName,
-    );
-    return;
-  }
-
-  await context.examplePage.openExampleGenerationTabFromTab();
-}
-
-async function openDictionarySpec(
-  context: DictionaryGenerateMoreContext,
-  page: any,
-  testInfo: any,
-  eyes: any,
-) {
-  if (shouldReloadBeforeOpeningDictionary()) {
-    await page.reload();
-  }
-
-  const dictionaryPage = new ServiceSpecConfigPage(
-    page,
-    testInfo,
-    eyes,
-    context.dictionarySpecName,
-  );
-
-  await openSpecFromSidebar(dictionaryPage, context.dictionarySpecName);
-  await dictionaryPage.openSpecTab();
-
-  return dictionaryPage;
-}
-
-async function generateDictionaryAndOpenIt(
-  context: DictionaryGenerateMoreContext,
-  page: any,
-  testInfo: any,
-  eyes: any,
-) {
-  await context.sourceSpecPage.generateDictionary();
-  await context.sourceSpecPage.assertGeneratedDictionaryDialog(
-    context.dictionarySpecName,
-  );
-  await context.sourceSpecPage.dismissAlert();
-  await expect(page.locator("#alert-container")).toBeEmpty();
-
-  return openDictionarySpec(context, page, testInfo, eyes);
+  await dictionaryPage.clickSaveAfterEdit();
 }
 
 async function generateInitialExamples(
-  context: DictionaryGenerateMoreContext,
+  context: DictionaryExamplesContext,
   page: any,
   testInfo: any,
   eyes: any,
@@ -213,16 +187,8 @@ async function generateInitialExamples(
   };
 }
 
-async function updateDictionaryAndSave(
-  dictionaryPage: ServiceSpecConfigPage,
-  initialValues: InitialGeneratedValues,
-) {
-  await updateDictionaryThroughEditor(dictionaryPage, initialValues);
-  await dictionaryPage.clickSaveAfterEdit();
-}
-
-async function generateMoreProductsExampleAndAssertName(
-  context: DictionaryGenerateMoreContext,
+async function assertGenerateMoreProductsExampleUsesUpdatedName(
+  context: DictionaryExamplesContext,
   page: any,
   eyes: any,
 ) {
@@ -247,13 +213,12 @@ async function generateMoreProductsExampleAndAssertName(
     productExampleContent,
     "name",
   );
-
   expect(updatedProductName).toBe(UPDATED_PRODUCT_NAME);
   await context.examplePage.goBackFromExample();
 }
 
-async function generateMoreFindAvailableProductsExampleAndAssertValues(
-  context: DictionaryGenerateMoreContext,
+async function assertGenerateMoreFindAvailableProductsExampleUsesUpdatedValues(
+  context: DictionaryExamplesContext,
   page: any,
   eyes: any,
 ) {
@@ -291,77 +256,3 @@ async function generateMoreFindAvailableProductsExampleAndAssertValues(
   expect(rawEditorContent).toContain('"http-response"');
   expect(rawEditorContent).toContain('"body"');
 }
-
-test.describe("Examples Dictionary Generate More", () => {
-  test(
-    "Generate more examples after updating the dictionary and use the updated request and response values",
-    {
-      tag: [
-        "@spec",
-        "@generateMoreExamplesFromDictionary",
-        "@eyes",
-        "@expected-failure",
-      ],
-    },
-    async ({ page, eyes }, testInfo) => {
-      test.fail(
-        true,
-        "Enum values are not picked in http-response of examples generated with the help of dictionary",
-      );
-
-      const sourceSpecName =
-        PRODUCT_SEARCH_BFF_SPEC_GENERATE_MORE_FROM_DICTIONARY;
-      const context: DictionaryGenerateMoreContext = {
-        sourceSpecName,
-        dictionarySpecName: getDictionarySpecName(sourceSpecName),
-        sourceSpecPage: new ServiceSpecConfigPage(
-          page,
-          testInfo,
-          eyes,
-          sourceSpecName,
-        ),
-        examplePage: new ExampleGenerationPage(
-          page,
-          testInfo,
-          eyes,
-          sourceSpecName,
-        ),
-      };
-      let initialGeneratedValues!: InitialGeneratedValues;
-
-      await test.step("Generate initial examples for the endpoints before creating the dictionary", async () => {
-        initialGeneratedValues = await generateInitialExamples(
-          context,
-          page,
-          testInfo,
-          eyes,
-        );
-      });
-
-      await test.step("Generate dictionary and update request and response values", async () => {
-        await openSourceSpec(context);
-        const dictionaryPage = await generateDictionaryAndOpenIt(
-          context,
-          page,
-          testInfo,
-          eyes,
-        );
-        await updateDictionaryAndSave(dictionaryPage, initialGeneratedValues);
-      });
-
-      await test.step("Generate more /products 201 example and verify the updated name is used", async () => {
-        await openExamplesTab(context, testInfo, eyes);
-        await generateMoreProductsExampleAndAssertName(context, page, eyes);
-      });
-
-      await test.step("Generate more /findAvailableProducts 200 example and verify query, header, and response values", async () => {
-        await openExamplesTab(context, testInfo, eyes, false);
-        await generateMoreFindAvailableProductsExampleAndAssertValues(
-          context,
-          page,
-          eyes,
-        );
-      });
-    },
-  );
-});

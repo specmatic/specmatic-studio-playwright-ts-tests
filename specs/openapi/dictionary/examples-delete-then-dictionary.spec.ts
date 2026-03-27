@@ -1,20 +1,59 @@
 import { expect, test } from "../../../utils/eyesFixture";
-import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
-import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC_GENERATE_MORE_FROM_DICTIONARY } from "../../specNames";
+import {
+  createDictionaryExamplesContext,
+  extractJsonStringValue,
+  generateDictionaryAndOpenIt,
+  openExamplesTab,
+  type DictionaryExamplesContext,
+} from "./dictionary-test-utils";
+
+test.describe("Examples Delete Then Dictionary", () => {
+  test(
+    "Generate examples, delete one example, then generate dictionary from the remaining examples",
+    {
+      tag: ["@spec", "@generateDictionaryWithDeletedExamples", "@eyes"],
+    },
+    async ({ page, eyes }, testInfo) => {
+      const context = createDictionaryExamplesContext(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC_GENERATE_MORE_FROM_DICTIONARY,
+      );
+      let capturedValues!: CapturedExampleValues;
+
+      await test.step("Generate examples for multiple endpoints and capture the values to validate later", async () => {
+        capturedValues = await captureInitialExampleValues(
+          context,
+          page,
+          testInfo,
+          eyes,
+        );
+      });
+
+      await test.step("Delete one generated example", async () => {
+        await deleteOneGeneratedExample(context, testInfo, eyes);
+      });
+
+      await test.step("Generate dictionary and validate it reflects the remaining examples", async () => {
+        await assertDictionaryReflectsRemainingExamples(
+          context,
+          page,
+          testInfo,
+          eyes,
+          capturedValues,
+        );
+      });
+    },
+  );
+});
 
 const PRODUCTS_PATH = "products";
 const FIND_AVAILABLE_PRODUCTS_PATH = "findAvailableProducts";
 const PRODUCT_CREATED_STATUS = 201;
 const FIND_AVAILABLE_PRODUCTS_STATUS = 200;
-
-interface DictionaryDeletionContext {
-  sourceSpecName: string;
-  dictionarySpecName: string;
-  sourceSpecPage: ServiceSpecConfigPage;
-  examplePage: ExampleGenerationPage;
-}
 
 interface CapturedExampleValues {
   deletedProductName: string;
@@ -22,55 +61,8 @@ interface CapturedExampleValues {
   retainedQueryType: string;
 }
 
-function getDictionarySpecName(specName: string): string {
-  return specName.replace(/\.yaml$/, "_dictionary.yaml");
-}
-
-function shouldReloadBeforeOpeningDictionary(): boolean {
-  return process.platform === "win32" || process.platform === "linux";
-}
-
-function extractJsonStringValue(
-  content: string,
-  key: string,
-): string | undefined {
-  const match = content.match(new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`));
-  return match?.[1];
-}
-
-async function openSpecFromSidebar(
-  specPage: ServiceSpecConfigPage,
-  specName: string,
-) {
-  await specPage.gotoHomeAndOpenSidebar();
-  await specPage.sideBar.selectSpec(specName);
-}
-
-async function openSourceSpec(context: DictionaryDeletionContext) {
-  await openSpecFromSidebar(context.sourceSpecPage, context.sourceSpecName);
-  await context.sourceSpecPage.openSpecTab();
-}
-
-async function openExamplesTab(
-  context: DictionaryDeletionContext,
-  testInfo: any,
-  eyes: any,
-  reopenFromSidebar = true,
-) {
-  if (reopenFromSidebar) {
-    await context.examplePage.openExampleGenerationTabForSpec(
-      testInfo,
-      eyes,
-      context.sourceSpecName,
-    );
-    return;
-  }
-
-  await context.examplePage.openExampleGenerationTabFromTab();
-}
-
 async function captureInitialExampleValues(
-  context: DictionaryDeletionContext,
+  context: DictionaryExamplesContext,
   page: any,
   testInfo: any,
   eyes: any,
@@ -119,7 +111,7 @@ async function captureInitialExampleValues(
 }
 
 async function deleteOneGeneratedExample(
-  context: DictionaryDeletionContext,
+  context: DictionaryExamplesContext,
   testInfo: any,
   eyes: any,
 ) {
@@ -130,43 +122,14 @@ async function deleteOneGeneratedExample(
   );
 }
 
-async function openDictionarySpec(
-  context: DictionaryDeletionContext,
+async function assertDictionaryReflectsRemainingExamples(
+  context: DictionaryExamplesContext,
   page: any,
   testInfo: any,
   eyes: any,
+  capturedValues: CapturedExampleValues,
 ) {
-  if (shouldReloadBeforeOpeningDictionary()) {
-    await page.reload();
-  }
-
-  const dictionaryPage = new ServiceSpecConfigPage(
-    page,
-    testInfo,
-    eyes,
-    context.dictionarySpecName,
-  );
-
-  await openSpecFromSidebar(dictionaryPage, context.dictionarySpecName);
-  await dictionaryPage.openSpecTab();
-
-  return dictionaryPage;
-}
-
-async function generateDictionaryAndReadContents(
-  context: DictionaryDeletionContext,
-  page: any,
-  testInfo: any,
-  eyes: any,
-) {
-  await context.sourceSpecPage.generateDictionary();
-  await context.sourceSpecPage.assertGeneratedDictionaryDialog(
-    context.dictionarySpecName,
-  );
-  await context.sourceSpecPage.dismissAlert();
-  await expect(page.locator("#alert-container")).toBeEmpty();
-
-  const dictionaryPage = await openDictionarySpec(
+  const dictionaryPage = await generateDictionaryAndOpenIt(
     context,
     page,
     testInfo,
@@ -179,69 +142,7 @@ async function generateDictionaryAndReadContents(
     eyes,
   );
 
-  return dictionaryContent;
+  expect(dictionaryContent).not.toContain(capturedValues.deletedProductName);
+  expect(dictionaryContent).toContain(`- ${capturedValues.retainedPageSize}`);
+  expect(dictionaryContent).toContain(`- ${capturedValues.retainedQueryType}`);
 }
-
-test.describe("Examples Delete Then Dictionary", () => {
-  test(
-    "Generate examples, delete one example, then generate dictionary from the remaining examples",
-    {
-      tag: ["@spec", "@generateDictionaryWithDeletedExamples", "@eyes"],
-    },
-    async ({ page, eyes }, testInfo) => {
-      const sourceSpecName =
-        PRODUCT_SEARCH_BFF_SPEC_GENERATE_MORE_FROM_DICTIONARY;
-      const context: DictionaryDeletionContext = {
-        sourceSpecName,
-        dictionarySpecName: getDictionarySpecName(sourceSpecName),
-        sourceSpecPage: new ServiceSpecConfigPage(
-          page,
-          testInfo,
-          eyes,
-          sourceSpecName,
-        ),
-        examplePage: new ExampleGenerationPage(
-          page,
-          testInfo,
-          eyes,
-          sourceSpecName,
-        ),
-      };
-
-      let capturedValues!: CapturedExampleValues;
-
-      await test.step("Generate examples for multiple endpoints and capture the values to validate later", async () => {
-        capturedValues = await captureInitialExampleValues(
-          context,
-          page,
-          testInfo,
-          eyes,
-        );
-      });
-
-      await test.step("Delete one generated example", async () => {
-        await deleteOneGeneratedExample(context, testInfo, eyes);
-      });
-
-      await test.step("Generate dictionary and validate it reflects the remaining examples", async () => {
-        await openSourceSpec(context);
-        const dictionaryContent = await generateDictionaryAndReadContents(
-          context,
-          page,
-          testInfo,
-          eyes,
-        );
-
-        expect(dictionaryContent).not.toContain(
-          capturedValues.deletedProductName,
-        );
-        expect(dictionaryContent).toContain(
-          `- ${capturedValues.retainedPageSize}`,
-        );
-        expect(dictionaryContent).toContain(
-          `- ${capturedValues.retainedQueryType}`,
-        );
-      });
-    },
-  );
-});

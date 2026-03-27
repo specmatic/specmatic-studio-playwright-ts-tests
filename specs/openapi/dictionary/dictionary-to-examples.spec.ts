@@ -1,8 +1,71 @@
 import { expect, test } from "../../../utils/eyesFixture";
-import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC_DICTIONARY_TO_EXAMPLES } from "../../specNames";
+import {
+  createDictionaryExamplesContext,
+  extractAllJsonStringValues,
+  extractJsonStringValue,
+  generateDictionaryAndOpenIt,
+  openExamplesTab,
+  openSourceSpec,
+  type DictionaryExamplesContext,
+} from "./dictionary-test-utils";
+
+test.describe("Dictionary To Examples", () => {
+  test(
+    "Generated examples pick request and response values from the updated dictionary",
+    {
+      tag: [
+        "@spec",
+        "@generateExamplesFromDictionary",
+        "@eyes",
+        "@expected-failure",
+      ],
+    },
+    async ({ page, eyes }, testInfo) => {
+      test.fail(
+        true,
+        "Enum values are not picked in http-response of examples generated with the help of dictionary",
+      );
+      const context = createDictionaryExamplesContext(
+        page,
+        testInfo,
+        eyes,
+        PRODUCT_SEARCH_BFF_SPEC_DICTIONARY_TO_EXAMPLES,
+      );
+
+      await test.step("Generate dictionary first without generating any examples", async () => {
+        await openSourceSpec(context);
+        const dictionaryPage = await generateDictionaryAndOpenIt(
+          context,
+          page,
+          testInfo,
+          eyes,
+        );
+        await updateDictionaryAndSave(dictionaryPage);
+      });
+
+      await test.step("Generate /products 201 example and verify the updated name is used", async () => {
+        await generateProductsExampleAndAssertName(
+          context,
+          page,
+          testInfo,
+          eyes,
+        );
+      });
+
+      await test.step("Generate /findAvailableProducts 200 example and verify query, header, and response values", async () => {
+        await openExamplesTab(context, testInfo, eyes, false);
+        await generateFindAvailableProductsExampleAndAssertDictionaryValues(
+          context,
+          page,
+          eyes,
+        );
+      });
+    },
+  );
+});
 
 const PRODUCTS_PATH = "products";
 const FIND_AVAILABLE_PRODUCTS_PATH = "findAvailableProducts";
@@ -11,21 +74,6 @@ const FIND_AVAILABLE_PRODUCTS_STATUS = 200;
 const UPDATED_PRODUCT_NAME = "George";
 const UPDATED_PAGE_SIZE = "876";
 const UPDATED_QUERY_TYPE = "gadget";
-
-interface DictionaryExamplesContext {
-  sourceSpecName: string;
-  dictionarySpecName: string;
-  sourceSpecPage: ServiceSpecConfigPage;
-  examplePage: ExampleGenerationPage;
-}
-
-function getDictionarySpecName(specName: string): string {
-  return specName.replace(/\.yaml$/, "_dictionary.yaml");
-}
-
-function shouldReloadBeforeOpeningDictionary(): boolean {
-  return process.platform === "win32" || process.platform === "linux";
-}
 
 function parseJson(content: string): any {
   try {
@@ -42,19 +90,6 @@ function parseJson(content: string): any {
       );
     }
   }
-}
-
-function extractJsonStringValue(content: string, key: string): string | undefined {
-  const match = content.match(
-    new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`),
-  );
-  return match?.[1];
-}
-
-function extractAllJsonStringValues(content: string, key: string): string[] {
-  return Array.from(
-    content.matchAll(new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`, "g")),
-  ).map((match) => match[1]);
 }
 
 function extractPageSizeValues(dictionaryContent: string): string[] {
@@ -127,79 +162,9 @@ async function updateDictionaryThroughEditor(
   );
 }
 
-async function openSpecFromSidebar(
-  specPage: ServiceSpecConfigPage,
-  specName: string,
-) {
-  await specPage.gotoHomeAndOpenSidebar();
-  await specPage.sideBar.selectSpec(specName);
-}
-
-async function openSourceSpec(context: DictionaryExamplesContext) {
-  await openSpecFromSidebar(context.sourceSpecPage, context.sourceSpecName);
-  await context.sourceSpecPage.openSpecTab();
-}
-
-async function openDictionarySpec(
-  context: DictionaryExamplesContext,
-  page: any,
-  testInfo: any,
-  eyes: any,
-) {
-  if (shouldReloadBeforeOpeningDictionary()) {
-    await page.reload();
-  }
-
-  const dictionaryPage = new ServiceSpecConfigPage(
-    page,
-    testInfo,
-    eyes,
-    context.dictionarySpecName,
-  );
-
-  await openSpecFromSidebar(dictionaryPage, context.dictionarySpecName);
-  await dictionaryPage.openSpecTab();
-
-  return dictionaryPage;
-}
-
-async function generateDictionaryAndOpenIt(
-  context: DictionaryExamplesContext,
-  page: any,
-  testInfo: any,
-  eyes: any,
-) {
-  await context.sourceSpecPage.generateDictionary();
-  await context.sourceSpecPage.assertGeneratedDictionaryDialog(
-    context.dictionarySpecName,
-  );
-  await context.sourceSpecPage.dismissAlert();
-  await expect(page.locator("#alert-container")).toBeEmpty();
-
-  return openDictionarySpec(context, page, testInfo, eyes);
-}
-
 async function updateDictionaryAndSave(dictionaryPage: ServiceSpecConfigPage) {
   await updateDictionaryThroughEditor(dictionaryPage);
   await dictionaryPage.clickSaveAfterEdit();
-}
-
-async function openExamplesTab(
-  context: DictionaryExamplesContext,
-  testInfo: any,
-  eyes: any,
-  reopenFromSidebar: boolean = true,
-) {
-  if (reopenFromSidebar) {
-    await context.examplePage.openExampleGenerationTabForSpec(
-      testInfo,
-      eyes,
-      context.sourceSpecName,
-    );
-    return;
-  }
-
-  await context.examplePage.openExampleGenerationTabFromTab();
 }
 
 async function generateProductsExampleAndAssertName(
@@ -265,69 +230,3 @@ async function generateFindAvailableProductsExampleAndAssertDictionaryValues(
   const responseBody = Array.isArray(response?.body) ? response.body : [];
   expect(responseBody.length).toBeGreaterThan(0);
 }
-
-test.describe("Dictionary To Examples", () => {
-  test(
-    "Generated examples pick request and response values from the updated dictionary",
-    {
-      tag: [
-        "@spec",
-        "@generateExamplesFromDictionary",
-        "@eyes",
-        "@expected-failure",
-      ],
-    },
-    async ({ page, eyes }, testInfo) => {
-      test.fail(
-        true,
-        "Enum values are not picked in http-response of examples generated with the help of dictionary",
-      );
-      const sourceSpecName = PRODUCT_SEARCH_BFF_SPEC_DICTIONARY_TO_EXAMPLES;
-      const context: DictionaryExamplesContext = {
-        sourceSpecName,
-        dictionarySpecName: getDictionarySpecName(sourceSpecName),
-        sourceSpecPage: new ServiceSpecConfigPage(
-          page,
-          testInfo,
-          eyes,
-          sourceSpecName,
-        ),
-        examplePage: new ExampleGenerationPage(
-          page,
-          testInfo,
-          eyes,
-          sourceSpecName,
-        ),
-      };
-
-      await test.step("Generate dictionary first without generating any examples", async () => {
-        await openSourceSpec(context);
-        const dictionaryPage = await generateDictionaryAndOpenIt(
-          context,
-          page,
-          testInfo,
-          eyes,
-        );
-        await updateDictionaryAndSave(dictionaryPage);
-      });
-
-      await test.step("Generate /products 201 example and verify the updated name is used", async () => {
-        await generateProductsExampleAndAssertName(
-          context,
-          page,
-          testInfo,
-          eyes,
-        );
-      });
-
-      await test.step("Generate /findAvailableProducts 200 example and verify query, header, and response values", async () => {
-        await openExamplesTab(context, testInfo, eyes, false);
-        await generateFindAvailableProductsExampleAndAssertDictionaryValues(
-          context,
-          page,
-          eyes,
-        );
-      });
-    },
-  );
-});
