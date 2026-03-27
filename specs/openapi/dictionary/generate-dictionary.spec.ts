@@ -14,7 +14,7 @@ function getDictionarySpecName(specName: string): string {
 }
 
 function shouldReloadBeforeOpeningDictionary(): boolean {
-  return process.platform === "win32" || process.platform === "linux";
+  return process.platform === "win32";
 }
 
 async function openSpecFromSidebar(
@@ -36,10 +36,6 @@ async function openDictionarySpec(
   testInfo: any,
   eyes: any,
 ) {
-  if (shouldReloadBeforeOpeningDictionary()) {
-    await page.reload();
-  }
-
   const dictionaryPage = new ServiceSpecConfigPage(
     page,
     testInfo,
@@ -47,8 +43,24 @@ async function openDictionarySpec(
     context.dictionarySpecName,
   );
 
-  await openSpecFromSidebar(dictionaryPage, context.dictionarySpecName);
-  await dictionaryPage.openSpecTab();
+  const dictionaryFileName = context.dictionarySpecName.split("/").pop()!;
+  const autoOpenedDictionaryEditor = page
+    .locator(
+      `xpath=//div[contains(@id,"${dictionaryFileName}") and @data-mode="spec"]//div[contains(@class,"cm-content")]`,
+    )
+    .first();
+  const isAutoOpened = await autoOpenedDictionaryEditor
+    .isVisible()
+    .catch(() => false);
+
+  if (!isAutoOpened && shouldReloadBeforeOpeningDictionary()) {
+    await page.reload();
+  }
+
+  if (!isAutoOpened) {
+    await openSpecFromSidebar(dictionaryPage, context.dictionarySpecName);
+    await dictionaryPage.openSpecTab();
+  }
 
   return dictionaryPage;
 }

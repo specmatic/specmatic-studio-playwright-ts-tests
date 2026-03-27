@@ -158,6 +158,14 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async editSpecInEditor(searchText: string, replaceText: string) {
+    await this.editSpecInEditorByOccurrence(searchText, replaceText, 0);
+  }
+
+  async editSpecInEditorByOccurrence(
+    searchText: string,
+    replaceText: string,
+    occurrenceIndex: number,
+  ) {
     await test.step(`Edit spec in editor: '${searchText}' -> '${replaceText}'`, async () => {
       const content = this.editorContent;
       const scroller = this.editorScroller;
@@ -189,7 +197,15 @@ export class ServiceSpecConfigPage extends BasePage {
         );
       }
 
-      const targetLine = lines.filter({ hasText: searchText }).first();
+      const matchingLines = lines.filter({ hasText: searchText });
+      const matchCount = await matchingLines.count();
+      if (matchCount <= occurrenceIndex) {
+        throw new Error(
+          `Could not find occurrence ${occurrenceIndex + 1} of '${searchText}' in the spec editor`,
+        );
+      }
+
+      const targetLine = matchingLines.nth(occurrenceIndex);
       await expect(targetLine).toBeVisible({ timeout: 10000 });
 
       const originalText = await targetLine.innerText();
@@ -406,8 +422,23 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async dismissAlert() {
-    await this.alertDismissButton.click();
-    await this.alertMessage.waitFor({ state: "hidden" });
+    const visibleAlert = this.page
+      .locator("#alert-container .alert-msg:visible")
+      .first();
+    const isVisible = await visibleAlert.isVisible().catch(() => false);
+
+    if (!isVisible) {
+      return;
+    }
+
+    const dismissButton = visibleAlert.locator("button").first();
+    const buttonVisible = await dismissButton.isVisible().catch(() => false);
+
+    if (buttonVisible) {
+      await dismissButton.click();
+    }
+
+    await expect(visibleAlert).toBeHidden({ timeout: 5000 }).catch(() => {});
     await takeAndAttachScreenshot(this.page, "dismissing alert");
   }
 

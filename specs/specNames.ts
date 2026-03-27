@@ -36,7 +36,9 @@ export const PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO =
 export const PRODUCT_SEARCH_BFF_SPEC_GENERATE_DICTIONARY =
   "test-openapi/spec-editing/product_search_bff_v5_dictionary_generation.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_GENERATE_MORE_FROM_DICTIONARY =
-  "test-openapi/spec-editing/product_search_bff_v5_dictionary_generate_more";
+  "test-openapi/spec-editing/product_search_bff_v5_dictionary_generate_more.yaml";
+export const PRODUCT_SEARCH_BFF_SPEC_DICTIONARY_TO_EXAMPLES =
+  "test-openapi/spec-editing/product_search_bff_v5_dictionary_to_examples.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_SAVE_INVALID_SPEC =
   "test-openapi/spec-editing/product_search_bff_v5_save_invalid_spec.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_UPDATE =
