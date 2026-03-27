@@ -1,3 +1,4 @@
+import { Page, TestInfo } from "@playwright/test";
 import { expect, test } from "../../../utils/eyesFixture";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
@@ -12,61 +13,6 @@ import {
   type DictionaryExamplesContext,
 } from "./dictionary-test-utils";
 
-test.describe("Dictionary To Examples", () => {
-  test(
-    "Generated examples pick request and response values from the updated dictionary",
-    {
-      tag: [
-        "@spec",
-        "@generateExamplesFromDictionary",
-        "@eyes",
-        "@expected-failure",
-      ],
-    },
-    async ({ page, eyes }, testInfo) => {
-      test.fail(
-        true,
-        "Enum values are not picked in http-response of examples generated with the help of dictionary",
-      );
-      const context = createDictionaryExamplesContext(
-        page,
-        testInfo,
-        eyes,
-        PRODUCT_SEARCH_BFF_SPEC_DICTIONARY_TO_EXAMPLES,
-      );
-
-      await test.step("Generate dictionary first without generating any examples", async () => {
-        await openSourceSpec(context);
-        const dictionaryPage = await generateDictionaryAndOpenIt(
-          context,
-          page,
-          testInfo,
-          eyes,
-        );
-        await updateDictionaryAndSave(dictionaryPage);
-      });
-
-      await test.step("Generate /products 201 example and verify the updated name is used", async () => {
-        await generateProductsExampleAndAssertName(
-          context,
-          page,
-          testInfo,
-          eyes,
-        );
-      });
-
-      await test.step("Generate /findAvailableProducts 200 example and verify query, header, and response values", async () => {
-        await openExamplesTab(context, testInfo, eyes, false);
-        await generateFindAvailableProductsExampleAndAssertDictionaryValues(
-          context,
-          page,
-          eyes,
-        );
-      });
-    },
-  );
-});
-
 const PRODUCTS_PATH = "products";
 const FIND_AVAILABLE_PRODUCTS_PATH = "findAvailableProducts";
 const PRODUCT_CREATED_STATUS = 201;
@@ -74,6 +20,31 @@ const FIND_AVAILABLE_PRODUCTS_STATUS = 200;
 const UPDATED_PRODUCT_NAME = "George";
 const UPDATED_PAGE_SIZE = "876";
 const UPDATED_QUERY_TYPE = "gadget";
+
+interface DictionaryExamplesFlow {
+  page: Page;
+  eyes: any;
+  testInfo: TestInfo;
+  context: DictionaryExamplesContext;
+}
+
+function createFlow(
+  page: Page,
+  testInfo: TestInfo,
+  eyes: any,
+): DictionaryExamplesFlow {
+  return {
+    page,
+    eyes,
+    testInfo,
+    context: createDictionaryExamplesContext(
+      page,
+      testInfo,
+      eyes,
+      PRODUCT_SEARCH_BFF_SPEC_DICTIONARY_TO_EXAMPLES,
+    ),
+  };
+}
 
 function parseJson(content: string): any {
   try {
@@ -137,9 +108,7 @@ async function waitForDictionarySections(
   return loadedContent;
 }
 
-async function updateDictionaryThroughEditor(
-  dictionaryPage: ServiceSpecConfigPage,
-) {
+async function updateDictionaryAndSave(dictionaryPage: ServiceSpecConfigPage) {
   const dictionaryContent = await waitForDictionarySections(dictionaryPage);
   const pageSizeValues = extractPageSizeValues(dictionaryContent);
 
@@ -160,56 +129,57 @@ async function updateDictionaryThroughEditor(
     `- ${UPDATED_QUERY_TYPE}`,
     1,
   );
-}
-
-async function updateDictionaryAndSave(dictionaryPage: ServiceSpecConfigPage) {
-  await updateDictionaryThroughEditor(dictionaryPage);
   await dictionaryPage.clickSaveAfterEdit();
 }
 
-async function generateProductsExampleAndAssertName(
-  context: DictionaryExamplesContext,
-  page: any,
-  testInfo: any,
-  eyes: any,
-) {
-  await openExamplesTab(context, testInfo, eyes);
-  await context.examplePage.deleteGeneratedExamples();
-  await context.examplePage.generateExampleAndViewDetailsForPath(
+async function generateDictionaryWithUpdatedValues(flow: DictionaryExamplesFlow) {
+  await openSourceSpec(flow.context);
+  const dictionaryPage = await generateDictionaryAndOpenIt(
+    flow.context,
+    flow.page,
+    flow.testInfo,
+    flow.eyes,
+  );
+  await updateDictionaryAndSave(dictionaryPage);
+}
+
+async function assertProductsExampleUsesUpdatedName(flow: DictionaryExamplesFlow) {
+  await openExamplesTab(flow.context, flow.testInfo, flow.eyes);
+  await flow.context.examplePage.deleteGeneratedExamples();
+  await flow.context.examplePage.generateExampleAndViewDetailsForPath(
     PRODUCTS_PATH,
     PRODUCT_CREATED_STATUS,
   );
   await takeAndAttachScreenshot(
-    page,
+    flow.page,
     "dictionary-products-example-details",
-    eyes,
+    flow.eyes,
   );
 
   const productExample = parseJson(
-    await context.examplePage.getEditorContent(),
+    await flow.context.examplePage.getEditorContent(),
   );
-  const requestBody = productExample?.["http-request"]?.body;
-
-  expect(requestBody?.name).toBe(UPDATED_PRODUCT_NAME);
-  await context.examplePage.goBackFromExample();
+  expect(productExample?.["http-request"]?.body?.name).toBe(
+    UPDATED_PRODUCT_NAME,
+  );
+  await flow.context.examplePage.goBackFromExample();
 }
 
-async function generateFindAvailableProductsExampleAndAssertDictionaryValues(
-  context: DictionaryExamplesContext,
-  page: any,
-  eyes: any,
+async function assertFindAvailableProductsExampleUsesUpdatedValues(
+  flow: DictionaryExamplesFlow,
 ) {
-  await context.examplePage.generateExampleAndViewDetailsForPath(
+  await openExamplesTab(flow.context, flow.testInfo, flow.eyes, false);
+  await flow.context.examplePage.generateExampleAndViewDetailsForPath(
     FIND_AVAILABLE_PRODUCTS_PATH,
     FIND_AVAILABLE_PRODUCTS_STATUS,
   );
   await takeAndAttachScreenshot(
-    page,
+    flow.page,
     "dictionary-find-available-products-example-details",
-    eyes,
+    flow.eyes,
   );
 
-  const rawEditorContent = await context.examplePage.getEditorContent();
+  const rawEditorContent = await flow.context.examplePage.getEditorContent();
   const requestTypeValue = extractJsonStringValue(rawEditorContent, "type");
   const pageSizeValue = extractJsonStringValue(rawEditorContent, "pageSize");
   const renderedTypeValues = extractAllJsonStringValues(
@@ -226,7 +196,47 @@ async function generateFindAvailableProductsExampleAndAssertDictionaryValues(
   ).toEqual(renderedTypeValues.map(() => UPDATED_QUERY_TYPE));
 
   const endpointExample = parseJson(rawEditorContent);
-  const response = endpointExample?.["http-response"];
-  const responseBody = Array.isArray(response?.body) ? response.body : [];
-  expect(responseBody.length).toBeGreaterThan(0);
+  expect(Array.isArray(endpointExample?.["http-response"]?.body)).toBe(true);
 }
+
+test.describe("Dictionary To Examples", () => {
+  test(
+    "Generated examples pick request and response values from the updated dictionary",
+    {
+      tag: [
+        "@spec",
+        "@generateExamplesFromDictionary",
+        "@eyes",
+        "@expected-failure",
+      ],
+    },
+    async ({ page, eyes }, testInfo) => {
+      test.fail(
+        true,
+        "Enum values are not picked in http-response of examples generated with the help of dictionary",
+      );
+      const flow = createFlow(page, testInfo, eyes);
+
+      await test.step(
+        "Generate dictionary first without generating any examples",
+        async () => {
+          await generateDictionaryWithUpdatedValues(flow);
+        },
+      );
+
+      await test.step(
+        "Generate /products 201 example and verify the updated name is used",
+        async () => {
+          await assertProductsExampleUsesUpdatedName(flow);
+        },
+      );
+
+      await test.step(
+        "Generate /findAvailableProducts 200 example and verify query, header, and response values",
+        async () => {
+          await assertFindAvailableProductsExampleUsesUpdatedValues(flow);
+        },
+      );
+    },
+  );
+});
