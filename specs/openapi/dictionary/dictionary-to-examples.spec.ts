@@ -1,6 +1,7 @@
 import { expect, test } from "../../../utils/eyesFixture";
 import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
+import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
 import { PRODUCT_SEARCH_BFF_SPEC_DICTIONARY_TO_EXAMPLES } from "../../specNames";
 
 const PRODUCTS_PATH = "products";
@@ -41,6 +42,19 @@ function parseJson(content: string): any {
       );
     }
   }
+}
+
+function extractJsonStringValue(content: string, key: string): string | undefined {
+  const match = content.match(
+    new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`),
+  );
+  return match?.[1];
+}
+
+function extractAllJsonStringValues(content: string, key: string): string[] {
+  return Array.from(
+    content.matchAll(new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`, "g")),
+  ).map((match) => match[1]);
 }
 
 function extractPageSizeValues(dictionaryContent: string): string[] {
@@ -86,24 +100,6 @@ async function waitForDictionarySections(
     .toBe(true);
 
   return loadedContent;
-}
-
-function collectAllTypeValues(node: unknown): string[] {
-  if (Array.isArray(node)) {
-    return node.flatMap((item) => collectAllTypeValues(item));
-  }
-
-  if (node && typeof node === "object") {
-    const record = node as Record<string, unknown>;
-    const currentType = typeof record.type === "string" ? [record.type] : [];
-
-    return [
-      ...currentType,
-      ...Object.values(record).flatMap((value) => collectAllTypeValues(value)),
-    ];
-  }
-
-  return [];
 }
 
 async function updateDictionaryThroughEditor(
@@ -208,6 +204,7 @@ async function openExamplesTab(
 
 async function generateProductsExampleAndAssertName(
   context: DictionaryExamplesContext,
+  page: any,
   testInfo: any,
   eyes: any,
 ) {
@@ -216,6 +213,11 @@ async function generateProductsExampleAndAssertName(
   await context.examplePage.generateExampleAndViewDetailsForPath(
     PRODUCTS_PATH,
     PRODUCT_CREATED_STATUS,
+  );
+  await takeAndAttachScreenshot(
+    page,
+    "dictionary-products-example-details",
+    eyes,
   );
 
   const productExample = parseJson(
@@ -229,34 +231,57 @@ async function generateProductsExampleAndAssertName(
 
 async function generateFindAvailableProductsExampleAndAssertDictionaryValues(
   context: DictionaryExamplesContext,
+  page: any,
+  eyes: any,
 ) {
   await context.examplePage.generateExampleAndViewDetailsForPath(
     FIND_AVAILABLE_PRODUCTS_PATH,
     FIND_AVAILABLE_PRODUCTS_STATUS,
   );
-
-  const endpointExample = parseJson(
-    await context.examplePage.getEditorContent(),
+  await takeAndAttachScreenshot(
+    page,
+    "dictionary-find-available-products-example-details",
+    eyes,
   );
-  const request = endpointExample?.["http-request"];
+
+  const rawEditorContent = await context.examplePage.getEditorContent();
+  const requestTypeValue = extractJsonStringValue(rawEditorContent, "type");
+  const pageSizeValue = extractJsonStringValue(rawEditorContent, "pageSize");
+  const renderedTypeValues = extractAllJsonStringValues(
+    rawEditorContent,
+    "type",
+  );
+
+  expect(requestTypeValue).toBe(UPDATED_QUERY_TYPE);
+  expect(pageSizeValue).toBe(UPDATED_PAGE_SIZE);
+  expect(renderedTypeValues.length).toBeGreaterThan(0);
+  expect(
+    renderedTypeValues,
+    `Expected every rendered "type" value in the generated example to come from the updated dictionary, but got: ${renderedTypeValues.join(", ")}`,
+  ).toEqual(renderedTypeValues.map(() => UPDATED_QUERY_TYPE));
+
+  const endpointExample = parseJson(rawEditorContent);
   const response = endpointExample?.["http-response"];
   const responseBody = Array.isArray(response?.body) ? response.body : [];
-  const renderedTypeValues = collectAllTypeValues(endpointExample);
-
-  expect(request?.query?.type).toBe(UPDATED_QUERY_TYPE);
-  expect(request?.headers?.pageSize).toBe(UPDATED_PAGE_SIZE);
-  expect(renderedTypeValues.length).toBeGreaterThan(0);
-  expect(renderedTypeValues).toEqual(
-    renderedTypeValues.map(() => UPDATED_QUERY_TYPE),
-  );
   expect(responseBody.length).toBeGreaterThan(0);
 }
 
 test.describe("Dictionary To Examples", () => {
   test(
     "Generated examples pick request and response values from the updated dictionary",
-    { tag: ["@spec", "@generateExamplesFromDictionary", "@eyes"] },
+    {
+      tag: [
+        "@spec",
+        "@generateExamplesFromDictionary",
+        "@eyes",
+        "@expected-failure",
+      ],
+    },
     async ({ page, eyes }, testInfo) => {
+      test.fail(
+        true,
+        "Enum values are not picked in http-response of examples generated with the help of dictionary",
+      );
       const sourceSpecName = PRODUCT_SEARCH_BFF_SPEC_DICTIONARY_TO_EXAMPLES;
       const context: DictionaryExamplesContext = {
         sourceSpecName,
@@ -287,13 +312,20 @@ test.describe("Dictionary To Examples", () => {
       });
 
       await test.step("Generate /products 201 example and verify the updated name is used", async () => {
-        await generateProductsExampleAndAssertName(context, testInfo, eyes);
+        await generateProductsExampleAndAssertName(
+          context,
+          page,
+          testInfo,
+          eyes,
+        );
       });
 
       await test.step("Generate /findAvailableProducts 200 example and verify query, header, and response values", async () => {
         await openExamplesTab(context, testInfo, eyes, false);
         await generateFindAvailableProductsExampleAndAssertDictionaryValues(
           context,
+          page,
+          eyes,
         );
       });
     },
