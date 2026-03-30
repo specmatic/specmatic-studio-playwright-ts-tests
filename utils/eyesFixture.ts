@@ -46,10 +46,35 @@ function getEyesValidationSummary(results: any) {
   };
 }
 
+async function withTimeout<T>(
+  operation: Promise<T>,
+  timeoutMs: number,
+  label: string,
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    operation.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
 export const test = base.extend<{ eyes: Eyes }>({
   eyes: async ({ page }, use, testInfo) => {
     const isCI = process.env.CI === "true" || process.env.ENV_NAME === "ci";
     const defaultTimeout = isCI ? 180000 : 120000;
+    const closeTimeoutMs = isCI ? 45000 : 20000;
+    const abortTimeoutMs = 10000;
     testInfo.setTimeout(defaultTimeout);
     const hasEyesTag = testInfo.tags.includes("@eyes");
 
@@ -127,7 +152,33 @@ export const test = base.extend<{ eyes: Eyes }>({
       console.log(
         `[Applitools] eyes.close() called at: ${beforeClose.toISOString()}`,
       );
-      const results = await eyes.close(false);
+      let results = null;
+      try {
+        results = await withTimeout(
+          eyes.close(false),
+          closeTimeoutMs,
+          "eyes.close()",
+        );
+      } catch (closeError) {
+        console.warn(
+          `[Applitools] '${testInfo.title}' could not finish eyes.close() cleanly:`,
+          closeError,
+        );
+        try {
+          await withTimeout(
+            eyes.abortIfNotClosed(),
+            abortTimeoutMs,
+            "eyes.abortIfNotClosed()",
+          );
+        } catch (abortError) {
+          console.warn(
+            `[Applitools] '${testInfo.title}' abortIfNotClosed also did not complete cleanly:`,
+            abortError,
+          );
+        }
+
+        return;
+      }
       const afterClose = new Date();
       console.log(
         `[Applitools] eyes.close() completed at: ${afterClose.toISOString()}`,
@@ -150,7 +201,18 @@ export const test = base.extend<{ eyes: Eyes }>({
       }
     } catch (error) {
       console.error("Error closing Eyes:", error);
-      await eyes.abortIfNotClosed();
+      try {
+        await withTimeout(
+          eyes.abortIfNotClosed(),
+          abortTimeoutMs,
+          "eyes.abortIfNotClosed()",
+        );
+      } catch (abortError) {
+        console.warn(
+          `[Applitools] '${testInfo.title}' abortIfNotClosed failed after test error:`,
+          abortError,
+        );
+      }
       throw error; // optional: keep failure behavior consistent
     } finally {
       // ✅ Always attach console logs to Playwright report
