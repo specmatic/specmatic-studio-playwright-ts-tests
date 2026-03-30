@@ -73,7 +73,7 @@ export const test = base.extend<{ eyes: Eyes }>({
   eyes: async ({ page }, use, testInfo) => {
     const isCI = process.env.CI === "true" || process.env.ENV_NAME === "ci";
     const defaultTimeout = isCI ? 180000 : 120000;
-    const closeTimeoutMs = isCI ? 45000 : 20000;
+    const closeTimeoutMs = isCI ? 120000 : 20000;
     const abortTimeoutMs = 10000;
     testInfo.setTimeout(defaultTimeout);
     const hasEyesTag = testInfo.tags.includes("@eyes");
