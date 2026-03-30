@@ -73,18 +73,18 @@ export const test = base.extend<{ eyes: Eyes }>({
   eyes: async ({ page }, use, testInfo) => {
     const isCI = process.env.CI === "true" || process.env.ENV_NAME === "ci";
     const defaultTimeout = isCI ? 180000 : 120000;
-    const closeTimeoutMs = isCI ? 120000 : 20000;
     const abortTimeoutMs = 10000;
-    testInfo.setTimeout(defaultTimeout);
     const hasEyesTag = testInfo.tags.includes("@eyes");
+    const visualTimeout = isCI ? 300000 : 180000;
+
+    testInfo.setTimeout(
+      ENABLE_VISUAL && hasEyesTag
+        ? Math.max(testInfo.timeout, visualTimeout)
+        : defaultTimeout,
+    );
 
     // 🔹 Start capturing console + network failures
     const consoleCapture = captureBrowserConsole(page, testInfo);
-
-    if (ENABLE_VISUAL && testInfo.timeout < 120000) {
-      // Increase timeout to 2 minutes for visual tests
-      testInfo.setTimeout(120000);
-    }
 
     // Configure Applitools log file location per test
     const logDir = path.resolve(
@@ -152,33 +152,7 @@ export const test = base.extend<{ eyes: Eyes }>({
       console.log(
         `[Applitools] eyes.close() called at: ${beforeClose.toISOString()}`,
       );
-      let results = null;
-      try {
-        results = await withTimeout(
-          eyes.close(false),
-          closeTimeoutMs,
-          "eyes.close()",
-        );
-      } catch (closeError) {
-        console.warn(
-          `[Applitools] '${testInfo.title}' could not finish eyes.close() cleanly:`,
-          closeError,
-        );
-        try {
-          await withTimeout(
-            eyes.abortIfNotClosed(),
-            abortTimeoutMs,
-            "eyes.abortIfNotClosed()",
-          );
-        } catch (abortError) {
-          console.warn(
-            `[Applitools] '${testInfo.title}' abortIfNotClosed also did not complete cleanly:`,
-            abortError,
-          );
-        }
-
-        return;
-      }
+      const results = await eyes.close(false);
       const afterClose = new Date();
       console.log(
         `[Applitools] eyes.close() completed at: ${afterClose.toISOString()}`,
