@@ -27,6 +27,8 @@ export const PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED =
   "test-openapi/examples/product_search_bff_v5_examples_validate_inlined.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED =
   "test-openapi/examples/product_search_bff_v5_examples_validate_post_inlined.yaml";
+export const PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_CONVERT_TO_PARTIAL =
+  "test-openapi/examples/product_search_bff_v5_convert_to_partial.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY =
   "test-openapi/bcc/product_search_bff_v5_backward_compatibility.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_BACKWARD_INCOMPATIBLE =

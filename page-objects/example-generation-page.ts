@@ -718,6 +718,69 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+  async convertCurrentExampleToPartialAndAssert(exampleName: string) {
+    await test.step(
+      `Convert current example to partial and verify dialog for '${exampleName}'`,
+      async () => {
+        const iframe = await this.waitForExamplesIFrame();
+        const convertToPartialButton = iframe.locator(
+          "button#convert-to-partial",
+        );
+        await expect(convertToPartialButton).toBeVisible({ timeout: 5000 });
+        await expect(convertToPartialButton).toHaveAttribute(
+          "data-panel",
+          "details",
+        );
+        await convertToPartialButton.click();
+
+        await takeAndAttachScreenshot(
+          this.page,
+          "converted-example-to-partial",
+          this.eyes,
+        );
+
+        const pageAlert = this.page.locator(".alert-msg.slide-in.green").first();
+        const iframeAlert = iframe.locator(".alert-msg.slide-in.green").first();
+
+        let alertContext: "iframe" | "page" | "none" = "none";
+        await expect
+          .poll(
+            async () => {
+              if (await iframeAlert.isVisible().catch(() => false)) {
+                alertContext = "iframe";
+                return alertContext;
+              }
+              if (await pageAlert.isVisible().catch(() => false)) {
+                alertContext = "page";
+                return alertContext;
+              }
+              alertContext = "none";
+              return alertContext;
+            },
+            {
+              timeout: 10000,
+              intervals: [250, 500, 1000],
+              message:
+                "Converted Example To Partial toast did not appear in either the examples iframe or the page",
+            },
+          )
+          .not.toBe("none");
+
+        const alert = alertContext === "iframe" ? iframeAlert : pageAlert;
+        await expect(alert).toBeVisible({ timeout: 5000 });
+
+        const title = (await alert.locator("p").first().innerText()).trim();
+        const message = (await alert.locator("pre").first().innerText()).trim();
+        expect(title).toBe("Converted Example To Partial");
+        expect(message).toBe(`Example name: ${exampleName}`);
+
+        const closeButton = alert.locator("button").first();
+        await closeButton.click();
+        await expect(alert).toBeHidden({ timeout: 5000 });
+      },
+    );
+  }
+
   async closeInvalidExampleDialog(dialogTitle: string) {
     await test.step(`Close invalid example dialog with title: '${dialogTitle}'`, async () => {
       console.log(

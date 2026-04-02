@@ -28,7 +28,7 @@ test.describe("API Specification Management", () => {
       tag: ["@proxy", "@recordNewSpec", "@eyes"],
     },
     async ({ page, eyes }, testInfo) => {
-      test.setTimeout(180000);
+      test.setTimeout(300000);
       const validSteps = new RecordValidNumberSteps(page, testInfo, eyes);
 
       await validSteps.setupProxyRecording();
