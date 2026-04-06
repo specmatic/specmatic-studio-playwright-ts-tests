@@ -41,7 +41,7 @@ test.describe("API Contract Testing - Filtering", () => {
       });
 
       await test.step("Apply and verify filters for test results", async () => {
-        const filterTypes = ["success", "failed"];
+        const filterTypes = await contractPage.getFilterTypes();
 
         for (const filterType of filterTypes) {
           await test.step(`Apply filter: ${filterType} and verify table count`, async () => {
