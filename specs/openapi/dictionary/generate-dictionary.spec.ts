@@ -1,6 +1,7 @@
 import { expect, test } from "../../../utils/eyesFixture";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { takeAndAttachScreenshot } from "../../../utils/screenshotUtils";
+import { shouldUseFileWatcherWorkaround } from "../../../utils/fileWatcherWorkaround";
 import { PRODUCT_SEARCH_BFF_SPEC_GENERATE_DICTIONARY } from "../../specNames";
 import {
   createDictionarySpecContext,
@@ -13,7 +14,7 @@ test.describe("Generate Dictionary", () => {
     "Generate dictionary twice and keep contents stable",
     { tag: ["@spec", "@generateDictionary", "@eyes", "@expected-failure"] },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "File Watcher issue in Windows");
+      test.fail(true, "File Watcher workaround is enabled for this run");
       const context = createDictionarySpecContext(
         page,
         testInfo,
@@ -59,7 +60,7 @@ test.describe("Generate Dictionary", () => {
 });
 
 function shouldReloadBeforeOpeningDictionary(): boolean {
-  return process.platform === "win32";
+  return shouldUseFileWatcherWorkaround();
 }
 
 async function openDictionarySpec(
@@ -75,24 +76,12 @@ async function openDictionarySpec(
     context.dictionarySpecName,
   );
 
-  const dictionaryFileName = context.dictionarySpecName.split("/").pop()!;
-  const autoOpenedDictionaryEditor = page
-    .locator(
-      `xpath=//div[contains(@id,"${dictionaryFileName}") and @data-mode="spec"]//div[contains(@class,"cm-content")]`,
-    )
-    .first();
-  const isAutoOpened = await autoOpenedDictionaryEditor
-    .isVisible()
-    .catch(() => false);
-
-  if (!isAutoOpened && shouldReloadBeforeOpeningDictionary()) {
+  if (shouldReloadBeforeOpeningDictionary()) {
     await page.reload();
   }
 
-  if (!isAutoOpened) {
-    await openSpecFromSidebar(dictionaryPage, context.dictionarySpecName);
-    await dictionaryPage.openSpecTab();
-  }
+  await openSpecFromSidebar(dictionaryPage, context.dictionarySpecName);
+  await dictionaryPage.openSpecTab();
 
   return dictionaryPage;
 }

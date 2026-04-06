@@ -6,6 +6,7 @@ import { JioAppInProxyPage } from "../../page-objects/jio-proxy-page";
 import { MockServerPage } from "../../page-objects/mock-server-page";
 import { SpecmaticStudioPage } from "../../page-objects/specmatic-studio-page";
 import { test } from "../../utils/eyesFixture";
+import { shouldUseFileWatcherWorkaround } from "../../utils/fileWatcherWorkaround";
 import { takeAndAttachScreenshot } from "../../utils/screenshotUtils";
 import { Edit } from "../../utils/types/json-edit.types";
 import {
@@ -281,16 +282,17 @@ class RecordValidNumberSteps extends ProxyRecordingSteps {
   }
 
   async stopAndReplayPlansEndpoint(): Promise<void> {
-    if (process.platform !== "win32" && process.platform !== "linux") {
-      await test.step("Skipping stop and replay steps for plans endpoint because File Watcher issue is not there on MacOS", async () => {
+    if (!shouldUseFileWatcherWorkaround()) {
+      await test.step("Skipping stop and replay steps for plans endpoint because file watcher workaround flag is disabled", async () => {
         console.log(
-          "\tSkipping stop and replay steps for plans endpoint because File Watcher issue is not there on MacOS",
+          "\tSkipping stop and replay steps for plans endpoint because ENABLE_FILE_WATCHER_WORKAROUND=false",
         );
         return;
       });
+      return;
     }
 
-    await test.step("Stop and replay plans endpoint on record page to avoid File Watcher issue on Windows/Linux", async () => {
+    await test.step("Stop and replay plans endpoint on record page because file watcher workaround flag is enabled", async () => {
       await this.page.bringToFront();
 
       await this.studio.sideBar.ensureSidebarOpen();

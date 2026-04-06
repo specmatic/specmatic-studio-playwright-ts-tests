@@ -2,6 +2,7 @@ import type { Page, TestInfo } from "@playwright/test";
 import { expect } from "../../../utils/eyesFixture";
 import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
+import { shouldUseFileWatcherWorkaround } from "../../../utils/fileWatcherWorkaround";
 
 export interface DictionarySpecContext {
   sourceSpecName: string;
@@ -18,7 +19,7 @@ export function getDictionarySpecName(specName: string): string {
 }
 
 export function shouldReloadBeforeOpeningDictionary(): boolean {
-  return process.platform === "win32" || process.platform === "linux";
+  return shouldUseFileWatcherWorkaround();
 }
 
 export function createDictionarySpecContext(

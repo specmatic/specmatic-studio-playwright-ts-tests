@@ -132,32 +132,23 @@ test.describe("Examples Delete Then Dictionary", () => {
   test(
     "Generate examples, delete one example, then generate dictionary from the remaining examples",
     {
-      tag: ["@spec", "@generateDictionaryWithDeletedExamples", "@eyes"],
+      tag: ["@spec", "@dictionaryGenerationWithDeletedExamples", "@eyes"],
     },
     async ({ page, eyes }, testInfo) => {
       const flow = createFlow(page, testInfo, eyes);
       let capturedValues!: CapturedExampleValues;
 
-      await test.step(
-        "Generate examples for multiple endpoints and capture the values to validate later",
-        async () => {
-          capturedValues = await captureInitialExampleValues(flow);
-        },
-      );
+      await test.step("Generate examples for multiple endpoints and capture the values to validate later", async () => {
+        capturedValues = await captureInitialExampleValues(flow);
+      });
 
       await test.step("Delete one generated example", async () => {
         await deleteOneGeneratedExample(flow);
       });
 
-      await test.step(
-        "Generate dictionary and validate it reflects the remaining examples",
-        async () => {
-          await assertDictionaryReflectsRemainingExamples(
-            flow,
-            capturedValues,
-          );
-        },
-      );
+      await test.step("Generate dictionary and validate it reflects the remaining examples", async () => {
+        await assertDictionaryReflectsRemainingExamples(flow, capturedValues);
+      });
     },
   );
 });
