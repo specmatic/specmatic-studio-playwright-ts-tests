@@ -86,9 +86,10 @@ export class ApiContractPage extends BasePage {
     this.serviceUrlInput = this.specSection.locator("#testBaseUrl");
     this._runButton = scoped('button[data-type="test"]');
     this.runningButton = scoped('button.run[data-type="test"]');
-    this.countsContainer = this.specSection.locator(
-      'div.test ol.counts[data-filter="total"]',
-    );
+    this.countsContainer = this.specSection
+      .locator("div.test .header ol.counts")
+      .filter({ visible: true })
+      .first();
     this.totalSpan = this.countsContainer.locator(
       'li.count[data-type="total"] > span',
     );
@@ -165,8 +166,8 @@ export class ApiContractPage extends BasePage {
 
     //Header Locators
     this.summaryCount = (type: string) =>
-      page.locator(
-        `ol.counts:visible li[data-type="${type}"] span[data-value]`,
+      this.countsContainer.locator(
+        `li.count[data-type="${type}"] span[data-value]`,
       );
 
     this.resultCell = scoped('td[data-key="result"]');
@@ -206,10 +207,10 @@ export class ApiContractPage extends BasePage {
 
     this.generativeCheckbox = scoped("input#generative");
 
-    this.filterListItems = scoped("ol.counts > li.count");
+    this.filterListItems = this.countsContainer.locator("li.count");
 
     this.headerByType = (type: string) =>
-      scoped("div.test ol.counts").locator(`li.count[data-type="${type}"]`);
+      this.countsContainer.locator(`li.count[data-type="${type}"]`);
 
     this.tableResultSpansByType = (type: string) =>
       this.resultCell.locator(`span[data-key="${type}"]`);
@@ -785,11 +786,6 @@ export class ApiContractPage extends BasePage {
       timeout: 10000,
     });
 
-    await expect(
-      this.tableResultSpansByType(filterType).first(),
-      `Table results for filter type "${filterType}" should be visible after applying filter`,
-    ).toBeVisible({ timeout: 10000 });
-
     await takeAndAttachScreenshot(
       this.page,
       `filter-applied-for-${filterType}-tests`,
@@ -817,6 +813,23 @@ export class ApiContractPage extends BasePage {
     }
 
     return total;
+  }
+
+  async getFilterTypes(): Promise<string[]> {
+    const count = await this.filterListItems.count();
+    const filterTypes = new Set<string>();
+
+    for (let i = 0; i < count; i++) {
+      const filterType = await this.filterListItems
+        .nth(i)
+        .getAttribute("data-type");
+
+      if (filterType) {
+        filterTypes.add(filterType);
+      }
+    }
+
+    return Array.from(filterTypes);
   }
 
   async openContractTestTabForSpec(

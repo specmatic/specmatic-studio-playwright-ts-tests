@@ -101,10 +101,11 @@ export default defineConfig({
   globalSetup: path.resolve(__dirname, "./utils/global-setup.ts"),
   globalTeardown: path.resolve(__dirname, "./utils/global-teardown.ts"),
   ...(!isJarMode && isDocker
-    ? {
+      ? {
         webServer: {
           command: dockerScript,
           url: baseURL,
+          timeout: 5 * 60 * 1000,
           reuseExistingServer: !process.env.CI,
         },
       }
