@@ -11,7 +11,12 @@ export class JioAppInProxyPage extends BasePage {
   constructor(page: Page, testInfo: TestInfo, eyes?: any) {
     super(page, testInfo, eyes);
     this.mobileInput = page.locator(
-      'input[data-testid="JDSInput-input"][name="mobileNumber"]',
+      [
+        'input[data-testid="JDSInput-input"][name="mobileNumber"]',
+        'input[name="mobileNumber"]:not([type="hidden"])',
+        'input[placeholder="Jio Number"]:not([type="hidden"])',
+        'input[placeholder*="Jio Number"]:not([type="hidden"])',
+      ].join(", "),
     );
     this.proceedBtn = page
       .locator('[data-testid="JDSActionButton-jds-text"]')
@@ -45,6 +50,9 @@ export class JioAppInProxyPage extends BasePage {
     expectedText: string,
     withVisualValidation = false,
   ) {
+    await this.page
+      .getByText("Recharge or pay bills", { exact: false })
+      .waitFor({ state: "visible", timeout: 15000 });
     await this.mobileInput.waitFor({ state: "visible", timeout: 15000 });
     await this.mobileInput.scrollIntoViewIfNeeded();
     await this.mobileInput.click();
