@@ -1,5 +1,4 @@
 name: Playwright Test Group
-
 on:
   workflow_call:
     inputs:
@@ -20,93 +19,65 @@ on:
         required: true
       SPECMATIC_LICENSE_KEY:
         required: true
-
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-
     steps:
       - uses: actions/checkout@v4
-
-      # ✅ Node setup
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-
-      # ✅ Java setup (needed for JAR execution)
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Install dependencies and set up environment
+      - name: Install dependencies and set up environment for ${{ inputs.group_name }} tests
         run: |
           echo "Installing npm dependencies for ${{ inputs.group_name }} tests"
           npm ci
-
-          echo "Installing xmllint"
+          echo "Installing xmllint for ${{ inputs.group_name }} tests"
           sudo apt-get update && sudo apt-get install -y libxml2-utils
-
           echo "Install Playwright Browsers"
           npx playwright install chromium --with-deps
-
           echo "Write specmatic license key to file"
           mkdir -p ~/.specmatic
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
-
-      # ✅ Download SNAPSHOT JAR (or fallback)
-      - name: Download Specmatic JAR
+      - name: Pull latest Specmatic Docker image
         run: |
-          mkdir -p specmatic
-          if [ -z "${{ inputs.enterprise_artifact_url }}" ] || [ "${{ inputs.enterprise_artifact_url }}" = "null" ]; then
-            echo "No URL provided, using fallback hardcoded SNAPSHOT"
-            curl -L -o specmatic/specmatic.jar "https://repo.specmatic.io/snapshots/io/specmatic/enterprise/executable/1.9.4-SNAPSHOT/executable-1.9.4-SNAPSHOT.jar"
-          else
-            echo "Downloading Specmatic SNAPSHOT JAR from provided URL"
-            curl -L -o specmatic/specmatic.jar "${{ inputs.enterprise_artifact_url }}"
+          echo "Pulling latest specmatic/enterprise image"
+          docker pull specmatic/enterprise:latest
+          if [ -n "${{ inputs.enterprise_artifact_url }}" ]; then
+            echo "Enterprise artifact URL passed from enterprise workflow:"
+            echo "${{ inputs.enterprise_artifact_url }}"
           fi
-          ls -lh specmatic
-
-      # ✅ Start Specmatic from JAR
-      - name: Start Specmatic
-        run: |
-          echo "Starting Specmatic server"
-          nohup java -jar specmatic/specmatic.jar > specmatic.log 2>&1 &
-          echo "Waiting for Specmatic to start..."
-          sleep 15
-          tail -n 50 specmatic.log || true
-
-      # ✅ Run Playwright tests
-      - name: Run Playwright tests
+      - name: Run Playwright tests for ${{ inputs.group_name }}
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
           GROUP_NAME: ${{ inputs.group_name }}
           SPECMATIC_STUDIO_JAR_URL: ${{ inputs.enterprise_artifact_url }}
         run: |
+          echo "Print all environment variables"
+          printenv
           mkdir -p playwright-report
           mkdir -p playwright-report-${{ inputs.artifact_name }}
           npx playwright test ${{ inputs.test_path }}
         continue-on-error: true
-
-      # ✅ Copy reports
-      - name: Copy Playwright report
+      - name: Copy Playwright report for ${{ inputs.group_name }} tests
         if: always()
         run: |
           mkdir -p playwright-report-${{ inputs.artifact_name }}
-          cp -r playwright-report/* playwright-report-${{ inputs.artifact_name }}/ || true
-
-      # ✅ Capture logs
-      - name: Capture Specmatic logs
+          cp -v -r playwright-report/* playwright-report-${{ inputs.artifact_name }}/ || true
+          echo "Copied Playwright report to playwright-report-${{ inputs.artifact_name }}"
+        continue-on-error: true
+      - name: Capture Docker logs generated while running ${{ inputs.group_name }} tests
         if: always()
         run: |
-          mkdir -p playwright-report-${{ inputs.artifact_name }}/logs
-          if [ -f specmatic.log ]; then
-            cp specmatic.log playwright-report-${{ inputs.artifact_name }}/logs/specmatic.log
-          fi
-
-      # ✅ Upload artifacts
-      - name: Upload Playwright report and logs
+          mkdir -p playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }}
+          for cname in studio order-bff order-api inventory-api; do
+            if docker ps -a -q -f name="^/${cname}$" | grep .; then
+              docker logs "$cname" > "playwright-report-${{ inputs.artifact_name }}/docker-logs-${{ inputs.artifact_name }}/${cname}.log" 2>&1 || true
+            fi
+          done
+          echo "Contents of playwright-report-${{ inputs.artifact_name }} directory after capturing Docker logs:"
+          ls -la playwright-report-${{ inputs.artifact_name }}
+      - name: Upload Playwright report and Docker logs for ${{ inputs.group_name }} tests
         if: always()
         uses: actions/upload-artifact@v4
         id: upload_test_artifacts
@@ -116,32 +87,31 @@ jobs:
             playwright-report-${{ inputs.artifact_name }}
             test-results
           retention-days: 30
-
-      # ✅ Generate summary
-      - name: Generate Playwright Summary
+      - name: Generate ${{ inputs.group_name }} Playwright Summary
         if: always()
         env:
           TEST_ARTIFACT_URL: ${{ steps.upload_test_artifacts.outputs.artifact-url }}
         run: npm run test:summary
         continue-on-error: true
-
-      - name: Append Summary To Job Summary
+      - name: Append ${{ inputs.group_name }} Playwright Summary To Job Summary
         if: always()
         run: node utils/append-summary-to-job-summary.mjs
         continue-on-error: true
-
-      # ✅ Fail job if tests fail
       - name: Fail job if there are test failures
-        if: always()
         run: |
           REPORT_PATH="playwright-report-${{ inputs.artifact_name }}/junit-report.xml"
           if [ ! -f "$REPORT_PATH" ]; then
-            echo "JUnit report not found"
+            echo "JUnit report not found at $REPORT_PATH"
             exit 1
           fi
+
+          # Sum across all suites so failures in any shard/spec file are counted.
           FAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")
           ERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")
           if [ "$FAILURES" != "0" ] || [ "$ERRORS" != "0" ]; then
-            echo "Failures detected: failures=$FAILURES errors=$ERRORS"
+            echo "Test failures or errors detected across all suites: failures=$FAILURES, errors=$ERRORS"
             exit 1
+          else
+            echo "No test failures or errors detected."
           fi
+        if: always()
