@@ -5,7 +5,12 @@ const BRANCH_NAME = process.env.BRANCH_NAME;
 const OS_TYPE = process.env.OS_TYPE;
 const LOGGED_IN_USER = process.env.LOGGED_IN_USER;
 const MACHINE_NAME = process.env.MACHINE_NAME;
-if (ENV_NAME === "ci" && BRANCH_NAME && BRANCH_NAME !== "main") {
+if (
+  ENV_NAME === "ci" &&
+  BRANCH_NAME &&
+  BRANCH_NAME !== "main" &&
+  BRANCH_NAME !== "invalid-spec-tests"
+) {
   ENABLE_VISUAL = false;
 }
 export { ENABLE_VISUAL };
@@ -160,18 +165,17 @@ export const test = base.extend<{ eyes: Eyes }>({
       console.log(`Test '${testInfo.title}' - Eyes results:`, results);
       if (!disableEyes) {
         const validation = getEyesValidationSummary(results);
-        await test.step(
-          `Applitools validation: ${validation.passed ? "passed" : "failed"}`,
-          async () => {
-            console.log(
-              `[Applitools] '${testInfo.title}' validation summary: ${validation.message}`,
-            );
-            expect.soft(
+        await test.step(`Applitools validation: ${validation.passed ? "passed" : "failed"}`, async () => {
+          console.log(
+            `[Applitools] '${testInfo.title}' validation summary: ${validation.message}`,
+          );
+          expect
+            .soft(
               validation.passed,
               `[Applitools] '${testInfo.title}' did not pass visual criteria. ${validation.message}`,
-            ).toBeTruthy();
-          },
-        );
+            )
+            .toBeTruthy();
+        });
       }
     } catch (error) {
       console.error("Error closing Eyes:", error);
