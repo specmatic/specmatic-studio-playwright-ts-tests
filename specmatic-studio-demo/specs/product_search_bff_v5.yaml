@@ -6,7 +6,7 @@ info:
   contact:
     email: devs@specmatic.io
 servers:
-  - url: http://localhost:8080
+  - url: http://order-bff:8080
 tags:
   - name: WIP
     description: API still under development

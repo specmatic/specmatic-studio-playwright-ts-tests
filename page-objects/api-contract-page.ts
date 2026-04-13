@@ -765,6 +765,37 @@ export class ApiContractPage extends BasePage {
     await expect(summary).toContainText(expectedSummary);
   }
 
+  async expandAndCollapsePrereqError(expectedSummary: string | RegExp) {
+    const warningBar = this.prereqErrorAlert.filter({ visible: true }).first();
+    const summary = warningBar.locator("#prereq-error-summary").first();
+    const message = warningBar.locator("#prereq-error-message").first();
+
+    await expect(warningBar).toBeVisible({ timeout: 15000 });
+    await expect(summary).toContainText(expectedSummary);
+
+    await summary.click();
+    await expect(message).toBeVisible({ timeout: 5000 });
+    await takeAndAttachScreenshot(
+      this.page,
+      "contract-prereq-error-expanded",
+      this.eyes,
+    );
+
+    await summary.click();
+    await expect(message).toBeHidden({ timeout: 5000 });
+    await takeAndAttachScreenshot(
+      this.page,
+      "contract-prereq-error-collapsed",
+      this.eyes,
+    );
+  }
+
+  async getVisiblePrereqErrorHtml(): Promise<string> {
+    const warningBar = this.prereqErrorAlert.filter({ visible: true }).first();
+    await expect(warningBar).toBeVisible({ timeout: 15000 });
+    return warningBar.innerHTML();
+  }
+
   async applyHeaderFilterAndGetExpectedCount(
     filterType: string,
   ): Promise<number | null> {
@@ -935,11 +966,13 @@ export class ApiContractPage extends BasePage {
 
     if (isMessageVisible) {
       await summary.click();
-      await expect(message).toBeHidden({ timeout: 5000 }).catch(() => {
-        console.warn(
-          "Prerequisite warning detail did not collapse after clicking summary again",
-        );
-      });
+      await expect(message)
+        .toBeHidden({ timeout: 5000 })
+        .catch(() => {
+          console.warn(
+            "Prerequisite warning detail did not collapse after clicking summary again",
+          );
+        });
       await takeAndAttachScreenshot(
         this.page,
         "contract-prereq-error-collapsed-after-expand",

@@ -1,7 +1,7 @@
 name: Studio - OpenAPI Spec Tests
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, invalid-spec-tests]
   pull_request:
     branches: [main, master]
 jobs:
