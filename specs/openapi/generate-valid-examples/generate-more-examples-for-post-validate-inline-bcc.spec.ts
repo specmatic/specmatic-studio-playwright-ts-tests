@@ -3,7 +3,6 @@ import { test, expect } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_POST_INLINED } from "../../specNames";
 import {
   generateMoreThenValidateAndInline,
-  getUpdatedSpecName,
   navigateToUpdatedSpec,
   setupExampleGenerationPage,
   verifyAndCloseInlineSuccessDialog,
@@ -21,7 +20,63 @@ const POST_PATHS_AND_CODES = [
   { path: ORDRES, code: 400 },
 ];
 
+const POST_ERROR_EXAMPLE_ASSERTIONS = [
+  {
+    path: PRODUCTS,
+    code: 400,
+    unexpectedSnippet: '"name": null',
+    expectedField: '"name"',
+  },
+  {
+    path: ORDRES,
+    code: 400,
+    unexpectedSnippet: '"productid": null',
+    expectedField: '"productid"',
+  },
+];
+
 test.describe("Validate generated spec after inlining POST request examples", () => {
+  test(
+    "POST 400 generated examples should not use null for required request fields",
+    {
+      tag: ["@examples", "@inlineExamples", "@expectedFailure", "@eyes"],
+    },
+    async ({ page, eyes }, testInfo) => {
+      test.fail(
+        true,
+        "POST 400 example generation currently produces null for required request fields",
+      );
+
+      const examplePage = await setupExampleGenerationPage(
+        page,
+        testInfo,
+        eyes,
+        SPEC,
+        [
+          { path: PRODUCTS, responseCodes: [400] },
+          { path: ORDRES, responseCodes: [400] },
+        ],
+      );
+
+      await test.step("Verify initial POST 400 examples use meaningful request field values", async () => {
+        for (const {
+          path,
+          code,
+          unexpectedSnippet,
+          expectedField,
+        } of POST_ERROR_EXAMPLE_ASSERTIONS) {
+          await examplePage.clickViewDetails(path, code);
+
+          const editorContent = await examplePage.getEditorContent();
+          expect(editorContent).toContain(expectedField);
+          expect(editorContent).not.toContain(unexpectedSnippet);
+
+          await examplePage.goBackFromExample();
+        }
+      });
+    },
+  );
+
   test(
     "POST multiple paths, multiple response codes - Generate, validate, inline and verify updated spec",
     {
