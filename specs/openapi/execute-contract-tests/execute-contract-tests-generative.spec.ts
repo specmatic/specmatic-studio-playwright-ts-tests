@@ -12,9 +12,10 @@ import {
 test.describe(
   "Generative Test Suite - Include/Exclude Combinations",
   {
-    tag: ["@test", "@generativeTests", "@eyes"],
+    tag: ["@test", "@generativeTests", "@eyes", "@expected-failure"],
   },
   () => {
+    test.fail(true, "Network issues exits test execution");
     let contractPage: ApiContractPage;
 
     test.beforeEach(async ({ page, eyes }, testInfo) => {
