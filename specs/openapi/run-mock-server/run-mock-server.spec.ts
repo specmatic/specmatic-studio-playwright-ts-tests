@@ -52,9 +52,9 @@ test.describe("API Mocking", () => {
 
       await test.step("Validate Mock Summary Results", async () => {
         await validateMockSummaryAndTableCounts(mockPage, {
-          success: 45,
+          success: 51,
           failed: 0,
-          total: 45,
+          total: 51,
           error: 0,
           notcovered: 0,
         });
@@ -98,7 +98,7 @@ async function verifyDrillDownScenarios(mockPage: MockServerPage) {
     await mockPage.clickMockTableRemark("/products", "201");
 
     const count = await mockPage.getTotalDrillDownCount();
-    expect(count, "The number of drill-down scenarios should be 12").toBe(12);
+    expect(count, "The number of drill-down scenarios should be 12").toBe(13);
 
     const isAllSuccess = await mockPage.areAllDrillDownsSuccess();
     expect(
