@@ -23,7 +23,7 @@ test.describe("Mock Server - Negative Scenarios", () => {
 
       await test.step(`Attempt to start mock on used port: ${usedPort}`, async () => {
         await mockPage.fillMockPort(usedPort);
-        await mockPage.startMockServer(false);
+        await mockPage.startMockServer();
       });
 
       await test.step("Verify 'Port in use' error message", async () => {
@@ -50,7 +50,7 @@ test.describe("Mock Server - Negative Scenarios", () => {
 
       await test.step(`Attempt to start mock on invalid port: ${invalidPort}`, async () => {
         await mockPage.fillMockPort(invalidPort);
-        await mockPage.startMockServer(false);
+        await mockPage.startMockServer();
       });
 
       await test.step("Verify invalid port error message", async () => {
