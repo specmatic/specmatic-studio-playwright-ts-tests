@@ -194,11 +194,43 @@ export class MockServerPage extends BasePage {
     );
   }
 
-  async startMockServer() {
+  private async clickMockToggleAndWaitForAttempt(): Promise<void> {
+    await expect(this.mockToggleButton).toBeVisible({ timeout: 10000 });
+    await expect(this.mockToggleButton).toBeEnabled({ timeout: 10000 });
+    await this.mockToggleButton.scrollIntoViewIfNeeded();
+
+    try {
+      await this.mockToggleButton.click({ timeout: 5000 });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.includes("intercepts pointer events")) {
+        throw error;
+      }
+
+      console.warn(
+        "Mock toggle click was intercepted by an overlay; retrying with force",
+      );
+      await this.mockToggleButton.click({ force: true, timeout: 5000 });
+    }
+
+    await expect(this.mockToggleButton).toHaveAttribute(
+      "data-running",
+      /processing|true|false/,
+      {
+        timeout: 15000,
+      },
+    );
+  }
+
+  async startMockServer(expectRunning = true) {
     const isRunning = await this.mockToggleButton.getAttribute("data-running");
     if (isRunning === "false") {
       await takeAndAttachScreenshot(this.page, "starting-mock-server");
-      await this.clickMockToggleAndWaitForState("true");
+      if (expectRunning) {
+        await this.clickMockToggleAndWaitForState("true");
+      } else {
+        await this.clickMockToggleAndWaitForAttempt();
+      }
       await takeAndAttachScreenshot(
         this.page,
         "started-mock-server",
