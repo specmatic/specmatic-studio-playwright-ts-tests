@@ -12,16 +12,9 @@ test.describe("Inline examples", () => {
   test(
     `Inline all examples for '${PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL}'`,
     {
-      tag: [
-        "@examples",
-        "@inlineExamples",
-        "@inlineAllExamples",
-        "@eyes",
-        "@expected-faliure",
-      ],
+      tag: ["@examples", "@inlineExamples", "@inlineAllExamples", "@eyes"],
     },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "Dilaog appearence issue after inlining examples");
       const examplePage = new ExampleGenerationPage(
         page,
         testInfo,

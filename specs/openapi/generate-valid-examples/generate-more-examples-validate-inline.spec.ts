@@ -2,7 +2,6 @@ import { test } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED } from "../../specNames";
 import {
   generateMoreThenValidateAndInline,
-  getUpdatedSpecName,
   navigateToUpdatedSpec,
   setupExampleGenerationPage,
   verifyAndCloseInlineSuccessDialog,
@@ -28,11 +27,9 @@ test.describe("Validate generated spec after inlining GET examples", () => {
         "@inlineExamples",
         "@validateInlinedExamplesForMultiplePaths",
         "@eyes",
-        "@expected-failure",
       ],
     },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "Dialog appearance issue after inlining examples");
       const examplePage = await setupExampleGenerationPage(
         page,
         testInfo,
