@@ -34,8 +34,9 @@ async function runAndVerifyCounts(
 test.describe("API Contract testing with test exclusion and inclusion", () => {
   test(
     "Exclude specific tests and verify excluded tests are not executed",
-    { tag: ["@test", "@testExclusion", "@eyes"] },
+    { tag: ["@test", "@testExclusion", "@eyes", "@expected-failure"] },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "Network error exits test execution");
       const contractPage = new ApiContractPage(
         page,
         testInfo,
@@ -60,8 +61,8 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await contractPage.clickExcludeButton();
         await runAndVerifyCounts(contractPage, {
           success: 0,
-          failed: 20,
-          total: 23,
+          failed: 23,
+          total: 26,
           error: 0,
           notcovered: 2,
           excluded: 1,
@@ -77,8 +78,8 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await contractPage.clickIncludeButton();
         await runAndVerifyCounts(contractPage, {
           success: 12,
-          failed: 20,
-          total: 34,
+          failed: 24,
+          total: 38,
           error: 0,
           notcovered: 2,
           excluded: 0,
@@ -93,8 +94,8 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await contractPage.clickExcludeButton();
         await runAndVerifyCounts(contractPage, {
           success: 0,
-          failed: 15,
-          total: 19,
+          failed: 18,
+          total: 22,
           error: 0,
           notcovered: 2,
           excluded: 2,
@@ -109,8 +110,8 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         await contractPage.clickIncludeButton();
         await runAndVerifyCounts(contractPage, {
           success: 12,
-          failed: 20,
-          total: 34,
+          failed: 24,
+          total: 38,
           error: 0,
           notcovered: 2,
           excluded: 0,

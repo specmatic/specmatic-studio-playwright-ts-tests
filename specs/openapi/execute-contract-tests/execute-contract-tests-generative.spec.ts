@@ -47,8 +47,8 @@ test.describe(
 
         await validateSummaryAndTableCounts(contractPage, {
           success: 188,
-          failed: 32,
-          total: 222,
+          failed: 36,
+          total: 226,
           error: 0,
           notcovered: 2,
           excluded: 0,
@@ -78,8 +78,8 @@ test.describe(
 
       await validateSummaryAndTableCounts(contractPage, {
         success: 176,
-        failed: 32,
-        total: 211,
+        failed: 35,
+        total: 214,
         error: 0,
         notcovered: 2,
         excluded: 1,

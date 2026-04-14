@@ -21,8 +21,20 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid service URL",
-    { tag: ["@test", "@negative", "@wrongServiceURL", "@eyes"] },
+    {
+      tag: [
+        "@test",
+        "@negative",
+        "@wrongServiceURL",
+        "@eyes",
+        "@expected-faliure",
+      ],
+    },
     async () => {
+      test.fail(
+        true,
+        "Invalid port/URL executes test instead of throwing a warning",
+      );
       const invalidUrl = "http://localhost:3124";
 
       await test.step("Enter invalid service URL", async () => {
@@ -43,8 +55,12 @@ test.describe("API Contract Testing - Negative Scenarios", () => {
 
   test(
     "Verify error for invalid port",
-    { tag: ["@test", "@negative", "@wrongPort", "@eyes"] },
+    { tag: ["@test", "@negative", "@wrongPort", "@eyes", "@expected-failure"] },
     async () => {
+      test.fail(
+        true,
+        "Invalid port/URL executes test instead of throwing a warning",
+      );
       const invalidPortUrl = "http://order-bff:9999";
 
       await test.step("Enter service URL with invalid port", async () => {
