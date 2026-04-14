@@ -65,11 +65,11 @@ async function verifyContractTestResults(contractPage: ApiContractPage) {
     const headerTotals = await contractPage.getSummaryHeaderTotals();
     expect.soft(headerTotals).toStrictEqual({
       success: 17,
-      failed: 15,
+      failed: 19,
       error: 0,
       notcovered: 2,
       excluded: 0,
-      total: 34,
+      total: 38,
     });
 
     const tableHeaderTotals = await contractPage.getAllHeaderTotals();
