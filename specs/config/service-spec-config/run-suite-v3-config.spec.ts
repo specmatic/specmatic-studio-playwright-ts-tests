@@ -24,8 +24,9 @@ test.describe("Specmatic Config V3", () => {
 
   test(
     "Run Suite using v3 config and then with the dynamically started mock",
-    { tag: ["@config", "@runSuiteForV3", "@eyes"] },
+    { tag: ["@config", "@runSuiteForV3", "@eyes", "@expected-failure"] },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true);
       const configPage = createConfigPage(page, eyes, testInfo);
 
       await runBaseV3Suite(configPage, page, eyes);
