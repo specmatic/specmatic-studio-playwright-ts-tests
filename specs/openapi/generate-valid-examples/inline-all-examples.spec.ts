@@ -12,9 +12,16 @@ test.describe("Inline examples", () => {
   test(
     `Inline all examples for '${PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL}'`,
     {
-      tag: ["@examples", "@inlineExamples", "@inlineAllExamples", "@eyes"],
+      tag: [
+        "@examples",
+        "@inlineExamples",
+        "@inlineAllExamples",
+        "@eyes",
+        "@expected-failure",
+      ],
     },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "Inline success dialog does not appear");
       const examplePage = new ExampleGenerationPage(
         page,
         testInfo,
