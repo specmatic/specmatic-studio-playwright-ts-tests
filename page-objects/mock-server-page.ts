@@ -214,10 +214,8 @@ export class MockServerPage extends BasePage {
   async assertAsyncMockStarted(
     expectedText: string | RegExp = /Kafka mock broker/i,
   ): Promise<void> {
-    await expect(this.infoMessageBox).toBeVisible({ timeout: 10000 });
-    await expect(this.infoMessageBox).toContainText(expectedText, {
-      timeout: 10000,
-    });
+    await expect(this.infoMessageBox).toBeVisible();
+    await expect(this.infoMessageBox).toContainText(expectedText);
     await takeAndAttachScreenshot(
       this.page,
       "async-mock-started-verified",
