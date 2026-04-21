@@ -70,7 +70,6 @@ async function verifyKafkaContractResults(contractPage: ApiContractPage) {
       .toStrictEqual({
         success: 1,
         failed: 0,
-        error: 0,
         notcovered: 0,
         total: 1,
         excluded: 0,
@@ -84,7 +83,6 @@ async function validateAsyncMockSummaryAndTableCounts(
     success: number;
     failed: number;
     total: number;
-    error?: number;
     notcovered?: number;
   },
 ) {
@@ -96,7 +94,6 @@ async function validateAsyncMockSummaryAndTableCounts(
       success: expected.success,
       failed: expected.failed,
       total: expected.total,
-      error: expected.error ?? 0,
       notcovered: expected.notcovered ?? 0,
     });
 }

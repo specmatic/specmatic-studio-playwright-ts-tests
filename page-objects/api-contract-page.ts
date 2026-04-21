@@ -162,7 +162,7 @@ export class ApiContractPage extends BasePage {
     //Table Locators
     this.tableHeader = (key: string) =>
       page.locator(`table#test thead th[data-key="${key}"]`);
-    this.tableRows = page.locator("table#test tbody tr");
+    this.tableRows = page.locator("table#test > tbody > tr");
 
     //Header Locators
     this.summaryCount = (type: string) =>
@@ -421,6 +421,163 @@ export class ApiContractPage extends BasePage {
     }
   }
 
+  async verifyRemarkStatusMetrics(
+    path: string,
+    method: string,
+    response: string,
+    expectedStatus: string | RegExp,
+  ) {
+    const row = this.rowLocator(path, method, response);
+    await expect(row).toBeVisible({ timeout: 10000 });
+
+    const remarkCell = this.remarkCellLocator(row);
+    await expect(remarkCell.locator(".remark-cell-status")).toHaveText(
+      expectedStatus,
+      { timeout: 10000 },
+    );
+
+    const resultCell = row.locator('td[data-key="result"]');
+    const [success, total, attempts, matches] = await Promise.all([
+      this.getResultCountFromCell(resultCell, "success"),
+      this.getResultCountFromCell(resultCell, "total"),
+      this.getRemarkMetricCount(remarkCell, "attempts"),
+      this.getRemarkMetricCount(remarkCell, "matches"),
+    ]);
+
+    expect(attempts, "Remark attempts should match row total results").toBe(
+      total,
+    );
+    expect(matches, "Remark matches should match row success results").toBe(
+      success,
+    );
+  }
+
+  async verifySkipReasonPopover(
+    path: string,
+    method: string,
+    response: string,
+    reasonLabel: string,
+    expectedContext: Record<string, string>,
+    expectedRules: { ruleId: string; details: string }[],
+  ) {
+    const row = this.rowLocator(path, method, response);
+    await expect(row).toBeVisible({ timeout: 10000 });
+
+    const remarkCell = this.remarkCellLocator(row);
+    const skipList = remarkCell.locator(".remark-cell-skip-list");
+    await expect(skipList).toBeVisible({ timeout: 10000 });
+
+    const reasonButton = skipList
+      .locator(".skip-reason-trigger")
+      .filter({ hasText: reasonLabel })
+      .first();
+    await expect(reasonButton).toBeVisible({ timeout: 10000 });
+    await reasonButton.click();
+
+    const popover = remarkCell
+      .locator(".skip-reason-content")
+      .filter({ visible: true })
+      .first();
+    await expect(popover).toBeVisible({ timeout: 10000 });
+
+    const context = popover.locator(".skip-reason-context");
+    for (const [label, value] of Object.entries(expectedContext)) {
+      await expect(
+        context,
+        `Skip reason context should include ${label}`,
+      ).toContainText(label);
+      await expect(
+        context,
+        `Skip reason context should include ${value}`,
+      ).toContainText(value);
+    }
+
+    for (const rule of expectedRules) {
+      const ruleRow = popover
+        .locator("table.rulesTable tbody tr")
+        .filter({
+          hasText: rule.ruleId,
+        })
+        .first();
+      await expect(
+        ruleRow,
+        `Rule ${rule.ruleId} should be visible`,
+      ).toBeVisible({ timeout: 10000 });
+      await expect(ruleRow).toContainText(rule.details);
+    }
+
+    await this.page.mouse.click(10, 10);
+    await expect(popover).toBeHidden({ timeout: 5000 });
+  }
+
+  private async getResultCountFromCell(
+    resultCell: Locator,
+    key: "success" | "failed" | "notcovered" | "excluded" | "total",
+  ): Promise<number> {
+    const value = await resultCell
+      .locator(`span[data-key="${key}"]`)
+      .getAttribute("data-value");
+    return parseInt(value || "0", 10);
+  }
+
+  private async getRemarkMetricCount(
+    remarkCell: Locator,
+    metric: "attempts" | "matches",
+  ): Promise<number> {
+    const text = await remarkCell
+      .locator(`strong[data-role="${metric}"]`)
+      .innerText();
+    return parseInt(text.trim() || "0", 10);
+  }
+
+  async hasRow(
+    path: string,
+    method: string,
+    response: string,
+  ): Promise<boolean> {
+    return (await this.rowLocator(path, method, response).count()) > 0;
+  }
+
+  async assertRowVisible(path: string, method: string, response: string) {
+    await expect(this.rowLocator(path, method, response)).toBeVisible({
+      timeout: 10000,
+    });
+    await takeAndAttachScreenshot(
+      this.page,
+      `row-visible-${path}-${method}-${response}`.replace(
+        /[^a-zA-Z0-9-]/g,
+        "-",
+      ),
+      this.eyes,
+    );
+  }
+
+  async assertRowAbsent(path: string, method: string, response: string) {
+    await expect(this.rowLocator(path, method, response)).toHaveCount(0);
+    await takeAndAttachScreenshot(
+      this.page,
+      `row-absent-${path}-${method}-${response}`.replace(/[^a-zA-Z0-9-]/g, "-"),
+      this.eyes,
+    );
+  }
+
+  async assertSummaryCountsCleared() {
+    const totals = await this.getSummaryHeaderTotals();
+    expect(totals).toStrictEqual({
+      success: 0,
+      failed: 0,
+      notcovered: 0,
+      excluded: 0,
+      total: 0,
+    });
+
+    await takeAndAttachScreenshot(
+      this.page,
+      "contract-summary-counts-cleared",
+      this.eyes,
+    );
+  }
+
   async selectTestForExclusionOrInclusion(
     path: string,
     method: string,
@@ -535,7 +692,7 @@ export class ApiContractPage extends BasePage {
 
   /**
    * Scrapes the table and returns the count of unique values in a specific column
-   * @param columnIndex 0-based index (e.g., Path might be 2, Method might be 3)
+   * @param columnIndex 0-based index
    */
   async getUniqueValuesInColumn(columnIndex: number): Promise<number> {
     const rows = this.tableRows;
@@ -554,6 +711,23 @@ export class ApiContractPage extends BasePage {
     return uniqueValues.size;
   }
 
+  async getUniqueValuesForKey(columnKey: string): Promise<number> {
+    const cells = this.page.locator(
+      `table#test tbody tr td[data-key="${columnKey}"]`,
+    );
+    const values = await cells.evaluateAll((elements) =>
+      elements
+        .map(
+          (element) =>
+            element.getAttribute("data-value") || element.textContent || "",
+        )
+        .map((value) => value.trim())
+        .filter(Boolean),
+    );
+
+    return new Set(values).size;
+  }
+
   async getAllHeaderTotals() {
     await takeAndAttachScreenshot(this.page, "all-header-totals", this.eyes);
     return {
@@ -568,7 +742,7 @@ export class ApiContractPage extends BasePage {
   }
 
   async getSummaryHeaderValue(
-    type: "success" | "failed" | "error" | "notcovered" | "excluded" | "total",
+    type: "success" | "failed" | "notcovered" | "excluded" | "total",
   ): Promise<number> {
     const countElement = this.summaryValueLocator(type);
     try {
@@ -602,7 +776,7 @@ export class ApiContractPage extends BasePage {
 
     // Get all result cells in the visible table
     const resultCells = await this.page
-      .locator('table#test:visible td[data-key="result"]')
+      .locator('table#test:visible > tbody > tr > td[data-key="result"]')
       .all();
 
     const totals = {
@@ -616,10 +790,9 @@ export class ApiContractPage extends BasePage {
 
     for (const cell of resultCells) {
       // Fetch all data-values for this row in parallel
-      const [s, f, e, n, ex, t] = await Promise.all([
+      const [s, f, n, ex, t] = await Promise.all([
         cell.locator('span[data-key="success"]').getAttribute("data-value"),
         cell.locator('span[data-key="failed"]').getAttribute("data-value"),
-        cell.locator('span[data-key="error"]').getAttribute("data-value"),
         cell.locator('span[data-key="notcovered"]').getAttribute("data-value"),
         cell.locator('span[data-key="excluded"]').getAttribute("data-value"),
         cell.locator('span[data-key="total"]').getAttribute("data-value"),
@@ -627,7 +800,6 @@ export class ApiContractPage extends BasePage {
 
       totals.success += parseInt(s || "0", 10);
       totals.failed += parseInt(f || "0", 10);
-      totals.error += parseInt(e || "0", 10);
       totals.notcovered += parseInt(n || "0", 10);
       totals.excluded += parseInt(ex || "0", 10);
       totals.total += parseInt(t || "0", 10);
@@ -645,7 +817,6 @@ export class ApiContractPage extends BasePage {
     const keys = [
       "success",
       "failed",
-      "error",
       "notcovered",
       "excluded",
       "total",
@@ -658,10 +829,10 @@ export class ApiContractPage extends BasePage {
     return {
       success: values[0],
       failed: values[1],
-      error: values[2],
-      notcovered: values[3],
-      excluded: values[4],
-      total: values[5],
+      error: 0,
+      notcovered: values[2],
+      excluded: values[3],
+      total: values[4],
     };
   }
 
@@ -682,10 +853,9 @@ export class ApiContractPage extends BasePage {
       }
     };
 
-    const [success, failed, error, notcovered, total] = await Promise.all([
+    const [success, failed, notcovered, total] = await Promise.all([
       getSpanValue(this.successCountSpan),
       getSpanValue(this.failedCountSpan),
-      getSpanValue(this.errorCountSpan),
       getSpanValue(this.notcoveredCountSpan),
       getSpanValue(this.totalSpan),
     ]);
@@ -693,7 +863,6 @@ export class ApiContractPage extends BasePage {
     return {
       success,
       failed,
-      error,
       notcovered,
       total,
     };
@@ -935,11 +1104,13 @@ export class ApiContractPage extends BasePage {
 
     if (isMessageVisible) {
       await summary.click();
-      await expect(message).toBeHidden({ timeout: 5000 }).catch(() => {
-        console.warn(
-          "Prerequisite warning detail did not collapse after clicking summary again",
-        );
-      });
+      await expect(message)
+        .toBeHidden({ timeout: 5000 })
+        .catch(() => {
+          console.warn(
+            "Prerequisite warning detail did not collapse after clicking summary again",
+          );
+        });
       await takeAndAttachScreenshot(
         this.page,
         "contract-prereq-error-collapsed-after-expand",
@@ -967,7 +1138,6 @@ export class ApiContractPage extends BasePage {
     return {
       success: totals.success,
       failed: totals.failed,
-      error: totals.error,
       notcovered: totals.notcovered,
       total: totals.total,
       excluded: 0,

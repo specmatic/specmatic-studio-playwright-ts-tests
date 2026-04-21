@@ -25,7 +25,7 @@ async function runAndVerifyCounts(
 
   const { path } = await contractPage.getAllHeaderTotals();
   expect(path, "Path header should match unique paths in table").toBe(
-    await contractPage.getUniqueValuesInColumn(2),
+    await contractPage.getUniqueValuesForKey("path"),
   );
 
   await validateSummaryAndTableCounts(contractPage, expectedCounts);

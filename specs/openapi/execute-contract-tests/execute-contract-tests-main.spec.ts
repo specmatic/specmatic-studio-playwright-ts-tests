@@ -47,6 +47,60 @@ test.describe("API Contract Testing", () => {
         );
       });
 
+      await test.step("Verify remark status metrics and skip reason details", async () => {
+        await contractPage.verifyRemarkStatusMetrics(
+          "/products",
+          "POST",
+          "202",
+          /not implemented/i,
+        );
+
+        await contractPage.verifySkipReasonPopover(
+          "/products",
+          "POST",
+          "400",
+          "Generative Disabled",
+          {
+            Path: "/products",
+            Method: "POST",
+            RequestContentType: "application/json",
+            Response: "400",
+            ResponseContentType: "application/json",
+          },
+          [
+            {
+              ruleId: "T00004: Generative Disabled",
+              details:
+                "This operation was skipped because it requires schema resiliency to be enabled",
+            },
+            {
+              ruleId: "T00002: Examples Required",
+              details:
+                "This operation requires examples to run, but none were provided",
+            },
+          ],
+        );
+
+        await contractPage.verifySkipReasonPopover(
+          "/findAvailableProducts",
+          "GET",
+          "429",
+          "Examples Required",
+          {
+            Path: "/findAvailableProducts",
+            Method: "GET",
+            Response: "429",
+          },
+          [
+            {
+              ruleId: "T00002: Examples Required",
+              details:
+                "This operation requires examples to run, but none were provided",
+            },
+          ],
+        );
+      });
+
       await test.step("Verify test results and remarks for executed contract tests", async () => {
         await contractPage.verifyTestResults();
 
@@ -64,14 +118,14 @@ test.describe("API Contract Testing", () => {
         expect(
           tableHeaderTotals.path,
           "Path header should match unique paths in table",
-        ).toBe(await contractPage.getUniqueValuesInColumn(2));
+        ).toBe(await contractPage.getUniqueValuesForKey("path"));
 
         await validateSummaryAndTableCounts(contractPage, {
           success: 12,
           failed: 20,
-          total: 34,
+          total: 39,
           error: 0,
-          notcovered: 2,
+          notcovered: 7,
           excluded: 0,
         });
       });
