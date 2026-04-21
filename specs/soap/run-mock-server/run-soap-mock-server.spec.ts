@@ -51,7 +51,6 @@ async function validateSoapMockSummaryAndTableCounts(
     success: number;
     failed: number;
     total: number;
-    error?: number;
     notcovered?: number;
   },
 ) {
@@ -66,7 +65,6 @@ async function validateSoapMockSummaryAndTableCounts(
       success: expected.success,
       failed: expected.failed,
       total: expected.total,
-      error: expected.error ?? 0,
       notcovered: expected.notcovered ?? 0,
     });
 }
@@ -78,7 +76,6 @@ async function performMockVerifications(mockPage: MockServerPage) {
       success: 3,
       failed: 0,
       total: 3,
-      error: 0,
       notcovered: 0,
     });
 

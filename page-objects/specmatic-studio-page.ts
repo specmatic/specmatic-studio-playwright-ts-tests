@@ -15,6 +15,7 @@ export class SpecmaticStudioPage extends BasePage {
   private readonly proxyErrorAlert: Locator;
   private readonly proxyInfoBox: Locator;
   private readonly proxyTable: Locator;
+  private readonly proxyTableRows: Locator;
 
   private readonly proxyTableRowByPath: (path: string) => Locator;
   private readonly replayBtnByPath: (path: string) => Locator;
@@ -39,6 +40,7 @@ export class SpecmaticStudioPage extends BasePage {
     this.proxyErrorAlert = page.locator("#alert-container .alert-msg.error");
     this.proxyInfoBox = page.locator("#proxy .info-message-box");
     this.proxyTable = page.locator("table#proxyTable");
+    this.proxyTableRows = this.proxyTable.locator("tbody tr");
 
     this.proxyTableRowByPath = (path) =>
       page.locator(
@@ -125,6 +127,46 @@ export class SpecmaticStudioPage extends BasePage {
       .locator("..")
       .locator(`td[data-key="count"][data-value="${expectedCount}"]`);
     await expect(countCell).toBeVisible({ timeout: 5000 });
+  }
+
+  async getRecordedProxyPaths(): Promise<string[]> {
+    await this.assertProxyTableVisible();
+
+    const rowCount = await this.proxyTableRows.count();
+    const paths: string[] = [];
+
+    for (let index = 0; index < rowCount; index++) {
+      const pathValue = await this.proxyTableRows
+        .nth(index)
+        .locator('td[data-key="path"]')
+        .getAttribute("data-value");
+
+      if (pathValue) {
+        paths.push(pathValue);
+      }
+    }
+
+    return paths;
+  }
+
+  async assertProxyTrafficRecorded(minRows: number = 1) {
+    await expect
+      .poll(async () => this.proxyTableRows.count(), {
+        timeout: 15000,
+        message: `Expected at least ${minRows} recorded proxy row(s)`,
+      })
+      .toBeGreaterThanOrEqual(minRows);
+    await takeAndAttachScreenshot(this.page, "proxy-traffic-recorded", this.eyes);
+  }
+
+  async clickReplayForFirstRecordedPath(withVisualValidation = false) {
+    const recordedPaths = await this.getRecordedProxyPaths();
+    if (recordedPaths.length === 0) {
+      throw new Error("No recorded proxy paths were available to replay.");
+    }
+
+    await this.clickReplayForPath(recordedPaths[0], withVisualValidation);
+    return recordedPaths[0];
   }
 
   async clickProxyApiFilter() {

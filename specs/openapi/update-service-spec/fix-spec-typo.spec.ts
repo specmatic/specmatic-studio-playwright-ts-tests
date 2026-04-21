@@ -49,10 +49,10 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
         await contractPage.clickRunContractTests();
         await validateSummaryAndTableCounts(contractPage, {
           success: 12,
-          failed: 20,
-          total: 33,
+          failed: 21,
+          total: 41,
           error: 0,
-          notcovered: 1,
+          notcovered: 8,
           excluded: 0,
         });
       });

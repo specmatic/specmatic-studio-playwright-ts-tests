@@ -65,7 +65,6 @@ async function verifySoapContractSummary(contractPage: ApiContractPage) {
       .toStrictEqual({
         success: 3,
         failed: 0,
-        error: 0,
         notcovered: 0,
         total: 3,
       });
@@ -91,7 +90,7 @@ async function verifySoapContractTableHeaders(contractPage: ApiContractPage) {
 async function verifySoapActionOperations(contractPage: ApiContractPage) {
   await test.step("Verify Coverage for addInventory, getInventory, and reduceInventory", async () => {
     const rowCount = await contractPage.getActualRowCount();
-    const uniqueActions = await contractPage.getUniqueValuesInColumn(2);
+    const uniqueActions = await contractPage.getUniqueValuesForKey("soapAction");
 
     expect
       .soft(rowCount, "Total rows should match the 3 operations in the WSDL")

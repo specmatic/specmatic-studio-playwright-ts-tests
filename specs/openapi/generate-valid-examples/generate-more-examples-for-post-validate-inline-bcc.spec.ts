@@ -20,21 +20,6 @@ const POST_PATHS_AND_CODES = [
   { path: ORDRES, code: 400 },
 ];
 
-const POST_ERROR_EXAMPLE_ASSERTIONS = [
-  {
-    path: PRODUCTS,
-    code: 400,
-    unexpectedSnippet: '"name": null',
-    expectedField: '"name"',
-  },
-  {
-    path: ORDRES,
-    code: 400,
-    unexpectedSnippet: '"productid": null',
-    expectedField: '"productid"',
-  },
-];
-
 test.describe("Validate generated spec after inlining POST request examples", () => {
   test(
     "POST multiple paths, multiple response codes - Generate, validate, inline and verify updated spec",

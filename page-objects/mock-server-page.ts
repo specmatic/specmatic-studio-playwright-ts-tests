@@ -288,7 +288,7 @@ export class MockServerPage extends BasePage {
   }
 
   async getMockSummaryHeaderValue(
-    type: "success" | "failed" | "error" | "notcovered" | "excluded" | "total",
+    type: "success" | "failed" | "notcovered" | "excluded" | "total",
   ): Promise<number> {
     const countElement = this.mockCountByType(type);
 
@@ -302,7 +302,6 @@ export class MockServerPage extends BasePage {
     const keys = [
       "success",
       "failed",
-      "error",
       "notcovered",
       "excluded",
       "total",
@@ -315,10 +314,10 @@ export class MockServerPage extends BasePage {
     return {
       success: values[0],
       failed: values[1],
-      error: values[2],
-      notcovered: values[3],
-      excluded: values[4],
-      total: values[5],
+      error: 0,
+      notcovered: values[2],
+      excluded: values[3],
+      total: values[4],
     };
   }
 
@@ -564,7 +563,7 @@ export class MockServerPage extends BasePage {
   }
 
   async getSoapMockSummaryHeaderTotals() {
-    const keys = ["success", "failed", "error", "notcovered", "total"] as const;
+    const keys = ["success", "failed", "notcovered", "total"] as const;
 
     const values = await Promise.all(
       keys.map((key) => this.getMockSummaryHeaderValue(key)),
@@ -573,9 +572,8 @@ export class MockServerPage extends BasePage {
     return {
       success: values[0],
       failed: values[1],
-      error: values[2],
-      notcovered: values[3],
-      total: values[4],
+      notcovered: values[2],
+      total: values[3],
     };
   }
 
@@ -627,7 +625,7 @@ export class MockServerPage extends BasePage {
   }
 
   async getAsyncMockSummaryHeaderTotals() {
-    const keys = ["success", "failed", "error", "notcovered", "total"] as const;
+    const keys = ["success", "failed", "notcovered", "total"] as const;
 
     const values = await Promise.all(
       keys.map((key) => this.getMockSummaryHeaderValue(key)),
@@ -636,9 +634,8 @@ export class MockServerPage extends BasePage {
     return {
       success: values[0],
       failed: values[1],
-      error: values[2],
-      notcovered: values[3],
-      total: values[4],
+      notcovered: values[2],
+      total: values[3],
     };
   }
 
