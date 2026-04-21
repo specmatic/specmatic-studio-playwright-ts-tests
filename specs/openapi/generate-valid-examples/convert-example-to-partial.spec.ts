@@ -4,7 +4,8 @@ import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_CONVERT_TO_PARTIAL } from "../../specN
 
 const PRODUCTS_PATH = "products";
 const PRODUCT_CREATED_STATUS = 201;
-const GENERATED_EXAMPLE_NAME = "createProduct_201_1";
+const GENERATED_EXAMPLE_NAME =
+  "createProduct_application_json_201_application_json_1";
 
 test.describe("Example Generation", () => {
   test(
