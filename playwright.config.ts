@@ -82,6 +82,7 @@ export default defineConfig({
         launchOptions: {
           headless: process.env.CI ? true : process.env.HEADLESS === "true",
           args: ["--start-maximized"],
+          slowMo: 200,
         },
       },
     },
@@ -101,7 +102,7 @@ export default defineConfig({
   globalSetup: path.resolve(__dirname, "./utils/global-setup.ts"),
   globalTeardown: path.resolve(__dirname, "./utils/global-teardown.ts"),
   ...(!isJarMode && isDocker
-      ? {
+    ? {
         webServer: {
           command: dockerScript,
           url: baseURL,
