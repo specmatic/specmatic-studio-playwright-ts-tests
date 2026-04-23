@@ -107,8 +107,122 @@ export class BasePage {
       } else {
         await tabLocator.click({ force: true });
       }
+
+      await this.waitForTabContentReady(dataType);
       await takeAndAttachScreenshot(this.page, screenshotName);
       return tabLocator;
     });
+  }
+
+  private async waitForTabContentReady(dataType: string | null): Promise<void> {
+    const timeout = 15000;
+
+    if (dataType === "test") {
+      await this.waitForAnyVisible(
+        [
+          '.tab-pane[data-type="test"][data-active="true"] table#test',
+          '[data-type="test"] table#test',
+          'table#test',
+          '[data-type="test"] .header ol.counts',
+        ],
+        timeout,
+      );
+      await this.waitForTableStructure("table#test");
+      return;
+    }
+
+    if (dataType === "mock") {
+      await this.waitForAnyVisible(
+        [
+          '.tab-pane[data-type="mock"][data-active="true"] table#mock',
+          '[data-type="mock"] table#mock',
+          'table#mock',
+          '[data-type="mock"] .header ol.counts',
+        ],
+        timeout,
+      );
+      await this.waitForTableStructure("table#mock");
+      return;
+    }
+
+    if (dataType === "example") {
+      await this.waitForAnyVisible(
+        [
+          "iframe[data-examples-server-base]",
+          "#valid-examples-table",
+          "#invalid-examples-table",
+        ],
+        timeout,
+      );
+      return;
+    }
+
+    if (dataType === "spec") {
+      await this.waitForAnyVisible(
+        [".cm-content", ".cm-editor", ".CodeMirror", "textarea"],
+        timeout,
+      );
+      return;
+    }
+
+    await this.page.waitForLoadState("networkidle", { timeout: 3000 }).catch(
+      () => {},
+    );
+  }
+
+  private async waitForAnyVisible(
+    selectors: string[],
+    timeout: number,
+  ): Promise<void> {
+    await expect
+      .poll(
+        async () => {
+          for (const selector of selectors) {
+            const locator = this.page.locator(selector).first();
+            if (await locator.isVisible().catch(() => false)) {
+              return true;
+            }
+          }
+          return false;
+        },
+        {
+          timeout,
+          intervals: [200, 400, 800],
+          message: `Waiting for visible selector from: ${selectors.join(", ")}`,
+        },
+      )
+      .toBeTruthy();
+  }
+
+  private async waitForTableStructure(tableSelector: string): Promise<void> {
+    const table = this.page.locator(tableSelector).first();
+    await table.waitFor({ state: "visible", timeout: 15000 });
+
+    await expect
+      .poll(
+        async () => {
+          const [tbodyCount, rowCount, cellCount, generated] = await Promise.all(
+            [
+              table.locator("tbody").count(),
+              table.locator("tbody tr").count(),
+              table.locator("tbody td").count(),
+              table.getAttribute("data-generated"),
+            ],
+          );
+
+          return (
+            tbodyCount > 0 ||
+            rowCount > 0 ||
+            cellCount > 0 ||
+            generated !== null
+          );
+        },
+        {
+          timeout: 5000,
+          intervals: [150, 300, 600],
+          message: `Waiting for table structure to load: ${tableSelector}`,
+        },
+      )
+      .toBeTruthy();
   }
 }
