@@ -421,6 +421,43 @@ export class ApiContractPage extends BasePage {
     }
   }
 
+  async verifyRowRemarkDoesNotContain(
+    path: string,
+    method: string,
+    response: string,
+    unexpectedText: string | RegExp,
+  ) {
+    const row = this.rowLocator(path, method, response);
+    const rowCount = await row.count();
+
+    if (rowCount === 0) {
+      await takeAndAttachScreenshot(
+        this.page,
+        `row-not-found-after-spec-update-${path}-${method}-${response}`.replace(
+          /[^a-zA-Z0-9-]/g,
+          "-",
+        ),
+        this.eyes,
+      );
+      return;
+    }
+
+    await expect(row).toBeVisible({ timeout: 10000 });
+    const remarkCell = this.remarkCellLocator(row);
+    await expect(remarkCell).not.toContainText(unexpectedText, {
+      timeout: 10000,
+    });
+
+    await takeAndAttachScreenshot(
+      this.page,
+      `remark-updated-${path}-${method}-${response}`.replace(
+        /[^a-zA-Z0-9-]/g,
+        "-",
+      ),
+      this.eyes,
+    );
+  }
+
   async verifyRemarkStatusMetrics(
     path: string,
     method: string,
@@ -508,6 +545,142 @@ export class ApiContractPage extends BasePage {
 
     await this.page.mouse.click(10, 10);
     await expect(popover).toBeHidden({ timeout: 5000 });
+  }
+
+  async openRemarkDrillDownForRow(
+    path: string,
+    method: string,
+    response: string,
+  ) {
+    const row = this.rowLocator(path, method, response);
+    await expect(row).toBeVisible({ timeout: 10000 });
+
+    const remarkCell = this.remarkCellLocator(row);
+    await expect(remarkCell).toBeVisible({ timeout: 10000 });
+    await remarkCell.click();
+
+    await expect(this.activeDrillDown).toBeVisible({ timeout: 10000 });
+    await takeAndAttachScreenshot(
+      this.page,
+      `remark-drilldown-opened-${path}-${method}-${response}`.replace(
+        /[^a-zA-Z0-9-]/g,
+        "-",
+      ),
+      this.eyes,
+    );
+  }
+
+  async openFirstNotImplementedRemarkDrillDown(): Promise<{
+    path: string;
+    method: string;
+    response: string;
+  }> {
+    const remarkCell = this.specSection
+      .locator("table#test:visible > tbody > tr td[data-key='remark']")
+      .filter({ hasText: /not implemented/i })
+      .first();
+    await expect(remarkCell).toBeVisible({ timeout: 10000 });
+
+    const row = remarkCell.locator("xpath=ancestor::tr[1]");
+    const [path, method, response] = await Promise.all([
+      row.locator("td[data-key='path']").getAttribute("data-value"),
+      row.locator("td[data-key='method']").getAttribute("data-value"),
+      row.locator("td[data-key='response']").getAttribute("data-value"),
+    ]);
+
+    await remarkCell.click();
+    await expect(this.activeDrillDown).toBeVisible({ timeout: 10000 });
+
+    const details = {
+      path: path || "",
+      method: method || "",
+      response: response || "",
+    };
+    await takeAndAttachScreenshot(
+      this.page,
+      `remark-drilldown-opened-not-implemented-${details.path}-${details.method}-${details.response}`.replace(
+        /[^a-zA-Z0-9-]/g,
+        "-",
+      ),
+      this.eyes,
+    );
+
+    return details;
+  }
+
+  async verifyQualifierPillVisible(qualifier: string) {
+    const normalizedQualifier = qualifier.toLowerCase();
+    const qualifierPill = this.activeDrillDown
+      .locator(
+        `.qualifier-pill[data-qualifier="${normalizedQualifier}"], .qualifiers .pill[data-qualifier="${normalizedQualifier}"]`,
+      )
+      .first();
+
+    await expect(
+      qualifierPill,
+      `Qualifier pill "${qualifier}" should be visible in drill-down`,
+    ).toBeVisible({ timeout: 10000 });
+
+    await takeAndAttachScreenshot(
+      this.page,
+      `qualifier-pill-visible-${normalizedQualifier}`,
+      this.eyes,
+    );
+  }
+
+  async expandQualifierPill(qualifier: string) {
+    const normalizedQualifier = qualifier.toLowerCase();
+    const qualifierPill = this.activeDrillDown
+      .locator(
+        `.qualifier-pill[data-qualifier="${normalizedQualifier}"], .qualifiers .pill[data-qualifier="${normalizedQualifier}"]`,
+      )
+      .first();
+
+    await expect(qualifierPill).toBeVisible({ timeout: 10000 });
+    await qualifierPill.click();
+    await this.page.waitForTimeout(300);
+
+    await takeAndAttachScreenshot(
+      this.page,
+      `qualifier-pill-expanded-${normalizedQualifier}`,
+      this.eyes,
+    );
+  }
+
+  async clickAddToSpecificationInResponse() {
+    const responseBlock = this.activeDrillDown
+      .locator(".req-res-block.req-res-block--response")
+      .first();
+    await expect(responseBlock).toBeVisible({ timeout: 10000 });
+    await responseBlock.scrollIntoViewIfNeeded();
+
+    const addToSpecificationButton = responseBlock
+      .locator("button.add-to-spec-btn")
+      .first();
+    await expect(addToSpecificationButton).toBeVisible({ timeout: 10000 });
+    await addToSpecificationButton.click();
+
+    await takeAndAttachScreenshot(
+      this.page,
+      "add-to-specification-clicked",
+      this.eyes,
+    );
+  }
+
+  async verifyAddToSpecificationSuccessDialog(
+    expectedText: string | RegExp = /updated openapi specification with new response/i,
+  ) {
+    const successAlert = this.page
+      .locator("#alert-container .alert-msg.success p")
+      .first();
+    await expect(successAlert).toBeVisible({ timeout: 10000 });
+    await expect(successAlert).toContainText(expectedText);
+
+    await takeAndAttachScreenshot(
+      this.page,
+      "add-to-specification-success-dialog",
+      this.eyes,
+    );
   }
 
   private async getResultCountFromCell(
@@ -735,6 +908,147 @@ export class ApiContractPage extends BasePage {
       method: await this.getTableHeaderCount("method"),
       response: await this.getTableHeaderCount("response"),
     };
+  }
+
+  async getCoverageHeaderPercentage(): Promise<number> {
+    const coverageTotal = await this.tableHeader("coverage").getAttribute(
+      "data-total",
+    );
+
+    return parseInt((coverageTotal || "0").replace("%", ""), 10);
+  }
+
+  async getResponseHeaderCounts(): Promise<{ currentCount: number; total: number }> {
+    const [currentCountValue, totalValue] = await Promise.all([
+      this.responseHeader.getAttribute("data-current-count"),
+      this.responseHeader.getAttribute("data-total"),
+    ]);
+
+    return {
+      currentCount: parseInt(currentCountValue || "0", 10),
+      total: parseInt(totalValue || "0", 10),
+    };
+  }
+
+  async hoverResponseHeaderAndGetTooltipText(): Promise<string> {
+    const hoverText = await this.responseHeader.evaluate((headerElement: HTMLElement) => {
+      headerElement.scrollIntoView({
+        block: "center",
+        inline: "center",
+        behavior: "instant",
+      });
+      headerElement.dispatchEvent(
+        new MouseEvent("mouseenter", { bubbles: true }),
+      );
+      headerElement.dispatchEvent(
+        new MouseEvent("mouseover", { bubbles: true }),
+      );
+      const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
+      const titleText =
+        headerElement.getAttribute("title") ||
+        headerElement.getAttribute("aria-label") ||
+        headerElement.getAttribute("data-tooltip") ||
+        headerElement.getAttribute("data-original-title") ||
+        "";
+      const headerText = normalize(
+        headerElement.innerText || headerElement.textContent || "",
+      );
+
+      return normalize(titleText || headerText);
+    });
+
+    await this.page.waitForTimeout(300);
+
+    const visibleTooltipText = await this.page.evaluate(() => {
+      const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
+      const visibleElements = Array.from(document.querySelectorAll("body *"))
+        .map((element) => element as HTMLElement)
+        .filter((element) => {
+          const style = window.getComputedStyle(element);
+          const rect = element.getBoundingClientRect();
+          return (
+            style.display !== "none" &&
+            style.visibility !== "hidden" &&
+            rect.width > 0 &&
+            rect.height > 0
+          );
+        });
+
+      const match = visibleElements
+        .map((element) => normalize(element.innerText || element.textContent || ""))
+        .find((text) => /out of\s+\d+\s+responses?\s+have\s+passed/i.test(text));
+
+      return match || "";
+    });
+
+    return (visibleTooltipText || hoverText).replace(/\s+/g, " ").trim();
+  }
+
+  async getResponseHeaderPseudoText(): Promise<{ before: string; after: string }> {
+    return this.responseHeader.evaluate((headerElement: HTMLElement) => {
+      const normalize = (value: string) =>
+        value
+          .replace(/^["']|["']$/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+
+      const before = normalize(
+        window.getComputedStyle(headerElement, "::before").content || "",
+      );
+      const after = normalize(
+        window.getComputedStyle(headerElement, "::after").content || "",
+      );
+
+      return { before, after };
+    });
+  }
+
+  async getTestTableHeaderMetrics(key: string): Promise<{
+    currentCount: number;
+    total: number;
+    enabled: number;
+    disabled: number;
+  }> {
+    const header = this.tableHeader(key);
+    await expect(header).toBeVisible({ timeout: 10000 });
+
+    const [currentCount, total, enabled, disabled] = await Promise.all([
+      header.getAttribute("data-current-count"),
+      header.getAttribute("data-total"),
+      header.getAttribute("data-enabled"),
+      header.getAttribute("data-disabled"),
+    ]);
+
+    return {
+      currentCount: parseInt(currentCount || "0", 10),
+      total: parseInt(total || "0", 10),
+      enabled: parseInt(enabled || "0", 10),
+      disabled: parseInt(disabled || "0", 10),
+    };
+  }
+
+  async getVisibleTestTableRowCount(): Promise<number> {
+    return await this.specSection
+      .locator("table#test:visible > tbody > tr:visible")
+      .count();
+  }
+
+  async getVisibleUniqueValuesForKey(columnKey: string): Promise<number> {
+    const cells = this.specSection.locator(
+      `table#test:visible > tbody > tr:visible td[data-key="${columnKey}"]`,
+    );
+
+    const values = await cells.evaluateAll((elements) =>
+      elements
+        .map(
+          (element) =>
+            element.getAttribute("data-value") || element.textContent || "",
+        )
+        .map((value) => value.trim())
+        .filter(Boolean),
+    );
+
+    return new Set(values).size;
   }
 
   async getActualRowCount(): Promise<number> {

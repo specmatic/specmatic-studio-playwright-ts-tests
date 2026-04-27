@@ -5,10 +5,14 @@ export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED =
   "test-openapi/contract-tests/product_search_bff_v5_contract_tests_excluded.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER =
   "test-openapi/contract-tests/product_search_bff_v5_contract_tests_filter.yaml";
+export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER_COVERAGE =
+  "test-openapi/contract-tests/product_search_bff_v5_contract_tests_filter_coverage.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_GENERATIVE =
   "test-openapi/contract-tests/product_search_bff_v5_contract_tests_generative.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_DEFAULT =
   "test-openapi/contract-tests/product_search_bff_v5_contract_tests_default.yaml";
+export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_UNDECLARED_RESPONSE =
+  "test-openapi/contract-tests/product_search_bff_v5_contract_tests_undeclared_response.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE =
   "test-openapi/contract-tests/product_search_bff_v5_contract_tests_negative.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_AND_FIX =
