@@ -7,9 +7,8 @@ import { verifyRightSidebarStatus } from "../helpers/execute-contract-tests-help
 test.describe("API Contract Testing - Filter Hover and Coverage", () => {
   test(
     "Verify response hover message and coverage stability for success and failed filters",
-    { tag: ["@test", "@filterTest", "@hover", "@eyes", "@expected-failure"] },
+    { tag: ["@test", "@filterTest", "@hover", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "Release yet to be cut");
       const mockPage = new MockServerPage(
         page,
         testInfo,

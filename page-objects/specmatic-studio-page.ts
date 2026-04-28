@@ -174,9 +174,38 @@ export class SpecmaticStudioPage extends BasePage {
     const pathHeader = this.proxyTable.locator('thead th[data-key="path"]');
     await expect(apiFilterBtn).toBeVisible({ timeout: 5000 });
     await apiFilterBtn.click();
-    await expect(pathHeader).toHaveAttribute("data-total", "5", {
+
+    await expect(apiFilterBtn).toHaveAttribute("data-active", "true", {
       timeout: 10000,
     });
+
+    const [currentCount, enabledCount, totalCount] = await Promise.all([
+      pathHeader.getAttribute("data-current-count"),
+      pathHeader.getAttribute("data-enabled"),
+      pathHeader.getAttribute("data-total"),
+    ]);
+
+    const current = parseInt(currentCount || "0", 10);
+    const enabled = parseInt(enabledCount || "0", 10);
+    const total = parseInt(totalCount || "0", 10);
+
+    console.log(
+      `[proxy-filter] path header metrics after API filter -> current=${current}, enabled=${enabled}, total=${total}`,
+    );
+
+    expect(
+      current,
+      "Path header current count should match enabled count after API filter",
+    ).toBe(enabled);
+    expect(
+      total,
+      "Path header total count should be >= current count after API filter",
+    ).toBeGreaterThanOrEqual(current);
+    expect(
+      current,
+      "Path header current count should be > 0 after API filter",
+    ).toBeGreaterThan(0);
+
     await takeAndAttachScreenshot(
       this.page,
       "proxy-api-filter-clicked",

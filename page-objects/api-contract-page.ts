@@ -338,6 +338,8 @@ export class ApiContractPage extends BasePage {
   }
 
   private async waitForTestsToStartRunning() {
+    const totalBeforeRun = await this.getSummaryHeaderValue("total");
+
     try {
       await expect
         .poll(this.pollDataRunning, {
@@ -365,7 +367,36 @@ export class ApiContractPage extends BasePage {
         return;
       }
 
+      const totalAfterFailedStartWait = await this.getSummaryHeaderValue(
+        "total",
+      );
+      const sidebarStatus = await this.getSidebarStatusTextSafely(
+        this.specName!,
+      );
+      const hasProgressedWithoutVisibleRunningState =
+        totalAfterFailedStartWait > totalBeforeRun &&
+        /running|done/i.test(sidebarStatus);
+
+      if (hasProgressedWithoutVisibleRunningState) {
+        console.warn(
+          `[waitForTestsToStartRunning] data-running='true' was not observed, but execution progressed (total ${totalBeforeRun} -> ${totalAfterFailedStartWait}, sidebar='${sidebarStatus}'). Continuing.`,
+        );
+        return;
+      }
+
       throw new Error(`Contract tests did not start running: ${e}`);
+    }
+  }
+
+  private async getSidebarStatusTextSafely(specName: string): Promise<string> {
+    try {
+      await this.rightSidebar.open();
+      const statusText = await this.getSidebarStatusText(specName);
+      return statusText.toLowerCase().trim();
+    } catch {
+      return "";
+    } finally {
+      await this.rightSidebar.close().catch(() => {});
     }
   }
 

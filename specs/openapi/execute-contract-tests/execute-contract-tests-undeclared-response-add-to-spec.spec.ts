@@ -10,16 +10,9 @@ test.describe("API Contract Testing - Undeclared Response Add To Spec", () => {
   test(
     "Run contract tests on mock and add undeclared response to specification from drilldown",
     {
-      tag: [
-        "@test",
-        "@runContractTests",
-        "@undeclaredResponse",
-        "@eyes",
-        "@expected-failure",
-      ],
+      tag: ["@test", "@runContractTests", "@undeclaredResponse", "@eyes"],
     },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "Release yet to be cut");
       const mockPage = new MockServerPage(
         page,
         testInfo,
