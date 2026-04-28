@@ -93,11 +93,7 @@ function fetchText(url) {
     const request = client.get(url, (response) => {
       const statusCode = response.statusCode ?? 0;
 
-      if (
-        statusCode >= 300 &&
-        statusCode < 400 &&
-        response.headers.location
-      ) {
+      if (statusCode >= 300 && statusCode < 400 && response.headers.location) {
         response.resume();
         const redirectUrl = new URL(response.headers.location, url);
         fetchText(redirectUrl).then(resolve, reject);
@@ -128,26 +124,18 @@ function requestUrl(url, method = "GET") {
   const client = url.protocol === "https:" ? https : http;
 
   return new Promise((resolve, reject) => {
-    const request = client.request(
-      url,
-      { method },
-      (response) => {
-        const statusCode = response.statusCode ?? 0;
+    const request = client.request(url, { method }, (response) => {
+      const statusCode = response.statusCode ?? 0;
 
-        if (
-          statusCode >= 300 &&
-          statusCode < 400 &&
-          response.headers.location
-        ) {
-          response.resume();
-          const redirectUrl = new URL(response.headers.location, url);
-          requestUrl(redirectUrl, method).then(resolve, reject);
-          return;
-        }
+      if (statusCode >= 300 && statusCode < 400 && response.headers.location) {
+        response.resume();
+        const redirectUrl = new URL(response.headers.location, url);
+        requestUrl(redirectUrl, method).then(resolve, reject);
+        return;
+      }
 
-        resolve(response);
-      },
-    );
+      resolve(response);
+    });
 
     request.on("error", reject);
     request.end();
@@ -199,11 +187,7 @@ function downloadToFile(downloadUrl, destinationPath) {
     const request = client.get(downloadUrl, (response) => {
       const statusCode = response.statusCode ?? 0;
 
-      if (
-        statusCode >= 300 &&
-        statusCode < 400 &&
-        response.headers.location
-      ) {
+      if (statusCode >= 300 && statusCode < 400 && response.headers.location) {
         response.resume();
         const redirectUrl = new URL(response.headers.location, downloadUrl);
         downloadToFile(redirectUrl, destinationPath).then(resolve, reject);
@@ -248,9 +232,9 @@ function getXmlTagValue(xml, tagName) {
 }
 
 function getXmlTagValues(xml, tagName) {
-  return Array.from(xml.matchAll(new RegExp(`<${tagName}>([^<]+)</${tagName}>`, "g"))).map(
-    (match) => match[1].trim(),
-  );
+  return Array.from(
+    xml.matchAll(new RegExp(`<${tagName}>([^<]+)</${tagName}>`, "g")),
+  ).map((match) => match[1].trim());
 }
 
 function parseSnapshotJarVersion(snapshotMetadataXml) {
@@ -526,6 +510,12 @@ function writeState(state) {
   fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
 }
 
+function getStudioWorkingDir() {
+  const raw = process.env.SPECMATIC_STUDIO_WORKDIR?.trim();
+  if (!raw) return process.cwd();
+  return path.isAbsolute(raw) ? raw : path.resolve(process.cwd(), raw);
+}
+
 function getStudioState() {
   if (!fs.existsSync(STATE_FILE)) {
     return null;
@@ -553,6 +543,10 @@ function killPid(pid) {
 }
 
 async function ensureSpecmaticStudioForRun() {
+  const studioCwd = getStudioWorkingDir();
+  if (!fs.existsSync(studioCwd)) {
+    throw new Error(`SPECMATIC_STUDIO_WORKDIR does not exist: ${studioCwd}`);
+  }
   if (!isJarModeEnabled()) {
     return null;
   }
@@ -576,7 +570,9 @@ async function ensureSpecmaticStudioForRun() {
     "java",
     ["-jar", jarPath, "studio", "--port", String(port)],
     {
+      cwd: studioCwd,
       detached: true,
+      windowsHide: true,
       stdio: ["ignore", logFd, logFd],
     },
   );
