@@ -11,8 +11,28 @@ dotenv.config();
 import path from "path";
 import fs from "fs";
 const studioRuntime = require("./utils/specmatic-studio-runtime");
-const isCI = !!process.env.CI;
+
+const isTrue = (value?: string) =>
+  ["1", "true", "yes", "on"].includes((value || "").toLowerCase());
+
+const isOrchestrator = isTrue(process.env.SPECMATIC_TEST_ORCHESTRATOR);
+const isCI = isTrue(process.env.CI) || isOrchestrator;
 // Decide which env file to load
+if (isOrchestrator) {
+  process.env.CI = "true";
+  process.env.ENV_NAME = process.env.ENV_NAME || "local";
+  process.env.USE_DOCKER = process.env.USE_DOCKER || "false";
+  process.env.HEADLESS = process.env.HEADLESS || "true";
+  process.env.PLAYWRIGHT_HTML_OPEN =
+    process.env.PLAYWRIGHT_HTML_OPEN || "never";
+
+  const disableVisual = isTrue(
+    process.env.ORCHESTRATOR_DISABLE_VISUAL ?? "true",
+  );
+  process.env.ENABLE_VISUAL = disableVisual
+    ? "false"
+    : process.env.ENABLE_VISUAL || "true";
+}
 const envName = process.env.ENV_NAME || (isCI ? "ci" : "local");
 const envFile = path.resolve(__dirname, `env/.env.${envName}`);
 
@@ -107,7 +127,7 @@ export default defineConfig({
           command: dockerScript,
           url: baseURL,
           timeout: 5 * 60 * 1000,
-          reuseExistingServer: !process.env.CI,
+          reuseExistingServer: !isCI,
         },
       }
     : {}),
