@@ -1034,6 +1034,66 @@ export class ApiContractPage extends BasePage {
     });
   }
 
+  async clickRunAndStopContractTestsImmediately() {
+    await test.step("Run Contract Tests and immediately stop", async () => {
+      await expect(this._runButton).toBeVisible({ timeout: 10000 });
+      await expect(this._runButton).toBeEnabled({ timeout: 10000 });
+      await expect(this._runButton).toHaveAttribute("data-running", "false", {
+        timeout: 10000,
+      });
+
+      await this._runButton.click();
+
+      const enteredRunningState = await expect
+        .poll(this.pollDataRunning, {
+          timeout: 8000,
+          intervals: [200, 500, 1000],
+          message: "Waiting for contract tests to enter running state",
+        })
+        .toBe("true")
+        .then(() => true)
+        .catch(() => false);
+
+      if (enteredRunningState) {
+        await this._runButton.click();
+      } else {
+        // Fallback: click once more even if running state was too fast to observe.
+        await this._runButton.click();
+      }
+
+      await expect
+        .poll(this.pollDataRunning, {
+          timeout: 15000,
+          intervals: [500, 1000],
+          message: "Waiting for contract tests to stop after halt action",
+        })
+        .toBe("false");
+
+      await takeAndAttachScreenshot(
+        this.page,
+        "run-and-stop-contract-tests",
+        this.eyes,
+      );
+    });
+  }
+
+  async verifyExecutionHaltedDialog(
+    expectedText: string | RegExp = /execution halted by user/i,
+  ) {
+    const haltedAlert = this.page
+      .locator("#alert-container .alert-msg.info p")
+      .first();
+
+    await expect(haltedAlert).toBeVisible({ timeout: 10000 });
+    await expect(haltedAlert).toContainText(expectedText);
+
+    await takeAndAttachScreenshot(
+      this.page,
+      "execution-halted-dialog-visible",
+      this.eyes,
+    );
+  }
+
   async getTestTableHeaderMetrics(key: string): Promise<{
     currentCount: number;
     total: number;

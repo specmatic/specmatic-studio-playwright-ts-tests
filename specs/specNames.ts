@@ -13,6 +13,8 @@ export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_DEFAULT =
   "test-openapi/contract-tests/product_search_bff_v5_contract_tests_default.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_UNDECLARED_RESPONSE =
   "test-openapi/contract-tests/product_search_bff_v5_contract_tests_undeclared_response.yaml";
+export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_STOP =
+  "test-openapi/contract-tests/product_search_bff_v5_contract_tests_stop.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_NEGATIVE =
   "test-openapi/contract-tests/product_search_bff_v5_contract_tests_negative.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_AND_FIX =
