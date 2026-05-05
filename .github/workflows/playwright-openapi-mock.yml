@@ -2,6 +2,10 @@ name: Studio - OpenAPI Mock Tests
 on:
   workflow_dispatch:
     inputs:
+      enterprise_artifact_url:
+        description: Specmatic Enterprise snapshot JAR URL
+        required: false
+        type: string
       specmatic_jar_url:
         description: Specmatic Enterprise artifact URL
         required: false
@@ -17,7 +21,7 @@ jobs:
       test_path: specs/openapi/run-mock-server
       artifact_name: run-mock-server
       group_name: Mock
-      enterprise_artifact_url: ${{ inputs.specmatic_jar_url || '' }}
+      enterprise_artifact_url: ${{ inputs.enterprise_artifact_url || inputs.specmatic_jar_url || '' }}
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
       SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
