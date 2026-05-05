@@ -37,7 +37,7 @@ test.describe("API Contract Testing - Undeclared Response Add To Spec", () => {
       });
 
       await test.step("Start mock server and open contract tests tab", async () => {
-        await mockPage.fillMockPort(9999);
+        await mockPage.fillMockPort(3020);
         await mockPage.startMockServer();
         mockUrl = await mockPage.getMockURL();
         console.log(
