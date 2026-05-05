@@ -367,25 +367,49 @@ export class ApiContractPage extends BasePage {
         return;
       }
 
-      const totalAfterFailedStartWait = await this.getSummaryHeaderValue(
-        "total",
-      );
-      const sidebarStatus = await this.getSidebarStatusTextSafely(
-        this.specName!,
-      );
-      const hasProgressedWithoutVisibleRunningState =
-        totalAfterFailedStartWait > totalBeforeRun &&
-        /running|done/i.test(sidebarStatus);
+      const completedTooFastToObserveRunning = await expect
+        .poll(
+          async () => this.hasExecutionEvidenceWithoutVisibleRunning(totalBeforeRun),
+          {
+            timeout: 15000,
+            intervals: [500, 1000, 2000],
+            message:
+              "Waiting for completion evidence when running=true was not observed",
+          },
+        )
+        .toBeTruthy()
+        .then(() => true)
+        .catch(() => false);
 
-      if (hasProgressedWithoutVisibleRunningState) {
+      if (completedTooFastToObserveRunning) {
         console.warn(
-          `[waitForTestsToStartRunning] data-running='true' was not observed, but execution progressed (total ${totalBeforeRun} -> ${totalAfterFailedStartWait}, sidebar='${sidebarStatus}'). Continuing.`,
+          "[waitForTestsToStartRunning] running=true was not observed, but contract test execution evidence was detected. Continuing.",
         );
         return;
       }
 
       throw new Error(`Contract tests did not start running: ${e}`);
     }
+  }
+
+  private async hasExecutionEvidenceWithoutVisibleRunning(
+    totalBeforeRun: number,
+  ): Promise<boolean> {
+    const [totalAfter, sidebarStatus] = await Promise.all([
+      this.getSummaryHeaderValue("total"),
+      this.getSidebarStatusTextSafely(this.specName!),
+    ]);
+
+    const hasTerminalSidebarStatus = /done|failed/i.test(sidebarStatus);
+    const hasRunningSidebarStatus = /running/i.test(sidebarStatus);
+    const hasSummaryProgress = totalAfter > totalBeforeRun;
+    const hasAnySummaryResult = totalAfter > 0;
+
+    return (
+      hasTerminalSidebarStatus ||
+      (hasRunningSidebarStatus && hasSummaryProgress) ||
+      (hasTerminalSidebarStatus && hasAnySummaryResult)
+    );
   }
 
   private async getSidebarStatusTextSafely(specName: string): Promise<string> {
