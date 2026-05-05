@@ -44,6 +44,18 @@ jobs:
         run: |
           echo "Pulling latest specmatic/enterprise image"
           docker pull specmatic/enterprise:latest
+      - name: Configure Enterprise JAR networking
+        if: ${{ inputs.enterprise_artifact_url != '' }}
+        run: |
+          echo "127.0.0.1 order-bff order-api inventory-api studio" | sudo tee -a /etc/hosts
+          cat > /tmp/docker-compose.enterprise-jar.yml <<'EOF'
+          services:
+            order-bff:
+              environment:
+                KAFKA_BOOTSTRAP_SERVERS: host.docker.internal:9092
+              extra_hosts:
+                - "host.docker.internal:host-gateway"
+          EOF
       - name: Start support services for Enterprise JAR
         if: ${{ inputs.enterprise_artifact_url != '' }}
         run: |
@@ -55,6 +67,7 @@ jobs:
           docker compose \
             -p specmatic-studio-playwright \
             -f specmatic-studio-demo/docker-compose.yaml \
+            -f /tmp/docker-compose.enterprise-jar.yml \
             up -d order-bff order-api inventory-api
       - name: Wait for support services to be healthy
         if: ${{ inputs.enterprise_artifact_url != '' }}
