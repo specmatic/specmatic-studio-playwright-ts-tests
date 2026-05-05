@@ -34,7 +34,11 @@ function getLogPath() {
 }
 
 function getJarUrl() {
-  return process.env.SPECMATIC_STUDIO_JAR_URL?.trim() || "";
+  return (
+    process.env.ENTERPRISE_ARTIFACT_URL?.trim() ||
+    process.env.SPECMATIC_STUDIO_JAR_URL?.trim() ||
+    ""
+  );
 }
 
 function isJarModeEnabled() {
@@ -45,7 +49,7 @@ function getDownloadUrl() {
   const jarUrl = getJarUrl();
   if (!jarUrl) {
     throw new Error(
-      "SPECMATIC_STUDIO_JAR_URL is required when jar mode is enabled.",
+      "ENTERPRISE_ARTIFACT_URL is required when jar mode is enabled.",
     );
   }
 
@@ -61,7 +65,7 @@ function getDownloadUrl() {
     return new URL(jarUrl);
   } catch (error) {
     throw new Error(
-      `SPECMATIC_STUDIO_JAR_URL must be a valid URL. Received: ${jarUrl}`,
+      `ENTERPRISE_ARTIFACT_URL must be a valid URL. Received: ${jarUrl}`,
     );
   }
 }
@@ -145,14 +149,14 @@ function requestUrl(url, method = "GET") {
 async function verifyDirectJarUrl(downloadUrl) {
   if (!["http:", "https:"].includes(downloadUrl.protocol)) {
     throw new Error(
-      `SPECMATIC_STUDIO_JAR_URL must use http or https. Received protocol: ${downloadUrl.protocol}`,
+      `ENTERPRISE_ARTIFACT_URL must use http or https. Received protocol: ${downloadUrl.protocol}`,
     );
   }
 
   const fileName = getJarFileName(downloadUrl);
   if (!fileName.endsWith(".jar")) {
     throw new Error(
-      `SPECMATIC_STUDIO_JAR_URL must point to a .jar file. Received: ${downloadUrl.toString()}`,
+      `ENTERPRISE_ARTIFACT_URL must point to a .jar file. Received: ${downloadUrl.toString()}`,
     );
   }
 
@@ -163,7 +167,7 @@ async function verifyDirectJarUrl(downloadUrl) {
 
   if (statusCode < 200 || statusCode >= 300) {
     throw new Error(
-      `SPECMATIC_STUDIO_JAR_URL is not reachable. HEAD ${downloadUrl.toString()} returned HTTP ${statusCode}.`,
+      `ENTERPRISE_ARTIFACT_URL is not reachable. HEAD ${downloadUrl.toString()} returned HTTP ${statusCode}.`,
     );
   }
 
@@ -388,7 +392,7 @@ async function dryRunResolveDownloadUrl() {
   const rawJarUrl = getJarUrl();
   if (!rawJarUrl) {
     throw new Error(
-      "SPECMATIC_STUDIO_JAR_URL is required for dry-run resolution.",
+      "ENTERPRISE_ARTIFACT_URL is required for dry-run resolution.",
     );
   }
 

@@ -95,11 +95,11 @@ Auto generate tests with Codegen.
 
 ### Running Against a Specmatic Studio Jar
 
-If `SPECMATIC_STUDIO_JAR_URL` is set, the test run will start Specmatic
+If `ENTERPRISE_ARTIFACT_URL` is set, the test run will start Specmatic
 Studio from that jar instead of using Docker.
 
 ```bash
-SPECMATIC_STUDIO_JAR_URL="https://repo.example.com/executable-all-1.8.1.jar" \
+ENTERPRISE_ARTIFACT_URL="https://repo.example.com/executable-all-1.8.1.jar" \
 SPECMATIC_STUDIO_JAR_OVERWRITE=false \
 npx playwright test
 ```
@@ -107,24 +107,24 @@ npx playwright test
 To dry-run jar resolution without downloading or starting Specmatic Studio:
 
 ```bash
-SPECMATIC_STUDIO_JAR_URL=LATEST node utils/specmatic-studio-runtime.js resolve
+ENTERPRISE_ARTIFACT_URL=LATEST node utils/specmatic-studio-runtime.js resolve
 ```
 
 ```bash
-SPECMATIC_STUDIO_JAR_URL=LATEST_SNAPSHOT node utils/specmatic-studio-runtime.js resolve
+ENTERPRISE_ARTIFACT_URL=LATEST_SNAPSHOT node utils/specmatic-studio-runtime.js resolve
 ```
 
 ```bash
-SPECMATIC_STUDIO_JAR_URL=LATEST_RELEASE node utils/specmatic-studio-runtime.js resolve
+ENTERPRISE_ARTIFACT_URL=LATEST_RELEASE node utils/specmatic-studio-runtime.js resolve
 ```
 
 What happens in jar mode:
 
 - The jar is downloaded into the repo-local `temp/` directory and reused on later runs.
 - Set `SPECMATIC_STUDIO_JAR_OVERWRITE=true` to force a fresh download.
-- `SPECMATIC_STUDIO_JAR_URL=LATEST_SNAPSHOT` resolves the newest snapshot jar from the Specmatic snapshots repository.
-- `SPECMATIC_STUDIO_JAR_URL=LATEST_RELEASE` resolves the newest release jar from the Specmatic releases repository.
-- `SPECMATIC_STUDIO_JAR_URL=LATEST` resolves the newest available jar across the Specmatic snapshot and release repositories.
+- `ENTERPRISE_ARTIFACT_URL=LATEST_SNAPSHOT` resolves the newest snapshot jar from the Specmatic snapshots repository.
+- `ENTERPRISE_ARTIFACT_URL=LATEST_RELEASE` resolves the newest release jar from the Specmatic releases repository.
+- `ENTERPRISE_ARTIFACT_URL=LATEST` resolves the newest available jar across the Specmatic snapshot and release repositories.
 - The test run starts `java -jar <downloaded-jar> studio --port 9000`.
 - Playwright uses `http://127.0.0.1:9000/_specmatic/studio` as the `BASE_URL` for the run.
 - If Java is not installed or `java` is not available on `PATH`, the run fails with a clear error.

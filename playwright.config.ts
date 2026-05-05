@@ -63,7 +63,7 @@ const isJarMode = isJarModeEnabled();
 if (isJarMode) {
   if (isDocker) {
     console.log(
-      "[specmatic] SPECMATIC_STUDIO_JAR_URL is set. Skipping Docker startup and using the jar instead.",
+      "[specmatic] ENTERPRISE_ARTIFACT_URL is set. Skipping Docker startup and using the jar instead.",
     );
   }
   process.env.BASE_URL = "http://127.0.0.1:9000/_specmatic/studio";
