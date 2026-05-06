@@ -25,14 +25,13 @@ if (isOrchestrator) {
   process.env.HEADLESS = process.env.HEADLESS || "true";
   process.env.PLAYWRIGHT_HTML_OPEN =
     process.env.PLAYWRIGHT_HTML_OPEN || "never";
-
-  const disableVisual = isTrue(
-    process.env.ORCHESTRATOR_DISABLE_VISUAL ?? "true",
-  );
-  process.env.ENABLE_VISUAL = disableVisual
-    ? "false"
-    : process.env.ENABLE_VISUAL || "false";
 }
+
+const disableVisual = isTrue(process.env.ORCHESTRATOR_DISABLE_VISUAL ?? "true");
+process.env.ENABLE_VISUAL = disableVisual
+  ? "false"
+  : process.env.ENABLE_VISUAL || "true";
+
 const envName = process.env.ENV_NAME || (isCI ? "ci" : "local");
 const envFile = path.resolve(__dirname, `env/.env.${envName}`);
 
