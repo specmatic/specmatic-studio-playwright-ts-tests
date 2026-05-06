@@ -18,6 +18,9 @@ on:
         required: false
         type: string
         default: "true"
+      orchestrator_run_number:
+        required: false
+        type: string
     secrets:
       APPLITOOLS_API_KEY:
         required: true
@@ -43,6 +46,9 @@ jobs:
           echo "Write specmatic license key to file"
           mkdir -p ~/.specmatic
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
+      - name: Print orchestrator info
+        run: |
+          echo "Triggered by orchestrator run ${{ inputs.orchestrator_run_number }}"
       - name: Pull latest Specmatic Docker image
         if: ${{ inputs.enterprise_artifact_url == '' }}
         run: |
