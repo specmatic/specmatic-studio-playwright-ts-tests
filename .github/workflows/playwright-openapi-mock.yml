@@ -6,7 +6,10 @@ on:
         description: Specmatic Enterprise snapshot JAR URL
         required: false
         type: string
-      orchestrator_disable_visual: ${{ inputs.orchestrator_disable_visual }}
+      orchestrator_disable_visual:
+        required: false
+        type: string
+        default: "true"
   push:
     branches: [main, master]
   pull_request:
