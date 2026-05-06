@@ -13,6 +13,14 @@ const STARTUP_TIMEOUT_MS = Number.parseInt(
   process.env.SPECMATIC_STUDIO_STARTUP_TIMEOUT_MS || "120000",
   10,
 );
+const ARTIFACT_DOWNLOAD_TIMEOUT_MS = Number.parseInt(
+  process.env.ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS || "120000",
+  10,
+);
+const ARTIFACT_DOWNLOAD_RETRIES = Number.parseInt(
+  process.env.ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES || "3",
+  10,
+);
 const STUDIO_PORT = 9000;
 const ARTIFACT_ID = "executable-all";
 const SNAPSHOT_REPO_URL =
@@ -86,6 +94,10 @@ function getJarPath(downloadUrl) {
   return path.join(TMP_DIR, getJarFileName(downloadUrl));
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function shouldOverwriteDownloadedJar() {
   return process.env.SPECMATIC_STUDIO_JAR_OVERWRITE === "true";
 }
@@ -121,6 +133,13 @@ function fetchText(url) {
     });
 
     request.on("error", reject);
+    request.setTimeout(ARTIFACT_DOWNLOAD_TIMEOUT_MS, () => {
+      request.destroy(
+        new Error(
+          `Timed out reading ${url.toString()} after ${ARTIFACT_DOWNLOAD_TIMEOUT_MS}ms.`,
+        ),
+      );
+    });
   });
 }
 
@@ -142,6 +161,13 @@ function requestUrl(url, method = "GET") {
     });
 
     request.on("error", reject);
+    request.setTimeout(ARTIFACT_DOWNLOAD_TIMEOUT_MS, () => {
+      request.destroy(
+        new Error(
+          `Timed out waiting for ${method} ${url.toString()} after ${ARTIFACT_DOWNLOAD_TIMEOUT_MS}ms.`,
+        ),
+      );
+    });
     request.end();
   });
 }
@@ -188,6 +214,11 @@ function downloadToFile(downloadUrl, destinationPath) {
   const tempPath = `${destinationPath}.download`;
 
   return new Promise((resolve, reject) => {
+    const fail = (error) => {
+      fs.rmSync(tempPath, { force: true });
+      reject(error);
+    };
+
     const request = client.get(downloadUrl, (response) => {
       const statusCode = response.statusCode ?? 0;
 
@@ -210,24 +241,60 @@ function downloadToFile(downloadUrl, destinationPath) {
 
       const fileStream = fs.createWriteStream(tempPath);
       response.pipe(fileStream);
+      response.on("error", fail);
 
       fileStream.on("finish", () => {
         fileStream.close(() => {
-          fs.renameSync(tempPath, destinationPath);
-          resolve();
+          try {
+            fs.renameSync(tempPath, destinationPath);
+            resolve();
+          } catch (error) {
+            fail(error);
+          }
         });
       });
 
-      fileStream.on("error", (error) => {
-        response.destroy(error);
-      });
+      fileStream.on("error", fail);
     });
 
-    request.on("error", (error) => {
-      fs.rmSync(tempPath, { force: true });
-      reject(error);
+    request.on("error", fail);
+    request.setTimeout(ARTIFACT_DOWNLOAD_TIMEOUT_MS, () => {
+      request.destroy(
+        new Error(
+          `Timed out downloading ${downloadUrl.toString()} after ${ARTIFACT_DOWNLOAD_TIMEOUT_MS}ms.`,
+        ),
+      );
     });
   });
+}
+
+async function downloadToFileWithRetries(downloadUrl, destinationPath) {
+  const attempts = Math.max(1, ARTIFACT_DOWNLOAD_RETRIES);
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      if (attempt > 1) {
+        console.log(
+          `[specmatic] Retrying jar download (${attempt}/${attempts}) from ${downloadUrl.toString()}`,
+        );
+      }
+      await downloadToFile(downloadUrl, destinationPath);
+      return;
+    } catch (error) {
+      lastError = error;
+      console.warn(
+        `[specmatic] Jar download attempt ${attempt}/${attempts} failed: ${error.message || error}`,
+      );
+      if (attempt < attempts) {
+        await sleep(attempt * 2000);
+      }
+    }
+  }
+
+  throw new Error(
+    `Failed to download Enterprise artifact after ${attempts} attempt(s): ${lastError?.message || lastError}`,
+  );
 }
 
 function getXmlTagValue(xml, tagName) {
@@ -425,7 +492,7 @@ async function ensureJarDownloaded() {
   }
 
   console.log(`[specmatic] Downloading jar from ${downloadUrl.toString()}`);
-  await downloadToFile(downloadUrl, jarPath);
+  await downloadToFileWithRetries(downloadUrl, jarPath);
   console.log(`[specmatic] Saved jar to ${jarPath}`);
 
   return { jarPath, sourceUrl: downloadUrl.toString() };
