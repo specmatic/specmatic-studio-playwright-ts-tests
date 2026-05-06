@@ -31,7 +31,7 @@ if (isOrchestrator) {
   );
   process.env.ENABLE_VISUAL = disableVisual
     ? "false"
-    : process.env.ENABLE_VISUAL || "true";
+    : process.env.ENABLE_VISUAL || "false";
 }
 const envName = process.env.ENV_NAME || (isCI ? "ci" : "local");
 const envFile = path.resolve(__dirname, `env/.env.${envName}`);

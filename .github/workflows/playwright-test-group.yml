@@ -14,6 +14,10 @@ on:
       enterprise_artifact_url:
         required: false
         type: string
+      orchestrator_disable_visual:
+        required: false
+        type: string
+        default: "true"
     secrets:
       APPLITOOLS_API_KEY:
         required: true
@@ -95,6 +99,7 @@ jobs:
           GROUP_NAME: ${{ inputs.group_name }}
           ENTERPRISE_ARTIFACT_URL: ${{ inputs.enterprise_artifact_url }}
           SPECMATIC_STUDIO_WORKDIR: specmatic-studio-demo/specs
+          ORCHESTRATOR_DISABLE_VISUAL: ${{ inputs.orchestrator_disable_visual }}
         run: |
           echo "Print all environment variables"
           printenv

@@ -6,6 +6,10 @@ on:
         description: Specmatic Enterprise snapshot JAR URL
         required: false
         type: string
+      orchestrator_disable_visual:
+        required: false
+        type: string
+        default: "true"
   push:
     branches: [main, master]
   pull_request:
@@ -19,6 +23,7 @@ jobs:
       artifact_name: run-soap-mock-server
       group_name: SOAP Mock
       enterprise_artifact_url: ${{ inputs.enterprise_artifact_url || '' }}
+      orchestrator_disable_visual: ${{ inputs.orchestrator_disable_visual }}
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
       SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
