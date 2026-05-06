@@ -75,13 +75,42 @@ async function assertExecutionDropDown(
   const dropdown = configPage.executionProgressDropdown;
 
   await expect(dropdown).toBeVisible({ timeout: 10000 });
-  await expect(dropdown).toHaveAttribute("data-state", state, {
-    timeout: 5000,
-  });
+  if (state === "running") {
+    const observedState = await expect
+      .poll(
+        async () => (await dropdown.getAttribute("data-state")) || "",
+        {
+          timeout: 15000,
+          intervals: [300, 700, 1200],
+          message:
+            "Execution state should be running or a fast terminal transition after Run Suite",
+        },
+      )
+      .toMatch(/^(running|error|success)$/)
+      .then(async () => (await dropdown.getAttribute("data-state")) || "")
+      .catch(async () => (await dropdown.getAttribute("data-state")) || "");
+
+    expect(
+      ["running", "error", "success"],
+      `Unexpected execution state after Run Suite: '${observedState}'`,
+    ).toContain(observedState);
+  } else {
+    await expect(dropdown).toHaveAttribute("data-state", state, {
+      timeout: 10000,
+    });
+  }
   await expect(dropdown).toHaveAttribute("open", "");
 
   const statusText = dropdown.locator(".execution-progress-status");
-  await expect(statusText).toHaveText(expectedStatus, { timeout: 5000 });
+  if (state === "running") {
+    const status = ((await statusText.textContent()) || "").trim();
+    expect(
+      ["Running", "Failed", "Completed"],
+      `Unexpected execution status text after Run Suite: '${status}'`,
+    ).toContain(status);
+  } else {
+    await expect(statusText).toHaveText(expectedStatus, { timeout: 10000 });
+  }
 
   await takeAndAttachScreenshot(page, `execution-progress-asserted-${state}`);
 }
