@@ -18,7 +18,7 @@ on:
         required: false
         type: string
         default: "true"
-      orchestrator_run_number:
+      orchestrator_run_suffix:
         required: false
         type: string
     secrets:
@@ -48,7 +48,7 @@ jobs:
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print orchestrator info
         run: |
-          echo "Triggered by orchestrator run ${{ inputs.orchestrator_run_number }}"
+          echo "Triggered by orchestrator run ${{ inputs.orchestrator_run_suffix }}"
       - name: Pull latest Specmatic Docker image
         if: ${{ inputs.enterprise_artifact_url == '' }}
         run: |

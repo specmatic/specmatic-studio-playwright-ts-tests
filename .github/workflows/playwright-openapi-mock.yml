@@ -1,6 +1,6 @@
 name: Studio - OpenAPI Mock Tests
 
-run-name: ${{ inputs.orchestrator_run_number && format('Studio OpenAPI Mock Tests - Orchestrator {0}', inputs.orchestrator_run_number) || github.workflow }}
+run-name: ${{ inputs.orchestrator_run_suffix && format('Studio OpenAPI Mock Tests - {0}', inputs.orchestrator_run_suffix) || github.workflow }}
 on:
   workflow_dispatch:
     inputs:
@@ -12,7 +12,7 @@ on:
         required: false
         type: string
         default: "true"
-      orchestrator_run_number:
+      orchestrator_run_suffix:
         required: false
         type: string
   push:
@@ -28,7 +28,7 @@ jobs:
       group_name: Mock
       enterprise_artifact_url: ${{ inputs.enterprise_artifact_url || '' }}
       orchestrator_disable_visual: ${{ inputs.orchestrator_disable_visual }}
-      orchestrator_run_number: ${{ inputs.orchestrator_run_number }}
+      orchestrator_run_suffix: ${{ inputs.orchestrator_run_suffix }}
     secrets:
       APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
       SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
