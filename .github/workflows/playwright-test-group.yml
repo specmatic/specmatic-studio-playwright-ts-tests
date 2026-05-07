@@ -100,6 +100,7 @@ jobs:
             done
           done
       - name: Run Playwright tests for ${{ inputs.group_name }}
+        id: playwright_tests
         timeout-minutes: 50
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
@@ -157,18 +158,28 @@ jobs:
       - name: Fail job if there are test failures
         run: |
           REPORT_PATH="playwright-report-${{ inputs.artifact_name }}/junit-report.xml"
+          PLAYWRIGHT_OUTCOME="${{ steps.playwright_tests.outcome }}"
           if [ ! -f "$REPORT_PATH" ]; then
             echo "JUnit report not found at $REPORT_PATH"
             exit 1
           fi
 
           # Sum across all suites so failures in any shard/spec file are counted.
+          TOTAL=$(xmllint --xpath 'string(sum(//testsuite/@tests))' "$REPORT_PATH")
           FAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")
           ERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")
+          if [ "$PLAYWRIGHT_OUTCOME" != "success" ] && [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+            echo "Playwright step failed before recording test failures. This usually means setup/global setup failed."
+            exit 1
+          fi
+          if [ "$TOTAL" = "0" ]; then
+            echo "No tests were recorded in $REPORT_PATH. Treating this as a setup failure."
+            exit 1
+          fi
           if [ "$FAILURES" != "0" ] || [ "$ERRORS" != "0" ]; then
             echo "Test failures or errors detected across all suites: failures=$FAILURES, errors=$ERRORS"
             exit 1
           else
-            echo "No test failures or errors detected."
+            echo "No test failures or errors detected. tests=$TOTAL"
           fi
         if: always()
