@@ -14,7 +14,7 @@ contracts:
       - port: 9092
         specs:
           - kafka.yaml
-      - port: 8095
+      - port: 3214
         specs:
           - inventory.wsdl
 #hooks:
