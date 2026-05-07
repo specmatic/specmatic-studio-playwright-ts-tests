@@ -1,6 +1,6 @@
 name: Studio - Async Spec Tests
 
-run-name: Studio Async Spec Tests - Orch ${{ inputs.orchestrator_run_number || 'manual' }}
+run-name: ${{ inputs.orchestrator_run_number && format('Studio Async Spec Tests - Orchestrator {0}', inputs.orchestrator_run_number) || github.workflow }}
 on:
   workflow_dispatch:
     inputs:

@@ -1,6 +1,6 @@
 name: Studio - SOAP Contract Tests
 
-run-name: Studio SOAP Contract Tests - Orch ${{ inputs.orchestrator_run_number || 'manual' }}
+run-name: ${{ inputs.orchestrator_run_number && format('Studio SOAP Contract Tests - Orchestrator {0}', inputs.orchestrator_run_number) || github.workflow }}
 on:
   workflow_dispatch:
     inputs:
