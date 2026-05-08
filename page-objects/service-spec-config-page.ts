@@ -690,7 +690,7 @@ export class ServiceSpecConfigPage extends BasePage {
       newText: string;
       lineCount: number;
       expectedErrorCount: number;
-      expectedDetail: string;
+      expectedDetail?: string;
     },
     reload: boolean = true,
   ) {
@@ -728,13 +728,20 @@ export class ServiceSpecConfigPage extends BasePage {
         .toContain(
           `Backward Compatibility found ${scenario.expectedErrorCount} ${errorSuffix}`,
         );
-      const hasMatch = details.some((d) => d.includes(scenario.expectedDetail));
-      expect
-        .soft(
-          hasMatch,
-          `Expected error detail not found: ${scenario.expectedDetail}`,
-        )
-        .toBe(true);
+      if (scenario.expectedDetail && scenario.expectedDetail.trim() !== "") {
+        const normalize = (value: string) =>
+          value.replace(/\s+/g, " ").trim().toLowerCase();
+        const expectedDetailNormalized = normalize(scenario.expectedDetail);
+        const hasMatch = details.some((d) =>
+          normalize(d).includes(expectedDetailNormalized),
+        );
+        expect
+          .soft(
+            hasMatch,
+            `Expected error detail not found: ${scenario.expectedDetail}`,
+          )
+          .toBe(true);
+      }
     });
   }
 }

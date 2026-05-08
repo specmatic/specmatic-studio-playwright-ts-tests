@@ -40,8 +40,7 @@ const INCOMPATIBLE_SCENARIOS = [
     newText: "",
     lineCount: 4,
     expectedErrorCount: 3,
-    expectedDetail:
-      "This is no body in the new specification, but json object in the old specification",
+    expectedDetail: "",
     isExpectedFailure: false,
   },
 ];

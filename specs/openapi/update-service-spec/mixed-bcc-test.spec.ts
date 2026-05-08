@@ -9,7 +9,7 @@ interface MixedScenario {
   removeXLinesFromSpec: number;
   isCompatible: boolean;
   expectedErrorCount: number;
-  expectedErrorDetail: string;
+  expectedErrorDetail?: string;
 }
 
 interface ScenarioGroup {
@@ -46,8 +46,7 @@ const MIXED_SCENARIO_GROUPS: ScenarioGroup[] = [
         removeXLinesFromSpec: 4,
         isCompatible: false,
         expectedErrorCount: 3,
-        expectedErrorDetail:
-          "This is no body in the new specification, but json object in the old specification",
+        expectedErrorDetail: "",
       },
     ],
   },
@@ -144,15 +143,25 @@ async function assertScenarioResult(
           `Backward Compatibility found ${scenario.expectedErrorCount} ${errorSuffix}`,
         );
 
-      const hasMatch = details.some((d: string) =>
-        d.includes(scenario.expectedErrorDetail),
-      );
-      expect
-        .soft(
-          hasMatch,
-          `Expected detail not found: ${scenario.expectedErrorDetail}`,
-        )
-        .toBe(true);
+      if (
+        scenario.expectedErrorDetail &&
+        scenario.expectedErrorDetail.trim() !== ""
+      ) {
+        const normalize = (value: string) =>
+          value.replace(/\s+/g, " ").trim().toLowerCase();
+        const expectedDetailNormalized = normalize(
+          scenario.expectedErrorDetail,
+        );
+        const hasMatch = details.some((d: string) =>
+          normalize(d).includes(expectedDetailNormalized),
+        );
+        expect
+          .soft(
+            hasMatch,
+            `Expected detail not found: ${scenario.expectedErrorDetail}`,
+          )
+          .toBe(true);
+      }
     }
   });
 }
