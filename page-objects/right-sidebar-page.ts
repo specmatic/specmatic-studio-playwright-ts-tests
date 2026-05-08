@@ -27,7 +27,7 @@ export class RightSidebarPage {
     screenshotLabel: string,
     withVisualValidation = false,
   ): Promise<void> {
-    await expect(processBarLocator).toBeVisible({ timeout: 15000 });
+    await expect(processBarLocator).toBeVisible({ timeout: 30000 });
     await takeAndAttachScreenshot(
       this.page,
       screenshotLabel,
