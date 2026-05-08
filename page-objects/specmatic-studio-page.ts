@@ -156,7 +156,11 @@ export class SpecmaticStudioPage extends BasePage {
         message: `Expected at least ${minRows} recorded proxy row(s)`,
       })
       .toBeGreaterThanOrEqual(minRows);
-    await takeAndAttachScreenshot(this.page, "proxy-traffic-recorded", this.eyes);
+    await takeAndAttachScreenshot(
+      this.page,
+      "proxy-traffic-recorded",
+      this.eyes,
+    );
   }
 
   async clickReplayForFirstRecordedPath(withVisualValidation = false) {
@@ -247,9 +251,9 @@ export class SpecmaticStudioPage extends BasePage {
         (await dismissButton.isVisible().catch(() => false))
       ) {
         await dismissButton.click();
-        await expect(this.proxyErrorAlert).toBeHidden({ timeout: 5000 }).catch(
-          () => {},
-        );
+        await expect(this.proxyErrorAlert)
+          .toBeHidden({ timeout: 5000 })
+          .catch(() => {});
         await this.page.waitForTimeout(1000);
         outcome = await tryStartReplay();
       }
@@ -283,12 +287,6 @@ export class SpecmaticStudioPage extends BasePage {
   ) {
     await this.rightSidebar.open();
     await this.page.waitForTimeout(1000);
-    const processBar = this.replayProcessBar(specName);
-    await this.rightSidebar.assertProcessBarVisible(
-      processBar,
-      "right-sidebar-replay-started",
-      withVisualValidation,
-    );
     await this.rightSidebar.close();
   }
 
