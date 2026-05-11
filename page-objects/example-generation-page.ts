@@ -1131,18 +1131,31 @@ export class ExampleGenerationPage extends BasePage {
     return await test.step(`Get generated example names`, async () => {
       console.log(`Getting generated example names from Examples tab`);
       const iframe = await this.waitForExamplesIFrame();
+      const exampleColumnIndex = await this.getExamplesColumnIndex(iframe);
       const exampleRows = await iframe
         .locator("tr[data-example-relative-path]")
         .all();
 
       const examples: string[] = [];
       for (const row of exampleRows) {
-        const nameSpan = row.locator("td:nth-child(6) > span").first();
-        if ((await nameSpan.count()) > 0) {
-          const name = await nameSpan.textContent();
-          if (name) {
-            examples.push(name.trim());
-          }
+        const exampleCell = row
+          .locator(`td:nth-child(${exampleColumnIndex})`)
+          .first();
+
+        let extractedName = "";
+        if ((await exampleCell.count()) > 0) {
+          extractedName = ((await exampleCell.innerText()) ?? "").trim();
+        }
+
+        if (!extractedName) {
+          const relativePath =
+            (await row.getAttribute("data-example-relative-path")) ?? "";
+          const fileName = relativePath.split("/").pop() ?? "";
+          extractedName = fileName.replace(/\.json$/i, "").trim();
+        }
+
+        if (extractedName) {
+          examples.push(extractedName);
         }
       }
 
@@ -1150,6 +1163,26 @@ export class ExampleGenerationPage extends BasePage {
       await takeAndAttachScreenshot(this.page, `generated-example-names`);
       return examples;
     });
+  }
+
+  private async getExamplesColumnIndex(
+    iframe: import("@playwright/test").Frame,
+  ): Promise<number> {
+    const headers = iframe.locator("table thead tr th");
+    const count = await headers.count();
+
+    for (let i = 0; i < count; i++) {
+      const text = ((await headers.nth(i).innerText()) ?? "").trim();
+      if (text.toLowerCase() === "examples") {
+        const index = i + 1;
+        console.log(`\tDetected "Examples" column index: ${index}`);
+        return index;
+      }
+    }
+
+    // Fallback for older table layout where examples was the 8th visible cell.
+    console.log(`\tCould not detect "Examples" header. Falling back to index 8`);
+    return 8;
   }
 
   async openSpecTabForCurrentSpec() {
