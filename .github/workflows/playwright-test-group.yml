@@ -33,6 +33,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -43,13 +46,19 @@ jobs:
         run: |
           echo "Installing npm dependencies for ${{ inputs.group_name }} tests"
           npm ci
-          echo "Installing xmllint for ${{ inputs.group_name }} tests"
-          sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            echo "Installing xmllint for ${{ inputs.group_name }} tests (Linux only)"
+            sudo apt-get update && sudo apt-get install -y libxml2-utils
+          else
+            echo "Skipping xmllint install on $RUNNER_OS (workflow uses Node-based JUnit parsing)"
+          fi
+
           echo "Install Playwright Browsers"
           npx playwright install chromium --with-deps
           echo "Write specmatic license key to file"
-          mkdir -p ~/.specmatic
-          echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
+          mkdir -p "$HOME/.specmatic"
+          echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > "$HOME/.specmatic/specmatic-license.txt"
       - name: Print orchestrator info
         run: |
           echo "Triggered by orchestrator run ${{ inputs.orchestrator_run_suffix }}"
@@ -168,10 +177,26 @@ jobs:
             exit 1
           fi
 
-          # Sum across all suites so failures in any shard/spec file are counted.
-          TOTAL=$(xmllint --xpath 'string(sum(//testsuite/@tests))' "$REPORT_PATH")
-          FAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")
-          ERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")
+          # Cross-platform JUnit aggregation (no xmllint dependency).
+          XML_SUMMARY=$(node -e '
+            const fs = require("fs");
+            const p = process.argv[1];
+            const xml = fs.readFileSync(p, "utf8");
+            const suites = [...xml.matchAll(/<testsuite\b[^>]*>/g)].map(m => m[0]);
+            const attr = (tag, key) => {
+              const m = tag.match(new RegExp(`${key}="([^"]+)"`));
+              return m ? Number(m[1]) || 0 : 0;
+            };
+            const sum = (key) => suites.reduce((acc, t) => acc + attr(t, key), 0);
+            const total = sum("tests");
+            const failures = sum("failures");
+            const errors = sum("errors");
+            process.stdout.write(`${total} ${failures} ${errors}`);
+          ' "$REPORT_PATH")
+          TOTAL=$(echo "$XML_SUMMARY" | awk '{print $1}')
+          FAILURES=$(echo "$XML_SUMMARY" | awk '{print $2}')
+          ERRORS=$(echo "$XML_SUMMARY" | awk '{print $3}')
+
           if [ "$PLAYWRIGHT_OUTCOME" != "success" ] && [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
             echo "Playwright step failed before recording test failures. This usually means setup/global setup failed."
             exit 1
