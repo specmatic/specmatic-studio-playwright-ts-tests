@@ -148,9 +148,10 @@ export class BasePage {
     if (dataType === "example") {
       await this.waitForAnyVisible(
         [
-          "iframe[data-examples-server-base]",
-          "#valid-examples-table",
-          "#invalid-examples-table",
+          '[data-pwtestid="examples-root"]',
+          '[data-pwtestid="examples-table"]',
+          '[data-pwtestid="examples-empty"]',
+          '[data-pwtestid="examples-main"][data-panel="details"]',
         ],
         timeout,
       );

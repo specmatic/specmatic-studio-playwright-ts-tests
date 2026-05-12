@@ -13,10 +13,11 @@ env/*
 .vscode/
 .idea/
 .DS_Store
-coverage/   
+coverage/
 reports/
 storageState.json
 temp
+**/test-openapi/**/*_examples/
 
 # Codex
 .codex/*

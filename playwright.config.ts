@@ -85,6 +85,7 @@ export default defineConfig({
   ],
   use: {
     baseURL,
+    testIdAttribute: "data-pwtestid",
     trace: "on-first-retry",
     screenshot: "on",
     video: "on",
