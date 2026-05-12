@@ -44,6 +44,7 @@ jobs:
           node-version: lts/*
       - name: Install dependencies and set up environment for ${{ inputs.group_name }} tests
         run: |
+          docker info
           echo "Installing npm dependencies for ${{ inputs.group_name }} tests"
           npm ci
 
