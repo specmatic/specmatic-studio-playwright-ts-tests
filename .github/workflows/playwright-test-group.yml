@@ -28,7 +28,8 @@ on:
         required: true
 jobs:
   test:
-    runs-on: ubuntu-latest
+    matrix:
+    os: [ubuntu-latest, windows-latest]
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4

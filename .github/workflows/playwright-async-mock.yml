@@ -16,9 +16,9 @@ on:
         required: false
         type: string
   push:
-    branches: [main, master]
+    branches: [main, master, docker-compose-windows]
   pull_request:
-    branches: [main, master]
+    branches: [main, master, docker-compose-windows]
 
 jobs:
   run-async-mock-server:
