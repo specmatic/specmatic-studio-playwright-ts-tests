@@ -98,7 +98,8 @@ export class BasePage {
       const isTab =
         role === "tab" ||
         dataType === "spec" ||
-        dataType === "example-generation";
+        dataType === "example-generation" ||
+        dataType === "example";
 
       if (isTab) {
         if (dataActive !== "true") {
@@ -148,9 +149,9 @@ export class BasePage {
     if (dataType === "example") {
       await this.waitForAnyVisible(
         [
-          "iframe[data-examples-server-base]",
-          "#valid-examples-table",
-          "#invalid-examples-table",
+          '.screen[data-active] .example[data-protocol="openapi"] table.examples-protocol-table',
+          '.screen[data-active] .example[data-protocol="openapi"] .examples-empty',
+          '.screen[data-active] .example[data-protocol="openapi"] #examples',
         ],
         timeout,
       );
@@ -178,9 +179,12 @@ export class BasePage {
       .poll(
         async () => {
           for (const selector of selectors) {
-            const locator = this.page.locator(selector).first();
-            if (await locator.isVisible().catch(() => false)) {
-              return true;
+            const locator = this.page.locator(selector);
+            const count = await locator.count();
+            for (let i = 0; i < count; i++) {
+              if (await locator.nth(i).isVisible().catch(() => false)) {
+                return true;
+              }
             }
           }
           return false;

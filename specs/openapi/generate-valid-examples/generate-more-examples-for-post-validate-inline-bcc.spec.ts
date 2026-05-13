@@ -29,11 +29,9 @@ test.describe("Validate generated spec after inlining POST request examples", ()
         "@inlineExamples",
         "@validateInlinedPostExamplesForMultiplePaths",
         "@eyes",
-        "@expected-failure",
       ],
     },
     async ({ page, eyes }, testInfo) => {
-      test.fail(true, "Inline success dialog does not appear");
       const examplePage = await setupExampleGenerationPage(
         page,
         testInfo,
