@@ -73,13 +73,18 @@ export class ExampleGenerationPage extends BasePage {
     return this.openApiTabPage.openExampleGenerationTab();
   }
 
+  private normalizeExamplePath(endpoint: string): string {
+    return endpoint.replace(/\(([^:()]+):[^()]+\)/g, "{$1}");
+  }
+
   private getRowsForPathAndResponse(
     root: Locator,
     endpoint: string,
     responseCode: number,
   ): Locator {
+    const normalizedEndpoint = this.normalizeExamplePath(endpoint);
     return root.locator(
-      `xpath=.//tr[starts-with(@data-key, "/${endpoint}_") and .//td[contains(@class, "response-cell")]/p[normalize-space(.)="${responseCode}"]]`,
+      `xpath=.//tr[@data-example-path="/${normalizedEndpoint}" and @data-example-response-code="${responseCode}"]`,
     );
   }
 
