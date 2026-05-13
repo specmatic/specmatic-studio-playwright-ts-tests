@@ -16,7 +16,17 @@ export class ExampleGenerationPage extends BasePage {
   readonly openApiTabPage: OpenAPISpecTabPage;
   protected readonly specTree: Locator;
   private readonly generateExamplesBtn: Locator;
-  private readonly examplesRoot: Locator;
+  private readonly validExamplesTable: Locator;
+  private readonly invalidExamplesTable: Locator;
+  private readonly downloadExamplesBtn: Locator;
+  private readonly exampleDiv: Locator;
+  private readonly examplesIframe: Locator;
+  private readonly selectAllCheckboxSelector: string;
+  private readonly bulkDeleteBtnSelector: string;
+  private readonly bulkGenerateBtnSelector: string;
+  private readonly bulkValidateBtnSelector: string;
+  private readonly bulkFixBtnSelector: string;
+  private readonly inlineBtnSelector: string;
   private readonly specSection: Locator;
   private readonly specEditorSection: Locator;
   private readonly specTabLocator: Locator;
@@ -35,8 +45,24 @@ export class ExampleGenerationPage extends BasePage {
     this.generateExamplesBtn = this.specSection.locator(
       `xpath=.//p[contains(text(),"Generate valid examples")]`,
     );
-    this.examplesRoot = this.specSection.getByTestId("examples-root");
+    this.exampleDiv = this.specSection.locator(`div.example`);
+    this.examplesIframe = this.exampleDiv.locator(
+      "iframe[data-examples-server-base]",
+    );
+    this.validExamplesTable = this.specSection.locator("#valid-examples-table");
+    this.invalidExamplesTable = this.specSection.locator(
+      "#invalid-examples-table",
+    );
+    this.downloadExamplesBtn = this.specSection.locator(
+      "button#download-examples",
+    );
     this.openApiTabPage = new OpenAPISpecTabPage(this);
+    this.selectAllCheckboxSelector = "input#select-all";
+    this.bulkDeleteBtnSelector = "button#bulk-delete";
+    this.bulkGenerateBtnSelector = "button#bulk-generate";
+    this.bulkValidateBtnSelector = "button#bulk-validate";
+    this.inlineBtnSelector = "button#import";
+    this.bulkFixBtnSelector = "button#bulk-fix";
     this.specEditorHelper = new SpecEditorPage(page);
   }
 
@@ -45,114 +71,34 @@ export class ExampleGenerationPage extends BasePage {
     return this.openApiTabPage.openExampleGenerationTab();
   }
 
-  private getExamplesRoot(): Locator {
-    return this.examplesRoot;
-  }
-
-  private getBulkAction(action: string): Locator {
-    return this.getExamplesRoot().getByTestId(`examples-bulk-${action}`);
-  }
-
-  private getDetailAction(action: string): Locator {
-    return this.getExamplesRoot().getByTestId(`examples-detail-${action}`);
-  }
-
-  private getAlert(): Locator {
-    return this.getExamplesRoot().getByTestId("examples-alert");
-  }
-
-  private getRow(path: string, responseCode: number): Locator {
-    const normalizedPath = this.normalizeExamplePath(path);
-    return this.getExamplesRoot().locator(
-      `[data-pwtestid="examples-row"][data-example-path="/${normalizedPath}"][data-example-response-code="${responseCode}"]`,
-    );
-  }
-
-  private getGeneratedRow(path: string, responseCode: number): Locator {
-    return this.getRow(path, responseCode).filter({
-      has: this.getExamplesRoot().getByTestId("examples-row-example-name"),
-    });
-  }
-
-  private getEditor(): Locator {
-    return this.getExamplesRoot()
-      .getByTestId("examples-editor")
-      .locator(".cm-content");
-  }
-
-  private getEditorScroller(): Locator {
-    return this.getExamplesRoot()
-      .getByTestId("examples-editor")
-      .locator(".cm-scroller");
-  }
-
-  private normalizeDialogTitle(title: string): string {
-    const normalizedTitle = title.trim().toLowerCase();
-    if (/^\d+\s+example\(s\)\s+generated$/.test(normalizedTitle)) {
-      return "Example Generated";
-    }
-
-    const legacyTitles: Record<string, string> = {
-      "example generations complete": "Example Generations Complete",
-      "example validations complete": "Example Validations Complete",
-      "examples inline complete": "Examples Inline Complete",
-      "delete examples complete": "Delete Examples Complete",
-      "valid example": "Valid Example",
-      "valid examples": "Valid Examples",
-      "invalid example": "Invalid Example",
-      "invalid examples": "Invalid Examples",
-      "fixed example": "Fixed Example",
-      "converted to partial": "Converted Example To Partial",
-      "example generated": "Example Generated",
-      "examples valid": "Example Validations Complete",
-      "examples deleted": "Delete Examples Complete",
-    };
-
-    return legacyTitles[normalizedTitle] ?? title;
-  }
-
-  private normalizeExamplePath(path: string): string {
-    const trimmedPath = path.replace(/^\//, "");
-    return trimmedPath.replace(/\(([^:()]+):[^)]+\)/g, "{$1}");
-  }
-
-  private normalizeDialogMessage(message: string): string {
-    const trimmedMessage = message.trim();
-    const generatedMatch = trimmedMessage.match(/^(\d+)\s+new example\(s\) generated$/i);
-    if (generatedMatch) {
-      return `${generatedMatch[1]} new examples`;
-    }
-
-    const validMatch = trimmedMessage.match(/^All\s+(\d+)\s+example\(s\)\s+are valid$/i);
-    if (validMatch) {
-      return `All ${validMatch[1]} examples are valid`;
-    }
-
-    return trimmedMessage;
-  }
-
   private async clickGenerateButton(
     endpoint: string,
     responseCode: number,
     withVisualValidation = true,
   ) {
-    const root = await this.waitForExamplesRoot();
-    const row = this.getRow(endpoint, responseCode);
-    const generateBtn = row.getByTestId("examples-row-generate");
-    const generateMoreBtn = row.getByTestId("examples-row-generate-more");
-    const count = (await generateBtn.count()) + (await generateMoreBtn.count());
+    // Use XPath inside the iframe to find the visible Generate button for the correct endpoint row
+    const iframe = await this.waitForExamplesIFrame();
+    const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[(@aria-label="Generate" or @aria-label="Generate More") and not(contains(@class, 'hidden')) and not(contains(@style, 'display: none'))]`;
+    const generateBtns = iframe.locator(xpath);
+    // Wait for at least one button to exist before checking visibility
+    const count = await generateBtns.count();
     if (count === 0) {
-      await this.printDebugInfoForAvailableEndpoints(root, endpoint, responseCode);
+      await this.printDebugInfoForAvailableEndpoints(
+        iframe,
+        endpoint,
+        responseCode,
+      );
       throw new Error(
         `No generate button found for endpoint: ${endpoint}, responseCode: ${responseCode}`,
       );
     }
-    const btn =
-      (await generateBtn.count()) > 0 ? generateBtn.first() : generateMoreBtn.first();
+    const btn = generateBtns.first();
     await expect(btn).toBeVisible({ timeout: 4000 });
     await btn.scrollIntoViewIfNeeded();
     await btn.click();
-    await expect(this.getAlert()).toBeVisible({ timeout: 5000 });
+    await iframe.waitForSelector(`text=Example Generated`, {
+      timeout: 5000,
+    });
     await takeAndAttachScreenshot(
       this.page,
       `clicked-generate-${endpoint}-${responseCode}`,
@@ -162,17 +108,16 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async printDebugInfoForAvailableEndpoints(
-    root: Locator,
+    iframe: import("@playwright/test").Frame,
     endpoint: string,
     responseCode: number,
   ) {
-    const allRows = await root.locator('[data-pwtestid="examples-row"]').all();
+    const allRows = await iframe.locator("//tr[@data-raw-path]").all();
     const debugRows = [];
     for (const row of allRows) {
-      const rawPath = await row.getAttribute("data-example-path");
-      const responseCells = await row
-        .getByTestId("examples-row-response-code")
-        .all();
+      const rawPath = await row.getAttribute("data-raw-path");
+      // Find all response codes in this row
+      const responseCells = await row.locator("td.response-cell p").all();
       const codes = [];
       for (const cell of responseCells) {
         const text = (await cell.textContent())?.trim();
@@ -193,8 +138,13 @@ export class ExampleGenerationPage extends BasePage {
     endpoint: string,
     responseCode: number,
   ) {
-    const rowLocator = this.getRow(endpoint, responseCode);
-    const generateBtn = rowLocator.getByTestId("examples-row-generate");
+    const rowLocator = this.page.locator(`tr[data-raw-path="/${endpoint}"]`);
+    const responseCell = rowLocator
+      .locator("td.response-cell")
+      .filter({ has: this.page.getByText(`${responseCode}`) });
+    const generateBtn = responseCell.locator(
+      'button[aria-label="Generate More"]',
+    );
     await expect(generateBtn).toBeHidden({ timeout: 4000 });
   }
 
@@ -203,9 +153,13 @@ export class ExampleGenerationPage extends BasePage {
     responseCode: number,
     withVisualValidation = true,
   ) {
-    const fileNameSpan = this.getRow(endpoint, responseCode).getByTestId(
-      "examples-row-example-name",
+    const iframe = await this.waitForExamplesIFrame();
+    const rowXpath = `//tr[contains(@data-raw-path, "/${endpoint}") and .//td[@class='response-cell']//p[contains(normalize-space(.), "${responseCode}")]]`;
+    const fileNameSpanXpath = `${rowXpath}//td/span[contains(., '${responseCode}')]`;
+    console.log(
+      `\t\tLooking for example file name span with XPath: ${fileNameSpanXpath}`,
     );
+    const fileNameSpan = iframe.locator(fileNameSpanXpath);
     await expect(fileNameSpan).toBeVisible({ timeout: 4000 });
     const fileNameText = (await fileNameSpan.textContent())?.trim();
     expect(fileNameText).toContain(String(responseCode));
@@ -221,14 +175,14 @@ export class ExampleGenerationPage extends BasePage {
     responseCode: number,
     withVisualValidation = true,
   ) {
+    const iframe = await this.waitForExamplesIFrame();
     await takeAndAttachScreenshot(
       this.page,
       `validate-button-visible-${endpoint}-${responseCode}`,
       withVisualValidation ? this.eyes : undefined,
     );
-    const validateBtn = this.getRow(endpoint, responseCode).getByTestId(
-      "examples-row-validate",
-    );
+    const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[@aria-label="Validate"]`;
+    const validateBtn = iframe.locator(xpath);
     await expect(validateBtn).toBeVisible({ timeout: 4000 });
   }
 
@@ -238,18 +192,18 @@ export class ExampleGenerationPage extends BasePage {
     withVisualValidation = true,
     targetNewlyGenerated = false,
   ) {
+    const iframe = await this.waitForExamplesIFrame();
     let viewDetailsSpan: Locator;
 
     if (targetNewlyGenerated) {
-      const row = this.getExamplesRoot().locator(
-        `[data-pwtestid="examples-row"][data-example-path="/${endpoint}"][data-example-file$="_2.json"]`,
+      const row = iframe.locator(
+        `tr[data-raw-path*="${endpoint}"][data-example-relative-path$="_2.json"]`,
       );
       await expect(row).toBeAttached({ timeout: 5000 });
-      viewDetailsSpan = row.getByTestId("examples-row-view-details");
+      viewDetailsSpan = row.locator('span:has-text("View Details")');
     } else {
-      viewDetailsSpan = this.getRow(endpoint, responseCode).getByTestId(
-        "examples-row-view-details",
-      );
+      const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//span[contains(text(), 'View Details')]`;
+      viewDetailsSpan = iframe.locator(xpath);
       await expect(viewDetailsSpan).toBeVisible({ timeout: 4000 });
     }
 
@@ -267,8 +221,8 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async clickGoBack(endpoint: string, responseCode: number) {
-    const root = await this.waitForExamplesRoot();
-    const goBackBtn = root.getByTestId("examples-back");
+    const iframe = await this.waitForExamplesIFrame();
+    const goBackBtn = iframe.getByRole("button", { name: /Go Back|← Go Back/ });
     await expect(goBackBtn).toBeVisible({ timeout: 4000 });
     await expect(goBackBtn).toBeEnabled({ timeout: 4000 });
     await goBackBtn.click();
@@ -283,10 +237,9 @@ export class ExampleGenerationPage extends BasePage {
     responseCode: number,
     withVisualValidation = true,
   ) {
-    await this.waitForExamplesRoot();
-    const validateBtn = this.getRow(endpoint, responseCode).getByTestId(
-      "examples-row-validate",
-    );
+    const iframe = await this.waitForExamplesIFrame();
+    const xpath = `//tr[@data-raw-path="/${endpoint}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[@aria-label="Validate"]`;
+    const validateBtn = iframe.locator(xpath);
     await expect(validateBtn).toBeVisible({ timeout: 4000 });
     await validateBtn.click();
     await takeAndAttachScreenshot(
@@ -304,14 +257,14 @@ export class ExampleGenerationPage extends BasePage {
       `before-closing-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
 
-    const alert = this.getAlert();
+    const { alert } = await this.getAlertContainerFrameAndLocator();
     await expect(alert).toBeAttached({ timeout: 15000 });
 
     const title = await this.getDialogTitle(alert);
     const message = await this.getDialogMessage(alert);
     expect.soft(title).toContain(expectedTitle);
 
-    await alert.getByTestId("examples-alert-close").click();
+    await alert.locator("button").click();
     console.log(
       `\t\tClicked close button on dialog with title: '${expectedTitle}' Vs Actual: '${title}'`,
     );
@@ -323,28 +276,45 @@ export class ExampleGenerationPage extends BasePage {
     await expect(alert).toBeHidden();
   }
 
+  private async getAlertContainerFrameAndLocator(): Promise<{
+    frame: import("@playwright/test").Frame;
+    alert: Locator;
+  }> {
+    const iframeHandle = await this.examplesIframe.elementHandle();
+    const frame = await iframeHandle?.contentFrame();
+    if (!frame) {
+      throw new Error(
+        "Frame is null or undefined in getAlertContainerFrameAndLocator",
+      );
+    }
+    const alert = frame.locator("#alert-container");
+    return { frame, alert };
+  }
+
   private async getDialogTitle(alert: Locator): Promise<string> {
-    const dialogTitle = await alert
-      .getByTestId("examples-alert-title")
-      .innerText();
-    const normalizedTitle = this.normalizeDialogTitle(dialogTitle);
+    // Assumes the first <p> or <pre> is the title
+    const dialogTitle = await alert.locator("p, pre").first().innerText();
     console.log("\t\tActual dialog title:", dialogTitle);
-    return normalizedTitle;
+    return dialogTitle;
   }
 
   private async getDialogMessage(alert: Locator): Promise<string> {
-    const message = alert.getByTestId("examples-alert-message");
-    const dialogMessage = this.normalizeDialogMessage(
-      (await message.textContent().catch(() => ""))?.trim() || "",
-    );
+    // Assumes the second <p> or <pre> is the message, if present
+    const elements = await alert.locator("p, pre").all();
+    let dialogMessage = "";
+    if (elements.length > 1) {
+      dialogMessage = await elements[1].innerText();
+    } else if (elements.length === 1) {
+      dialogMessage = await elements[0].innerText();
+    }
     console.log("\t\tActual dialog message:", dialogMessage);
     return dialogMessage;
   }
 
   private async saveAndValidate(withVisualValidation = true) {
     await test.step(`Click 'Save & Validate' button`, async () => {
-      const root = await this.waitForExamplesRoot();
-      const saveValidateBtn = root.getByTestId("examples-detail-validate");
+      const iframe = await this.waitForExamplesIFrame();
+      const saveValidateBtn = iframe.locator("button#bulk-validate");
       await this.page.waitForTimeout(1000);
       await expect(saveValidateBtn).toBeVisible({ timeout: 4000 });
       await expect(saveValidateBtn).toBeEnabled({ timeout: 4000 });
@@ -361,10 +331,10 @@ export class ExampleGenerationPage extends BasePage {
   async deleteGeneratedExamples() {
     await test.step(`Delete all generated examples if present`, async () => {
       console.log("Attempting to delete generated examples if present");
-      const root = await this.waitForExamplesRoot();
-      await this.selectAll(root);
+      const iframe = await this.waitForExamplesIFrame();
+      await this.selectAll(iframe);
 
-      const bulkDeleteBtn = this.getBulkAction("delete");
+      const bulkDeleteBtn = iframe.locator(this.bulkDeleteBtnSelector);
       let deleteClicked = false;
       if (await bulkDeleteBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
         await takeAndAttachScreenshot(this.page, `click-bulk-delete`);
@@ -378,7 +348,7 @@ export class ExampleGenerationPage extends BasePage {
         await this.verifyTitleAndCloseDialog("Delete Examples Complete");
       } else {
         console.log("No examples to delete");
-        await this.uncheckSelectAll(root);
+        await this.uncheckSelectAll(iframe); // Uncheck select-all if we had checked it but there were no examples to delete
       }
 
       await takeAndAttachScreenshot(
@@ -392,15 +362,18 @@ export class ExampleGenerationPage extends BasePage {
     await test.step(
       `Delete generated example for /${path} ${responseCode}`,
       async () => {
-        const root = await this.waitForExamplesRoot();
-        const generatedRow = this.getGeneratedRow(path, responseCode);
+        const iframe = await this.waitForExamplesIFrame();
+        const generatedRow = iframe.locator(
+          `//tr[@data-raw-path="/${path}" and @data-example-relative-path and .//td[@class='response-cell']/p[text()="${responseCode}"]]`,
+        );
         await expect(generatedRow.first()).toBeVisible({ timeout: 5000 });
 
         const generatedFilePath =
-          await generatedRow.first().getAttribute("data-example-file");
+          await generatedRow.first().getAttribute("data-example-relative-path");
         const rowCheckbox = generatedRow
           .first()
-          .getByTestId("examples-row-checkbox");
+          .locator('input[type="checkbox"]')
+          .first();
         await expect(rowCheckbox).toBeVisible({ timeout: 3000 });
         await rowCheckbox.check({ force: true });
 
@@ -409,14 +382,16 @@ export class ExampleGenerationPage extends BasePage {
           `selected-generated-example-${path}-${responseCode}`,
         );
 
-        const bulkDeleteBtn = this.getBulkAction("delete");
+        const bulkDeleteBtn = iframe.locator(this.bulkDeleteBtnSelector);
         await expect(bulkDeleteBtn).toBeVisible({ timeout: 3000 });
         await bulkDeleteBtn.click();
         await this.verifyTitleAndCloseDialog("Delete Examples Complete");
 
         if (generatedFilePath) {
           await expect(
-            root.locator(`[data-example-file="${generatedFilePath}"]`),
+            iframe.locator(
+              `tr[data-example-relative-path="${generatedFilePath}"]`,
+            ),
           ).toHaveCount(0, { timeout: 5000 });
         }
 
@@ -428,16 +403,9 @@ export class ExampleGenerationPage extends BasePage {
     );
   }
 
-  private async selectAll(root: Locator) {
-    const selectAll = root.getByTestId("examples-select-all");
-    const isVisible = await selectAll
-      .waitFor({ state: "visible", timeout: 3000 })
-      .then(() => true)
-      .catch(() => false);
-    if (!isVisible) {
-      console.log("\tselect-all checkbox is not visible");
-      return;
-    }
+  private async selectAll(iframe: import("@playwright/test").Frame) {
+    const selectAll = iframe.locator(this.selectAllCheckboxSelector);
+    await selectAll.waitFor({ timeout: 3000 });
     const checkboxes = await selectAll.all();
     console.log(`\tselect-all checkbox found, count: ${checkboxes.length}`);
     let allChecked = true;
@@ -473,21 +441,15 @@ export class ExampleGenerationPage extends BasePage {
     // Also check that at least one is checked for safety
     if (checkboxes.length === 0) {
       throw new Error(
-        "selectAll: No checkboxes found for selector 'examples-select-all'",
+        "selectAll: No checkboxes found for selector 'input#select-all'",
       );
     }
     await takeAndAttachScreenshot(this.page, `select-all-checked`);
   }
 
-  private async uncheckSelectAll(root: Locator) {
-    const selectAll = root.getByTestId("examples-select-all");
-    const isVisible = await selectAll
-      .waitFor({ state: "visible", timeout: 3000 })
-      .then(() => true)
-      .catch(() => false);
-    if (!isVisible) {
-      return;
-    }
+  private async uncheckSelectAll(iframe: import("@playwright/test").Frame) {
+    const selectAll = iframe.locator(this.selectAllCheckboxSelector);
+    await selectAll.waitFor({ timeout: 3000 });
     console.log("\tuncheck select-all checkbox found");
     if (await selectAll.isChecked()) {
       await selectAll.click({ force: true });
@@ -497,21 +459,28 @@ export class ExampleGenerationPage extends BasePage {
     }
   }
 
-  async waitForExamplesRoot() {
-    const root = this.getExamplesRoot();
-    await root.waitFor({ state: "visible", timeout: 10000 });
-    console.log("\tSuccessfully located the examples root");
-    return root;
+  async waitForExamplesIFrame() {
+    await this.examplesIframe.waitFor({ state: "attached", timeout: 10000 });
+    const iframeElement = await this.examplesIframe.elementHandle();
+    if (!iframeElement) {
+      throw new Error("Could not find the iframe element at index 1");
+    }
+    const frame = await iframeElement.contentFrame();
+    if (!frame) {
+      throw new Error("Could not get contentFrame from iframe element");
+    }
+    console.log("\tSuccessfully got the examples iframe");
+    return frame;
   }
 
   async validateAllExamples() {
     await test.step(`Validate all generated examples`, async () => {
       console.log(`Validating all generated examples`);
-      const root = await this.waitForExamplesRoot();
-      await this.selectAll(root);
+      const iframe = await this.waitForExamplesIFrame();
+      await this.selectAll(iframe);
       await this.clickBulkValidateButton();
 
-      await this.waitForProcessingToComplete(this.getBulkAction("validate"));
+      await this.waitForProcessingToComplete(iframe);
       await this.verifyTitleAndCloseDialog("Example Validations Complete");
       await takeAndAttachScreenshot(
         this.page,
@@ -524,11 +493,11 @@ export class ExampleGenerationPage extends BasePage {
   async generateAllExamples() {
     await test.step(`Generate example and validate for all paths`, async () => {
       console.log(`Generating and validating example for all paths`);
-      const root = await this.waitForExamplesRoot();
-      await this.selectAll(root);
+      const iframe = await this.waitForExamplesIFrame();
+      await this.selectAll(iframe);
       await this.clickBulkGenerateButton();
 
-      await this.waitForProcessingToComplete(this.getBulkAction("generate"));
+      await this.waitForProcessingToComplete(iframe);
       await takeAndAttachScreenshot(
         this.page,
         `generate-examples-for-all-paths`,
@@ -537,30 +506,27 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  private async waitForProcessingToComplete(button: Locator) {
+  private async waitForProcessingToComplete(
+    iframe: import("@playwright/test").Frame,
+  ) {
     console.log(`\t\tWaiting for processing to complete...`);
-    await button
+    const processingBtn = iframe.locator("button#bulk-generate", {
+      hasText: "Processing",
+    });
+    // wait for 5 seconds for the processing button to appear in case it takes some time for the generation to start, but if it doesn't appear within that time, we proceed to check for completion to avoid unnecessary test failure
+    await processingBtn
       .waitFor({ state: "visible", timeout: 5000 })
       .catch(() => {
         console.log(
           "\t\tProcessing button did not appear within 5 seconds, proceeding to check for generation completion",
         );
       });
-    await expect
-      .poll(
-        async () => (await button.getAttribute("data-processing")) === "true",
-        { timeout: 5000 },
-      )
-      .toBeTruthy()
-      .catch(() => {});
-    await expect(button).toHaveAttribute("data-processing", "false", {
-      timeout: 60000,
-    });
+    await expect(processingBtn).toBeHidden({ timeout: 60000 });
   }
 
   async getNumberOfPathMethodsAndResponses(): Promise<number> {
-    const root = await this.waitForExamplesRoot();
-    const exampleRows = await root.locator('[data-pwtestid="examples-row"]').all();
+    const iframe = await this.waitForExamplesIFrame();
+    const exampleRows = await iframe.locator("tr[data-raw-path]").all();
     console.log(
       `\tTotal number of path-method-response combinations: ${exampleRows.length}`,
     );
@@ -568,9 +534,9 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   async getNumberOfGenerateButtons(): Promise<number> {
-    const root = await this.waitForExamplesRoot();
-    const generateButtons = await root
-      .locator('[data-pwtestid="examples-row-generate"]')
+    const iframe = await this.waitForExamplesIFrame();
+    const generateButtons = await iframe
+      .locator('button[aria-label="Generate"]')
       .all();
     console.log(
       `\tNumber of Generate buttons available: ${generateButtons.length}`,
@@ -579,9 +545,9 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   async getNumberOfValidateButtons(): Promise<number> {
-    const root = await this.waitForExamplesRoot();
-    const validateButtons = await root
-      .locator('[data-pwtestid="examples-row-validate"]')
+    const iframe = await this.waitForExamplesIFrame();
+    const validateButtons = await iframe
+      .locator('button[aria-label="Validate"]')
       .all();
     console.log(
       `\tNumber of Validate buttons available: ${validateButtons.length}`,
@@ -590,8 +556,8 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   async getNumberOfExamplesValidated(): Promise<number> {
-    const root = await this.waitForExamplesRoot();
-    const exampleRows = await root.locator('tr[data-valid="success"]').all();
+    const iframe = await this.waitForExamplesIFrame();
+    const exampleRows = await iframe.locator("tr[data-valid=success]").all();
     console.log(
       `\tTotal endpoints with generated examples: ${exampleRows.length}`,
     );
@@ -599,9 +565,9 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   async getNumberOfExamplesGenerated(): Promise<number> {
-    const root = await this.waitForExamplesRoot();
-    const exampleRows = await root
-      .locator('tr[data-example-generated="true"]')
+    const iframe = await this.waitForExamplesIFrame();
+    const exampleRows = await iframe
+      .locator("tr[data-example-relative-path]")
       .all();
     console.log(
       `\tTotal endpoints with generated examples: ${exampleRows.length}`,
@@ -610,7 +576,8 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async clickBulkGenerateButton() {
-    const bulkGenerateBtn = this.getBulkAction("generate");
+    const iframe = await this.waitForExamplesIFrame();
+    const bulkGenerateBtn = iframe.locator(this.bulkGenerateBtnSelector);
     await bulkGenerateBtn.waitFor({ state: "visible", timeout: 4000 });
     await expect(bulkGenerateBtn).toBeVisible({ timeout: 4000 });
     await expect(bulkGenerateBtn).toBeEnabled({ timeout: 4000 });
@@ -618,7 +585,8 @@ export class ExampleGenerationPage extends BasePage {
     await takeAndAttachScreenshot(this.page, "clicked-generate");
   }
   private async clickBulkValidateButton() {
-    const bulkValidateBtn = this.getBulkAction("validate");
+    const iframe = await this.waitForExamplesIFrame();
+    const bulkValidateBtn = iframe.locator(this.bulkValidateBtnSelector);
     await bulkValidateBtn.waitFor({ state: "visible", timeout: 4000 });
     await expect(bulkValidateBtn).toBeVisible({ timeout: 4000 });
     await expect(bulkValidateBtn).toBeEnabled({ timeout: 4000 });
@@ -630,12 +598,13 @@ export class ExampleGenerationPage extends BasePage {
     await test.step(`Inline generated examples into the spec file`, async () => {
       console.log(`Inlining examples into the spec file`);
       await takeAndAttachScreenshot(this.page, `before-inline`);
-      const inlineBtn = this.getBulkAction("inline");
+      const iframe = await this.waitForExamplesIFrame();
+      const inlineBtn = iframe.locator(this.inlineBtnSelector);
       await inlineBtn.waitFor({ state: "visible", timeout: 4000 });
       await expect(inlineBtn).toBeVisible({ timeout: 4000 });
       await expect(inlineBtn).toBeEnabled({ timeout: 4000 });
       await inlineBtn.click();
-      await this.waitForInlineToComplete(inlineBtn);
+      await this.waitForInlineToComplete(iframe);
       await takeAndAttachScreenshot(
         this.page,
         `all-examples-inlined`,
@@ -647,8 +616,7 @@ export class ExampleGenerationPage extends BasePage {
   async getDialogTitleAndMessage(): Promise<[string, string]> {
     return await test.step(`Get dialog title and message`, async () => {
       console.log(`\tGetting dialog title and message`);
-      const alert = this.getAlert();
-      await expect(alert).toBeVisible({ timeout: 10000 });
+      const { alert } = await this.getAlertContainerFrameAndLocator();
       await takeAndAttachScreenshot(this.page, `dialog-title-and-message`);
       const title = await this.getDialogTitle(alert);
       const message = await this.getDialogMessage(alert);
@@ -661,8 +629,8 @@ export class ExampleGenerationPage extends BasePage {
   ): Promise<[string, string] | null> {
     return await test.step(`Get dialog title and message if present`, async () => {
       console.log(`\tGetting dialog title and message if present`);
-      const alert = this.getAlert();
-      const dialogContent = alert.getByTestId("examples-alert-title");
+      const { alert } = await this.getAlertContainerFrameAndLocator();
+      const dialogContent = alert.locator("p, pre").first();
       const isDialogVisible = await dialogContent
         .waitFor({ state: "visible", timeout })
         .then(() => true)
@@ -680,7 +648,7 @@ export class ExampleGenerationPage extends BasePage {
       const title = await this.getDialogTitle(alert);
       const message = await this.getDialogMessage(alert);
 
-      const closeButton = alert.getByTestId("examples-alert-close").first();
+      const closeButton = alert.locator("button").first();
       if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
         await closeButton.click();
         await this.page.waitForTimeout(1000);
@@ -691,23 +659,24 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  private async waitForInlineToComplete(inlineBtn: Locator) {
+  private async waitForInlineToComplete(
+    iframe: import("@playwright/test").Frame,
+  ) {
     console.log(`\t\tWaiting for inline operation to complete...`);
-    await expect
-      .poll(
-        async () => (await inlineBtn.getAttribute("data-processing")) === "true",
-        { timeout: 5000 },
-      )
-      .toBeTruthy()
+    const inlineBtn = iframe.locator(this.inlineBtnSelector);
+    const processingInlineBtn = iframe.locator(this.inlineBtnSelector, {
+      hasText: "Processing",
+    });
+
+    await processingInlineBtn
+      .waitFor({ state: "visible", timeout: 5000 })
       .catch(() => {
         console.log(
           "\t\tInline button did not switch to 'Processing' within 5 seconds, checking whether the action already completed",
         );
       });
 
-    await expect(inlineBtn).toHaveAttribute("data-processing", "false", {
-      timeout: 60000,
-    });
+    await expect(processingInlineBtn).toBeHidden({ timeout: 60000 });
     await expect(inlineBtn).toBeEnabled({ timeout: 10000 });
   }
   async generateAndValidateForPaths(
@@ -753,11 +722,15 @@ export class ExampleGenerationPage extends BasePage {
     await test.step(
       `Convert current example to partial and verify dialog for '${exampleName}'`,
       async () => {
-        const root = await this.waitForExamplesRoot();
-        const convertToPartialButton = root.getByTestId(
-          "examples-detail-convert-to-partial",
+        const iframe = await this.waitForExamplesIFrame();
+        const convertToPartialButton = iframe.locator(
+          "button#convert-to-partial",
         );
         await expect(convertToPartialButton).toBeVisible({ timeout: 5000 });
+        await expect(convertToPartialButton).toHaveAttribute(
+          "data-panel",
+          "details",
+        );
         await convertToPartialButton.click();
 
         await takeAndAttachScreenshot(
@@ -766,15 +739,42 @@ export class ExampleGenerationPage extends BasePage {
           this.eyes,
         );
 
-        const alert = this.getAlert();
+        const pageAlert = this.page.locator(".alert-msg.slide-in.green").first();
+        const iframeAlert = iframe.locator(".alert-msg.slide-in.green").first();
+
+        let alertContext: "iframe" | "page" | "none" = "none";
+        await expect
+          .poll(
+            async () => {
+              if (await iframeAlert.isVisible().catch(() => false)) {
+                alertContext = "iframe";
+                return alertContext;
+              }
+              if (await pageAlert.isVisible().catch(() => false)) {
+                alertContext = "page";
+                return alertContext;
+              }
+              alertContext = "none";
+              return alertContext;
+            },
+            {
+              timeout: 10000,
+              intervals: [250, 500, 1000],
+              message:
+                "Converted Example To Partial toast did not appear in either the examples iframe or the page",
+            },
+          )
+          .not.toBe("none");
+
+        const alert = alertContext === "iframe" ? iframeAlert : pageAlert;
         await expect(alert).toBeVisible({ timeout: 5000 });
 
-        const title = (await this.getDialogTitle(alert)).trim();
-        const message = (await this.getDialogMessage(alert)).trim();
+        const title = (await alert.locator("p").first().innerText()).trim();
+        const message = (await alert.locator("pre").first().innerText()).trim();
         expect(title).toBe("Converted Example To Partial");
         expect(message).toBe(`Example name: ${exampleName}`);
 
-        const closeButton = alert.getByTestId("examples-alert-close");
+        const closeButton = alert.locator("button").first();
         await closeButton.click();
         await expect(alert).toBeHidden({ timeout: 5000 });
       },
@@ -816,7 +816,8 @@ export class ExampleGenerationPage extends BasePage {
   async fixExampleWithAutoFix() {
     await test.step(`Fix example with Auto-Fix`, async () => {
       console.log(`Fixing example with Auto-Fix`);
-      const autoFixBtn = this.getDetailAction("fix");
+      const iframe = await this.waitForExamplesIFrame();
+      const autoFixBtn = iframe.locator(this.bulkFixBtnSelector);
 
       await autoFixBtn.waitFor({ state: "attached", timeout: 4000 });
 
@@ -839,20 +840,18 @@ export class ExampleGenerationPage extends BasePage {
   async getDetailsOfErrorsInExample(): Promise<[number, string]> {
     return await test.step(`Get details of errors in example`, async () => {
       console.log(`Getting details of errors in example`);
-      const root = await this.waitForExamplesRoot();
-      const detailsDiv = root.getByTestId("examples-issues");
+      const iframe = await this.waitForExamplesIFrame();
+      // Click the details div to expand if not already expanded
+      const detailsDiv = iframe.locator("div.details");
       const classAttr = await detailsDiv.getAttribute("class");
       if (!classAttr || !classAttr.includes("expanded")) {
         await detailsDiv.click();
         await expect(detailsDiv).toHaveClass(/expanded/, { timeout: 3000 });
       }
-      const expandedDiv = root.locator(
-        '[data-pwtestid="examples-issues"].expanded',
-      );
+      const expandedDiv = iframe.locator("div.details.expanded");
       await expect(expandedDiv).toBeVisible({ timeout: 5000 });
-      const summaryP = expandedDiv
-        .getByTestId("examples-issues-summary")
-        .locator("p");
+      // The summary line is in the .dropdown > p
+      const summaryP = expandedDiv.locator(".dropdown > p");
       const summaryText = await summaryP.textContent();
 
       let errorCount = 0;
@@ -863,7 +862,7 @@ export class ExampleGenerationPage extends BasePage {
         }
       }
       // The error message blob is in the <pre> tag
-      const pre = expandedDiv.getByTestId("examples-issues-content");
+      const pre = expandedDiv.locator("pre");
       let errorBlob = "";
       if ((await pre.count()) > 0) {
         errorBlob = (await pre.first().textContent()) || "";
@@ -875,8 +874,8 @@ export class ExampleGenerationPage extends BasePage {
   async getCollapsedErrorSummaryCount(): Promise<number> {
     return await test.step(`Get collapsed error summary count`, async () => {
       console.log(`Getting collapsed error summary count`);
-      const root = await this.waitForExamplesRoot();
-      const detailsDiv = root.getByTestId("examples-issues");
+      const iframe = await this.waitForExamplesIFrame();
+      const detailsDiv = iframe.locator("div.details");
       await expect(detailsDiv).toBeVisible({ timeout: 5000 });
 
       const classAttr = await detailsDiv.getAttribute("class");
@@ -886,9 +885,7 @@ export class ExampleGenerationPage extends BasePage {
         await expect(detailsDiv).not.toHaveClass(/expanded/, { timeout: 3000 });
       }
 
-      const summaryP = detailsDiv
-        .getByTestId("examples-issues-summary")
-        .locator("p");
+      const summaryP = detailsDiv.locator(".dropdown > p");
       const summaryText = await summaryP.textContent();
       console.log(`\tCollapsed summary text: "${summaryText}"`);
 
@@ -910,8 +907,8 @@ export class ExampleGenerationPage extends BasePage {
   async getVisibleErrorBlockCount(): Promise<number> {
     return await test.step(`Get visible error block count after expanding`, async () => {
       console.log(`Getting visible error block count in expanded details`);
-      const root = await this.waitForExamplesRoot();
-      const detailsDiv = root.getByTestId("examples-issues");
+      const iframe = await this.waitForExamplesIFrame();
+      const detailsDiv = iframe.locator("div.details");
 
       const classAttr = await detailsDiv.getAttribute("class");
       if (!classAttr?.includes("expanded")) {
@@ -919,12 +916,10 @@ export class ExampleGenerationPage extends BasePage {
         await expect(detailsDiv).toHaveClass(/expanded/, { timeout: 3000 });
       }
 
-      const expandedDiv = root.locator(
-        '[data-pwtestid="examples-issues"].expanded',
-      );
+      const expandedDiv = iframe.locator("div.details.expanded");
       await expect(expandedDiv).toBeVisible({ timeout: 5000 });
 
-      const pre = expandedDiv.getByTestId("examples-issues-content");
+      const pre = expandedDiv.locator("pre");
       let preText = "";
       if ((await pre.count()) > 0) {
         preText = (await pre.first().textContent()) || "";
@@ -957,10 +952,9 @@ export class ExampleGenerationPage extends BasePage {
   async editExample(edits: Edit[]) {
     await test.step(`Edit and save example with edits`, async () => {
       console.log(`Editing example`);
-      await this.waitForExamplesRoot();
-      const lines = this.getExamplesRoot()
-        .getByTestId("examples-editor")
-        .locator(".cm-line");
+      const frame = await this.waitForExamplesIFrame();
+
+      const lines = frame.locator("#example-pre .cm-line");
 
       await expect(lines.first()).toBeVisible({ timeout: 15000 });
 
@@ -1097,16 +1091,16 @@ export class ExampleGenerationPage extends BasePage {
         await examplesTabLi.click({ force: true, timeout: 10000 });
         await this.page.waitForTimeout(500);
       }
-      await this.waitForExamplesRoot();
+      await this.waitForExamplesIFrame();
       await takeAndAttachScreenshot(this.page, "example-tab-opened");
     });
   }
 
   async clickGenerateMoreButton(path: string, responseCode: number) {
     await test.step(`Click Generate More for ${path} - ${responseCode}`, async () => {
-      await this.waitForExamplesRoot();
-      const generateMoreBtn = this.getRow(path, responseCode).locator(
-        '[data-pwtestid="examples-row-generate-more"]',
+      const iframe = await this.waitForExamplesIFrame();
+      const generateMoreBtn = iframe.locator(
+        `//tr[@data-raw-path="/${path}" and .//td[@class='response-cell']/p[text()="${responseCode}"]]//button[@aria-label="Generate More"]`,
       );
       await expect(generateMoreBtn).toBeVisible({ timeout: 4000 });
       await generateMoreBtn.click();
@@ -1121,15 +1115,13 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   async getExampleFilesForEndpoint(rawPath: string): Promise<string[]> {
-    const root = await this.waitForExamplesRoot();
-    const rows = root.locator(
-      `[data-pwtestid="examples-row"][data-example-path="/${rawPath}"]`,
-    );
+    const iframe = await this.waitForExamplesIFrame();
+    const rows = iframe.locator(`tr[data-raw-path="/${rawPath}"]`);
     const count = await rows.count();
     const filePaths: string[] = [];
 
     for (let i = 0; i < count; i++) {
-      const filePath = await rows.nth(i).getAttribute("data-example-file");
+      const filePath = await rows.nth(i).getAttribute("data-example-path");
       if (filePath) filePaths.push(filePath);
     }
     return filePaths;
@@ -1138,18 +1130,17 @@ export class ExampleGenerationPage extends BasePage {
   async getGeneratedExampleNames(): Promise<string[]> {
     return await test.step(`Get generated example names`, async () => {
       console.log(`Getting generated example names from Examples tab`);
-      const root = await this.waitForExamplesRoot();
-      const exampleRows = await root
-        .locator(
-          '[data-pwtestid="examples-row"][data-example-generated="true"]',
-        )
+      const iframe = await this.waitForExamplesIFrame();
+      const exampleColumnIndex = await this.getExamplesColumnIndex(iframe);
+      const exampleRows = await iframe
+        .locator("tr[data-example-relative-path]")
         .all();
 
       const examples: string[] = [];
       for (const row of exampleRows) {
-        const exampleCell = row.locator(
-          '[data-pwtestid="examples-row-example-name"]',
-        );
+        const exampleCell = row
+          .locator(`td:nth-child(${exampleColumnIndex})`)
+          .first();
 
         let extractedName = "";
         if ((await exampleCell.count()) > 0) {
@@ -1157,7 +1148,8 @@ export class ExampleGenerationPage extends BasePage {
         }
 
         if (!extractedName) {
-          const relativePath = (await row.getAttribute("data-example-file")) ?? "";
+          const relativePath =
+            (await row.getAttribute("data-example-relative-path")) ?? "";
           const fileName = relativePath.split("/").pop() ?? "";
           extractedName = fileName.replace(/\.json$/i, "").trim();
         }
@@ -1171,6 +1163,26 @@ export class ExampleGenerationPage extends BasePage {
       await takeAndAttachScreenshot(this.page, `generated-example-names`);
       return examples;
     });
+  }
+
+  private async getExamplesColumnIndex(
+    iframe: import("@playwright/test").Frame,
+  ): Promise<number> {
+    const headers = iframe.locator("table thead tr th");
+    const count = await headers.count();
+
+    for (let i = 0; i < count; i++) {
+      const text = ((await headers.nth(i).innerText()) ?? "").trim();
+      if (text.toLowerCase() === "examples") {
+        const index = i + 1;
+        console.log(`\tDetected "Examples" column index: ${index}`);
+        return index;
+      }
+    }
+
+    // Fallback for older table layout where examples was the 8th visible cell.
+    console.log(`\tCould not detect "Examples" header. Falling back to index 8`);
+    return 8;
   }
 
   async openSpecTabForCurrentSpec() {
@@ -1309,7 +1321,8 @@ export class ExampleGenerationPage extends BasePage {
 
   async copyEditorContent(): Promise<void> {
     await test.step("Copy editor content to clipboard", async () => {
-      const editor = this.getEditor();
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
       await expect(editor).toBeVisible({ timeout: 5000 });
       await editor.click();
       await this.page.keyboard.press("ControlOrMeta+A");
@@ -1321,7 +1334,8 @@ export class ExampleGenerationPage extends BasePage {
 
   async getEditorContent(): Promise<string> {
     return test.step("Read editor content", async () => {
-      const editor = this.getEditor();
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
       await expect(editor).toBeVisible({ timeout: 5000 });
       return await editor.evaluate((el) => {
         const cmEditor = el.closest(".cm-editor") as {
@@ -1339,7 +1353,8 @@ export class ExampleGenerationPage extends BasePage {
     withVisualValidation = true,
   ): Promise<void> {
     await test.step(`Capture current example view: '${screenshotName}'`, async () => {
-      const editor = this.getEditor();
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
       await expect(editor).toBeVisible({ timeout: 5000 });
       await editor.click();
       await this.page.waitForTimeout(250);
@@ -1353,8 +1368,9 @@ export class ExampleGenerationPage extends BasePage {
 
   async replaceEditorContent(content: string): Promise<void> {
     await test.step("Replace editor content", async () => {
-      const editor = this.getEditor();
-      const editorScroller = this.getEditorScroller();
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      const editorScroller = iframe.locator("#example-pre .cm-scroller");
       await expect(editor).toBeVisible({ timeout: 5000 });
       await editor.click();
       await this.page.keyboard.press("ControlOrMeta+A");
@@ -1371,9 +1387,11 @@ export class ExampleGenerationPage extends BasePage {
 
   async getCurrentExampleRelativeFilePath(): Promise<string> {
     return test.step("Read current example file path", async () => {
-      const filePathLabel = this.getExamplesRoot().getByTestId(
-        "examples-current-file-path",
-      );
+      const iframe = await this.waitForExamplesIFrame();
+      const filePathLabel = iframe
+        .locator("p")
+        .filter({ hasText: "File path:" })
+        .first();
       await expect(filePathLabel).toBeVisible({ timeout: 5000 });
 
       const rawText = (await filePathLabel.textContent())?.trim() ?? "";
@@ -1388,8 +1406,9 @@ export class ExampleGenerationPage extends BasePage {
 
   async pasteIntoEditor(): Promise<void> {
     await test.step("Paste content into editor", async () => {
-      const editor = this.getEditor();
-      const editorScroller = this.getEditorScroller();
+      const iframe = await this.waitForExamplesIFrame();
+      const editor = iframe.locator("#example-pre .cm-content");
+      const editorScroller = iframe.locator("#example-pre .cm-scroller");
       await expect(editor).toBeVisible({ timeout: 5000 });
       await editor.click();
       await this.page.keyboard.press("ControlOrMeta+A");
@@ -1406,7 +1425,10 @@ export class ExampleGenerationPage extends BasePage {
 
   async goBackFromExample(): Promise<void> {
     await test.step("Go back to examples list", async () => {
-      const goBackBtn = this.getExamplesRoot().getByTestId("examples-back");
+      const iframe = await this.waitForExamplesIFrame();
+      const goBackBtn = iframe.getByRole("button", {
+        name: /Go Back|← Go Back/,
+      });
       await expect(goBackBtn).toBeVisible({ timeout: 4000 });
       await goBackBtn.click();
 
@@ -1419,23 +1441,23 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async waitForDetailsViewToLoad(): Promise<void> {
-    const root = await this.waitForExamplesRoot();
+    const iframe = await this.waitForExamplesIFrame();
 
     // Wait for editor content or viewer content to be visible
     // This could be CodeMirror editor (.cm-content), or other viewer elements
     await Promise.race([
-      root.getByTestId("examples-editor").locator(".cm-content").first().waitFor({
-        state: "visible",
-        timeout: 8000,
-      }),
-      root.getByTestId("examples-editor").first().waitFor({
-        state: "visible",
-        timeout: 8000,
-      }),
-      root.locator('[data-pwtestid="examples-main"][data-panel="details"]').first().waitFor({
-        state: "visible",
-        timeout: 8000,
-      }),
+      iframe
+        .locator(".cm-content")
+        .first()
+        .waitFor({ state: "visible", timeout: 8000 }),
+      iframe
+        .locator(".cm-editor")
+        .first()
+        .waitFor({ state: "visible", timeout: 8000 }),
+      iframe
+        .locator('[role="presentation"]')
+        .first()
+        .waitFor({ state: "visible", timeout: 8000 }),
     ]).catch(() => {
       // If none of the expected content appears, continue anyway
       // as different examples might have different viewer types
@@ -1446,12 +1468,11 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async waitForExamplesListToLoad(): Promise<void> {
-    const root = await this.waitForExamplesRoot();
+    const iframe = await this.waitForExamplesIFrame();
 
-    await root
-      .locator(
-        ':scope [data-pwtestid="examples-table"], :scope [data-pwtestid="examples-row"], :scope [data-pwtestid="examples-empty"]',
-      )
+    // Wait for the examples table to be visible and stable
+    await iframe
+      .locator("table, tr[data-raw-path]")
       .first()
       .waitFor({
         state: "visible",
