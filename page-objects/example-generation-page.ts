@@ -84,7 +84,22 @@ export class ExampleGenerationPage extends BasePage {
   ): Locator {
     const normalizedEndpoint = this.normalizeExamplePath(endpoint);
     return root.locator(
-      `xpath=.//tr[@data-example-path="/${normalizedEndpoint}" and @data-example-response-code="${responseCode}"]`,
+      `xpath=.//tr[
+        (
+          @data-example-path="/${normalizedEndpoint}"
+          and @data-example-response-code="${responseCode}"
+        )
+        or
+        (
+          starts-with(@data-key, "/${normalizedEndpoint}_")
+          and .//td[contains(@class, "response-cell")]/p[normalize-space(.)="${responseCode}"]
+        )
+        or
+        (
+          .//span[normalize-space(.)="/${normalizedEndpoint}"]
+          and .//td[contains(@class, "response-cell")]/p[normalize-space(.)="${responseCode}"]
+        )
+      ]`,
     );
   }
 
@@ -158,7 +173,12 @@ export class ExampleGenerationPage extends BasePage {
     withVisualValidation = true,
   ) {
     const root = await this.waitForExamplesIFrame();
-    const row = this.getRowForPathAndResponse(root, endpoint, responseCode);
+    const row = await this.getRowWithVisibleControl(
+      root,
+      endpoint,
+      responseCode,
+      'button[data-row-action="generate"], button.examples-generate-more',
+    );
     const generateBtns = row.locator(
       'button[data-row-action="generate"], button.examples-generate-more',
     );
@@ -194,6 +214,7 @@ export class ExampleGenerationPage extends BasePage {
     const debugRows = [];
     for (const row of allRows) {
       const key = await row.getAttribute("data-key");
+      const examplePath = await row.getAttribute("data-example-path");
       // Find all response codes in this row
       const responseCells = await row.locator("td.response-cell p").all();
       const codes = [];
@@ -201,13 +222,14 @@ export class ExampleGenerationPage extends BasePage {
         const text = (await cell.textContent())?.trim();
         if (text) codes.push(text);
       }
-      debugRows.push({ key, codes });
+      const pathText = (await row.locator("td span").first().textContent().catch(() => ""))?.trim();
+      debugRows.push({ key, examplePath, pathText, codes });
     }
     console.error(
       `No generate button found for endpoint: ${endpoint}, responseCode: ${responseCode}`,
     );
     console.error(
-      "Available rows (data-key and response codes):",
+      "Available rows (data-key/data-example-path/pathText and response codes):",
       JSON.stringify(debugRows, null, 2),
     );
   }

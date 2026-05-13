@@ -44,7 +44,7 @@ test.describe("Example Generation", () => {
         expect.soft(actualTitle).toBe("Example generations complete");
         expect
           .soft(actualMessage)
-          .toBe(`${expectedNumberOfExamples} new examples`);
+          .toBe(`${expectedNumberOfExamples} new example(s) generated`);
         await examplePage.closeExamplesGenerationCompletedDialog(
           "Example generations complete",
         );
