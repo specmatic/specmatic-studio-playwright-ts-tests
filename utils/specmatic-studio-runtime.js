@@ -287,7 +287,7 @@ async function downloadToFileWithRetries(downloadUrl, destinationPath) {
         `[specmatic] Jar download attempt ${attempt}/${attempts} failed: ${error.message || error}`,
       );
       if (attempt < attempts) {
-        await sleep(attempt * 2000);
+        await sleep(15000);
       }
     }
   }
