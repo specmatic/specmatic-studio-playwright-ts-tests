@@ -98,6 +98,49 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function waitForRetryDelay(totalDelayMs, pollIntervalMs = 5000, label = "request") {
+  let remainingMs = totalDelayMs;
+
+  while (remainingMs > 0) {
+    const waitMs = Math.min(pollIntervalMs, remainingMs);
+    await sleep(waitMs);
+    remainingMs -= waitMs;
+
+    if (remainingMs > 0) {
+      console.log(
+        `[specmatic] Waiting ${Math.ceil(remainingMs / 1000)}s before the next ${label} retry...`,
+      );
+    }
+  }
+}
+
+async function runWithRetries(label, operation, attempts = ARTIFACT_DOWNLOAD_RETRIES) {
+  const totalAttempts = Math.max(1, attempts);
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= totalAttempts; attempt += 1) {
+    try {
+      if (attempt > 1) {
+        console.log(`[specmatic] Retrying ${label} (${attempt}/${totalAttempts})`);
+      }
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      console.warn(
+        `[specmatic] ${label} attempt ${attempt}/${totalAttempts} failed: ${error.message || error}`,
+      );
+      if (attempt < totalAttempts) {
+        console.log(`[specmatic] Waiting 15s before the next ${label} retry...`);
+        await waitForRetryDelay(15000, 5000, label);
+      }
+    }
+  }
+
+  throw new Error(
+    `Failed ${label} after ${totalAttempts} attempt(s): ${lastError?.message || lastError}`,
+  );
+}
+
 function shouldOverwriteDownloadedJar() {
   return process.env.SPECMATIC_STUDIO_JAR_OVERWRITE === "true";
 }
@@ -186,7 +229,10 @@ async function verifyDirectJarUrl(downloadUrl) {
     );
   }
 
-  const response = await requestUrl(downloadUrl, "HEAD");
+  const response = await runWithRetries(
+    `HEAD ${downloadUrl.toString()}`,
+    () => requestUrl(downloadUrl, "HEAD"),
+  );
   const statusCode = response.statusCode ?? 0;
   const contentType = String(response.headers["content-type"] || "");
   response.resume();
@@ -269,31 +315,9 @@ function downloadToFile(downloadUrl, destinationPath) {
 }
 
 async function downloadToFileWithRetries(downloadUrl, destinationPath) {
-  const attempts = Math.max(1, ARTIFACT_DOWNLOAD_RETRIES);
-  let lastError = null;
-
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    try {
-      if (attempt > 1) {
-        console.log(
-          `[specmatic] Retrying jar download (${attempt}/${attempts}) from ${downloadUrl.toString()}`,
-        );
-      }
-      await downloadToFile(downloadUrl, destinationPath);
-      return;
-    } catch (error) {
-      lastError = error;
-      console.warn(
-        `[specmatic] Jar download attempt ${attempt}/${attempts} failed: ${error.message || error}`,
-      );
-      if (attempt < attempts) {
-        await sleep(15000);
-      }
-    }
-  }
-
-  throw new Error(
-    `Failed to download Enterprise artifact after ${attempts} attempt(s): ${lastError?.message || lastError}`,
+  await runWithRetries(
+    `jar download from ${downloadUrl.toString()}`,
+    () => downloadToFile(downloadUrl, destinationPath),
   );
 }
 
@@ -334,7 +358,10 @@ function parseSnapshotJarVersion(snapshotMetadataXml) {
 
 async function resolveLatestSnapshotDownload() {
   const rootMetadataUrl = new URL("maven-metadata.xml", SNAPSHOT_REPO_URL);
-  const rootMetadataXml = await fetchText(rootMetadataUrl);
+  const rootMetadataXml = await runWithRetries(
+    `metadata fetch from ${rootMetadataUrl.toString()}`,
+    () => fetchText(rootMetadataUrl),
+  );
   const snapshotVersion =
     getXmlTagValue(rootMetadataXml, "latest") ||
     getXmlTagValues(rootMetadataXml, "version").at(-1);
@@ -349,7 +376,10 @@ async function resolveLatestSnapshotDownload() {
     `${snapshotVersion}/maven-metadata.xml`,
     SNAPSHOT_REPO_URL,
   );
-  const versionMetadataXml = await fetchText(versionMetadataUrl);
+  const versionMetadataXml = await runWithRetries(
+    `metadata fetch from ${versionMetadataUrl.toString()}`,
+    () => fetchText(versionMetadataUrl),
+  );
   const resolvedSnapshotVersion = parseSnapshotJarVersion(versionMetadataXml);
   const lastUpdated =
     getXmlTagValue(versionMetadataXml, "lastUpdated") ||
@@ -370,7 +400,10 @@ async function resolveLatestSnapshotDownload() {
 
 async function resolveLatestReleaseDownload() {
   const metadataUrl = new URL("maven-metadata.xml", RELEASE_REPO_URL);
-  const metadataXml = await fetchText(metadataUrl);
+  const metadataXml = await runWithRetries(
+    `metadata fetch from ${metadataUrl.toString()}`,
+    () => fetchText(metadataUrl),
+  );
   const releaseVersion =
     getXmlTagValue(metadataXml, "release") ||
     getXmlTagValue(metadataXml, "latest") ||
