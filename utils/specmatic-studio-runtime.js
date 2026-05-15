@@ -516,6 +516,24 @@ async function dryRunResolveDownloadUrl() {
 
 async function ensureJarDownloaded() {
   ensureTmpDir();
+  const directUrl = getDownloadUrl();
+
+  if (directUrl) {
+    const jarPath = getJarPath(directUrl);
+
+    if (fs.existsSync(jarPath) && !shouldOverwriteDownloadedJar()) {
+      console.log(`[specmatic] Reusing cached jar: ${jarPath}`);
+      return { jarPath, sourceUrl: directUrl.toString() };
+    }
+
+    await verifyDirectJarUrl(directUrl);
+    console.log(`[specmatic] Downloading jar from ${directUrl.toString()}`);
+    await downloadToFileWithRetries(directUrl, jarPath);
+    console.log(`[specmatic] Saved jar to ${jarPath}`);
+
+    return { jarPath, sourceUrl: directUrl.toString() };
+  }
+
   const downloadUrl = await resolveDownloadUrl();
   const jarPath = getJarPath(downloadUrl);
 
@@ -763,6 +781,18 @@ async function runCli() {
     return;
   }
 
+  if (command === "resolved-url") {
+    const resolvedUrl = await resolveDownloadUrl();
+    console.log(resolvedUrl.toString());
+    return;
+  }
+
+  if (command === "download") {
+    const result = await ensureJarDownloaded();
+    console.log(`[specmatic] Prepared jar at ${result.jarPath}`);
+    return;
+  }
+
   console.error(`Unknown command: ${command || "<none>"}`);
   process.exitCode = 1;
 }
@@ -776,9 +806,11 @@ if (require.main === module) {
 
 module.exports = {
   dryRunResolveDownloadUrl,
+  ensureJarDownloaded,
   ensureSpecmaticStudioForRun,
   getStudioState,
   isJarModeEnabled,
+  resolveDownloadUrl,
   setupSpecmaticStudioForRunSync,
   stopSpecmaticStudioForRun,
 };

@@ -14,6 +14,9 @@ on:
       enterprise_artifact_url:
         required: false
         type: string
+      prepared_jar_artifact_name:
+        required: false
+        type: string
       orchestrator_disable_visual:
         required: false
         type: string
@@ -49,6 +52,12 @@ jobs:
       - name: Print orchestrator info
         run: |
           echo "Triggered by orchestrator run ${{ inputs.orchestrator_run_suffix }}"
+      - name: Download prepared Enterprise JAR
+        if: ${{ inputs.enterprise_artifact_url != '' && inputs.prepared_jar_artifact_name != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.prepared_jar_artifact_name }}
+          path: temp
       - name: Pull latest Specmatic Docker image
         if: ${{ inputs.enterprise_artifact_url == '' }}
         run: |
@@ -106,8 +115,8 @@ jobs:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
           GROUP_NAME: ${{ inputs.group_name }}
           ENTERPRISE_ARTIFACT_URL: ${{ inputs.enterprise_artifact_url }}
-          ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "120000"
-          ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "3"
+          ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
+          ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
           SPECMATIC_STUDIO_WORKDIR: specmatic-studio-demo/specs
           ORCHESTRATOR_DISABLE_VISUAL: ${{ inputs.orchestrator_disable_visual }}
         run: |
