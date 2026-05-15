@@ -87,7 +87,7 @@ export default defineConfig({
     baseURL,
     trace: "on-first-retry",
     screenshot: "on",
-    video: "on",
+    video: process.env.CI ? "retain-on-failure" : "on",
     launchOptions: {
       headless: process.env.CI ? true : process.env.HEADLESS === "true",
     },

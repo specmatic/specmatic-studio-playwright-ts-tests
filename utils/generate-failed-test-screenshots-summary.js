@@ -1,20 +1,32 @@
 #!/usr/bin/env node
-// generate-failed-test-screenshots-summary.js
-// This script parses Playwright JSON report and generates a Markdown summary
-// with pass/fail counts plus failure details and screenshots.
+// Generates a per-run Playwright summary and prepares a compact artifact payload.
 
 const fs = require("fs");
 const path = require("path");
 
-const testResultsPath = path.join(
-  __dirname,
-  "../playwright-report/test-results.json",
-);
-const outputSummaryPath = path.join(
-  __dirname,
-  "../playwright-report/failed-tests-summary.md",
-);
-const artifactUrl = process.env.TEST_ARTIFACT_URL || "";
+const repoRoot = path.join(__dirname, "..");
+const testResultsPath = path.join(repoRoot, "playwright-report", "test-results.json");
+const junitReportPath = path.join(repoRoot, "playwright-report", "junit-report.xml");
+const outputSummaryPath = path.join(repoRoot, "playwright-report", "failed-tests-summary.md");
+const outputJsonPath =
+  process.env.PLAYWRIGHT_SUMMARY_JSON_PATH ||
+  path.join(repoRoot, "playwright-report", "failed-tests-summary.json");
+const artifactDir = process.env.PLAYWRIGHT_ARTIFACT_DIR || "";
+const runName = process.env.PLAYWRIGHT_RUN_NAME || "Playwright Run";
+const dockerLogsDir = process.env.PLAYWRIGHT_DOCKER_LOGS_DIR || "";
+
+function ensureDir(dirPath) {
+  fs.mkdirSync(dirPath, { recursive: true });
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 function decodeHtmlEntities(input) {
   if (!input) {
@@ -47,7 +59,6 @@ function stripAnsi(input) {
   if (!input) {
     return "";
   }
-  // Removes terminal color/control escape sequences that can show up in logs.
   return input.replace(/\u001b\[[0-9;]*m/g, "");
 }
 
@@ -56,7 +67,6 @@ function normalizeSummaryText(input) {
 }
 
 function fencedCode(text) {
-  // Use 4-backtick fences so embedded ``` in logs cannot break markdown.
   return "````\n" + (text || "") + "\n````\n";
 }
 
@@ -89,12 +99,12 @@ function pickLastScreenshotPath(result) {
     return null;
   }
   const pngs = result.attachments.filter(
-    (a) => a && a.contentType === "image/png" && a.path,
+    (attachment) => attachment && attachment.contentType === "image/png" && attachment.path,
   );
   if (pngs.length === 0) {
     return null;
   }
-  return path.relative(path.join(__dirname, ".."), pngs[pngs.length - 1].path);
+  return pngs[pngs.length - 1].path;
 }
 
 function extractTextAttachment(attachment) {
@@ -129,10 +139,10 @@ function extractFailureText(result) {
 
   if (Array.isArray(result.errors) && result.errors.length > 0) {
     const normalized = result.errors
-      .map((e) => {
-        if (!e) return "";
-        if (typeof e === "string") return e;
-        return e.message || e.stack || "";
+      .map((error) => {
+        if (!error) return "";
+        if (typeof error === "string") return error;
+        return error.message || error.stack || "";
       })
       .filter(Boolean)
       .join("\n\n");
@@ -144,11 +154,11 @@ function extractFailureText(result) {
   if (Array.isArray(result.attachments)) {
     const textLogs = result.attachments
       .filter(
-        (a) =>
-          a &&
-          (a.name === "stderr" ||
-            a.name === "stdout" ||
-            a.contentType === "text/plain"),
+        (attachment) =>
+          attachment &&
+          (attachment.name === "stderr" ||
+            attachment.name === "stdout" ||
+            attachment.contentType === "text/plain"),
       )
       .map(extractTextAttachment)
       .filter(Boolean)
@@ -161,188 +171,245 @@ function extractFailureText(result) {
   return "";
 }
 
-async function main() {
-  // Read Playwright JSON report for summary stats
-  if (!fs.existsSync(testResultsPath)) {
-    console.error("Playwright JSON report not found:", testResultsPath);
-    process.exit(1);
-  }
-  const report = JSON.parse(fs.readFileSync(testResultsPath, "utf-8"));
-  // Collect stats
-  let total = 0,
-    passed = 0,
-    failed = 0,
-    errored = 0,
-    expectedFailures = 0,
-    skipped = 0;
-  function collectStats(suites) {
+function walkReport(report) {
+  let total = 0;
+  let passed = 0;
+  let failed = 0;
+  let errored = 0;
+  let expectedFailures = 0;
+  let skipped = 0;
+  const unexpectedFailures = [];
+  const expectedFailureTests = [];
+
+  function walkSuites(suites, parentTitles = []) {
     for (const suite of suites) {
+      const titles = [...parentTitles, suite.title].filter(Boolean);
       if (suite.specs) {
         for (const spec of suite.specs) {
           for (const test of spec.tests || []) {
-            total++;
+            total += 1;
             const finalResult = getFinalResult(test);
             const finalStatus = finalResult?.status;
-            if (isExpectedFailure(test, finalStatus)) expectedFailures++;
-            else if (finalStatus === "failed") failed++;
-            else if (
-              finalStatus === "timedOut" ||
-              finalStatus === "interrupted"
-            )
-              errored++;
-            else if (finalStatus === "passed") passed++;
-            else if (finalStatus === "skipped") skipped++;
+
+            if (isExpectedFailure(test, finalStatus)) expectedFailures += 1;
+            else if (finalStatus === "failed") failed += 1;
+            else if (finalStatus === "timedOut" || finalStatus === "interrupted") errored += 1;
+            else if (finalStatus === "passed") passed += 1;
+            else if (finalStatus === "skipped") skipped += 1;
+
+            if (!finalResult || !isFailureLikeStatus(finalStatus)) {
+              continue;
+            }
+
+            let screenshotPath = pickLastScreenshotPath(finalResult);
+            if (!screenshotPath) {
+              const failingResults = (test.results || []).filter((result) =>
+                isFailureLikeStatus(result.status),
+              );
+              for (let index = failingResults.length - 1; index >= 0; index -= 1) {
+                screenshotPath = pickLastScreenshotPath(failingResults[index]);
+                if (screenshotPath) {
+                  break;
+                }
+              }
+            }
+
+            let errorText = extractFailureText(finalResult);
+            if (!errorText) {
+              const failingResults = (test.results || []).filter((result) =>
+                isFailureLikeStatus(result.status),
+              );
+              for (let index = failingResults.length - 1; index >= 0; index -= 1) {
+                errorText = extractFailureText(failingResults[index]);
+                if (errorText) {
+                  break;
+                }
+              }
+            }
+
+            const record = {
+              specFile: normalizeSummaryText(path.relative(repoRoot, spec.file || "")),
+              name: normalizeSummaryText([...titles, spec.title].filter(Boolean).join(" › ")),
+              screenshot: screenshotPath ? path.resolve(screenshotPath) : null,
+              error: normalizeSummaryText(errorText),
+              status: finalStatus,
+              expectedFailure: isExpectedFailure(test, finalStatus),
+            };
+
+            if (record.expectedFailure) {
+              expectedFailureTests.push(record);
+            } else {
+              unexpectedFailures.push(record);
+            }
           }
         }
       }
-      if (suite.suites) collectStats(suite.suites);
+      if (suite.suites) {
+        walkSuites(suite.suites, titles);
+      }
     }
   }
-  collectStats(report.suites || []);
 
-  function toSummaryRecord(rawTest) {
-    const [specFile, ...rest] = rawTest.name.split(" › ");
-    return {
-      specFile: normalizeSummaryText(specFile),
-      name: normalizeSummaryText(rest.join(" › ")),
-      screenshot: rawTest.screenshot,
-      error: normalizeSummaryText(rawTest.error),
-      status: rawTest.status,
-      expectedFailure: rawTest.expectedFailure,
+  walkSuites(report.suites || []);
+
+  return {
+    stats: {
+      total,
+      passed,
+      failed,
+      errored,
+      expectedFailures,
+      skipped,
+    },
+    unexpectedFailures,
+    expectedFailureTests,
+  };
+}
+
+function formatFailureListForMarkdown(records) {
+  if (!records.length) {
+    return "_None_\n";
+  }
+
+  return records
+    .map((record) => {
+      let block = `- **${record.specFile || "Unknown Spec"}**: ${record.name}\n`;
+      block += `  - Status: ${record.status}${record.expectedFailure ? " (expected failure)" : ""}\n`;
+      if (record.screenshot) {
+        block += `  - Screenshot: \`${record.screenshot}\`\n`;
+      }
+      if (record.error) {
+        const lines = record.error.split("\n");
+        block += "  - Error Preview:\n";
+        block += fencedCode(lines.slice(0, 8).join("\n"));
+      }
+      return block;
+    })
+    .join("\n");
+}
+
+function copyFileIfExists(sourcePath, destinationPath) {
+  if (!sourcePath || !fs.existsSync(sourcePath)) {
+    return;
+  }
+  ensureDir(path.dirname(destinationPath));
+  fs.copyFileSync(sourcePath, destinationPath);
+}
+
+function copyDirectoryIfExists(sourceDir, destinationDir) {
+  if (!sourceDir || !fs.existsSync(sourceDir)) {
+    return;
+  }
+  if (path.resolve(sourceDir) === path.resolve(destinationDir)) {
+    return;
+  }
+  fs.cpSync(sourceDir, destinationDir, { recursive: true });
+}
+
+function shortenFailureList(records) {
+  return records.map((record) => ({
+    specFile: record.specFile,
+    name: record.name,
+    screenshot: record.screenshot,
+    status: record.status,
+    expectedFailure: record.expectedFailure,
+  }));
+}
+
+function prepareCompactArtifact(summaryData) {
+  if (!artifactDir) {
+    return summaryData;
+  }
+
+  ensureDir(artifactDir);
+  const failureAssetsDir = path.join(artifactDir, "failure-assets");
+  ensureDir(failureAssetsDir);
+
+  let assetCounter = 0;
+  function copyScreenshotIntoArtifact(record) {
+    if (!record.screenshot || !fs.existsSync(record.screenshot)) {
+      return null;
+    }
+    assetCounter += 1;
+    const fileName = `${String(assetCounter).padStart(3, "0")}-${path.basename(record.screenshot)}`;
+    const destinationPath = path.join(failureAssetsDir, fileName);
+    fs.copyFileSync(record.screenshot, destinationPath);
+    return path.posix.join("failure-assets", fileName);
+  }
+
+  for (const record of [...summaryData.unexpectedFailures, ...summaryData.expectedFailureTests]) {
+    record.screenshot = copyScreenshotIntoArtifact(record);
+  }
+
+  copyFileIfExists(junitReportPath, path.join(artifactDir, "junit-report.xml"));
+  if (dockerLogsDir) {
+    copyDirectoryIfExists(dockerLogsDir, path.join(artifactDir, "docker-logs"));
+  }
+
+  return summaryData;
+}
+
+async function main() {
+  let summaryData;
+
+  if (!fs.existsSync(testResultsPath)) {
+    summaryData = {
+      stats: {
+        total: 0,
+        passed: 0,
+        failed: 0,
+        errored: 1,
+        expectedFailures: 0,
+        skipped: 0,
+      },
+      unexpectedFailures: [
+        {
+          specFile: "workflow/setup",
+          name: "Playwright report was not generated",
+          screenshot: null,
+          error: `Playwright JSON report not found: ${testResultsPath}`,
+          status: "interrupted",
+          expectedFailure: false,
+        },
+      ],
+      expectedFailureTests: [],
     };
-  }
-
-  function groupBySpec(tests) {
-    const grouped = {};
-    for (const test of tests) {
-      if (!grouped[test.specFile]) grouped[test.specFile] = [];
-      grouped[test.specFile].push(test);
-    }
-    return grouped;
-  }
-
-  // Get failed tests with screenshots and errors
-  function getFailureBucketsWithDetails() {
-    const unexpectedFailures = [];
-    const expectedFailureTests = [];
-    function walkSuites(suites, parentTitles = []) {
-      for (const suite of suites) {
-        const titles = [...parentTitles, suite.title];
-        if (suite.specs) {
-          for (const spec of suite.specs) {
-            for (const test of spec.tests || []) {
-              const finalResult = getFinalResult(test);
-              if (!finalResult || !isFailureLikeStatus(finalResult.status)) {
-                continue;
-              }
-
-              let screenshot = pickLastScreenshotPath(finalResult);
-              if (!screenshot) {
-                const failingResults = (test.results || []).filter((result) =>
-                  isFailureLikeStatus(result.status),
-                );
-                for (let i = failingResults.length - 1; i >= 0; i--) {
-                  screenshot = pickLastScreenshotPath(failingResults[i]);
-                  if (screenshot) break;
-                }
-              }
-
-              let error = extractFailureText(finalResult);
-              if (!error) {
-                const failingResults = (test.results || []).filter((result) =>
-                  isFailureLikeStatus(result.status),
-                );
-                for (let i = failingResults.length - 1; i >= 0; i--) {
-                  error = extractFailureText(failingResults[i]);
-                  if (error) break;
-                }
-              }
-
-              const record = {
-                name: [...titles, spec.title].join(" › "),
-                screenshot,
-                error,
-                status: finalResult.status,
-                expectedFailure: isExpectedFailure(test, finalResult.status),
-              };
-
-              if (record.expectedFailure) {
-                expectedFailureTests.push(record);
-              } else {
-                unexpectedFailures.push(record);
-              }
-            }
-          }
-        }
-        if (suite.suites) walkSuites(suite.suites, titles);
-      }
-    }
-    walkSuites(report.suites || []);
-    return { unexpectedFailures, expectedFailureTests };
-  }
-
-  const { unexpectedFailures, expectedFailureTests } = getFailureBucketsWithDetails();
-  const groupedUnexpected = groupBySpec(unexpectedFailures.map(toSummaryRecord));
-  const groupedExpected = groupBySpec(expectedFailureTests.map(toSummaryRecord));
-
-  // HTML output for better formatting and expand/collapse
-  // Markdown output with collapsible sections and embedded screenshots
-  let summary = `# Playwright Test Results Summary\n\n`;
-  summary += `| Total | Passed | Failed | Errors | Expected Failures | Skipped |\n|-------|--------|--------|--------|-------------------|---------|\n| ${total} | ${passed} | ${failed} | ${errored} | ${expectedFailures} | ${skipped} |\n\n`;
-
-  if (unexpectedFailures.length === 0 && expectedFailureTests.length === 0) {
-    summary += `## No failed tests!\n`;
   } else {
-    function appendGroupedTests(title, groupedTests) {
-      const entries = Object.entries(groupedTests);
-      if (entries.length === 0) {
-        return;
-      }
-
-      summary += `<h2>${title}</h2>\n\n`;
-      for (const [specFile, tests] of entries) {
-        summary += `<details><summary><strong>${specFile}</strong></summary>\n`;
-        for (const test of tests) {
-          summary += `\n**${test.name}**\n`;
-          summary += `_Status: ${test.status}${test.expectedFailure ? " (expected failure)" : ""}_\n`;
-          if (test.screenshot) {
-            if (artifactUrl) {
-              summary += `[Screenshot Artifact](${artifactUrl})\n`;
-            }
-            summary += `\`Screenshot path: ${test.screenshot}\`\n`;
-          } else {
-            summary += `_No screenshot found_\n`;
-          }
-
-          if (test.error) {
-            const errorLines = test.error.split("\n");
-            const previewLines = errorLines.slice(0, 8).join("\n");
-            summary += `**Error (preview):**\n`;
-            summary += fencedCode(previewLines);
-            if (errorLines.length > 8) {
-              summary += "...\n";
-            }
-            if (errorLines.length > 8) {
-              summary += `<details><summary>Full Error</summary>\n`;
-              summary += fencedCode(test.error);
-              summary += `</details>\n`;
-            }
-          } else {
-            summary += `_No error message_\n`;
-          }
-        }
-        summary += `</details>\n`;
-      }
-    }
-
-    appendGroupedTests("Unexpected Failures", groupedUnexpected);
-    appendGroupedTests("Expected Failures", groupedExpected);
+    const report = JSON.parse(fs.readFileSync(testResultsPath, "utf8"));
+    summaryData = walkReport(report);
   }
+
+  prepareCompactArtifact(summaryData);
+
+  let summary = `# ${runName} Playwright Summary\n\n`;
+  summary += `| Total | Passed | Failed | Errors | Expected Failures | Skipped |\n`;
+  summary += `|-------|--------|--------|--------|-------------------|---------|\n`;
+  summary += `| ${summaryData.stats.total} | ${summaryData.stats.passed} | ${summaryData.stats.failed} | ${summaryData.stats.errored} | ${summaryData.stats.expectedFailures} | ${summaryData.stats.skipped} |\n\n`;
+
+  summary += `## Unexpected Failures\n\n`;
+  summary += formatFailureListForMarkdown(summaryData.unexpectedFailures);
+  summary += `\n## Expected Failures\n\n`;
+  summary += formatFailureListForMarkdown(summaryData.expectedFailureTests);
+
   fs.writeFileSync(outputSummaryPath, summary);
+
+  const jsonPayload = {
+    runName,
+    stats: summaryData.stats,
+    unexpectedFailures: shortenFailureList(summaryData.unexpectedFailures),
+    expectedFailures: shortenFailureList(summaryData.expectedFailureTests),
+  };
+  fs.writeFileSync(outputJsonPath, `${JSON.stringify(jsonPayload, null, 2)}\n`);
+
+  if (artifactDir) {
+    copyFileIfExists(outputSummaryPath, path.join(artifactDir, "failed-tests-summary.md"));
+    copyFileIfExists(outputJsonPath, path.join(artifactDir, "failed-tests-summary.json"));
+  }
+
   console.log("Summary written to", outputSummaryPath);
 }
 
-main().catch((e) => {
-  console.error(e);
+main().catch((error) => {
+  console.error(error);
   process.exit(1);
 });

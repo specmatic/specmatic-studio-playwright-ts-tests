@@ -27,6 +27,7 @@ permissions:
 jobs:
   prepare-enterprise-jar:
     name: Prepare Enterprise JAR
+    if: ${{ inputs.enterprise_artifact_url != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
@@ -37,16 +38,12 @@ jobs:
         id: compute_artifact_name
         run: echo "prepared_jar_artifact_name=enterprise-jar-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
-        if: ${{ inputs.enterprise_artifact_url != '' }}
       - uses: actions/setup-node@v4
-        if: ${{ inputs.enterprise_artifact_url != '' }}
         with:
           node-version: lts/*
       - name: Install npm dependencies for JAR preparation
-        if: ${{ inputs.enterprise_artifact_url != '' }}
         run: npm ci
       - name: Resolve Enterprise JAR URL
-        if: ${{ inputs.enterprise_artifact_url != '' }}
         id: resolve_artifact_url
         env:
           ENTERPRISE_ARTIFACT_URL: ${{ inputs.enterprise_artifact_url }}
@@ -57,7 +54,6 @@ jobs:
           echo "Resolved Enterprise JAR URL: $resolved_url"
           echo "resolved_artifact_url=$resolved_url" >> "$GITHUB_OUTPUT"
       - name: Download Enterprise JAR once
-        if: ${{ inputs.enterprise_artifact_url != '' }}
         env:
           ENTERPRISE_ARTIFACT_URL: ${{ steps.resolve_artifact_url.outputs.resolved_artifact_url }}
           ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
@@ -65,9 +61,7 @@ jobs:
         run: |
           mkdir -p temp
           node utils/specmatic-studio-runtime.js download
-          ls -la temp
       - name: Upload prepared Enterprise JAR
-        if: ${{ inputs.enterprise_artifact_url != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.compute_artifact_name.outputs.prepared_jar_artifact_name }}
@@ -76,7 +70,10 @@ jobs:
 
   matrix-tests:
     name: ${{ matrix.group.workflow_name }}
+    runs-on: ubuntu-latest
     needs: prepare-enterprise-jar
+    if: ${{ always() && (needs.prepare-enterprise-jar.result == 'success' || needs.prepare-enterprise-jar.result == 'skipped') }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -92,7 +89,7 @@ jobs:
           - workflow_name: OpenAPI Contract
             test_path: specs/openapi/execute-contract-tests
             artifact_name: execute-contract-tests
-            group_name: Contract
+            group_name: OpenAPI Contract
           - workflow_name: OpenAPI Spec
             test_path: specs/openapi/update-service-spec
             artifact_name: openapi-update-service-spec
@@ -133,15 +130,158 @@ jobs:
             test_path: specs/soap/execute-contract-tests
             artifact_name: execute-contract-tests-soap
             group_name: SOAP Contract
-    uses: ./.github/workflows/playwright-test-group.yml
-    with:
-      test_path: ${{ matrix.group.test_path }}
-      artifact_name: ${{ matrix.group.artifact_name }}
-      group_name: ${{ matrix.group.group_name }}
-      enterprise_artifact_url: ${{ needs.prepare-enterprise-jar.outputs.resolved_artifact_url }}
-      prepared_jar_artifact_name: ${{ needs.prepare-enterprise-jar.outputs.prepared_jar_artifact_name }}
-      orchestrator_disable_visual: ${{ inputs.orchestrator_disable_visual }}
-      orchestrator_run_suffix: ${{ inputs.orchestrator_run_suffix }}
-    secrets:
-      APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
-      SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install dependencies and set up environment for ${{ matrix.group.workflow_name }}
+        run: |
+          npm ci
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
+          npx playwright install chromium --with-deps
+          mkdir -p ~/.specmatic
+          echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
+      - name: Print orchestrator info
+        run: echo "Triggered by orchestrator run ${{ inputs.orchestrator_run_suffix }}"
+      - name: Download prepared Enterprise JAR
+        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare-enterprise-jar.outputs.prepared_jar_artifact_name }}
+          path: temp
+      - name: Pull latest Specmatic Docker image
+        if: ${{ needs.prepare-enterprise-jar.result == 'skipped' }}
+        run: docker pull specmatic/enterprise:latest
+      - name: Configure Enterprise JAR networking
+        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
+        run: |
+          echo "127.0.0.1 order-bff order-api inventory-api studio" | sudo tee -a /etc/hosts
+          cat > /tmp/docker-compose.enterprise-jar.yml <<'EOF'
+          services:
+            order-bff:
+              environment:
+                KAFKA_BOOTSTRAP_SERVERS: host.docker.internal:9092
+              extra_hosts:
+                - "host.docker.internal:host-gateway"
+          EOF
+      - name: Start support services for Enterprise JAR
+        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
+        run: |
+          for cname in order-bff order-api inventory-api; do
+            if docker ps -a -q -f name="^/${cname}$" | grep .; then
+              docker rm -f "$cname"
+            fi
+          done
+          docker compose \
+            -p specmatic-studio-playwright \
+            -f specmatic-studio-demo/docker-compose.yaml \
+            -f /tmp/docker-compose.enterprise-jar.yml \
+            up -d order-bff order-api inventory-api
+      - name: Wait for support services to be healthy
+        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
+        run: |
+          for url in \
+            "http://127.0.0.1:8095/health" \
+            "http://127.0.0.1:8090/products" \
+            "http://127.0.0.1:8080/health"; do
+            echo "Waiting for $url"
+            for i in $(seq 1 30); do
+              if curl -sf "$url" > /dev/null 2>&1; then
+                echo "$url is up"
+                break
+              fi
+              sleep 4
+              if [ "$i" -eq 30 ]; then
+                echo "Timed out waiting for $url"
+                exit 1
+              fi
+            done
+          done
+      - name: Run Playwright tests for ${{ matrix.group.workflow_name }}
+        id: playwright_tests
+        timeout-minutes: 50
+        env:
+          APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+          GROUP_NAME: ${{ matrix.group.group_name }}
+          ENTERPRISE_ARTIFACT_URL: ${{ needs.prepare-enterprise-jar.outputs.resolved_artifact_url || '' }}
+          ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
+          ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
+          SPECMATIC_STUDIO_WORKDIR: specmatic-studio-demo/specs
+          ORCHESTRATOR_DISABLE_VISUAL: ${{ inputs.orchestrator_disable_visual }}
+        run: |
+          mkdir -p playwright-report
+          npx playwright test ${{ matrix.group.test_path }}
+        continue-on-error: true
+      - name: Capture Docker logs
+        if: always()
+        run: |
+          mkdir -p docker-logs-workdir
+          for cname in studio order-bff order-api inventory-api; do
+            if docker ps -a -q -f name="^/${cname}$" | grep .; then
+              docker logs "$cname" > "docker-logs-workdir/${cname}.log" 2>&1 || true
+            fi
+          done
+      - name: Prepare compact Playwright artifact
+        if: always()
+        env:
+          PLAYWRIGHT_RUN_NAME: ${{ matrix.group.workflow_name }}
+          PLAYWRIGHT_ARTIFACT_DIR: artifact-workdir
+          PLAYWRIGHT_DOCKER_LOGS_DIR: docker-logs-workdir
+        run: node utils/generate-failed-test-screenshots-summary.js
+        continue-on-error: true
+      - name: Remove large local-only files
+        if: always()
+        run: |
+          rm -rf temp
+          rm -rf test-results
+          rm -rf playwright-report/data
+          rm -rf docker-logs-workdir
+      - name: Upload compact Playwright artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        id: upload_test_artifacts
+        with:
+          name: test-artifacts-${{ matrix.group.artifact_name }}-run-${{ github.run_id }}
+          path: artifact-workdir
+          retention-days: 30
+      - name: Fail job if there are test failures
+        if: always()
+        run: |
+          REPORT_PATH="playwright-report/junit-report.xml"
+          PLAYWRIGHT_OUTCOME="${{ steps.playwright_tests.outcome }}"
+          if [ ! -f "$REPORT_PATH" ]; then
+            echo "JUnit report not found at $REPORT_PATH"
+            exit 1
+          fi
+          TOTAL=$(xmllint --xpath 'string(sum(//testsuite/@tests))' "$REPORT_PATH")
+          FAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")
+          ERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")
+          if [ "$PLAYWRIGHT_OUTCOME" != "success" ] && [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+            echo "Playwright step failed before recording test failures. This usually means setup/global setup failed."
+            exit 1
+          fi
+          if [ "$TOTAL" = "0" ]; then
+            echo "No tests were recorded in $REPORT_PATH. Treating this as a setup failure."
+            exit 1
+          fi
+          if [ "$FAILURES" != "0" ] || [ "$ERRORS" != "0" ]; then
+            echo "Test failures or errors detected across all suites: failures=$FAILURES, errors=$ERRORS"
+            exit 1
+          fi
+          echo "No test failures or errors detected. tests=$TOTAL"
+
+  matrix-summary:
+    name: Playwright Matrix Summary
+    runs-on: ubuntu-latest
+    needs: matrix-tests
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all compact Playwright artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: matrix-artifacts
+          pattern: test-artifacts-*-run-${{ github.run_id }}
+      - name: Generate single matrix summary table
+        run: node utils/generate-matrix-summary.js
