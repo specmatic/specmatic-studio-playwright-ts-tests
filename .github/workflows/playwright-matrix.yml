@@ -25,7 +25,6 @@ permissions:
   contents: read
 
 jobs:
-
   matrix-tests:
     name: ${{ matrix.group.workflow_name }}
     runs-on: ubuntu-latest
@@ -92,25 +91,63 @@ jobs:
         with:
           node-version: lts/*
       - name: Install dependencies and set up environment for ${{ matrix.group.workflow_name }}
-        env:
-          SPECMATIC_LICENSE_KEY: ${{ secrets.SPECMATIC_LICENSE_KEY }}
-        run: bash scripts/github/setup-playwright-ci.sh
+        run: |
+          npm ci
+          sudo apt-get update && sudo apt-get install -y libxml2-utils
+          npx playwright install chromium --with-deps
+          mkdir -p ~/.specmatic
+          echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print orchestrator info
-        env:
-          ORCHESTRATOR_RUN_SUFFIX: ${{ inputs.orchestrator_run_suffix }}
-        run: bash scripts/github/print-orchestrator-info.sh
+        run: echo "Triggered by orchestrator run ${{ inputs.orchestrator_run_suffix }}"
+
       - name: Pull latest Specmatic Docker image
-        if: ${{ inputs.enterprise_artifact_url == '' }}
-        run: bash scripts/github/pull-specmatic-docker-image.sh
+        if: ${{ inputs.enterprise_artifact_url == ''  }}
+        run: docker pull specmatic/enterprise:latest
       - name: Configure Enterprise JAR networking
         if: ${{ inputs.enterprise_artifact_url != '' }}
-        run: bash scripts/github/configure-enterprise-jar-networking.sh
+        run: |
+          echo "127.0.0.1 order-bff order-api inventory-api studio" | sudo tee -a /etc/hosts
+          cat > /tmp/docker-compose.enterprise-jar.yml <<'EOF'
+          services:
+            order-bff:
+              environment:
+                KAFKA_BOOTSTRAP_SERVERS: host.docker.internal:9092
+              extra_hosts:
+                - "host.docker.internal:host-gateway"
+          EOF
       - name: Start support services for Enterprise JAR
         if: ${{ inputs.enterprise_artifact_url != '' }}
-        run: bash scripts/github/start-enterprise-jar-services.sh
+        run: |
+          for cname in order-bff order-api inventory-api; do
+            if docker ps -a -q -f name="^/${cname}$" | grep .; then
+              docker rm -f "$cname"
+            fi
+          done
+          docker compose \
+            -p specmatic-studio-playwright \
+            -f specmatic-studio-demo/docker-compose.yaml \
+            -f /tmp/docker-compose.enterprise-jar.yml \
+            up -d order-bff order-api inventory-api
       - name: Wait for support services to be healthy
         if: ${{ inputs.enterprise_artifact_url != '' }}
-        run: bash scripts/github/wait-for-enterprise-services.sh
+        run: |
+          for url in \
+            "http://127.0.0.1:8095/health" \
+            "http://127.0.0.1:8090/products" \
+            "http://127.0.0.1:8080/health"; do
+            echo "Waiting for $url"
+            for i in $(seq 1 30); do
+              if curl -sf "$url" > /dev/null 2>&1; then
+                echo "$url is up"
+                break
+              fi
+              sleep 4
+              if [ "$i" -eq 30 ]; then
+                echo "Timed out waiting for $url"
+                exit 1
+              fi
+            done
+          done
       - name: Run Playwright tests for ${{ matrix.group.workflow_name }}
         id: playwright_tests
         timeout-minutes: 50
@@ -122,12 +159,19 @@ jobs:
           ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
           SPECMATIC_STUDIO_WORKDIR: specmatic-studio-demo/specs
           ORCHESTRATOR_DISABLE_VISUAL: ${{ inputs.orchestrator_disable_visual }}
-          PLAYWRIGHT_TEST_PATH: ${{ matrix.group.test_path }}
-        run: bash scripts/github/run-playwright-group.sh
+        run: |
+          mkdir -p playwright-report
+          npx playwright test ${{ matrix.group.test_path }}
         continue-on-error: true
       - name: Capture Docker logs
         if: always()
-        run: bash scripts/github/capture-docker-logs.sh
+        run: |
+          mkdir -p docker-logs-workdir
+          for cname in studio order-bff order-api inventory-api; do
+            if docker ps -a -q -f name="^/${cname}$" | grep .; then
+              docker logs "$cname" > "docker-logs-workdir/${cname}.log" 2>&1 || true
+            fi
+          done
       - name: Prepare compact Playwright artifact
         if: always()
         env:
@@ -138,7 +182,11 @@ jobs:
         continue-on-error: true
       - name: Remove large local-only files
         if: always()
-        run: bash scripts/github/cleanup-local-artifacts.sh
+        run: |
+          rm -rf temp
+          rm -rf test-results
+          rm -rf playwright-report/data
+          rm -rf docker-logs-workdir
       - name: Upload compact Playwright artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -149,9 +197,29 @@ jobs:
           retention-days: 30
       - name: Fail job if there are test failures
         if: always()
-        env:
-          PLAYWRIGHT_OUTCOME: ${{ steps.playwright_tests.outcome }}
-        run: bash scripts/github/verify-playwright-results.sh
+        run: |
+          REPORT_PATH="playwright-report/junit-report.xml"
+          PLAYWRIGHT_OUTCOME="${{ steps.playwright_tests.outcome }}"
+          if [ ! -f "$REPORT_PATH" ]; then
+            echo "JUnit report not found at $REPORT_PATH"
+            exit 1
+          fi
+          TOTAL=$(xmllint --xpath 'string(sum(//testsuite/@tests))' "$REPORT_PATH")
+          FAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")
+          ERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")
+          if [ "$PLAYWRIGHT_OUTCOME" != "success" ] && [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+            echo "Playwright step failed before recording test failures. This usually means setup/global setup failed."
+            exit 1
+          fi
+          if [ "$TOTAL" = "0" ]; then
+            echo "No tests were recorded in $REPORT_PATH. Treating this as a setup failure."
+            exit 1
+          fi
+          if [ "$FAILURES" != "0" ] || [ "$ERRORS" != "0" ]; then
+            echo "Test failures or errors detected across all suites: failures=$FAILURES, errors=$ERRORS"
+            exit 1
+          fi
+          echo "No test failures or errors detected. tests=$TOTAL"
 
   matrix-summary:
     name: Playwright Matrix Summary
