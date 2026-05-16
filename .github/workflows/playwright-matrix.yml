@@ -23,11 +23,52 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 jobs:
+  prepare-enterprise-jar:
+    name: Prepare Enterprise JAR
+    if: ${{ inputs.enterprise_artifact_url != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      resolved_artifact_url: ${{ steps.resolve_artifact_url.outputs.resolved_artifact_url }}
+      prepared_jar_artifact_name: ${{ steps.compute_artifact_name.outputs.prepared_jar_artifact_name }}
+    steps:
+      - name: Compute prepared JAR artifact name
+        id: compute_artifact_name
+        run: bash scripts/github/compute-jar-artifact-name.sh
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install npm dependencies for JAR preparation
+        run: npm ci
+      - name: Resolve Enterprise JAR URL
+        id: resolve_artifact_url
+        env:
+          ENTERPRISE_ARTIFACT_URL: ${{ inputs.enterprise_artifact_url }}
+          ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
+          ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
+        run: bash scripts/github/resolve-enterprise-jar-url.sh
+      - name: Download Enterprise JAR once
+        env:
+          ENTERPRISE_ARTIFACT_URL: ${{ steps.resolve_artifact_url.outputs.resolved_artifact_url }}
+          ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
+          ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
+        run: bash scripts/github/download-enterprise-jar.sh
+      - name: Upload prepared Enterprise JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.compute_artifact_name.outputs.prepared_jar_artifact_name }}
+          path: temp/*.jar
+          retention-days: 1
+
   matrix-tests:
     name: ${{ matrix.group.workflow_name }}
     runs-on: ubuntu-latest
+    needs: prepare-enterprise-jar
+    if: ${{ always() && (needs.prepare-enterprise-jar.result == 'success' || needs.prepare-enterprise-jar.result == 'skipped') }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -99,12 +140,18 @@ jobs:
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print orchestrator info
         run: echo "Triggered by orchestrator run ${{ inputs.orchestrator_run_suffix }}"
+      - name: Download prepared Enterprise JAR
+        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare-enterprise-jar.outputs.prepared_jar_artifact_name }}
+          path: temp
 
       - name: Pull latest Specmatic Docker image
-        if: ${{ inputs.enterprise_artifact_url == ''  }}
+        if: ${{ needs.prepare-enterprise-jar.result == 'skipped' }}
         run: docker pull specmatic/enterprise:latest
       - name: Configure Enterprise JAR networking
-        if: ${{ inputs.enterprise_artifact_url != '' }}
+        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
         run: |
           echo "127.0.0.1 order-bff order-api inventory-api studio" | sudo tee -a /etc/hosts
           cat > /tmp/docker-compose.enterprise-jar.yml <<'EOF'
@@ -116,7 +163,7 @@ jobs:
                 - "host.docker.internal:host-gateway"
           EOF
       - name: Start support services for Enterprise JAR
-        if: ${{ inputs.enterprise_artifact_url != '' }}
+        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
         run: |
           for cname in order-bff order-api inventory-api; do
             if docker ps -a -q -f name="^/${cname}$" | grep .; then
@@ -129,7 +176,7 @@ jobs:
             -f /tmp/docker-compose.enterprise-jar.yml \
             up -d order-bff order-api inventory-api
       - name: Wait for support services to be healthy
-        if: ${{ inputs.enterprise_artifact_url != '' }}
+        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
         run: |
           for url in \
             "http://127.0.0.1:8095/health" \
@@ -154,7 +201,7 @@ jobs:
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
           GROUP_NAME: ${{ matrix.group.group_name }}
-          ENTERPRISE_ARTIFACT_URL: ${{ inputs.enterprise_artifact_url || '' }}
+          ENTERPRISE_ARTIFACT_URL: ${{ needs.prepare-enterprise-jar.outputs.resolved_artifact_url || '' }}
           ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
           ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
           SPECMATIC_STUDIO_WORKDIR: specmatic-studio-demo/specs
@@ -235,3 +282,18 @@ jobs:
           pattern: test-artifacts-*-run-${{ github.run_id }}
       - name: Generate single matrix summary table
         run: node utils/generate-matrix-summary.js
+
+  cleanup-enterprise-jar-artifact:
+    name: Cleanup Enterprise JAR Artifact
+    runs-on: ubuntu-latest
+    needs:
+      - prepare-enterprise-jar
+      - matrix-tests
+      - matrix-summary
+    if: ${{ always() && needs.prepare-enterprise-jar.result == 'success' }}
+    steps:
+      - name: Delete prepared Enterprise JAR artifact
+        env:
+          PREPARED_JAR_ARTIFACT_NAME: ${{ needs.prepare-enterprise-jar.outputs.prepared_jar_artifact_name }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node utils/delete-workflow-artifact.js
