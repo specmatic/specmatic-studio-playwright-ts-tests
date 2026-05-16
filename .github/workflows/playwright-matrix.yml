@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Compute prepared JAR artifact name
         id: compute_artifact_name
-        run: bash scripts/github/compute-jar-artifact-name.sh
+        run: echo "prepared_jar_artifact_name=enterprise-jar-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
