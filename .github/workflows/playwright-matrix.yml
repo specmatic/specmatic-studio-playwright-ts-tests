@@ -3,19 +3,19 @@ name: Studio - Matrix Playwright Tests
 run-name: ${{ inputs.orchestrator_run_suffix && format('Studio Matrix Playwright Tests - {0}', inputs.orchestrator_run_suffix) || github.workflow }}
 
 on:
-  workflow_dispatch:
-    inputs:
-      enterprise_artifact_url:
-        description: Specmatic Enterprise snapshot JAR URL or LATEST selector
-        required: false
-        type: string
-      orchestrator_disable_visual:
-        required: false
-        type: string
-        default: "true"
-      orchestrator_run_suffix:
-        required: false
-        type: string
+  # workflow_dispatch:
+  #   inputs:
+  #     enterprise_artifact_url:
+  #       description: Specmatic Enterprise snapshot JAR URL or LATEST selector
+  #       required: false
+  #       type: string
+  #     orchestrator_disable_visual:
+  #       required: false
+  #       type: string
+  #       default: "true"
+  #     orchestrator_run_suffix:
+  #       required: false
+  #       type: string
   push:
     branches: [main, master]
   pull_request:
