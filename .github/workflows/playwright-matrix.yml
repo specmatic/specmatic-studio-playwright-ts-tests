@@ -292,6 +292,7 @@ jobs:
       - matrix-summary
     if: ${{ always() && needs.prepare-enterprise-jar.result == 'success' }}
     steps:
+      - uses: actions/checkout@v4
       - name: Delete prepared Enterprise JAR artifact
         env:
           PREPARED_JAR_ARTIFACT_NAME: ${{ needs.prepare-enterprise-jar.outputs.prepared_jar_artifact_name }}
