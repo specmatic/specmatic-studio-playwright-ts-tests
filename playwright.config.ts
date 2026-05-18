@@ -28,9 +28,12 @@ if (isOrchestrator) {
 }
 
 const disableVisual = isTrue(process.env.ORCHESTRATOR_DISABLE_VISUAL ?? "true");
-process.env.ENABLE_VISUAL = disableVisual
+const isStandardCI = isCI && !isOrchestrator;
+process.env.ENABLE_VISUAL = isStandardCI
   ? "false"
-  : process.env.ENABLE_VISUAL || "true";
+  : disableVisual
+    ? "false"
+    : process.env.ENABLE_VISUAL || "true";
 
 const envName = process.env.ENV_NAME || (isCI ? "ci" : "local");
 const envFile = path.resolve(__dirname, `env/.env.${envName}`);

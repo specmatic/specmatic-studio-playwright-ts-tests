@@ -230,8 +230,8 @@ async function verifyDirectJarUrl(downloadUrl) {
   }
 
   const response = await runWithRetries(
-    `HEAD ${downloadUrl.toString()}`,
-    () => requestUrl(downloadUrl, "HEAD"),
+    `GET ${downloadUrl.toString()}`,
+    () => requestUrl(downloadUrl, "GET"),
   );
   const statusCode = response.statusCode ?? 0;
   const contentType = String(response.headers["content-type"] || "");
@@ -239,7 +239,7 @@ async function verifyDirectJarUrl(downloadUrl) {
 
   if (statusCode < 200 || statusCode >= 300) {
     throw new Error(
-      `ENTERPRISE_ARTIFACT_URL is not reachable. HEAD ${downloadUrl.toString()} returned HTTP ${statusCode}.`,
+      `ENTERPRISE_ARTIFACT_URL is not reachable. GET ${downloadUrl.toString()} returned HTTP ${statusCode}.`,
     );
   }
 
