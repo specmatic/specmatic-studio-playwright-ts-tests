@@ -31,6 +31,10 @@ jobs:
     if: ${{ inputs.enterprise_artifact_url != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      CMD_TIMEOUT_SHORT: 300
+      CMD_TIMEOUT_MEDIUM: 900
+      CMD_TIMEOUT_LONG: 2700
     outputs:
       resolved_artifact_url: ${{ steps.resolve_artifact_url.outputs.resolved_artifact_url }}
       prepared_jar_artifact_name: ${{ steps.compute_artifact_name.outputs.prepared_jar_artifact_name }}
@@ -43,7 +47,7 @@ jobs:
         with:
           node-version: lts/*
       - name: Install npm dependencies for JAR preparation
-        run: npm ci
+        run: timeout "${CMD_TIMEOUT_MEDIUM}" npm ci
       - name: Resolve Enterprise JAR URL
         id: resolve_artifact_url
         env:
@@ -56,7 +60,7 @@ jobs:
           ENTERPRISE_ARTIFACT_URL: ${{ steps.resolve_artifact_url.outputs.resolved_artifact_url }}
           ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
           ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
-        run: bash scripts/github/download-enterprise-jar.sh
+        run: timeout "${CMD_TIMEOUT_LONG}" bash scripts/github/download-enterprise-jar.sh
       - name: Upload prepared Enterprise JAR
         uses: actions/upload-artifact@v4
         with:
@@ -70,6 +74,10 @@ jobs:
     needs: prepare-enterprise-jar
     if: ${{ always() && (needs.prepare-enterprise-jar.result == 'success' || needs.prepare-enterprise-jar.result == 'skipped') }}
     timeout-minutes: 60
+    env:
+      CMD_TIMEOUT_SHORT: 300
+      CMD_TIMEOUT_MEDIUM: 900
+      CMD_TIMEOUT_LONG: 2700
     strategy:
       fail-fast: false
       matrix:
@@ -133,9 +141,10 @@ jobs:
           node-version: lts/*
       - name: Install dependencies and set up environment for ${{ matrix.group.workflow_name }}
         run: |
-          npm ci
-          sudo apt-get update && sudo apt-get install -y libxml2-utils
-          npx playwright install chromium --with-deps
+          timeout "${CMD_TIMEOUT_MEDIUM}" npm ci
+          timeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get update
+          timeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get install -y libxml2-utils
+          timeout "${CMD_TIMEOUT_LONG}" npx playwright install chromium --with-deps
           mkdir -p ~/.specmatic
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print orchestrator info
@@ -149,7 +158,7 @@ jobs:
 
       - name: Pull latest Specmatic Docker image
         if: ${{ needs.prepare-enterprise-jar.result == 'skipped' }}
-        run: docker pull specmatic/enterprise:latest
+        run: timeout "${CMD_TIMEOUT_LONG}" docker pull specmatic/enterprise:latest
       - name: Configure Enterprise JAR networking
         if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
         run: |
@@ -167,10 +176,10 @@ jobs:
         run: |
           for cname in order-bff order-api inventory-api; do
             if docker ps -a -q -f name="^/${cname}$" | grep .; then
-              docker rm -f "$cname"
+              timeout "${CMD_TIMEOUT_SHORT}" docker rm -f "$cname"
             fi
           done
-          docker compose \
+          timeout "${CMD_TIMEOUT_MEDIUM}" docker compose \
             -p specmatic-studio-playwright \
             -f specmatic-studio-demo/docker-compose.yaml \
             -f /tmp/docker-compose.enterprise-jar.yml \
@@ -208,7 +217,7 @@ jobs:
           ORCHESTRATOR_DISABLE_VISUAL: ${{ inputs.orchestrator_disable_visual }}
         run: |
           mkdir -p playwright-report
-          npx playwright test ${{ matrix.group.test_path }}
+          timeout "${CMD_TIMEOUT_LONG}" npx playwright test ${{ matrix.group.test_path }}
         continue-on-error: true
       - name: Capture Docker logs
         if: always()
@@ -216,7 +225,7 @@ jobs:
           mkdir -p docker-logs-workdir
           for cname in studio order-bff order-api inventory-api; do
             if docker ps -a -q -f name="^/${cname}$" | grep .; then
-              docker logs "$cname" > "docker-logs-workdir/${cname}.log" 2>&1 || true
+              timeout "${CMD_TIMEOUT_SHORT}" docker logs "$cname" > "docker-logs-workdir/${cname}.log" 2>&1 || true
             fi
           done
       - name: Prepare compact Playwright artifact
@@ -225,7 +234,7 @@ jobs:
           PLAYWRIGHT_RUN_NAME: ${{ matrix.group.workflow_name }}
           PLAYWRIGHT_ARTIFACT_DIR: artifact-workdir
           PLAYWRIGHT_DOCKER_LOGS_DIR: docker-logs-workdir
-        run: node utils/generate-failed-test-screenshots-summary.js
+        run: timeout "${CMD_TIMEOUT_SHORT}" node utils/generate-failed-test-screenshots-summary.js
         continue-on-error: true
       - name: Remove large local-only files
         if: always()
@@ -273,6 +282,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: matrix-tests
     if: always()
+    timeout-minutes: 20
+    env:
+      CMD_TIMEOUT_SHORT: 300
     steps:
       - uses: actions/checkout@v4
       - name: Download all compact Playwright artifacts
@@ -281,7 +293,7 @@ jobs:
           path: matrix-artifacts
           pattern: test-artifacts-*-run-${{ github.run_id }}
       - name: Generate single matrix summary table
-        run: node utils/generate-matrix-summary.js
+        run: timeout "${CMD_TIMEOUT_SHORT}" node utils/generate-matrix-summary.js
 
   cleanup-enterprise-jar-artifact:
     name: Cleanup Enterprise JAR Artifact
@@ -291,10 +303,13 @@ jobs:
       - matrix-tests
       - matrix-summary
     if: ${{ always() && needs.prepare-enterprise-jar.result == 'success' }}
+    timeout-minutes: 10
+    env:
+      CMD_TIMEOUT_SHORT: 300
     steps:
       - uses: actions/checkout@v4
       - name: Delete prepared Enterprise JAR artifact
         env:
           PREPARED_JAR_ARTIFACT_NAME: ${{ needs.prepare-enterprise-jar.outputs.prepared_jar_artifact_name }}
           GITHUB_TOKEN: ${{ github.token }}
-        run: node utils/delete-workflow-artifact.js
+        run: timeout "${CMD_TIMEOUT_SHORT}" node utils/delete-workflow-artifact.js
