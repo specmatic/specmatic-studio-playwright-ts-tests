@@ -229,7 +229,7 @@ jobs:
               timeout "${CMD_TIMEOUT_SHORT}" docker logs "$cname" > "docker-logs-workdir/${cname}.log" 2>&1 || true
             fi
           done
-      - name: Prepare compact Playwright artifact
+      - name: Prepare Playwright artifact
         if: always()
         env:
           PLAYWRIGHT_RUN_NAME: ${{ matrix.group.workflow_name }}
@@ -241,16 +241,17 @@ jobs:
         if: always()
         run: |
           rm -rf temp
-          rm -rf test-results
-          rm -rf playwright-report/data
           rm -rf docker-logs-workdir
-      - name: Upload compact Playwright artifact
+      - name: Upload Playwright artifact
         if: always()
         uses: actions/upload-artifact@v4
         id: upload_test_artifacts
         with:
           name: test-artifacts-${{ matrix.group.artifact_name }}-run-${{ github.run_id }}
-          path: artifact-workdir
+          path: |
+            artifact-workdir
+            playwright-report
+            test-results
           retention-days: 30
       - name: Fail job if there are test failures
         if: always()
