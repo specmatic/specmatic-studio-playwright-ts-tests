@@ -78,6 +78,8 @@ jobs:
       CMD_TIMEOUT_SHORT: 180
       CMD_TIMEOUT_MEDIUM: 300
       CMD_TIMEOUT_LONG: 120
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+      CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
     strategy:
       fail-fast: false
       matrix:
@@ -150,13 +152,17 @@ jobs:
           echo "ImageVersion=${ImageVersion:-unknown}"
           df -h
           free -h
+      - name: Verify system Chrome
+        run: |
+          which google-chrome
+          google-chrome --version
       - name: Install dependencies and set up environment for ${{ matrix.group.workflow_name }}
         run: |
           timeout "${CMD_TIMEOUT_MEDIUM}" npm ci
           timeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get update
           timeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get install -y libxml2-utils
-          # CI uses the runner's preinstalled Chrome channel to avoid Playwright browser extraction stalls.
-          env DEBUG=pw:install timeout "${CMD_TIMEOUT_LONG}" npx playwright install ffmpeg
+          # Install only Linux deps; browser binary comes from the runner image.
+          timeout "${CMD_TIMEOUT_LONG}" npx playwright install-deps chromium
           mkdir -p ~/.specmatic
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print orchestrator info
