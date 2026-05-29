@@ -4,6 +4,7 @@ set -euo pipefail
 npm ci
 sudo apt-get update
 sudo apt-get install -y libxml2-utils
-npx playwright install chromium --with-deps
+# CI runs headless Chromium only, so avoid downloading the full headed browser.
+npx playwright install --with-deps --only-shell chromium
 mkdir -p ~/.specmatic
 printf '%s' "${SPECMATIC_LICENSE_KEY}" > ~/.specmatic/specmatic-license.txt
