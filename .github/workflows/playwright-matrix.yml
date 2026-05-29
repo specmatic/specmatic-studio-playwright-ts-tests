@@ -77,7 +77,7 @@ jobs:
     env:
       CMD_TIMEOUT_SHORT: 180
       CMD_TIMEOUT_MEDIUM: 300
-      CMD_TIMEOUT_LONG: 1200
+      CMD_TIMEOUT_LONG: 600
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
       CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
     strategy:
@@ -141,17 +141,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
-      - name: Print runner diagnostics
-        run: |
-          echo "ImageOS=${ImageOS:-unknown}"
-          echo "ImageVersion=${ImageVersion:-unknown}"
-          df -h
-          free -h
       - name: Verify system Chrome
         run: |
           which google-chrome
