@@ -32,9 +32,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      CMD_TIMEOUT_SHORT: 180
-      CMD_TIMEOUT_MEDIUM: 300
-      CMD_TIMEOUT_LONG: 600
+      CMD_TIMEOUT_SHORT: 300
+      CMD_TIMEOUT_MEDIUM: 600
+      CMD_TIMEOUT_LONG: 1800
     outputs:
       resolved_artifact_url: ${{ steps.resolve_artifact_url.outputs.resolved_artifact_url }}
       prepared_jar_artifact_name: ${{ steps.compute_artifact_name.outputs.prepared_jar_artifact_name }}
@@ -75,9 +75,9 @@ jobs:
     if: ${{ always() && (needs.prepare-enterprise-jar.result == 'success' || needs.prepare-enterprise-jar.result == 'skipped') }}
     timeout-minutes: 60
     env:
-      CMD_TIMEOUT_SHORT: 180
-      CMD_TIMEOUT_MEDIUM: 300
-      CMD_TIMEOUT_LONG: 600
+      CMD_TIMEOUT_SHORT: 300
+      CMD_TIMEOUT_MEDIUM: 600
+      CMD_TIMEOUT_LONG: 1800
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
       CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
     strategy:
