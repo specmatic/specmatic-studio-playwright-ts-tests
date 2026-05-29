@@ -155,8 +155,8 @@ jobs:
           timeout "${CMD_TIMEOUT_MEDIUM}" npm ci
           timeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get update
           timeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get install -y libxml2-utils
-          # CI runs headless Chromium only, so avoid downloading the full headed browser.
-          env DEBUG=pw:install timeout "${CMD_TIMEOUT_LONG}" npx playwright install --with-deps --only-shell chromium
+          # CI uses the runner's preinstalled Chrome channel to avoid Playwright browser extraction stalls.
+          env DEBUG=pw:install timeout "${CMD_TIMEOUT_LONG}" npx playwright install ffmpeg
           mkdir -p ~/.specmatic
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print orchestrator info

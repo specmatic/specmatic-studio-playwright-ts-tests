@@ -100,6 +100,7 @@ export default defineConfig({
       name: "chromium",
       use: {
         browserName: "chromium",
+        ...(process.env.CI ? { channel: "chrome" } : {}),
         viewport: process.env.CI ? { width: 1920, height: 1440 } : null,
         launchOptions: {
           headless: process.env.CI ? true : process.env.HEADLESS === "true",
