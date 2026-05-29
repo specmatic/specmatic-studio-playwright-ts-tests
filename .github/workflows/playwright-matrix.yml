@@ -32,9 +32,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      CMD_TIMEOUT_SHORT: 180
-      CMD_TIMEOUT_MEDIUM: 300
-      CMD_TIMEOUT_LONG: 600
+      CMD_TIMEOUT_SHORT: 300
+      CMD_TIMEOUT_MEDIUM: 600
+      CMD_TIMEOUT_LONG: 1800
     outputs:
       resolved_artifact_url: ${{ steps.resolve_artifact_url.outputs.resolved_artifact_url }}
       prepared_jar_artifact_name: ${{ steps.compute_artifact_name.outputs.prepared_jar_artifact_name }}
@@ -75,9 +75,11 @@ jobs:
     if: ${{ always() && (needs.prepare-enterprise-jar.result == 'success' || needs.prepare-enterprise-jar.result == 'skipped') }}
     timeout-minutes: 60
     env:
-      CMD_TIMEOUT_SHORT: 180
-      CMD_TIMEOUT_MEDIUM: 300
-      CMD_TIMEOUT_LONG: 120
+      CMD_TIMEOUT_SHORT: 300
+      CMD_TIMEOUT_MEDIUM: 600
+      CMD_TIMEOUT_LONG: 1800
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+      CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
     strategy:
       fail-fast: false
       matrix:
@@ -139,13 +141,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      - name: Verify system Chrome
+        run: |
+          which google-chrome
+          google-chrome --version
       - name: Install dependencies and set up environment for ${{ matrix.group.workflow_name }}
         run: |
           timeout "${CMD_TIMEOUT_MEDIUM}" npm ci
           timeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get update
           timeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get install -y libxml2-utils
-          # CI runs headless Chromium only, so avoid downloading the full headed browser.
-          DEBUG=pw:install timeout "${CMD_TIMEOUT_LONG}" npx playwright install chromium --with-deps
+          # Install only Linux deps; browser binary comes from the runner image.
+          timeout "${CMD_TIMEOUT_LONG}" npx playwright install-deps chromium
           mkdir -p ~/.specmatic
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print orchestrator info
