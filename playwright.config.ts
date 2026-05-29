@@ -90,7 +90,7 @@ export default defineConfig({
     baseURL,
     trace: "on-first-retry",
     screenshot: "on",
-    video: process.env.CI ? "retain-on-failure" : "on",
+    video: process.env.CI ? "off" : "on",
     launchOptions: {
       headless: process.env.CI ? true : process.env.HEADLESS === "true",
     },
@@ -100,9 +100,13 @@ export default defineConfig({
       name: "chromium",
       use: {
         browserName: "chromium",
+        ...(process.env.CI ? { channel: "chrome" } : {}),
         viewport: process.env.CI ? { width: 1920, height: 1440 } : null,
         launchOptions: {
           headless: process.env.CI ? true : process.env.HEADLESS === "true",
+          ...(process.env.CI
+            ? { executablePath: process.env.CHROME_EXECUTABLE_PATH || "/usr/bin/google-chrome" }
+            : {}),
           args: ["--start-maximized"],
           slowMo: 200,
         },
