@@ -283,6 +283,13 @@ export class ExampleGenerationPage extends BasePage {
       await closeButton.click({ force: true, timeout: 5000 });
     }
 
+    if ((await alert.isVisible().catch(() => false)) === true) {
+      console.warn(
+        `\t\tDialog '${expectedTitle}' is still visible after button click. Sending Escape as a fallback.`,
+      );
+      await this.page.keyboard.press("Escape").catch(() => {});
+    }
+
     console.log(
       `\t\tClicked close button on dialog with title: '${expectedTitle}' Vs Actual: '${title}'`,
     );
@@ -305,7 +312,12 @@ export class ExampleGenerationPage extends BasePage {
         "Frame is null or undefined in getAlertContainerFrameAndLocator",
       );
     }
-    const alert = frame.locator("#alert-container");
+    const visibleAlert = frame.locator("#alert-container .alert-msg:visible").first();
+    const alertCount = await visibleAlert.count().catch(() => 0);
+    const alert =
+      alertCount > 0
+        ? visibleAlert
+        : frame.locator("#alert-container .alert-msg").first();
     return { frame, alert };
   }
 
@@ -757,9 +769,9 @@ export class ExampleGenerationPage extends BasePage {
       const title = await this.getDialogTitle(alert);
       const message = await this.getDialogMessage(alert);
 
-      const closeButton = alert.locator("button").first();
+      const closeButton = await this.getDialogCloseButton(alert);
       if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await closeButton.click();
+        await closeButton.click({ force: true });
         await this.page.waitForTimeout(1000);
         await expect(alert).toBeHidden({ timeout: 5000 });
       }
