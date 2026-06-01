@@ -258,38 +258,13 @@ export class ExampleGenerationPage extends BasePage {
     );
 
     const { alert } = await this.getAlertContainerFrameAndLocator();
-    await expect(alert).toBeVisible({ timeout: 15000 });
+    await expect(alert).toBeAttached({ timeout: 15000 });
 
     const title = await this.getDialogTitle(alert);
     const message = await this.getDialogMessage(alert);
     expect.soft(title).toContain(expectedTitle);
 
-    const closeButton = await this.getDialogCloseButton(alert);
-    await expect(closeButton).toBeVisible({ timeout: 5000 });
-    await expect(closeButton).toBeEnabled({ timeout: 5000 });
-    await closeButton.scrollIntoViewIfNeeded().catch(() => {});
-
-    try {
-      await closeButton.click({ timeout: 5000 });
-    } catch (error) {
-      console.warn(
-        `\t\tClose button click timed out for dialog '${expectedTitle}'. Retrying with force click.`,
-        error,
-      );
-      await takeAndAttachScreenshot(
-        this.page,
-        `dialog-close-retry-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
-      );
-      await closeButton.click({ force: true, timeout: 5000 });
-    }
-
-    if ((await alert.isVisible().catch(() => false)) === true) {
-      console.warn(
-        `\t\tDialog '${expectedTitle}' is still visible after button click. Sending Escape as a fallback.`,
-      );
-      await this.page.keyboard.press("Escape").catch(() => {});
-    }
-
+    await alert.locator("button").click();
     console.log(
       `\t\tClicked close button on dialog with title: '${expectedTitle}' Vs Actual: '${title}'`,
     );
@@ -298,7 +273,7 @@ export class ExampleGenerationPage extends BasePage {
       this.page,
       `after-closing-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
-    await expect(alert).toBeHidden({ timeout: 10000 });
+    await expect(alert).toBeHidden();
   }
 
   private async getAlertContainerFrameAndLocator(): Promise<{
@@ -312,12 +287,7 @@ export class ExampleGenerationPage extends BasePage {
         "Frame is null or undefined in getAlertContainerFrameAndLocator",
       );
     }
-    const visibleAlert = frame.locator("#alert-container .alert-msg:visible").first();
-    const alertCount = await visibleAlert.count().catch(() => 0);
-    const alert =
-      alertCount > 0
-        ? visibleAlert
-        : frame.locator("#alert-container .alert-msg").first();
+    const alert = frame.locator("#alert-container");
     return { frame, alert };
   }
 
@@ -339,18 +309,6 @@ export class ExampleGenerationPage extends BasePage {
     }
     console.log("\t\tActual dialog message:", dialogMessage);
     return dialogMessage;
-  }
-
-  private async getDialogCloseButton(alert: Locator): Promise<Locator> {
-    const visibleButtons = alert.locator("button:visible");
-    const visibleCount = await visibleButtons.count();
-    console.log(`\t\tVisible dialog buttons found: ${visibleCount}`);
-
-    if (visibleCount > 0) {
-      return visibleButtons.first();
-    }
-
-    return alert.locator("button").first();
   }
 
   private async saveAndValidate(withVisualValidation = true) {
@@ -769,9 +727,9 @@ export class ExampleGenerationPage extends BasePage {
       const title = await this.getDialogTitle(alert);
       const message = await this.getDialogMessage(alert);
 
-      const closeButton = await this.getDialogCloseButton(alert);
+      const closeButton = alert.locator("button").first();
       if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await closeButton.click({ force: true });
+        await closeButton.click();
         await this.page.waitForTimeout(1000);
         await expect(alert).toBeHidden({ timeout: 5000 });
       }
