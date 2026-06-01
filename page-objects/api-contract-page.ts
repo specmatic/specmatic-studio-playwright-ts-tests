@@ -2,7 +2,6 @@ import { test, Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../specs/specNames";
 
 export class ApiContractPage extends BasePage {
   private readonly openApiTabPage: OpenAPISpecTabPage;
@@ -369,7 +368,8 @@ export class ApiContractPage extends BasePage {
 
       const completedTooFastToObserveRunning = await expect
         .poll(
-          async () => this.hasExecutionEvidenceWithoutVisibleRunning(totalBeforeRun),
+          async () =>
+            this.hasExecutionEvidenceWithoutVisibleRunning(totalBeforeRun),
           {
             timeout: 15000,
             intervals: [500, 1000, 2000],
@@ -723,7 +723,9 @@ export class ApiContractPage extends BasePage {
   }
 
   async verifyAddToSpecificationSuccessDialog(
-    expectedText: string | RegExp = /updated openapi specification with new response/i,
+    expectedText:
+      | string
+      | RegExp = /updated openapi specification with new response/i,
   ) {
     const successAlert = this.page
       .locator("#alert-container .alert-msg.success p")
@@ -966,14 +968,16 @@ export class ApiContractPage extends BasePage {
   }
 
   async getCoverageHeaderPercentage(): Promise<number> {
-    const coverageTotal = await this.tableHeader("coverage").getAttribute(
-      "data-total",
-    );
+    const coverageTotal =
+      await this.tableHeader("coverage").getAttribute("data-total");
 
     return parseInt((coverageTotal || "0").replace("%", ""), 10);
   }
 
-  async getResponseHeaderCounts(): Promise<{ currentCount: number; total: number }> {
+  async getResponseHeaderCounts(): Promise<{
+    currentCount: number;
+    total: number;
+  }> {
     const [currentCountValue, totalValue] = await Promise.all([
       this.responseHeader.getAttribute("data-current-count"),
       this.responseHeader.getAttribute("data-total"),
@@ -986,31 +990,33 @@ export class ApiContractPage extends BasePage {
   }
 
   async hoverResponseHeaderAndGetTooltipText(): Promise<string> {
-    const hoverText = await this.responseHeader.evaluate((headerElement: HTMLElement) => {
-      headerElement.scrollIntoView({
-        block: "center",
-        inline: "center",
-        behavior: "instant",
-      });
-      headerElement.dispatchEvent(
-        new MouseEvent("mouseenter", { bubbles: true }),
-      );
-      headerElement.dispatchEvent(
-        new MouseEvent("mouseover", { bubbles: true }),
-      );
-      const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
-      const titleText =
-        headerElement.getAttribute("title") ||
-        headerElement.getAttribute("aria-label") ||
-        headerElement.getAttribute("data-tooltip") ||
-        headerElement.getAttribute("data-original-title") ||
-        "";
-      const headerText = normalize(
-        headerElement.innerText || headerElement.textContent || "",
-      );
+    const hoverText = await this.responseHeader.evaluate(
+      (headerElement: HTMLElement) => {
+        headerElement.scrollIntoView({
+          block: "center",
+          inline: "center",
+          behavior: "instant",
+        });
+        headerElement.dispatchEvent(
+          new MouseEvent("mouseenter", { bubbles: true }),
+        );
+        headerElement.dispatchEvent(
+          new MouseEvent("mouseover", { bubbles: true }),
+        );
+        const normalize = (value: string) => value.replace(/\s+/g, " ").trim();
+        const titleText =
+          headerElement.getAttribute("title") ||
+          headerElement.getAttribute("aria-label") ||
+          headerElement.getAttribute("data-tooltip") ||
+          headerElement.getAttribute("data-original-title") ||
+          "";
+        const headerText = normalize(
+          headerElement.innerText || headerElement.textContent || "",
+        );
 
-      return normalize(titleText || headerText);
-    });
+        return normalize(titleText || headerText);
+      },
+    );
 
     await this.page.waitForTimeout(300);
 
@@ -1030,8 +1036,12 @@ export class ApiContractPage extends BasePage {
         });
 
       const match = visibleElements
-        .map((element) => normalize(element.innerText || element.textContent || ""))
-        .find((text) => /out of\s+\d+\s+responses?\s+have\s+passed/i.test(text));
+        .map((element) =>
+          normalize(element.innerText || element.textContent || ""),
+        )
+        .find((text) =>
+          /out of\s+\d+\s+responses?\s+have\s+passed/i.test(text),
+        );
 
       return match || "";
     });
@@ -1039,7 +1049,10 @@ export class ApiContractPage extends BasePage {
     return (visibleTooltipText || hoverText).replace(/\s+/g, " ").trim();
   }
 
-  async getResponseHeaderPseudoText(): Promise<{ before: string; after: string }> {
+  async getResponseHeaderPseudoText(): Promise<{
+    before: string;
+    after: string;
+  }> {
     return this.responseHeader.evaluate((headerElement: HTMLElement) => {
       const normalize = (value: string) =>
         value
