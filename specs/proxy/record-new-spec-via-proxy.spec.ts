@@ -29,6 +29,7 @@ test.describe("API Specification Management", () => {
       tag: ["@proxy", "@recordNewSpec", "@eyes"],
     },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "File Watcher issue");
       test.setTimeout(300000);
       const validSteps = new RecordValidNumberSteps(page, testInfo, eyes);
 

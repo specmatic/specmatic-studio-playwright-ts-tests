@@ -258,13 +258,31 @@ export class ExampleGenerationPage extends BasePage {
     );
 
     const { alert } = await this.getAlertContainerFrameAndLocator();
-    await expect(alert).toBeAttached({ timeout: 15000 });
+    await expect(alert).toBeVisible({ timeout: 15000 });
 
     const title = await this.getDialogTitle(alert);
     const message = await this.getDialogMessage(alert);
     expect.soft(title).toContain(expectedTitle);
 
-    await alert.locator("button").click();
+    const closeButton = await this.getDialogCloseButton(alert);
+    await expect(closeButton).toBeVisible({ timeout: 5000 });
+    await expect(closeButton).toBeEnabled({ timeout: 5000 });
+    await closeButton.scrollIntoViewIfNeeded().catch(() => {});
+
+    try {
+      await closeButton.click({ timeout: 5000 });
+    } catch (error) {
+      console.warn(
+        `\t\tClose button click timed out for dialog '${expectedTitle}'. Retrying with force click.`,
+        error,
+      );
+      await takeAndAttachScreenshot(
+        this.page,
+        `dialog-close-retry-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
+      );
+      await closeButton.click({ force: true, timeout: 5000 });
+    }
+
     console.log(
       `\t\tClicked close button on dialog with title: '${expectedTitle}' Vs Actual: '${title}'`,
     );
@@ -273,7 +291,7 @@ export class ExampleGenerationPage extends BasePage {
       this.page,
       `after-closing-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
-    await expect(alert).toBeHidden();
+    await expect(alert).toBeHidden({ timeout: 10000 });
   }
 
   private async getAlertContainerFrameAndLocator(): Promise<{
@@ -309,6 +327,18 @@ export class ExampleGenerationPage extends BasePage {
     }
     console.log("\t\tActual dialog message:", dialogMessage);
     return dialogMessage;
+  }
+
+  private async getDialogCloseButton(alert: Locator): Promise<Locator> {
+    const visibleButtons = alert.locator("button:visible");
+    const visibleCount = await visibleButtons.count();
+    console.log(`\t\tVisible dialog buttons found: ${visibleCount}`);
+
+    if (visibleCount > 0) {
+      return visibleButtons.first();
+    }
+
+    return alert.locator("button").first();
   }
 
   private async saveAndValidate(withVisualValidation = true) {
