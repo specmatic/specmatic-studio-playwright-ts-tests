@@ -332,6 +332,17 @@ export class ExampleGenerationPage extends BasePage {
     await test.step(`Delete all generated examples if present`, async () => {
       console.log("Attempting to delete generated examples if present");
       const iframe = await this.waitForExamplesIFrame();
+      const generatedExamplesCount = await this.getGeneratedExamplesCount(iframe);
+
+      if (generatedExamplesCount === 0) {
+        console.log("No generated examples found to delete");
+        await takeAndAttachScreenshot(
+          this.page,
+          `examples-deleted-or-none-to-delete`,
+        );
+        return;
+      }
+
       await this.selectAll(iframe);
 
       const bulkDeleteBtn = iframe.locator(this.bulkDeleteBtnSelector);
@@ -404,52 +415,46 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async selectAll(iframe: import("@playwright/test").Frame) {
-    const selectAll = iframe.locator(this.selectAllCheckboxSelector);
-    await selectAll.waitFor({ timeout: 3000 });
-    const checkboxes = await selectAll.all();
-    console.log(`\tselect-all checkbox found, count: ${checkboxes.length}`);
-    let allChecked = true;
-    for (let i = 0; i < checkboxes.length; i++) {
-      let checked = await checkboxes[i].isChecked();
-      let attempts = 0;
-      while (!checked && attempts < 3) {
-        await checkboxes[i].click({ force: true });
-        await this.page.waitForTimeout(200 * (attempts + 1)); // Wait a bit longer after each attempt
-        checked = await checkboxes[i].isChecked();
-        console.log(
-          `\tselect-all checkbox[${i}] checked after click attempt ${attempts + 1}: ${checked}`,
-        );
-        attempts++;
-      }
-      if (!checked) {
-        allChecked = false;
-        console.log(
-          `\tselect-all checkbox[${i}] could not be checked after 3 attempts`,
-        );
-      }
-    }
-    // Log final checked state for all checkboxes
-    for (let i = 0; i < checkboxes.length; i++) {
-      const checkedState = await checkboxes[i].isChecked();
-      console.log(`\tselect-all checkbox[${i}] final checked: ${checkedState}`);
-    }
-    if (!allChecked) {
-      throw new Error(
-        "selectAll: One or more checkboxes could not be checked after 3 attempts",
-      );
-    }
-    // Also check that at least one is checked for safety
-    if (checkboxes.length === 0) {
+    const selectAll = await this.getInteractiveSelectAllCheckbox(iframe);
+
+    if ((await selectAll.count()) === 0) {
       throw new Error(
         "selectAll: No checkboxes found for selector 'input#select-all'",
       );
     }
+
+    await expect(selectAll).toBeVisible({ timeout: 5000 });
+    await expect(selectAll).toBeEnabled({ timeout: 5000 });
+
+    let checked = await selectAll.isChecked();
+    let attempts = 0;
+
+    while (!checked && attempts < 3) {
+      await selectAll.click({ force: true });
+      await this.page.waitForTimeout(200 * (attempts + 1));
+      checked = await selectAll.isChecked();
+      console.log(
+        `\tselect-all checkbox checked after click attempt ${attempts + 1}: ${checked}`,
+      );
+      attempts++;
+    }
+
+    console.log(`\tselect-all checkbox final checked: ${checked}`);
+
+    if (!checked) {
+      throw new Error(
+        "selectAll: The interactive select-all checkbox could not be checked after 3 attempts",
+      );
+    }
+
     await takeAndAttachScreenshot(this.page, `select-all-checked`);
   }
 
   private async uncheckSelectAll(iframe: import("@playwright/test").Frame) {
-    const selectAll = iframe.locator(this.selectAllCheckboxSelector);
-    await selectAll.waitFor({ timeout: 3000 });
+    const selectAll = await this.getInteractiveSelectAllCheckbox(iframe);
+    if ((await selectAll.count()) === 0) {
+      return;
+    }
     console.log("\tuncheck select-all checkbox found");
     if (await selectAll.isChecked()) {
       await selectAll.click({ force: true });
@@ -469,8 +474,82 @@ export class ExampleGenerationPage extends BasePage {
     if (!frame) {
       throw new Error("Could not get contentFrame from iframe element");
     }
+    await this.waitForExamplesContentReady(frame);
     console.log("\tSuccessfully got the examples iframe");
     return frame;
+  }
+
+  private async waitForExamplesContentReady(
+    iframe: import("@playwright/test").Frame,
+  ) {
+    await expect
+      .poll(
+        async () => {
+          const selectAllCount = await iframe
+            .locator(this.selectAllCheckboxSelector)
+            .count()
+            .catch(() => 0);
+          const rowCount = await iframe
+            .locator("tr[data-raw-path]")
+            .count()
+            .catch(() => 0);
+          const generatedCount = await iframe
+            .locator("tr[data-example-relative-path]")
+            .count()
+            .catch(() => 0);
+          const generateButtonCount = await iframe
+            .locator('button[aria-label="Generate"], button[aria-label="Generate More"]')
+            .count()
+            .catch(() => 0);
+
+          return (
+            selectAllCount > 0 ||
+            rowCount > 0 ||
+            generatedCount > 0 ||
+            generateButtonCount > 0
+          );
+        },
+        {
+          timeout: 10000,
+          intervals: [200, 400, 800],
+          message: "Waiting for examples iframe content to become interactive",
+        },
+      )
+      .toBeTruthy();
+  }
+
+  private async getGeneratedExamplesCount(
+    iframe: import("@playwright/test").Frame,
+  ): Promise<number> {
+    return await iframe.locator("tr[data-example-relative-path]").count();
+  }
+
+  private async getInteractiveSelectAllCheckbox(
+    iframe: import("@playwright/test").Frame,
+  ): Promise<Locator> {
+    const selectAll = iframe.locator(this.selectAllCheckboxSelector);
+    await selectAll.first().waitFor({ state: "attached", timeout: 5000 });
+
+    const count = await selectAll.count();
+    console.log(`\tselect-all checkbox found, count: ${count}`);
+
+    for (let i = 0; i < count; i++) {
+      const checkbox = selectAll.nth(i);
+      const [visible, enabled] = await Promise.all([
+        checkbox.isVisible().catch(() => false),
+        checkbox.isEnabled().catch(() => false),
+      ]);
+
+      console.log(
+        `\tselect-all checkbox[${i}] visible=${visible} enabled=${enabled}`,
+      );
+
+      if (visible && enabled) {
+        return checkbox;
+      }
+    }
+
+    return selectAll.first();
   }
 
   async validateAllExamples() {

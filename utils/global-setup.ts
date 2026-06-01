@@ -83,10 +83,6 @@ if (process.env.GROUP_NAME) {
   Batch.addProperty("group_name", process.env.GROUP_NAME);
 }
 export default async function globalSetup() {
-  if (isJarModeEnabled()) {
-    await ensureSpecmaticStudioForRun();
-  }
-
   const specsDirectory = path.resolve(
     process.cwd(),
     "specmatic-studio-demo",
@@ -118,4 +114,8 @@ export default async function globalSetup() {
         }),
       ),
   );
+
+  if (isJarModeEnabled()) {
+    await ensureSpecmaticStudioForRun();
+  }
 }
