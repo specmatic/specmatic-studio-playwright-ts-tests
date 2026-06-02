@@ -322,25 +322,6 @@ function prepareCompactArtifact(summaryData) {
   }
 
   ensureDir(artifactDir);
-  const failureAssetsDir = path.join(artifactDir, "failure-assets");
-  ensureDir(failureAssetsDir);
-
-  let assetCounter = 0;
-  function copyScreenshotIntoArtifact(record) {
-    if (!record.screenshot || !fs.existsSync(record.screenshot)) {
-      return null;
-    }
-    assetCounter += 1;
-    const fileName = `${String(assetCounter).padStart(3, "0")}-${path.basename(record.screenshot)}`;
-    const destinationPath = path.join(failureAssetsDir, fileName);
-    fs.copyFileSync(record.screenshot, destinationPath);
-    return path.posix.join("failure-assets", fileName);
-  }
-
-  for (const record of [...summaryData.unexpectedFailures, ...summaryData.expectedFailureTests]) {
-    record.screenshot = copyScreenshotIntoArtifact(record);
-  }
-
   copyFileIfExists(junitReportPath, path.join(artifactDir, "junit-report.xml"));
   if (dockerLogsDir) {
     copyDirectoryIfExists(dockerLogsDir, path.join(artifactDir, "docker-logs"));
@@ -400,11 +381,6 @@ async function main() {
     expectedFailures: shortenFailureList(summaryData.expectedFailureTests),
   };
   fs.writeFileSync(outputJsonPath, `${JSON.stringify(jsonPayload, null, 2)}\n`);
-
-  if (artifactDir) {
-    copyFileIfExists(outputSummaryPath, path.join(artifactDir, "failed-tests-summary.md"));
-    copyFileIfExists(outputJsonPath, path.join(artifactDir, "failed-tests-summary.json"));
-  }
 
   console.log("Summary written to", outputSummaryPath);
 }

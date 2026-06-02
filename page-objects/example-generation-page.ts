@@ -258,13 +258,15 @@ export class ExampleGenerationPage extends BasePage {
     );
 
     const { alert } = await this.getAlertContainerFrameAndLocator();
-    await expect(alert).toBeAttached({ timeout: 15000 });
+    await expect(alert).toBeVisible({ timeout: 15000 });
 
     const title = await this.getDialogTitle(alert);
     const message = await this.getDialogMessage(alert);
     expect.soft(title).toContain(expectedTitle);
 
-    await alert.locator("button").click();
+    const closeButton = alert.locator("button").first();
+    await expect(closeButton).toBeVisible({ timeout: 5000 });
+    await closeButton.click();
     console.log(
       `\t\tClicked close button on dialog with title: '${expectedTitle}' Vs Actual: '${title}'`,
     );
@@ -273,7 +275,7 @@ export class ExampleGenerationPage extends BasePage {
       this.page,
       `after-closing-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
-    await expect(alert).toBeHidden();
+    await expect(alert).toBeHidden({ timeout: 5000 });
   }
 
   private async getAlertContainerFrameAndLocator(): Promise<{
@@ -287,7 +289,7 @@ export class ExampleGenerationPage extends BasePage {
         "Frame is null or undefined in getAlertContainerFrameAndLocator",
       );
     }
-    const alert = frame.locator("#alert-container");
+    const alert = frame.locator("#alert-container .alert-msg:visible").first();
     return { frame, alert };
   }
 

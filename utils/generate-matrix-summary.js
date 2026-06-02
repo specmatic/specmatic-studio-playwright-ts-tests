@@ -59,7 +59,19 @@ function main() {
     .sort((left, right) => left.localeCompare(right))
     .map((filePath) => JSON.parse(fs.readFileSync(filePath, "utf8")));
 
-  if (summaryFiles.length === 0) {
+  const uniqueSummaries = [];
+  const seenRunNames = new Set();
+
+  for (const summary of summaryFiles) {
+    const runName = summary.runName || "Unknown Run";
+    if (seenRunNames.has(runName)) {
+      continue;
+    }
+    seenRunNames.add(runName);
+    uniqueSummaries.push(summary);
+  }
+
+  if (uniqueSummaries.length === 0) {
     console.error("No per-run summary JSON files found under", artifactsRoot);
     process.exit(1);
   }
@@ -69,7 +81,7 @@ function main() {
   markdown += `<thead><tr><th>Run</th><th>Total</th><th>Passed</th><th>Failed</th><th>Errors</th><th>Expected Failures</th><th>Skipped</th><th>Unexpected Failures</th><th>Expected Failures List</th></tr></thead>\n`;
   markdown += `<tbody>\n`;
 
-  for (const summary of summaryFiles) {
+  for (const summary of uniqueSummaries) {
     markdown += "<tr>";
     markdown += `<td><strong>${escapeHtml(summary.runName)}</strong></td>`;
     markdown += `<td>${summary.stats.total}</td>`;

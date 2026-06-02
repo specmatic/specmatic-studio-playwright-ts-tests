@@ -8,7 +8,7 @@ const path = require("path");
 
 const TMP_DIR = path.join(process.cwd(), "temp");
 const STATE_FILE = path.join(TMP_DIR, "specmatic-studio-state.json");
-const REPORTS_DIR = path.join(process.cwd(), "playwright-report");
+const STUDIO_LOGS_DIR = path.join(process.cwd(), "studio-logs");
 const STARTUP_TIMEOUT_MS = Number.parseInt(
   process.env.SPECMATIC_STUDIO_STARTUP_TIMEOUT_MS || "120000",
   10,
@@ -32,13 +32,13 @@ function ensureTmpDir() {
   fs.mkdirSync(TMP_DIR, { recursive: true });
 }
 
-function ensureReportsDir() {
-  fs.mkdirSync(REPORTS_DIR, { recursive: true });
+function ensureStudioLogsDir() {
+  fs.mkdirSync(STUDIO_LOGS_DIR, { recursive: true });
 }
 
 function getLogPath() {
-  ensureReportsDir();
-  return path.join(REPORTS_DIR, "specmatic.log");
+  ensureStudioLogsDir();
+  return path.join(STUDIO_LOGS_DIR, "specmatic.log");
 }
 
 function getJarUrl() {

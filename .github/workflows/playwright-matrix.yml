@@ -224,6 +224,7 @@ jobs:
           ORCHESTRATOR_DISABLE_VISUAL: ${{ inputs.orchestrator_disable_visual }}
         run: |
           mkdir -p playwright-report
+          mkdir -p studio-logs
           timeout "${CMD_TIMEOUT_LONG}" npx playwright test ${{ matrix.group.test_path }}
         continue-on-error: true
       - name: Capture Docker logs
@@ -239,15 +240,12 @@ jobs:
         if: always()
         env:
           PLAYWRIGHT_RUN_NAME: ${{ matrix.group.workflow_name }}
-          PLAYWRIGHT_ARTIFACT_DIR: artifact-workdir
-          PLAYWRIGHT_DOCKER_LOGS_DIR: docker-logs-workdir
         run: timeout "${CMD_TIMEOUT_SHORT}" node utils/generate-failed-test-screenshots-summary.js
         continue-on-error: true
       - name: Remove large local-only files
         if: always()
         run: |
           rm -rf temp
-          rm -rf docker-logs-workdir
       - name: Upload Playwright artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -255,8 +253,9 @@ jobs:
         with:
           name: test-artifacts-${{ matrix.group.artifact_name }}-run-${{ github.run_id }}
           path: |
-            artifact-workdir
+            docker-logs-workdir
             playwright-report
+            studio-logs
             test-results
           retention-days: 30
       - name: Fail job if there are test failures

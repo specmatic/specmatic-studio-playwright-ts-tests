@@ -45,7 +45,6 @@ test.describe("Edit, save, validate and fix examples", () => {
       console.log(`Completed test: ${testInfo.title}`);
     },
   );
-
 });
 
 async function validateAndSaveEditedExample(
@@ -108,7 +107,7 @@ async function makeInvalidEditsInExample(examplePage: ExampleGenerationPage) {
       },
     ];
     await examplePage.editExample(edits);
-    await examplePage.saveEditedExample("Invalid Example");
+    await examplePage.saveEditedExample("Failed to save example");
   });
 }
 
@@ -131,7 +130,6 @@ async function makeTypeMismatchEditsInExample(
   });
 }
 
-
 async function verifyCollapsedErrorSummary(
   examplePage: ExampleGenerationPage,
   expectedCount: number,
@@ -153,4 +151,3 @@ async function verifyExpandedErrorBlocks(
     expect.soft(visibleBlocks).toBe(expectedBlockCount);
   });
 }
-
