@@ -107,7 +107,7 @@ async function makeInvalidEditsInExample(examplePage: ExampleGenerationPage) {
       },
     ];
     await examplePage.editExample(edits);
-    await examplePage.saveEditedExample("Failed to save example");
+    await examplePage.saveEditedExample("Invalid Example");
   });
 }
 

@@ -246,6 +246,7 @@ jobs:
         if: always()
         run: |
           rm -rf temp
+          rm -f playwright-report/test-results.json
       - name: Upload Playwright artifact
         if: always()
         uses: actions/upload-artifact@v4
