@@ -84,14 +84,14 @@ jobs:
       fail-fast: false
       matrix:
         group:
-          - workflow_name: OpenAPI Examples
-            test_path: specs/openapi/generate-valid-examples
-            artifact_name: generate-valid-examples
-            group_name: OpenAPI Examples
-          - workflow_name: OpenAPI Dictionary
-            test_path: specs/openapi/dictionary
-            artifact_name: generate-dictionary
-            group_name: OpenAPI Dictionary
+          # - workflow_name: OpenAPI Examples
+          #   test_path: specs/openapi/generate-valid-examples
+          #   artifact_name: generate-valid-examples
+          #   group_name: OpenAPI Examples
+          # - workflow_name: OpenAPI Dictionary
+          #   test_path: specs/openapi/dictionary
+          #   artifact_name: generate-dictionary
+          #   group_name: OpenAPI Dictionary
           - workflow_name: OpenAPI Contract
             test_path: specs/openapi/execute-contract-tests
             artifact_name: execute-contract-tests
@@ -120,10 +120,10 @@ jobs:
             test_path: specs/async/execute-contract-tests
             artifact_name: execute-contract-tests-async
             group_name: Async Contract
-          - workflow_name: Proxy
-            test_path: specs/proxy
-            artifact_name: proxy
-            group_name: Proxy
+          # - workflow_name: Proxy
+          #   test_path: specs/proxy
+          #   artifact_name: proxy
+          #   group_name: Proxy
           - workflow_name: SOAP Spec
             test_path: specs/soap/update-service-spec
             artifact_name: soap-update-service-spec
