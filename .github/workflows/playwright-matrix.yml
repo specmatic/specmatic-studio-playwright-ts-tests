@@ -5,8 +5,8 @@ run-name: ${{ inputs.orchestrator_run_suffix && format('Studio Matrix Playwright
 on:
   workflow_dispatch:
     inputs:
-      enterprise_artifact_url:
-        description: Specmatic Enterprise snapshot JAR URL or LATEST selector
+      enterprise_version:
+        description: Specmatic Enterprise version used to decide whether orchestrator runs should use the snapshot Docker image
         required: false
         type: string
       orchestrator_disable_visual:
@@ -26,9 +26,9 @@ permissions:
   actions: write
 
 jobs:
-  prepare-enterprise-jar:
-    name: Prepare Enterprise JAR
-    if: ${{ inputs.enterprise_artifact_url != '' }}
+  prepare-specmatic-docker-image:
+    name: Prepare Specmatic Docker Image
+    if: ${{ inputs.orchestrator_run_suffix != '' && endsWith(inputs.enterprise_version, '-SNAPSHOT') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -36,43 +36,34 @@ jobs:
       CMD_TIMEOUT_MEDIUM: 600
       CMD_TIMEOUT_LONG: 1800
     outputs:
-      resolved_artifact_url: ${{ steps.resolve_artifact_url.outputs.resolved_artifact_url }}
-      prepared_jar_artifact_name: ${{ steps.compute_artifact_name.outputs.prepared_jar_artifact_name }}
+      prepared_docker_artifact_name: ${{ steps.compute_artifact_name.outputs.prepared_docker_artifact_name }}
     steps:
-      - name: Compute prepared JAR artifact name
+      - name: Compute prepared Docker artifact name
         id: compute_artifact_name
-        run: echo "prepared_jar_artifact_name=enterprise-jar-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-      - name: Install npm dependencies for JAR preparation
-        run: timeout "${CMD_TIMEOUT_MEDIUM}" npm ci
-      - name: Resolve Enterprise JAR URL
-        id: resolve_artifact_url
-        env:
-          ENTERPRISE_ARTIFACT_URL: ${{ inputs.enterprise_artifact_url }}
-          ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
-          ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
-        run: bash scripts/github/resolve-enterprise-jar-url.sh
-      - name: Download Enterprise JAR once
-        env:
-          ENTERPRISE_ARTIFACT_URL: ${{ steps.resolve_artifact_url.outputs.resolved_artifact_url }}
-          ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
-          ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
-        run: timeout "${CMD_TIMEOUT_LONG}" bash scripts/github/download-enterprise-jar.sh
-      - name: Upload prepared Enterprise JAR
+        run: echo "prepared_docker_artifact_name=enterprise-docker-image-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
+      - name: Docker Login for orchestrator snapshot image
+        run: echo ${{ secrets.SPECMATIC_DOCKER_HUB_TOKEN }} | docker login -u ${{ vars.SPECMATIC_DOCKER_HUB_USERNAME }} --password-stdin
+      - name: Prepare snapshot image for orchestrator run
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p temp
+          docker pull specmatic/enterprise-snapshot
+          docker tag specmatic/enterprise-snapshot specmatic/enterprise:latest
+          docker save specmatic/enterprise-snapshot specmatic/enterprise:latest -o temp/specmatic-enterprise-snapshot.tar
+      - name: Upload prepared Specmatic Docker image
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.compute_artifact_name.outputs.prepared_jar_artifact_name }}
-          path: temp/*.jar
+          name: ${{ steps.compute_artifact_name.outputs.prepared_docker_artifact_name }}
+          path: temp/specmatic-enterprise-snapshot.tar
           retention-days: 1
 
   matrix-tests:
     name: ${{ matrix.group.workflow_name }}
     runs-on: ubuntu-latest
-    needs: prepare-enterprise-jar
-    if: ${{ always() && (needs.prepare-enterprise-jar.result == 'success' || needs.prepare-enterprise-jar.result == 'skipped') }}
+    needs: prepare-specmatic-docker-image
+    if: ${{ always() && (needs.prepare-specmatic-docker-image.result == 'success' || needs.prepare-specmatic-docker-image.result == 'skipped') }}
     timeout-minutes: 60
     env:
       CMD_TIMEOUT_SHORT: 300
@@ -84,14 +75,14 @@ jobs:
       fail-fast: false
       matrix:
         group:
-          # - workflow_name: OpenAPI Examples
-          #   test_path: specs/openapi/generate-valid-examples
-          #   artifact_name: generate-valid-examples
-          #   group_name: OpenAPI Examples
-          # - workflow_name: OpenAPI Dictionary
-          #   test_path: specs/openapi/dictionary
-          #   artifact_name: generate-dictionary
-          #   group_name: OpenAPI Dictionary
+          - workflow_name: OpenAPI Examples
+            test_path: specs/openapi/generate-valid-examples
+            artifact_name: generate-valid-examples
+            group_name: OpenAPI Examples
+          - workflow_name: OpenAPI Dictionary
+            test_path: specs/openapi/dictionary
+            artifact_name: generate-dictionary
+            group_name: OpenAPI Dictionary
           - workflow_name: OpenAPI Contract
             test_path: specs/openapi/execute-contract-tests
             artifact_name: execute-contract-tests
@@ -120,10 +111,10 @@ jobs:
             test_path: specs/async/execute-contract-tests
             artifact_name: execute-contract-tests-async
             group_name: Async Contract
-          # - workflow_name: Proxy
-          #   test_path: specs/proxy
-          #   artifact_name: proxy
-          #   group_name: Proxy
+          - workflow_name: Proxy
+            test_path: specs/proxy
+            artifact_name: proxy
+            group_name: Proxy
           - workflow_name: SOAP Spec
             test_path: specs/soap/update-service-spec
             artifact_name: soap-update-service-spec
@@ -156,71 +147,25 @@ jobs:
           echo "${{ secrets.SPECMATIC_LICENSE_KEY }}" > ~/.specmatic/specmatic-license.txt
       - name: Print orchestrator info
         run: echo "Triggered by orchestrator run ${{ inputs.orchestrator_run_suffix }}"
-      - name: Download prepared Enterprise JAR
-        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
+      - name: Download prepared Specmatic Docker image
+        if: ${{ needs.prepare-specmatic-docker-image.result == 'success' }}
         uses: actions/download-artifact@v4
         with:
-          name: ${{ needs.prepare-enterprise-jar.outputs.prepared_jar_artifact_name }}
+          name: ${{ needs.prepare-specmatic-docker-image.outputs.prepared_docker_artifact_name }}
           path: temp
-
+      - name: Load prepared Specmatic Docker image
+        if: ${{ needs.prepare-specmatic-docker-image.result == 'success' }}
+        run: docker load -i temp/specmatic-enterprise-snapshot.tar
       - name: Pull latest Specmatic Docker image
-        if: ${{ needs.prepare-enterprise-jar.result == 'skipped' }}
-        run: timeout "${CMD_TIMEOUT_LONG}" docker pull specmatic/enterprise:latest
-      - name: Configure Enterprise JAR networking
-        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
+        if: ${{ needs.prepare-specmatic-docker-image.result == 'skipped' }}
         run: |
-          echo "127.0.0.1 order-bff order-api inventory-api studio" | sudo tee -a /etc/hosts
-          cat > /tmp/docker-compose.enterprise-jar.yml <<'EOF'
-          services:
-            order-bff:
-              environment:
-                KAFKA_BOOTSTRAP_SERVERS: host.docker.internal:9092
-              extra_hosts:
-                - "host.docker.internal:host-gateway"
-          EOF
-      - name: Start support services for Enterprise JAR
-        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
-        run: |
-          for cname in order-bff order-api inventory-api; do
-            if docker ps -a -q -f name="^/${cname}$" | grep .; then
-              timeout "${CMD_TIMEOUT_SHORT}" docker rm -f "$cname"
-            fi
-          done
-          timeout "${CMD_TIMEOUT_MEDIUM}" docker compose \
-            -p specmatic-studio-playwright \
-            -f specmatic-studio-demo/docker-compose.yaml \
-            -f /tmp/docker-compose.enterprise-jar.yml \
-            up -d order-bff order-api inventory-api
-      - name: Wait for support services to be healthy
-        if: ${{ needs.prepare-enterprise-jar.result == 'success' }}
-        run: |
-          for url in \
-            "http://127.0.0.1:8095/health" \
-            "http://127.0.0.1:8090/products" \
-            "http://127.0.0.1:8080/health"; do
-            echo "Waiting for $url"
-            for i in $(seq 1 30); do
-              if curl -sf "$url" > /dev/null 2>&1; then
-                echo "$url is up"
-                break
-              fi
-              sleep 4
-              if [ "$i" -eq 30 ]; then
-                echo "Timed out waiting for $url"
-                exit 1
-              fi
-            done
-          done
+          timeout "${CMD_TIMEOUT_LONG}" docker pull specmatic/enterprise:latest
       - name: Run Playwright tests for ${{ matrix.group.workflow_name }}
         id: playwright_tests
         timeout-minutes: 50
         env:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
           GROUP_NAME: ${{ matrix.group.group_name }}
-          ENTERPRISE_ARTIFACT_URL: ${{ needs.prepare-enterprise-jar.outputs.resolved_artifact_url || '' }}
-          ENTERPRISE_ARTIFACT_DOWNLOAD_TIMEOUT_MS: "180000"
-          ENTERPRISE_ARTIFACT_DOWNLOAD_RETRIES: "5"
-          SPECMATIC_STUDIO_WORKDIR: specmatic-studio-demo/specs
           ORCHESTRATOR_DISABLE_VISUAL: ${{ inputs.orchestrator_disable_visual }}
         run: |
           mkdir -p playwright-report
@@ -303,21 +248,21 @@ jobs:
       - name: Generate single matrix summary table
         run: timeout "${CMD_TIMEOUT_SHORT}" node utils/generate-matrix-summary.js
 
-  cleanup-enterprise-jar-artifact:
-    name: Cleanup Enterprise JAR Artifact
+  cleanup-prepared-specmatic-docker-image:
+    name: Cleanup Prepared Specmatic Docker Image
     runs-on: ubuntu-latest
     needs:
-      - prepare-enterprise-jar
+      - prepare-specmatic-docker-image
       - matrix-tests
       - matrix-summary
-    if: ${{ always() && needs.prepare-enterprise-jar.result == 'success' }}
+    if: ${{ always() && needs.prepare-specmatic-docker-image.result == 'success' }}
     timeout-minutes: 10
     env:
       CMD_TIMEOUT_SHORT: 300
     steps:
       - uses: actions/checkout@v4
-      - name: Delete prepared Enterprise JAR artifact
+      - name: Delete prepared Specmatic Docker image artifact
         env:
-          PREPARED_JAR_ARTIFACT_NAME: ${{ needs.prepare-enterprise-jar.outputs.prepared_jar_artifact_name }}
+          PREPARED_JAR_ARTIFACT_NAME: ${{ needs.prepare-specmatic-docker-image.outputs.prepared_docker_artifact_name }}
           GITHUB_TOKEN: ${{ github.token }}
         run: timeout "${CMD_TIMEOUT_SHORT}" node utils/delete-workflow-artifact.js
