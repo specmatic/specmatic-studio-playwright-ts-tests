@@ -75,10 +75,10 @@ jobs:
       fail-fast: false
       matrix:
         group:
-          # - workflow_name: OpenAPI Examples
-          #   test_path: specs/openapi/generate-valid-examples
-          #   artifact_name: generate-valid-examples
-          #   group_name: OpenAPI Examples
+          - workflow_name: OpenAPI Examples
+            test_path: specs/openapi/generate-valid-examples
+            artifact_name: generate-valid-examples
+            group_name: OpenAPI Examples
           - workflow_name: OpenAPI Dictionary
             test_path: specs/openapi/dictionary
             artifact_name: generate-dictionary

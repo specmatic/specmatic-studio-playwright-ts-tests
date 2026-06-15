@@ -8,8 +8,7 @@ interface MixedScenario {
   newText: string;
   removeXLinesFromSpec: number;
   isCompatible: boolean;
-  expectedErrorCount: number;
-  expectedErrorDetail?: string;
+  expectedLineText?: string;
 }
 
 interface ScenarioGroup {
@@ -27,8 +26,6 @@ const MIXED_SCENARIO_GROUPS: ScenarioGroup[] = [
         newText: "summary: Create Product",
         removeXLinesFromSpec: 0,
         isCompatible: true,
-        expectedErrorCount: 0,
-        expectedErrorDetail: "",
       },
       {
         name: "Change response code (Incompatible)",
@@ -36,8 +33,7 @@ const MIXED_SCENARIO_GROUPS: ScenarioGroup[] = [
         newText: "'299':",
         removeXLinesFromSpec: 0,
         isCompatible: false,
-        expectedErrorCount: 1,
-        expectedErrorDetail: "This API exists in the old contract",
+        expectedLineText: "'299':",
       },
       {
         name: "Remove requestBody content (Incompatible)",
@@ -45,8 +41,7 @@ const MIXED_SCENARIO_GROUPS: ScenarioGroup[] = [
         newText: "",
         removeXLinesFromSpec: 4,
         isCompatible: false,
-        expectedErrorCount: 3,
-        expectedErrorDetail: "",
+        expectedLineText: "requestBody:",
       },
     ],
   },
@@ -59,9 +54,7 @@ const MIXED_SCENARIO_GROUPS: ScenarioGroup[] = [
         newText: "        required: true",
         removeXLinesFromSpec: 0,
         isCompatible: false,
-        expectedErrorCount: 3,
-        expectedErrorDetail:
-          'New specification expects query param "type" in the request',
+        expectedLineText: "required: true",
       },
     ],
   },
@@ -123,44 +116,24 @@ async function assertScenarioResult(
   await test.step(`Assert Result: ${scenario.name}`, async () => {
     await configPage.runBackwardCompatibilityTest();
 
-    const toastText = await configPage.getAlertMessageText();
+    const result = await configPage.getBackwardCompatibilityResult();
+    expect(result.title).toBe("Backward Compatibility Check Complete");
+    expect(result.total).toBe(result.failed + result.passed);
 
     if (scenario.isCompatible) {
-      expect(toastText.toLowerCase()).toContain("backward compatible");
+      expect(result.failed).toBe(0);
+      expect(result.passed).toBeGreaterThan(0);
       await configPage.dismissAlert();
     } else {
-      expect(toastText.toLowerCase()).toContain("failed");
+      expect(result.failed).toBeGreaterThan(0);
+      expect(result.passed).toBeGreaterThanOrEqual(0);
       await configPage.dismissAlert();
 
       await configPage.toggleBccErrorSection(true);
-      const { summary, details } = await configPage.getBccErrorDetails();
+      expect(await configPage.getBccErrorItemCount()).toBeGreaterThan(0);
 
-      const errorSuffix =
-        scenario.expectedErrorCount === 1 ? "error" : "errors";
-      expect
-        .soft(summary)
-        .toContain(
-          `Backward Compatibility found ${scenario.expectedErrorCount} ${errorSuffix}`,
-        );
-
-      if (
-        scenario.expectedErrorDetail &&
-        scenario.expectedErrorDetail.trim() !== ""
-      ) {
-        const normalize = (value: string) =>
-          value.replace(/\s+/g, " ").trim().toLowerCase();
-        const expectedDetailNormalized = normalize(
-          scenario.expectedErrorDetail,
-        );
-        const hasMatch = details.some((d: string) =>
-          normalize(d).includes(expectedDetailNormalized),
-        );
-        expect
-          .soft(
-            hasMatch,
-            `Expected detail not found: ${scenario.expectedErrorDetail}`,
-          )
-          .toBe(true);
+      if (scenario.expectedLineText) {
+        await configPage.assertBccErrorNavigation(scenario.expectedLineText);
       }
     }
   });

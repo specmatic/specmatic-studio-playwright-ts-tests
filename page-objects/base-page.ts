@@ -122,7 +122,7 @@ export class BasePage {
         [
           '.tab-pane[data-type="test"][data-active="true"] table#test',
           '[data-type="test"] table#test',
-          'table#test',
+          "table#test",
           '[data-type="test"] .header ol.counts',
         ],
         timeout,
@@ -136,7 +136,7 @@ export class BasePage {
         [
           '.tab-pane[data-type="mock"][data-active="true"] table#mock',
           '[data-type="mock"] table#mock',
-          'table#mock',
+          "table#mock",
           '[data-type="mock"] .header ol.counts',
         ],
         timeout,
@@ -148,9 +148,13 @@ export class BasePage {
     if (dataType === "example") {
       await this.waitForAnyVisible(
         [
-          "iframe[data-examples-server-base]",
-          "#valid-examples-table",
-          "#invalid-examples-table",
+          '.screen[data-active] .example[data-protocol="openapi"] table.examples-protocol-table',
+          '.screen[data-active] .example[data-protocol="openapi"] .examples-empty',
+          '.screen[data-active] .example[data-protocol="openapi"] #examples',
+          ".screen[data-active] table.examples-protocol-table",
+          ".screen[data-active] #valid-examples-table",
+          ".screen[data-active] #invalid-examples-table",
+          ".screen[data-active] table",
         ],
         timeout,
       );
@@ -165,9 +169,9 @@ export class BasePage {
       return;
     }
 
-    await this.page.waitForLoadState("networkidle", { timeout: 3000 }).catch(
-      () => {},
-    );
+    await this.page
+      .waitForLoadState("networkidle", { timeout: 3000 })
+      .catch(() => {});
   }
 
   private async waitForAnyVisible(
@@ -201,14 +205,13 @@ export class BasePage {
     await expect
       .poll(
         async () => {
-          const [tbodyCount, rowCount, cellCount, generated] = await Promise.all(
-            [
+          const [tbodyCount, rowCount, cellCount, generated] =
+            await Promise.all([
               table.locator("tbody").count(),
               table.locator("tbody tr").count(),
               table.locator("tbody td").count(),
               table.getAttribute("data-generated"),
-            ],
-          );
+            ]);
 
           return (
             tbodyCount > 0 ||

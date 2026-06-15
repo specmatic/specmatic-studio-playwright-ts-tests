@@ -74,8 +74,11 @@ test.describe("Validate generated spec after inlining POST request examples", ()
           SPEC,
         );
         await configPage.runBackwardCompatibilityTest();
-        const toastText = await configPage.getAlertMessageText();
-        expect(toastText).toBe("Changes are backward compatible");
+        const result = await configPage.getBackwardCompatibilityResult();
+        expect(result.title).toBe("Backward Compatibility Check Complete");
+        expect(result.failed).toBe(0);
+        expect(result.passed).toBe(result.total);
+        expect(result.total).toBeGreaterThan(0);
       });
     },
   );

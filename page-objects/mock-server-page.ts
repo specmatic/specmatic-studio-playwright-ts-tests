@@ -57,7 +57,13 @@ export class MockServerPage extends BasePage {
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
-    this.specSection = page.locator(`div[id*="${specName}"]`);
+    const filePathText = `File path: ./${specName}`;
+    this.specSection = page
+      .locator(".screen")
+      .filter({
+        has: page.locator(`.info span[data-path]:has-text("${filePathText}")`),
+      })
+      .first();
     this.runMockServerTab = this.specSection.locator('li[data-type="mock"]');
     this.openApiTabPage = new OpenAPISpecTabPage(this);
     this.mockPort = this.specSection.locator("#mockPort");

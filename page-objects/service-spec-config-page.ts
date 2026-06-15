@@ -13,6 +13,20 @@ export interface Edit {
   changeTo: string;
 }
 
+export interface BackwardCompatibilityResult {
+  failed: number;
+  message: string;
+  passed: number;
+  title: string;
+  total: number;
+}
+
+export interface BackwardCompatibilityIssueRow {
+  fieldPath: string;
+  reason: string;
+  rule: string;
+}
+
 export class ServiceSpecConfigPage extends BasePage {
   private readonly openApiTabPage: OpenAPISpecTabPage;
   readonly specTree: Locator;
@@ -49,10 +63,14 @@ export class ServiceSpecConfigPage extends BasePage {
       ? specName.split("/").pop()!
       : specName;
     this.specTree = page.locator("#spec-tree");
-    this.specSection = page.locator(
-      `xpath=//div[contains(@id,"${specFileName}") and @data-mode="spec"]`,
-    );
-    this.specBtn = page.locator('li.tab[data-type="spec"]').first();
+    const filePathText = `File path: ./${specName}`;
+    this.specSection = page
+      .locator(".screen")
+      .filter({
+        has: page.locator(`.info span[data-path]:has-text("${filePathText}")`),
+      })
+      .first();
+    this.specBtn = this.specSection.locator('li.tab[data-type="spec"]').first();
     this.editBtn = this.specSection.getByText(/Edit specmatic.yaml/i);
     this.updateTab = this.specSection
       .locator('li.tab[data-type="spec"]')
@@ -97,16 +115,6 @@ export class ServiceSpecConfigPage extends BasePage {
   async openSpecTab() {
     return test.step("Open Spec tab", async () => {
       await this.openApiTabPage.openSpecTab(this.specBtn);
-
-      const editorVisible = await this.editorContent
-        .isVisible()
-        .catch(() => false);
-
-      if (!editorVisible) {
-        await this.page.waitForTimeout(500);
-        await this.openApiTabPage.openSpecTab(this.specBtn);
-      }
-
       await expect(this.editorContent).toBeVisible({ timeout: 15000 });
     });
   }
@@ -437,6 +445,18 @@ export class ServiceSpecConfigPage extends BasePage {
     return (await this.alertMessage.locator("p").innerText()).trim();
   }
 
+  async getBackwardCompatibilityResult(): Promise<BackwardCompatibilityResult> {
+    const title = await this.getAlertTitleText();
+    const message = await this.getAlertMessageText();
+    const counts = this.parseBackwardCompatibilityCounts(message);
+
+    return {
+      title,
+      message,
+      ...counts,
+    };
+  }
+
   async dismissAlert() {
     const visibleAlert = this.page
       .locator("#alert-container .alert-msg:visible")
@@ -519,18 +539,15 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async toggleBccErrorSection(shouldExpand: boolean) {
-    // Use the content element's CSS class as the source of truth for the
-    // current expanded state. aria-expanded on the toggle button can drift
-    // out of sync with the actual visual state when scenarios run back-to-back
-    // without a page reload.
-    const classes = (await this.bccErrorContent.getAttribute("class")) ?? "";
-    const isCurrentlyExpanded = classes.includes("show");
+    const toggleButton = await this.getBccErrorToggleButton();
+    const isCurrentlyExpanded =
+      (await toggleButton.getAttribute("aria-expanded")) === "true";
 
     if (
       (shouldExpand && !isCurrentlyExpanded) ||
       (!shouldExpand && isCurrentlyExpanded)
     ) {
-      await this.bccErrorToggle.click();
+      await toggleButton.click({ force: true });
       await takeAndAttachScreenshot(
         this.page,
         "expanding-error-section",
@@ -539,20 +556,166 @@ export class ServiceSpecConfigPage extends BasePage {
     }
 
     if (shouldExpand) {
-      await expect(this.bccErrorContent).toHaveClass(/show/);
+      await expect(toggleButton).toHaveAttribute("aria-expanded", "true");
+      await expect(this.getBccIssuesPanel()).toHaveClass(/show/);
+    } else {
+      await expect(toggleButton).toHaveAttribute("aria-expanded", "false");
     }
   }
 
   async getBccErrorDetails() {
-    const errorText = await this.bccErrorContent
-      .locator(".error-item pre")
-      .allTextContents();
-    const buttonText = await this.bccErrorToggle.locator("span").innerText();
+    const errorItemSelector = [
+      ".error-item",
+      ".error-item pre",
+      ".card-body > button",
+      ".card-body > div",
+      ".card-body > *",
+    ].join(", ");
+    const buttonText = await this.getBccSummaryText();
+    const errorText = (
+      await this.bccErrorContent.locator(errorItemSelector).allInnerTexts()
+    )
+      .map((text) => text.trim())
+      .filter(
+        (text, index, items) =>
+          text.length > 0 && items.indexOf(text) === index,
+      );
 
     return {
       summary: buttonText,
-      details: errorText.map((t) => t.trim()),
+      details: errorText,
     };
+  }
+
+  async assertBccErrorNavigation(expectedLineText: string) {
+    await test.step(`Click backward compatibility error and verify navigation to '${expectedLineText}'`, async () => {
+      const summaryButton = await this.getBccErrorToggleButton();
+      const targetLine = this.editorLines
+        .filter({ hasText: expectedLineText })
+        .first();
+
+      await summaryButton.click({ force: true });
+
+      await expect(targetLine).toBeVisible({ timeout: 10000 });
+
+      await takeAndAttachScreenshot(
+        this.page,
+        "bcc-error-navigation",
+        this.eyes,
+      );
+    });
+  }
+
+  async assertBccErrorRowNavigation(
+    expectedRowText: string,
+    expectedLineText: string,
+  ) {
+    await test.step(`Expand backward compatibility summary and click row '${expectedRowText}'`, async () => {
+      await this.toggleBccErrorSection(true);
+
+      const errorRow = this.getBccIssuesTableRows()
+        .filter({ hasText: expectedRowText })
+        .first();
+      await expect(errorRow).toBeVisible({ timeout: 10000 });
+      await errorRow.click({ force: true });
+
+      const targetLine = this.editorLines
+        .filter({ hasText: expectedLineText })
+        .first();
+      await expect(targetLine).toBeVisible({ timeout: 10000 });
+
+      await takeAndAttachScreenshot(
+        this.page,
+        "bcc-error-row-navigation",
+        this.eyes,
+      );
+    });
+  }
+
+  async getBccErrorItemCount(): Promise<number> {
+    await this.toggleBccErrorSection(true);
+    return await this.getBccIssuesTableRows().count();
+  }
+
+  async assertBccIssuesTableVisible(expectedRowCount?: number) {
+    await test.step("Expand backward compatibility issues table", async () => {
+      await this.toggleBccErrorSection(true);
+
+      const table = this.getBccIssuesPanel().locator("table.rulesTable");
+      await expect(table).toBeVisible({ timeout: 10000 });
+
+      if (expectedRowCount !== undefined) {
+        await expect(this.getBccIssuesTableRows()).toHaveCount(
+          expectedRowCount,
+        );
+      }
+    });
+  }
+
+  async getBccIssueRows(): Promise<BackwardCompatibilityIssueRow[]> {
+    await this.toggleBccErrorSection(true);
+
+    return await this.getBccIssuesTableRows().evaluateAll((rows) =>
+      rows.map((row) => ({
+        rule:
+          row
+            .querySelector('[data-key="ruleId"], [data-key="rule"]')
+            ?.textContent?.trim() ?? "",
+        fieldPath:
+          row
+            .querySelector('[data-key="breadCrumb"], [data-key="field_path"]')
+            ?.textContent?.trim() ?? "",
+        reason:
+          row
+            .querySelector('[data-key="details"], [data-key="reason"]')
+            ?.textContent?.trim() ?? "",
+      })),
+    );
+  }
+
+  async assertBccIssueRowsNavigate(
+    expectedRows: Array<{
+      fieldPath?: string;
+      expectedLineText: string;
+      reason: string;
+    }>,
+  ) {
+    await this.toggleBccErrorSection(true);
+
+    for (const expectedRow of expectedRows) {
+      await test.step(`Click issue row '${expectedRow.reason}' and verify '${expectedRow.expectedLineText}'`, async () => {
+        let row = this.getBccIssuesTableRows().filter({
+          hasText: expectedRow.reason,
+        });
+
+        if (expectedRow.fieldPath) {
+          row = row.filter({ hasText: expectedRow.fieldPath });
+        }
+
+        const targetRow = row.first();
+        await expect(targetRow).toBeVisible({ timeout: 10000 });
+        const jumpIcon = targetRow.locator(".breadCrumbJumpIcon").first();
+        const hasJumpIcon = (await jumpIcon.count()) > 0;
+        const jumpTarget = hasJumpIcon
+          ? jumpIcon
+          : targetRow
+              .locator('[data-key="breadCrumb"], [data-key="field_path"]')
+              .first();
+        await expect(jumpTarget).toBeVisible({ timeout: 10000 });
+        await jumpTarget.click({ force: true });
+
+        const targetLine = this.editorLines
+          .filter({ hasText: expectedRow.expectedLineText })
+          .first();
+        await expect(targetLine).toBeVisible({ timeout: 10000 });
+      });
+    }
+
+    await takeAndAttachScreenshot(
+      this.page,
+      "bcc-multi-row-navigation",
+      this.eyes,
+    );
   }
 
   private getSpecFilePath(): string {
@@ -666,7 +829,6 @@ export class ServiceSpecConfigPage extends BasePage {
   async verifyCompatibilityScenario(scenario: {
     oldText: string;
     newText: string;
-    expectedMessage: string | RegExp;
   }) {
     await test.step(`Scenario: ${scenario.oldText} -> ${scenario.newText}`, async () => {
       if (scenario.newText === "") {
@@ -677,8 +839,10 @@ export class ServiceSpecConfigPage extends BasePage {
 
       await this.runBackwardCompatibilityTest();
 
-      const actualMessage = await this.getAlertMessageText();
-      expect(actualMessage).toContain(scenario.expectedMessage);
+      const result = await this.getBackwardCompatibilityResult();
+      expect(result.title).toBe("Backward Compatibility Check Complete");
+      expect(result.passed).toBeGreaterThan(0);
+      expect(result.total).toBe(result.failed + result.passed);
 
       await this.dismissAlert();
     });
@@ -689,8 +853,13 @@ export class ServiceSpecConfigPage extends BasePage {
       oldText: string;
       newText: string;
       lineCount: number;
-      expectedErrorCount: number;
-      expectedDetail?: string;
+      expectedDialogCounts?: {
+        failed: number;
+        passed: number;
+        total: number;
+      };
+      expectedRowText?: string;
+      expectedLineText?: string;
     },
     reload: boolean = true,
   ) {
@@ -714,34 +883,96 @@ export class ServiceSpecConfigPage extends BasePage {
 
       await this.runBackwardCompatibilityTest();
 
-      const toastText = await this.getAlertMessageText();
-      expect.soft(toastText).toContain("Backward compatibility test failed");
+      const result = await this.getBackwardCompatibilityResult();
+      expect.soft(result.title).toBe("Backward Compatibility Check Complete");
+      expect.soft(result.failed).toBeGreaterThan(0);
+      expect.soft(result.total).toBeGreaterThan(result.passed);
+
+      if (scenario.expectedDialogCounts) {
+        expect.soft(result.failed).toBe(scenario.expectedDialogCounts.failed);
+        expect.soft(result.passed).toBe(scenario.expectedDialogCounts.passed);
+        expect.soft(result.total).toBe(scenario.expectedDialogCounts.total);
+      }
+
       await this.dismissAlert();
 
       await this.toggleBccErrorSection(true);
-      const { summary, details } = await this.getBccErrorDetails();
+      expect.soft(await this.getBccErrorItemCount()).toBeGreaterThan(0);
 
-      const errorSuffix =
-        scenario.expectedErrorCount === 1 ? "error" : "errors";
-      expect
-        .soft(summary)
-        .toContain(
-          `Backward Compatibility found ${scenario.expectedErrorCount} ${errorSuffix}`,
+      if (scenario.expectedRowText && scenario.expectedLineText) {
+        await this.assertBccErrorRowNavigation(
+          scenario.expectedRowText,
+          scenario.expectedLineText,
         );
-      if (scenario.expectedDetail && scenario.expectedDetail.trim() !== "") {
-        const normalize = (value: string) =>
-          value.replace(/\s+/g, " ").trim().toLowerCase();
-        const expectedDetailNormalized = normalize(scenario.expectedDetail);
-        const hasMatch = details.some((d) =>
-          normalize(d).includes(expectedDetailNormalized),
-        );
-        expect
-          .soft(
-            hasMatch,
-            `Expected error detail not found: ${scenario.expectedDetail}`,
-          )
-          .toBe(true);
+      } else if (scenario.expectedLineText) {
+        await this.assertBccErrorNavigation(scenario.expectedLineText);
       }
     });
+  }
+
+  private parseBackwardCompatibilityCounts(message: string) {
+    const match =
+      message.match(
+        /(\d+)\s+failed,\s*(\d+)\s+passed\s+of\s+(\d+)\s+scenarios/i,
+      ) ?? message.match(/(\d+)\s+passed\s+of\s+(\d+)\s+scenarios/i);
+
+    if (!match) {
+      throw new Error(
+        `Could not parse backward compatibility result counts from: ${message}`,
+      );
+    }
+
+    if (match.length === 4) {
+      return {
+        failed: Number(match[1]),
+        passed: Number(match[2]),
+        total: Number(match[3]),
+      };
+    }
+
+    return {
+      failed: 0,
+      passed: Number(match[1]),
+      total: Number(match[2]),
+    };
+  }
+
+  private async getBccErrorToggleButton() {
+    const namedButton = this.specSection.locator(
+      "button.issues-btn, button.bcc-errors-btn",
+    );
+
+    if ((await namedButton.count()) > 0) {
+      return namedButton.first();
+    }
+
+    return this.bccErrorToggle;
+  }
+
+  private async getBccSummaryText(): Promise<string> {
+    const namedButton = this.specSection.locator(
+      "button.issues-btn .text, button.bcc-errors-btn .text, button.issues-btn, button.bcc-errors-btn",
+    );
+
+    if ((await namedButton.count()) > 0) {
+      return (await namedButton.first().innerText()).trim();
+    }
+
+    const buttonText = (await this.bccErrorToggle.innerText()).trim();
+    if (buttonText.length > 0) {
+      return buttonText;
+    }
+
+    return "";
+  }
+
+  private getBccIssuesPanel() {
+    return this.specSection
+      .locator(".issues-panel-content, .bcc-errors-content")
+      .first();
+  }
+
+  private getBccIssuesTableRows() {
+    return this.getBccIssuesPanel().locator("table.rulesTable tbody tr");
   }
 }

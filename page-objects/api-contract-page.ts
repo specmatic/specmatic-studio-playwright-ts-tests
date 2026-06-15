@@ -77,7 +77,13 @@ export class ApiContractPage extends BasePage {
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
-    this.specSection = page.locator(`div[id*="${specName}"]`);
+    const filePathText = `File path: ./${specName}`;
+    this.specSection = page
+      .locator(".screen")
+      .filter({
+        has: page.locator(`.info span[data-path]:has-text("${filePathText}")`),
+      })
+      .first();
     this.testBtn = this.specSection.locator('li[data-type="test"]');
 
     const scoped = (selector: string) => this.specSection.locator(selector);
@@ -283,6 +289,81 @@ export class ApiContractPage extends BasePage {
       } else {
         await this.page.waitForTimeout(1000);
       }
+    });
+  }
+
+  async clickRunContractTestsForExportFlow() {
+    await test.step("Run Contract Tests for export flow", async () => {
+      await expect(this._runButton).toBeVisible({ timeout: 10000 });
+      await expect(this._runButton).toBeEnabled({ timeout: 10000 });
+      await expect(this._runButton).toHaveAttribute("data-running", "false", {
+        timeout: 10000,
+      });
+
+      const totalBeforeRun = await this.getSummaryHeaderValue("total");
+
+      await this._runButton.click();
+      await takeAndAttachScreenshot(
+        this.page,
+        "clicked-run-contract-tests-export-flow",
+      );
+
+      const observedRunningState = await expect
+        .poll(this.pollDataRunning, {
+          timeout: 15000,
+          intervals: [500, 1000, 2000],
+          message: "Waiting for contract tests to enter running state",
+        })
+        .toBe("true")
+        .then(() => true)
+        .catch(() => false);
+
+      if (observedRunningState) {
+        await this.waitForTestsToCompleteExecution();
+        await takeAndAttachScreenshot(
+          this.page,
+          "contract-tests-finished-export-flow",
+          this.eyes,
+        );
+        return;
+      }
+
+      const prereqWarningShown = await this.handlePrereqErrorIfVisible();
+      if (prereqWarningShown) {
+        await takeAndAttachScreenshot(
+          this.page,
+          "contract-tests-prereq-terminal-export-flow",
+          this.eyes,
+        );
+        return;
+      }
+
+      await expect
+        .poll(
+          async () => {
+            const runState = await this._runButton.getAttribute("data-running");
+            if (runState !== "false") {
+              return false;
+            }
+
+            return await this.hasExecutionEvidenceWithoutVisibleRunning(
+              totalBeforeRun,
+            );
+          },
+          {
+            timeout: 20000,
+            intervals: [500, 1000, 2000],
+            message:
+              "Waiting for contract-test execution to reach a terminal state for export flow",
+          },
+        )
+        .toBeTruthy();
+
+      await takeAndAttachScreenshot(
+        this.page,
+        "contract-tests-terminal-export-flow",
+        this.eyes,
+      );
     });
   }
 
@@ -1505,7 +1586,7 @@ export class ApiContractPage extends BasePage {
     return statusText.innerText();
   }
 
-  async handlePrereqErrorIfVisible() {
+  async handlePrereqErrorIfVisible(): Promise<boolean> {
     console.log("Checking for prerequisite error bar...");
 
     const summary = this.getPrereqErrorSummary();
@@ -1516,7 +1597,7 @@ export class ApiContractPage extends BasePage {
       .catch(() => false);
     if (!isVisible) {
       console.log("No prerequisite error detected.");
-      return;
+      return false;
     }
 
     await takeAndAttachScreenshot(this.page, "contract-prereq-error-collapsed");
@@ -1558,6 +1639,8 @@ export class ApiContractPage extends BasePage {
         "contract-prereq-error-collapsed-after-expand",
       );
     }
+
+    return true;
   }
 
   async clickAsyncRunContractTests() {

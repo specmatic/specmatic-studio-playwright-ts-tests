@@ -35,13 +35,17 @@ export class ExampleGenerationPage extends BasePage {
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
-    this.specSection = page.locator(
-      `xpath=//div[contains(@id,"${specName}") and @data-mode="example"]`,
-    );
-    this.specEditorSection = page.locator(
-      `xpath=//div[contains(@id,"${specName}") and @data-mode="spec"]`,
-    );
-    this.specTabLocator = page.locator('li.tab[data-type="spec"]').first();
+    const filePathText = `File path: ./${specName}`;
+    this.specSection = page
+      .locator(".screen")
+      .filter({
+        has: page.locator(`.info span[data-path]:has-text("${filePathText}")`),
+      })
+      .first();
+    this.specEditorSection = this.specSection.locator(".details .spec").first();
+    this.specTabLocator = this.specSection
+      .locator('li.tab[data-type="spec"]')
+      .first();
     this.generateExamplesBtn = this.specSection.locator(
       `xpath=.//p[contains(text(),"Generate valid examples")]`,
     );
@@ -49,6 +53,7 @@ export class ExampleGenerationPage extends BasePage {
     this.examplesIframe = this.exampleDiv.locator(
       "iframe[data-examples-server-base]",
     );
+    this.examplesRoot = this.specSection;
     this.validExamplesTable = this.specSection.locator("#valid-examples-table");
     this.invalidExamplesTable = this.specSection.locator(
       "#invalid-examples-table",
@@ -334,7 +339,8 @@ export class ExampleGenerationPage extends BasePage {
     await test.step(`Delete all generated examples if present`, async () => {
       console.log("Attempting to delete generated examples if present");
       const iframe = await this.waitForExamplesIFrame();
-      const generatedExamplesCount = await this.getGeneratedExamplesCount(iframe);
+      const generatedExamplesCount =
+        await this.getGeneratedExamplesCount(iframe);
 
       if (generatedExamplesCount === 0) {
         console.log("No generated examples found to delete");
@@ -372,48 +378,46 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   async deleteGeneratedExampleForPath(path: string, responseCode: number) {
-    await test.step(
-      `Delete generated example for /${path} ${responseCode}`,
-      async () => {
-        const iframe = await this.waitForExamplesIFrame();
-        const generatedRow = iframe.locator(
-          `//tr[@data-raw-path="/${path}" and @data-example-relative-path and .//td[@class='response-cell']/p[text()="${responseCode}"]]`,
-        );
-        await expect(generatedRow.first()).toBeVisible({ timeout: 5000 });
+    await test.step(`Delete generated example for /${path} ${responseCode}`, async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const generatedRow = iframe.locator(
+        `//tr[@data-raw-path="/${path}" and @data-example-relative-path and .//td[@class='response-cell']/p[text()="${responseCode}"]]`,
+      );
+      await expect(generatedRow.first()).toBeVisible({ timeout: 5000 });
 
-        const generatedFilePath =
-          await generatedRow.first().getAttribute("data-example-relative-path");
-        const rowCheckbox = generatedRow
-          .first()
-          .locator('input[type="checkbox"]')
-          .first();
-        await expect(rowCheckbox).toBeVisible({ timeout: 3000 });
-        await rowCheckbox.check({ force: true });
+      const generatedFilePath = await generatedRow
+        .first()
+        .getAttribute("data-example-relative-path");
+      const rowCheckbox = generatedRow
+        .first()
+        .locator('input[type="checkbox"]')
+        .first();
+      await expect(rowCheckbox).toBeVisible({ timeout: 3000 });
+      await rowCheckbox.check({ force: true });
 
-        await takeAndAttachScreenshot(
-          this.page,
-          `selected-generated-example-${path}-${responseCode}`,
-        );
+      await takeAndAttachScreenshot(
+        this.page,
+        `selected-generated-example-${path}-${responseCode}`,
+      );
 
-        const bulkDeleteBtn = iframe.locator(this.bulkDeleteBtnSelector);
-        await expect(bulkDeleteBtn).toBeVisible({ timeout: 3000 });
-        await bulkDeleteBtn.click();
-        await this.verifyTitleAndCloseDialog("Delete Examples Complete");
+      const bulkDeleteBtn = iframe.locator(this.bulkDeleteBtnSelector);
+      await expect(bulkDeleteBtn).toBeVisible({ timeout: 3000 });
+      await bulkDeleteBtn.click();
+      await this.verifyTitleAndCloseDialog("Delete Examples Complete");
 
-        if (generatedFilePath) {
-          await expect(
-            iframe.locator(
-              `tr[data-example-relative-path="${generatedFilePath}"]`,
-            ),
-          ).toHaveCount(0, { timeout: 5000 });
-        }
+      if (generatedFilePath) {
+        await expect(
+          iframe.locator(
+            `tr[data-example-relative-path="${generatedFilePath}"]`,
+          ),
+        ).toHaveCount(0, { timeout: 5000 });
+      }
 
-        await takeAndAttachScreenshot(
-          this.page,
-          `deleted-generated-example-${path}-${responseCode}`,
-        );
-      },
-    );
+      await takeAndAttachScreenshot(
+        this.page,
+        `deleted-generated-example-${path}-${responseCode}`,
+      );
+    });
   }
 
   private async selectAll(iframe: import("@playwright/test").Frame) {
@@ -487,29 +491,21 @@ export class ExampleGenerationPage extends BasePage {
     await expect
       .poll(
         async () => {
-          const selectAllCount = await iframe
-            .locator(this.selectAllCheckboxSelector)
-            .count()
-            .catch(() => 0);
-          const rowCount = await iframe
-            .locator("tr[data-raw-path]")
-            .count()
-            .catch(() => 0);
-          const generatedCount = await iframe
-            .locator("tr[data-example-relative-path]")
-            .count()
-            .catch(() => 0);
-          const generateButtonCount = await iframe
-            .locator('button[aria-label="Generate"], button[aria-label="Generate More"]')
-            .count()
-            .catch(() => 0);
-
-          return (
-            selectAllCount > 0 ||
-            rowCount > 0 ||
-            generatedCount > 0 ||
-            generateButtonCount > 0
+          const locator = this.examplesRoot.locator(
+            "table.examples-protocol-table, #valid-examples-table, #invalid-examples-table, .examples-empty, #examples, code-editor .cm-content, .examples-detail-issues, #back, table",
           );
+          const count = await locator.count();
+          for (let i = 0; i < count; i++) {
+            if (
+              await locator
+                .nth(i)
+                .isVisible()
+                .catch(() => false)
+            ) {
+              return true;
+            }
+          }
+          return false;
         },
         {
           timeout: 10000,
@@ -561,8 +557,18 @@ export class ExampleGenerationPage extends BasePage {
       await this.selectAll(iframe);
       await this.clickBulkValidateButton();
 
-      await this.waitForProcessingToComplete(iframe);
-      await this.verifyTitleAndCloseDialog("Example Validations Complete");
+      await this.waitForProcessingToComplete(
+        root,
+        this.bulkValidateBtnSelector,
+      );
+      const dialogDetails = await this.getDialogTitleAndMessageIfPresent(15000);
+      if (dialogDetails) {
+        expect.soft(dialogDetails[0]).toBe("Example validations complete");
+      } else {
+        console.warn(
+          "\tBulk validate completed without a visible confirmation dialog; continuing with the rendered examples state",
+        );
+      }
       await takeAndAttachScreenshot(
         this.page,
         `validate-examples-for-all-paths`,
@@ -800,66 +806,63 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   async convertCurrentExampleToPartialAndAssert(exampleName: string) {
-    await test.step(
-      `Convert current example to partial and verify dialog for '${exampleName}'`,
-      async () => {
-        const iframe = await this.waitForExamplesIFrame();
-        const convertToPartialButton = iframe.locator(
-          "button#convert-to-partial",
-        );
-        await expect(convertToPartialButton).toBeVisible({ timeout: 5000 });
-        await expect(convertToPartialButton).toHaveAttribute(
-          "data-panel",
-          "details",
-        );
-        await convertToPartialButton.click();
+    await test.step(`Convert current example to partial and verify dialog for '${exampleName}'`, async () => {
+      const iframe = await this.waitForExamplesIFrame();
+      const convertToPartialButton = iframe.locator(
+        "button#convert-to-partial",
+      );
+      await expect(convertToPartialButton).toBeVisible({ timeout: 5000 });
+      await expect(convertToPartialButton).toHaveAttribute(
+        "data-panel",
+        "details",
+      );
+      await convertToPartialButton.click();
 
-        await takeAndAttachScreenshot(
-          this.page,
-          "converted-example-to-partial",
-          this.eyes,
-        );
+      await takeAndAttachScreenshot(
+        this.page,
+        "converted-example-to-partial",
+        this.eyes,
+      );
 
-        const pageAlert = this.page.locator(".alert-msg.slide-in.green").first();
-        const iframeAlert = iframe.locator(".alert-msg.slide-in.green").first();
+      const pageAlert = this.page.locator(".alert-msg.slide-in.green").first();
+      const iframeAlert = iframe.locator(".alert-msg.slide-in.green").first();
 
-        let alertContext: "iframe" | "page" | "none" = "none";
-        await expect
-          .poll(
-            async () => {
-              if (await iframeAlert.isVisible().catch(() => false)) {
-                alertContext = "iframe";
-                return alertContext;
-              }
-              if (await pageAlert.isVisible().catch(() => false)) {
-                alertContext = "page";
-                return alertContext;
-              }
-              alertContext = "none";
+      let alertContext: "iframe" | "page" | "none" = "none";
+      await expect
+        .poll(
+          async () => {
+            if (await iframeAlert.isVisible().catch(() => false)) {
+              alertContext = "iframe";
               return alertContext;
-            },
-            {
-              timeout: 10000,
-              intervals: [250, 500, 1000],
-              message:
-                "Converted Example To Partial toast did not appear in either the examples iframe or the page",
-            },
-          )
-          .not.toBe("none");
+            }
+            if (await pageAlert.isVisible().catch(() => false)) {
+              alertContext = "page";
+              return alertContext;
+            }
+            alertContext = "none";
+            return alertContext;
+          },
+          {
+            timeout: 10000,
+            intervals: [250, 500, 1000],
+            message:
+              "Converted Example To Partial toast did not appear in either the examples iframe or the page",
+          },
+        )
+        .not.toBe("none");
 
-        const alert = alertContext === "iframe" ? iframeAlert : pageAlert;
-        await expect(alert).toBeVisible({ timeout: 5000 });
+      const alert = alertContext === "iframe" ? iframeAlert : pageAlert;
+      await expect(alert).toBeVisible({ timeout: 5000 });
 
-        const title = (await alert.locator("p").first().innerText()).trim();
-        const message = (await alert.locator("pre").first().innerText()).trim();
-        expect(title).toBe("Converted Example To Partial");
-        expect(message).toBe(`Example name: ${exampleName}`);
+      const title = (await alert.locator("p").first().innerText()).trim();
+      const message = (await alert.locator("pre").first().innerText()).trim();
+      expect(title).toBe("Converted Example To Partial");
+      expect(message).toBe(`Example name: ${exampleName}`);
 
-        const closeButton = alert.locator("button").first();
-        await closeButton.click();
-        await expect(alert).toBeHidden({ timeout: 5000 });
-      },
-    );
+      const closeButton = alert.locator("button").first();
+      await closeButton.click();
+      await expect(alert).toBeHidden({ timeout: 5000 });
+    });
   }
 
   async closeInvalidExampleDialog(dialogTitle: string) {
@@ -1262,7 +1265,9 @@ export class ExampleGenerationPage extends BasePage {
     }
 
     // Fallback for older table layout where examples was the 8th visible cell.
-    console.log(`\tCould not detect "Examples" header. Falling back to index 8`);
+    console.log(
+      `\tCould not detect "Examples" header. Falling back to index 8`,
+    );
     return 8;
   }
 

@@ -1,4 +1,4 @@
-import { test, expect } from "../../../utils/eyesFixture";
+import { test } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY } from "../../specNames";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { Page } from "playwright/test";
@@ -7,7 +7,6 @@ const SCENARIOS = [
   {
     oldText: "summary: Create a new product",
     newText: "summary: Create product",
-    expectedMessage: "Changes are backward compatible",
   },
 ];
 
@@ -18,7 +17,7 @@ test.describe("API Specification", () => {
     async ({ page, eyes }, testInfo) => {
       const configPage = await setupConfigPage(page, testInfo, eyes);
 
-      await test.step("Remove summary field from /products endpoint and save", async () => {
+      await test.step("Run the summary-edit backward compatibility flow and verify mixed results", async () => {
         for (const scenario of SCENARIOS) {
           await configPage.verifyCompatibilityScenario(scenario);
         }
@@ -42,14 +41,4 @@ async function setupConfigPage(page: Page, testInfo: any, eyes: any) {
     await configPage.openSpecTab();
   });
   return configPage;
-}
-
-async function assertDialog(configPage: ServiceSpecConfigPage, page: Page) {
-  await test.step("Should confirm removal of summary is backward compatible", async () => {
-    await configPage.runBackwardCompatibilityTest();
-    const toastText = await configPage.getAlertMessageText();
-    expect(toastText).toBe("Changes are backward compatible");
-    await configPage.dismissAlert();
-    await expect(page.locator("#alert-container")).toBeEmpty();
-  });
 }
