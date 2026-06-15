@@ -167,6 +167,7 @@ jobs:
           APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
           GROUP_NAME: ${{ matrix.group.group_name }}
           ORCHESTRATOR_DISABLE_VISUAL: ${{ inputs.orchestrator_disable_visual }}
+          SPECMATIC_PRELOADED_DOCKER_IMAGE: ${{ needs.prepare-specmatic-docker-image.result == 'success' && 'true' || 'false' }}
         run: |
           mkdir -p playwright-report
           mkdir -p studio-logs

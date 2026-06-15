@@ -3,7 +3,12 @@ REM Start the docker containers defined in the docker-compose.yaml with a unique
 
 FOR %%I IN ("%CD%") DO SET REPO_NAME=%%~nxI
 
-docker-compose -p %REPO_NAME% -f specmatic-studio-demo\docker-compose.yaml pull
+IF /I "%SPECMATIC_PRELOADED_DOCKER_IMAGE%"=="true" (
+    echo Using preloaded Specmatic Studio image; pulling only non-studio services
+    docker-compose -p %REPO_NAME% -f specmatic-studio-demo\docker-compose.yaml pull order-bff order-api inventory-api
+) ELSE (
+    docker-compose -p %REPO_NAME% -f specmatic-studio-demo\docker-compose.yaml pull
+)
 docker-compose -p %REPO_NAME% -f specmatic-studio-demo\docker-compose.yaml up -d
 
 REM Wait until required endpoints are accessible

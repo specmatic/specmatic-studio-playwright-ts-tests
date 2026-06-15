@@ -13,7 +13,12 @@ for cname in studio order-bff order-api inventory-api; do
 	fi
 done
 
-docker compose -p "$REPO_NAME" -f specmatic-studio-demo/docker-compose.yaml pull
+if [ "${SPECMATIC_PRELOADED_DOCKER_IMAGE:-false}" = "true" ]; then
+	echo "Using preloaded Specmatic Studio image; pulling only non-studio services"
+	docker compose -p "$REPO_NAME" -f specmatic-studio-demo/docker-compose.yaml pull order-bff order-api inventory-api
+else
+	docker compose -p "$REPO_NAME" -f specmatic-studio-demo/docker-compose.yaml pull
+fi
 docker compose -p "$REPO_NAME" -f specmatic-studio-demo/docker-compose.yaml up -d
 
 # Wait until required endpoints are accessible
