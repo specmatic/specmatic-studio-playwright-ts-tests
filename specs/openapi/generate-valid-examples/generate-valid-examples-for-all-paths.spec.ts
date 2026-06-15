@@ -41,12 +41,12 @@ test.describe("Example Generation", () => {
         await examplePage.generateAllExamples();
         const [actualTitle, actualMessage] =
           await examplePage.getDialogTitleAndMessage();
-        expect.soft(actualTitle).toBe("Example Generations Complete");
+        expect.soft(actualTitle).toBe("Example generations complete");
         expect
           .soft(actualMessage)
-          .toBe(`${expectedNumberOfExamples} new examples`);
+          .toBe(`${expectedNumberOfExamples} new example(s) generated`);
         await examplePage.closeExamplesGenerationCompletedDialog(
-          "Example Generations Complete",
+          "Example generations complete",
         );
       });
 

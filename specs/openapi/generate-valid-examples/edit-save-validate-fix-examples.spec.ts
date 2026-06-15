@@ -9,9 +9,11 @@ import { Eyes } from "@applitools/eyes-playwright";
 test.describe("Edit, save, validate and fix examples", () => {
   test(
     `Edit, save and validate examples for 'products' path of the '${PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_AND_FIX}' for response codes 200`,
-    { tag: ["@examples", "@editSaveAndValidate", "@eyes"] },
+    {
+      tag: ["@examples", "@editSaveAndValidate", "@eyes", "@expected-failure"],
+    },
     async ({ page, eyes }, testInfo) => {
-      console.log(`Starting test: ${testInfo.title}`);
+      test.fail(true, "Error count failure");
       const examplePage = new ExampleGenerationPage(
         page,
         testInfo,

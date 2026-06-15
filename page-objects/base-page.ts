@@ -98,7 +98,8 @@ export class BasePage {
       const isTab =
         role === "tab" ||
         dataType === "spec" ||
-        dataType === "example-generation";
+        dataType === "example-generation" ||
+        dataType === "example";
 
       if (isTab) {
         if (dataActive !== "true") {
@@ -182,9 +183,17 @@ export class BasePage {
       .poll(
         async () => {
           for (const selector of selectors) {
-            const locator = this.page.locator(selector).first();
-            if (await locator.isVisible().catch(() => false)) {
-              return true;
+            const locator = this.page.locator(selector);
+            const count = await locator.count();
+            for (let i = 0; i < count; i++) {
+              if (
+                await locator
+                  .nth(i)
+                  .isVisible()
+                  .catch(() => false)
+              ) {
+                return true;
+              }
             }
           }
           return false;

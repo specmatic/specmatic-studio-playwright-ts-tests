@@ -59,9 +59,6 @@ export class ServiceSpecConfigPage extends BasePage {
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
-    const specFileName = specName.includes("/")
-      ? specName.split("/").pop()!
-      : specName;
     this.specTree = page.locator("#spec-tree");
     const filePathText = `File path: ./${specName}`;
     this.specSection = page
@@ -82,13 +79,15 @@ export class ServiceSpecConfigPage extends BasePage {
     this.editorContent = this.specSection.locator(".cm-content").first();
     this.editorScroller = this.specSection.locator(".cm-scroller").first();
     this.editorLines = this.specSection.locator(".cm-content .cm-line");
-    this.contractTestTab = page.locator('li.tab[data-type="test"]').first();
+    this.contractTestTab = this.specSection
+      .locator('li.tab[data-type="test"]')
+      .first();
     this.alertMsg = page.locator(".alert-msg p");
     this.validationErrorBtn = page
-      .locator(`[id*="${specFileName}"]`)
+      .locator(`[id*="${specName}"]`)
       .locator("button.bcc-errors-btn");
     this.errorContent = page
-      .locator(`[id*="${specFileName}"]`)
+      .locator(`[id*="${specName}"]`)
       .locator(".bcc-errors-content");
 
     this.bccTestButton = this.specSection.locator("#bcc-test-btn");
