@@ -227,7 +227,13 @@ export class ExampleGenerationPage extends BasePage {
         const text = (await cell.textContent())?.trim();
         if (text) codes.push(text);
       }
-      const pathText = (await row.locator("td span").first().textContent().catch(() => ""))?.trim();
+      const pathText = (
+        await row
+          .locator("td span")
+          .first()
+          .textContent()
+          .catch(() => "")
+      )?.trim();
       debugRows.push({ key, examplePath, pathText, codes });
     }
     console.error(
