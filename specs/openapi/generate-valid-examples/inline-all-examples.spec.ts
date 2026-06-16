@@ -9,7 +9,6 @@ import {
 const SPEC = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL;
 
 test.describe("Inline examples", () => {
-  test.fail(true, "Inline dialog missing after successful inline");
   test(
     `Inline all examples for '${PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL}'`,
     {

@@ -21,7 +21,6 @@ const POST_PATHS_AND_CODES = [
 ];
 
 test.describe("Validate generated spec after inlining POST request examples", () => {
-  test.fail(true, "Inline dialog missing after successful inline");
   test(
     "POST multiple paths, multiple response codes - Generate, validate, inline and verify updated spec",
     {
