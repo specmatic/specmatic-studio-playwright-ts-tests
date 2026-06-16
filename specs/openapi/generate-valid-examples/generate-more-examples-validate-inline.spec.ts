@@ -19,6 +19,7 @@ const PATHS_AND_CODES = [
 ];
 
 test.describe("Validate generated spec after inlining GET examples", () => {
+  test.fail(true, "Inline dialog missing after successful inline");
   test(
     "Multiple paths, multiple response codes - Generate, validate, inline and verify updated spec",
     {
@@ -27,6 +28,7 @@ test.describe("Validate generated spec after inlining GET examples", () => {
         "@inlineExamples",
         "@validateInlinedExamplesForMultiplePaths",
         "@eyes",
+        "@expected-failure",
       ],
     },
     async ({ page, eyes }, testInfo) => {
