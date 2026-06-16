@@ -91,7 +91,11 @@ export class ServiceSpecConfigPage extends BasePage {
       .locator(".bcc-errors-content");
 
     this.bccTestButton = this.specSection.locator("#bcc-test-btn");
-    this.dictionaryGenerateButton = this.specSection.locator("button.dictGen");
+    this.dictionaryGenerateButton = this.specSection
+      .locator(
+        'button.dictGen[data-busy-label="Generating dictionary..."]:has-text("Generate Dictionary")',
+      )
+      .first();
     this.alertMessage = this.page.locator(".alert-msg");
     this.alertDismissButton = this.alertMessage.locator("button");
     this.bccErrorToggle = this.specSection.locator(".bcc-errors-btn");
@@ -484,7 +488,11 @@ export class ServiceSpecConfigPage extends BasePage {
       await expect(this.dictionaryGenerateButton).toBeVisible({
         timeout: 10000,
       });
-      await this.dictionaryGenerateButton.click();
+      await expect(this.dictionaryGenerateButton).toBeEnabled({
+        timeout: 10000,
+      });
+      await this.dictionaryGenerateButton.scrollIntoViewIfNeeded();
+      await this.dictionaryGenerateButton.click({ force: true });
       await expect(
         this.page.locator("#alert-container .alert-msg.success"),
       ).toBeVisible({

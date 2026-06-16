@@ -10,10 +10,6 @@ test.describe("API Specification — Backward Incompatibility Multi Row", () => 
       tag: ["@spec", "@bccIncompatibleMultiRow", "@eyes", "@expected-failure"],
     },
     async ({ page, eyes }, testInfo) => {
-      test.fail(
-        true,
-        "Bug in BCC when a optional parameter is marked as required in the query param",
-      );
       const configPage = await setupConfigPage(page, testInfo, eyes);
 
       await test.step("Open the spec editor", async () => {

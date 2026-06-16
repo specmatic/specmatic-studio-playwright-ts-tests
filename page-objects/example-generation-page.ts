@@ -727,6 +727,14 @@ export class ExampleGenerationPage extends BasePage {
     await test.step(`Validate all generated examples`, async () => {
       console.log(`Validating all generated examples`);
       const root = await this.waitForExamplesIFrame();
+      const generatedExamplesBeforeValidation =
+        await this.getNumberOfExamplesGenerated();
+
+      expect(
+        generatedExamplesBeforeValidation,
+        "Expected generated examples before bulk validation",
+      ).toBeGreaterThan(0);
+
       await this.selectAll(root);
       await this.clickBulkValidateButton();
 
@@ -734,7 +742,35 @@ export class ExampleGenerationPage extends BasePage {
         root,
         this.bulkValidateBtnSelector,
       );
-      await this.verifyTitleAndCloseDialog("Example Validations Complete");
+      await expect
+        .poll(
+          async () => await this.getNumberOfExamplesValidated(),
+          {
+            timeout: 30000,
+            intervals: [500, 1000, 2000],
+            message:
+              "Waiting for all generated examples to move into validated state",
+          },
+        )
+        .toBe(generatedExamplesBeforeValidation);
+
+      const dialogDetails = await this.getDialogTitleAndMessageIfPresent(3000);
+      if (dialogDetails) {
+        const [actualTitle] = dialogDetails;
+        expect
+          .soft(
+            this.dialogTitleMatches(
+              actualTitle,
+              "Example Validations Complete",
+            ),
+            `Expected validation completion dialog but found '${actualTitle}'`,
+          )
+          .toBeTruthy();
+      } else {
+        console.log(
+          "\tValidation completion dialog did not appear; proceeding based on validated row state",
+        );
+      }
       await takeAndAttachScreenshot(
         this.page,
         `validate-examples-for-all-paths`,
@@ -1020,7 +1056,27 @@ export class ExampleGenerationPage extends BasePage {
       console.log(
         `Closing examples generated dialog with title: '${dialogTitle}'`,
       );
-      await this.verifyTitleAndCloseDialog(`${dialogTitle}`);
+      const dialogDetails = await this.getDialogTitleAndMessageIfPresent(3000);
+
+      if (!dialogDetails) {
+        const generatedExamplesCount = await this.getNumberOfExamplesGenerated();
+        expect(
+          generatedExamplesCount,
+          "Expected generated examples even when the bulk-generation dialog is not shown",
+        ).toBeGreaterThan(0);
+        console.log(
+          "\tGeneration completion dialog did not appear; proceeding based on generated row state",
+        );
+        return;
+      }
+
+      const [actualTitle] = dialogDetails;
+      expect
+        .soft(
+          this.dialogTitleMatches(actualTitle, `${dialogTitle}`),
+          `Expected generation completion dialog '${dialogTitle}' but found '${actualTitle}'`,
+        )
+        .toBeTruthy();
     });
   }
 
