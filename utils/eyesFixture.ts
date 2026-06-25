@@ -114,7 +114,7 @@ export const test = base.extend<{ eyes: Eyes }>({
     config.setBatch(Batch);
     config.setAppName("Specmatic Studio");
     config.setForceFullPageScreenshot(true);
-    const disableEyes = !(ENABLE_VISUAL && hasEyesTag);
+    const disableEyes = ENABLE_VISUAL && hasEyesTag;
     console.log(
       `\t[Applitools] Test '${testInfo.title}' - Eyes enabled: ${!disableEyes} because ENABLE_VISUAL=${ENABLE_VISUAL} and hasEyesTag=${hasEyesTag}`,
     );
