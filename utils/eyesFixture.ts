@@ -160,18 +160,17 @@ export const test = base.extend<{ eyes: Eyes }>({
       console.log(`Test '${testInfo.title}' - Eyes results:`, results);
       if (!disableEyes) {
         const validation = getEyesValidationSummary(results);
-        await test.step(
-          `Applitools validation: ${validation.passed ? "passed" : "failed"}`,
-          async () => {
-            console.log(
-              `[Applitools] '${testInfo.title}' validation summary: ${validation.message}`,
-            );
-            expect.soft(
+        await test.step(`Applitools validation: ${validation.passed ? "passed" : "failed"}`, async () => {
+          console.log(
+            `[Applitools] '${testInfo.title}' validation summary: ${validation.message}`,
+          );
+          expect
+            .soft(
               validation.passed,
               `[Applitools] '${testInfo.title}' did not pass visual criteria. ${validation.message}`,
-            ).toBeTruthy();
-          },
-        );
+            )
+            .toBeTruthy();
+        });
       }
     } catch (error) {
       console.error("Error closing Eyes:", error);

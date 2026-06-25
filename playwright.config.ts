@@ -29,8 +29,9 @@ if (isOrchestrator) {
 
 const disableVisual = isTrue(process.env.ORCHESTRATOR_DISABLE_VISUAL ?? "true");
 const isStandardCI = isCI && !isOrchestrator;
+// Temporary override for a one-off CI visual validation run.
 process.env.ENABLE_VISUAL = isStandardCI
-  ? "false"
+  ? "true"
   : disableVisual
     ? "false"
     : process.env.ENABLE_VISUAL || "true";
