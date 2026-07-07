@@ -26,9 +26,10 @@ test.describe("API Specification Management", () => {
   test(
     "Record New API Specification via Proxy for Valid and Invalid Numbers",
     {
-      tag: ["@proxy", "@recordNewSpec", "@eyes"],
+      tag: ["@proxy", "@recordNewSpec", "@eyes", "@expected-failure"],
     },
     async ({ page, eyes }, testInfo) => {
+      test.fail(true, "File watcher issue");
       test.setTimeout(300000);
       const validSteps = new RecordValidNumberSteps(page, testInfo, eyes);
 
