@@ -30,6 +30,7 @@ export class ExampleGenerationPage extends BasePage {
   private readonly specSection: Locator;
   private readonly specEditorSection: Locator;
   private readonly specTabLocator: Locator;
+  private readonly editorViewToggleButton: Locator;
   private readonly specEditorHelper: SpecEditorPage;
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
@@ -45,6 +46,9 @@ export class ExampleGenerationPage extends BasePage {
     this.specEditorSection = this.specSection.locator(".details .spec").first();
     this.specTabLocator = this.specSection
       .locator('li.tab[data-type="spec"]')
+      .first();
+    this.editorViewToggleButton = this.specSection
+      .locator("#editor-view-toggle-btn")
       .first();
     this.generateExamplesBtn = this.specSection.locator(
       'li.tab[data-type="example"]',
@@ -1467,8 +1471,43 @@ export class ExampleGenerationPage extends BasePage {
     await test.step(`Open Spec tab for current spec`, async () => {
       console.log(`Opening Spec tab`);
       await this.openApiTabPage.openSpecTab(this.specTabLocator);
+      await this.ensureEditorViewIfTogglePresent();
       await takeAndAttachScreenshot(this.page, `spec-tab-opened`);
     });
+  }
+
+  private async ensureEditorViewIfTogglePresent() {
+    const editorVisible = await this.specEditorSection
+      .locator(".cm-content")
+      .first()
+      .isVisible()
+      .catch(() => false);
+    if (editorVisible) {
+      return;
+    }
+
+    const toggleVisible = await this.editorViewToggleButton
+      .isVisible()
+      .catch(() => false);
+    if (!toggleVisible) {
+      return;
+    }
+
+    const togglePressed =
+      (await this.editorViewToggleButton.getAttribute("aria-pressed")) ===
+      "true";
+    if (!togglePressed) {
+      await this.editorViewToggleButton.click({ force: true });
+      await takeAndAttachScreenshot(
+        this.page,
+        "switched-example-spec-tab-to-editor-view",
+        this.eyes,
+      );
+    }
+
+    await expect(
+      this.specEditorSection.locator(".cm-content").first(),
+    ).toBeVisible({ timeout: 15000 });
   }
 
   async verifyInlinedExamplesInSpec(expectedExamples: string[]) {
@@ -1565,6 +1604,8 @@ export class ExampleGenerationPage extends BasePage {
     frame?: Frame;
   }> {
     for (let attempt = 1; attempt <= 24; attempt++) {
+      await this.ensureEditorViewIfTogglePresent();
+
       const specIframe = this.specEditorSection.locator("iframe").first();
       if ((await specIframe.count()) > 0) {
         const iframeElement = await specIframe.elementHandle();
