@@ -164,7 +164,16 @@ export class BasePage {
 
     if (dataType === "spec") {
       await this.waitForAnyVisible(
-        [".cm-content", ".cm-editor", ".CodeMirror", "textarea"],
+        [
+          ".cm-content",
+          ".cm-editor",
+          ".CodeMirror",
+          "textarea",
+          "#editor-view-toggle-btn",
+          ".editor-view-toggle",
+          ".swagger-ui",
+          ".swagger-container",
+        ],
         timeout,
       );
       return;

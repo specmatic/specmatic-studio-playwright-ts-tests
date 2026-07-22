@@ -55,6 +55,7 @@ export class ServiceSpecConfigPage extends BasePage {
   readonly alertContainer: Locator;
   readonly alertTitle: Locator;
   readonly alertDescription: Locator;
+  private readonly editorViewToggleButton: Locator;
   private readonly specEditorHelper: SpecEditorPage;
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
@@ -112,14 +113,46 @@ export class ServiceSpecConfigPage extends BasePage {
     this.alertContainer = page.locator(".alert-msg.error");
     this.alertTitle = this.alertContainer.locator("p");
     this.alertDescription = this.alertContainer.locator("pre");
+    this.editorViewToggleButton = this.specSection
+      .locator("#editor-view-toggle-btn")
+      .first();
     this.specEditorHelper = new SpecEditorPage(page);
   }
 
   async openSpecTab() {
     return test.step("Open Spec tab", async () => {
       await this.openApiTabPage.openSpecTab(this.specBtn);
+      await this.ensureEditorViewIfTogglePresent();
       await expect(this.editorContent).toBeVisible({ timeout: 15000 });
     });
+  }
+
+  private async ensureEditorViewIfTogglePresent() {
+    const editorVisible = await this.editorContent.isVisible().catch(() => false);
+    if (editorVisible) {
+      return;
+    }
+
+    const toggleVisible = await this.editorViewToggleButton
+      .isVisible()
+      .catch(() => false);
+    if (!toggleVisible) {
+      return;
+    }
+
+    const togglePressed =
+      (await this.editorViewToggleButton.getAttribute("aria-pressed")) ===
+      "true";
+    if (!togglePressed) {
+      await this.editorViewToggleButton.click({ force: true });
+      await takeAndAttachScreenshot(
+        this.page,
+        "switched-spec-tab-to-editor-view",
+        this.eyes,
+      );
+    }
+
+    await expect(this.editorContent).toBeVisible({ timeout: 15000 });
   }
   async openContractTestTab() {
     await test.step(`Open Contract Test tab`, async () => {
