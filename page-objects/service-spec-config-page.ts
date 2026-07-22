@@ -580,8 +580,12 @@ export class ServiceSpecConfigPage extends BasePage {
 
   async toggleBccErrorSection(shouldExpand: boolean) {
     const toggleButton = await this.getBccErrorToggleButton();
-    const isCurrentlyExpanded =
-      (await toggleButton.getAttribute("aria-expanded")) === "true";
+    const panel = this.getBccIssuesPanel();
+    const getPanelExpandedState = async () => {
+      const classes = (await panel.getAttribute("class")) ?? "";
+      return classes.includes("show");
+    };
+    const isCurrentlyExpanded = await getPanelExpandedState();
 
     if (
       (shouldExpand && !isCurrentlyExpanded) ||
@@ -596,10 +600,22 @@ export class ServiceSpecConfigPage extends BasePage {
     }
 
     if (shouldExpand) {
-      await expect(toggleButton).toHaveAttribute("aria-expanded", "true");
-      await expect(this.getBccIssuesPanel()).toHaveClass(/show/);
+      await expect
+        .poll(getPanelExpandedState, {
+          timeout: 5000,
+          intervals: [200, 400, 800],
+          message: "Waiting for backward compatibility issues panel to expand",
+        })
+        .toBe(true);
+      await expect(panel).toHaveClass(/show/);
     } else {
-      await expect(toggleButton).toHaveAttribute("aria-expanded", "false");
+      await expect
+        .poll(getPanelExpandedState, {
+          timeout: 5000,
+          intervals: [200, 400, 800],
+          message: "Waiting for backward compatibility issues panel to collapse",
+        })
+        .toBe(false);
     }
   }
 
