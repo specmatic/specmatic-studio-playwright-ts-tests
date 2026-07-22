@@ -128,6 +128,7 @@ async function verifyFilterTooltipAndCoverageStability({
   await test.step(`Run contract tests again with ${filterType} filter active and verify coverage`, async () => {
     await contractPage.clickRunContractTests();
     await verifyRightSidebarStatus(contractPage, "Done", specName);
+    await contractPage.page.waitForTimeout(3000);
 
     const coverageAfterFilteredRun =
       await contractPage.getCoverageHeaderPercentage();
