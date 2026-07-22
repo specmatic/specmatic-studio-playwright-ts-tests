@@ -43,11 +43,6 @@ const MIXED_SCENARIO_GROUPS: ScenarioGroup[] = [
         isCompatible: false,
         expectedLineText: "requestBody:",
       },
-    ],
-  },
-  {
-    groupName: "Making optional Parameter Required",
-    scenarios: [
       {
         name: "Change optional parameter to required",
         originalText: "        required: false",

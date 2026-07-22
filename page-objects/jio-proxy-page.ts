@@ -93,7 +93,7 @@ export class JioAppInProxyPage extends BasePage {
   ) {
     await this.enterMobileNumberAndProceedAndWaitForText(
       mobileNumber,
-      "Top Trending True 5G Unlimited Plans",
+      "Top Trending Plans (16)",
       withVisualValidation,
     );
   }
@@ -136,7 +136,10 @@ export class JioAppInProxyPage extends BasePage {
   async assertInvalidNumberMessageVisible(
     withVisualValidation = false,
   ): Promise<void> {
-    await this.invalidNumberMessage.waitFor({ state: "visible", timeout: 15000 });
+    await this.invalidNumberMessage.waitFor({
+      state: "visible",
+      timeout: 15000,
+    });
     await takeAndAttachScreenshot(
       this.page,
       "invalid-number-message-visible",
