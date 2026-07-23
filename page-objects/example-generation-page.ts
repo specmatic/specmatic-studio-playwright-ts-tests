@@ -275,10 +275,10 @@ export class ExampleGenerationPage extends BasePage {
       root,
       endpoint,
       responseCode,
-      ".examples-example-name",
+      "inline-filename-rename",
       true,
     );
-    const fileNameSpan = row.locator(".examples-example-name").first();
+    const fileNameSpan = row.locator(".ifr__filename").first();
     await expect(fileNameSpan).toBeVisible({ timeout: 4000 });
     const fileNameText = (await fileNameSpan.textContent())?.trim();
     expect(fileNameText).not.toBe("");
@@ -513,7 +513,7 @@ export class ExampleGenerationPage extends BasePage {
       const generatedFileName = (
         await generatedRow
           .first()
-          .locator(".examples-example-name")
+          .locator("inline-filename-rename .ifr__filename")
           .textContent()
       )?.trim();
       const rowCheckbox = generatedRow
@@ -536,7 +536,7 @@ export class ExampleGenerationPage extends BasePage {
       if (generatedFileName) {
         await expect(
           this.getRowForPathAndResponse(root, path, responseCode).locator(
-            ".examples-example-name",
+            "inline-filename-rename",
           ),
         ).toHaveCount(0, { timeout: 5000 });
       }
@@ -1409,7 +1409,7 @@ export class ExampleGenerationPage extends BasePage {
 
     for (let i = 0; i < count; i++) {
       const filePath = (
-        await rows.nth(i).locator(".examples-example-name").textContent()
+        await rows.nth(i).locator("inline-filename-rename .ifr__filename").textContent()
       )?.trim();
       if (filePath) filePaths.push(filePath);
     }
@@ -1433,7 +1433,7 @@ export class ExampleGenerationPage extends BasePage {
 
         let extractedName = "";
         if ((await exampleCell.count()) > 0) {
-          extractedName = ((await exampleCell.innerText()) ?? "").trim();
+          extractedName = (await exampleCell.locator("inline-filename-rename .ifr__filename").first().textContent() ?? "").trim();
         }
 
         if (extractedName) {
