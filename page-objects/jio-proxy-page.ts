@@ -93,7 +93,7 @@ export class JioAppInProxyPage extends BasePage {
   ) {
     await this.enterMobileNumberAndProceedAndWaitForText(
       mobileNumber,
-      "Top Trending Plans (16)",
+      "Popular plans",
       withVisualValidation,
     );
   }
