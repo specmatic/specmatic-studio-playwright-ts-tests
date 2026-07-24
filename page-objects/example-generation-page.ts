@@ -275,10 +275,10 @@ export class ExampleGenerationPage extends BasePage {
       root,
       endpoint,
       responseCode,
-      ".examples-example-name",
+      "inline-filename-rename",
       true,
     );
-    const fileNameSpan = row.locator(".examples-example-name").first();
+    const fileNameSpan = row.locator(".ifr__filename").first();
     await expect(fileNameSpan).toBeVisible({ timeout: 4000 });
     const fileNameText = (await fileNameSpan.textContent())?.trim();
     expect(fileNameText).not.toBe("");
@@ -513,7 +513,7 @@ export class ExampleGenerationPage extends BasePage {
       const generatedFileName = (
         await generatedRow
           .first()
-          .locator(".examples-example-name")
+          .locator("inline-filename-rename .ifr__filename")
           .textContent()
       )?.trim();
       const rowCheckbox = generatedRow
@@ -536,7 +536,7 @@ export class ExampleGenerationPage extends BasePage {
       if (generatedFileName) {
         await expect(
           this.getRowForPathAndResponse(root, path, responseCode).locator(
-            ".examples-example-name",
+            "inline-filename-rename",
           ),
         ).toHaveCount(0, { timeout: 5000 });
       }
@@ -1403,24 +1403,73 @@ export class ExampleGenerationPage extends BasePage {
 
   async getExampleFilesForEndpoint(rawPath: string): Promise<string[]> {
     const root = await this.waitForExamplesIFrame();
-    const rows = root.locator(`tr[data-key^="/${rawPath}_"]`);
-    const count = await rows.count();
-    const filePaths: string[] = [];
+    const fileNames = root.locator(`tr[data-key^="/${rawPath}_"] inline-filename-rename .ifr__filename`);
+    return fileNames.evaluateAll((elements) =>
+        elements
+          .map((element) => element.textContent?.trim())
+          .filter((fileName): fileName is string => Boolean(fileName)),
+    );
+  }
 
-    for (let i = 0; i < count; i++) {
-      const filePath = (
-        await rows.nth(i).locator(".examples-example-name").textContent()
-      )?.trim();
-      if (filePath) filePaths.push(filePath);
-    }
-    return filePaths;
+  async renameGeneratedExample(
+    path: string,
+    responseCode: number,
+    newFileName: string,
+    preferLatest = false,
+  ): Promise<void> {
+    await test.step(`Rename generated example to '${newFileName}'`, async () => {
+      const root = await this.waitForExamplesIFrame();
+      const row = await this.getRowWithVisibleControl(
+        root,
+        path,
+        responseCode,
+        "inline-filename-rename",
+        preferLatest,
+      );
+
+      const renameControl = row.locator("inline-filename-rename").first();
+      const currentFileName = (await renameControl.locator(".ifr__filename").textContent())?.trim();
+      const extension = currentFileName?.includes(".")
+        ? currentFileName.slice(currentFileName.lastIndexOf("."))
+        : "";
+
+      const newBaseName = extension && newFileName.endsWith(extension)
+        ? newFileName.slice(0, -extension.length)
+        : newFileName;
+
+      await renameControl.locator(".ifr__action").click();
+      const input = renameControl.locator(".ifr__input--basename");
+      await expect(input).toBeVisible({ timeout: 3000 });
+      await input.fill(newBaseName);
+      await input.press("Enter");
+
+      await expect.poll(() => renameControl.getAttribute("aria-busy"), { timeout: 10000 }).toBeNull();
+    });
+  }
+
+  async getRenameError(
+    path: string,
+    responseCode: number,
+    preferLatest = false,
+  ): Promise<string> {
+    const root = await this.waitForExamplesIFrame();
+    const row = await this.getRowWithVisibleControl(
+      root,
+      path,
+      responseCode,
+      "inline-filename-rename",
+      preferLatest,
+    );
+
+    const error = row.locator("inline-filename-rename .ifr__error").first();
+    await expect(error).toBeVisible({ timeout: 5000 });
+    return (await error.innerText()).trim();
   }
 
   async getGeneratedExampleNames(): Promise<string[]> {
     return await test.step(`Get generated example names`, async () => {
       console.log(`Getting generated example names from Examples tab`);
       const root = await this.waitForExamplesIFrame();
-      const exampleColumnIndex = await this.getExamplesColumnIndex(root);
       const exampleRows = await root
         .locator('tr[data-generate="success"]')
         .all();
@@ -1428,12 +1477,12 @@ export class ExampleGenerationPage extends BasePage {
       const examples: string[] = [];
       for (const row of exampleRows) {
         const exampleCell = row
-          .locator(`td:nth-child(${exampleColumnIndex})`)
+          .locator(`td.examples-name-cell`)
           .first();
 
         let extractedName = "";
         if ((await exampleCell.count()) > 0) {
-          extractedName = ((await exampleCell.innerText()) ?? "").trim();
+          extractedName = (await exampleCell.locator("inline-filename-rename .ifr__filename").first().textContent() ?? "").trim();
         }
 
         if (extractedName) {
@@ -1445,26 +1494,6 @@ export class ExampleGenerationPage extends BasePage {
       await takeAndAttachScreenshot(this.page, `generated-example-names`);
       return examples;
     });
-  }
-
-  private async getExamplesColumnIndex(root: Locator): Promise<number> {
-    const headers = root.locator("table thead tr th");
-    const count = await headers.count();
-
-    for (let i = 0; i < count; i++) {
-      const text = ((await headers.nth(i).innerText()) ?? "").trim();
-      if (text.toLowerCase() === "examples") {
-        const index = i + 1;
-        console.log(`\tDetected "Examples" column index: ${index}`);
-        return index;
-      }
-    }
-
-    // Fallback for older table layout where examples was the 8th visible cell.
-    console.log(
-      `\tCould not detect "Examples" header. Falling back to index 8`,
-    );
-    return 8;
   }
 
   async openSpecTabForCurrentSpec() {
@@ -1515,22 +1544,22 @@ export class ExampleGenerationPage extends BasePage {
       const specContent = this.readSpecFile();
 
       for (const name of expectedExamples) {
-        if (!specContent.includes(name)) {
+        const exampleKey = this.getInlineExampleKey(name);
+        const filenamePresent = specContent.includes(name);
+        const keyPresent = specContent.includes(`${exampleKey}:`);
+
+        if (!(filenamePresent || keyPresent)) {
           console.error(`\t FAILED: '${name}' not found in spec file`);
           await takeAndAttachScreenshot(this.page, `failed-to-find-${name}`);
           throw new Error(
             `Example '${name}' not found in spec file '${this.specName}'`,
           );
-        } else {
-          console.log(`\t ✓ Verified: ${name} is inlined`);
         }
+
+        console.log(`\t ✓ Verified: ${name} is inlined`);
       }
 
       await takeAndAttachScreenshot(this.page, `verified-inlined-examples`);
-
-      if (expectedExamples.length > 0) {
-        await this.showVisualEvidenceInEditor(expectedExamples);
-      }
     });
   }
 
@@ -1546,96 +1575,9 @@ export class ExampleGenerationPage extends BasePage {
     return fs.readFileSync(specFilePath, "utf-8");
   }
 
-  private async showVisualEvidenceInEditor(examples: string[]) {
-    await test.step(`Capture visual evidence in editor`, async () => {
-      const editorContext = await this.getSpecEditorContext();
-      await expect(editorContext.content).toBeVisible({ timeout: 15000 });
-      await editorContext.content.click();
-
-      await this.specEditorHelper.loadFullEditorDocument(
-        editorContext.scroller,
-      );
-      await editorContext.scroller.evaluate((el) => {
-        el.scrollTop = 0;
-      });
-      await this.page.waitForTimeout(250);
-
-      for (const exampleName of examples) {
-        const foundByEditorApi =
-          await this.specEditorHelper.focusTermUsingCodeMirrorApi(
-            editorContext.content,
-            exampleName,
-          );
-        const foundByWindowFind = foundByEditorApi
-          ? true
-          : await this.findTermUsingWindowFind(
-              editorContext.frame,
-              exampleName,
-            );
-
-        if (!foundByWindowFind) {
-          await this.specEditorHelper.scrollEditorToFindTerm(
-            editorContext.content,
-            editorContext.scroller,
-            editorContext.lines,
-            exampleName,
-          );
-
-          const match = editorContext.lines
-            .filter({ hasText: exampleName })
-            .first();
-          if ((await match.count()) > 0) {
-            await match.scrollIntoViewIfNeeded();
-            await match.click();
-          }
-        }
-
-        await this.page.waitForTimeout(250);
-
-        await takeAndAttachScreenshot(this.page, `visual-${exampleName}`);
-      }
-    });
-  }
-
-  private async getSpecEditorContext(): Promise<{
-    content: Locator;
-    scroller: Locator;
-    lines: Locator;
-    frame?: Frame;
-  }> {
-    for (let attempt = 1; attempt <= 24; attempt++) {
-      await this.ensureEditorViewIfTogglePresent();
-
-      const specIframe = this.specEditorSection.locator("iframe").first();
-      if ((await specIframe.count()) > 0) {
-        const iframeElement = await specIframe.elementHandle();
-        const frame = await iframeElement?.contentFrame();
-
-        if (frame) {
-          const content = frame.locator(".cm-content").first();
-          if ((await content.count()) > 0) {
-            const scroller = frame.locator(".cm-scroller").first();
-            const lines = frame.locator(".cm-line");
-            return { content, scroller, lines, frame };
-          }
-        }
-      }
-
-      const content = this.specEditorSection.locator(".cm-content").first();
-      if ((await content.count()) > 0) {
-        const scroller = this.specEditorSection.locator(".cm-scroller").first();
-        const lines = this.specEditorSection.locator(".cm-line");
-        return { content, scroller, lines };
-      }
-
-      if (attempt === 8 || attempt === 16) {
-        await this.openSpecTabForCurrentSpec();
-      }
-      await this.page.waitForTimeout(500);
-    }
-
-    await takeAndAttachScreenshot(this.page, "spec-editor-not-found");
-    throw new Error("Spec editor content was not found in visible spec tab");
+  private getInlineExampleKey(exampleName: string): string {
+    const fileName = exampleName.split(/[\\/]/).pop() ?? exampleName;
+    return fileName.replace(/\.json$/i, "");
   }
 
   async copyEditorContent(): Promise<void> {
@@ -1713,13 +1655,18 @@ export class ExampleGenerationPage extends BasePage {
         .first();
       await expect(filePathLabel).toBeVisible({ timeout: 5000 });
 
-      const rawText = (await filePathLabel.textContent())?.trim() ?? "";
+      const rawText = (await filePathLabel.locator(":scope > span").first().textContent())?.trim() ?? "";
       const relativePath = rawText.replace(/^File path:\s*/, "");
       if (!relativePath.startsWith("./")) {
         throw new Error(`Unexpected example file path: '${rawText}'`);
       }
 
-      return relativePath;
+      const fileName = (await root.locator("inline-filename-rename .ifr__filename").first().textContent())?.trim();
+      if (!fileName) {
+        throw new Error("Current example filename was not found");
+      }
+
+      return relativePath.endsWith("/") ? `${relativePath}${fileName}` : `${relativePath}/${fileName}`;
     });
   }
 
