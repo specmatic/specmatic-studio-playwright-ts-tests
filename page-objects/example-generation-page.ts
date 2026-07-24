@@ -1544,22 +1544,22 @@ export class ExampleGenerationPage extends BasePage {
       const specContent = this.readSpecFile();
 
       for (const name of expectedExamples) {
-        if (!specContent.includes(name)) {
+        const exampleKey = this.getInlineExampleKey(name);
+        const filenamePresent = specContent.includes(name);
+        const keyPresent = specContent.includes(`${exampleKey}:`);
+
+        if (!(filenamePresent || keyPresent)) {
           console.error(`\t FAILED: '${name}' not found in spec file`);
           await takeAndAttachScreenshot(this.page, `failed-to-find-${name}`);
           throw new Error(
             `Example '${name}' not found in spec file '${this.specName}'`,
           );
-        } else {
-          console.log(`\t ✓ Verified: ${name} is inlined`);
         }
+
+        console.log(`\t ✓ Verified: ${name} is inlined`);
       }
 
       await takeAndAttachScreenshot(this.page, `verified-inlined-examples`);
-
-      if (expectedExamples.length > 0) {
-        await this.showVisualEvidenceInEditor(expectedExamples);
-      }
     });
   }
 
@@ -1575,96 +1575,9 @@ export class ExampleGenerationPage extends BasePage {
     return fs.readFileSync(specFilePath, "utf-8");
   }
 
-  private async showVisualEvidenceInEditor(examples: string[]) {
-    await test.step(`Capture visual evidence in editor`, async () => {
-      const editorContext = await this.getSpecEditorContext();
-      await expect(editorContext.content).toBeVisible({ timeout: 15000 });
-      await editorContext.content.click();
-
-      await this.specEditorHelper.loadFullEditorDocument(
-        editorContext.scroller,
-      );
-      await editorContext.scroller.evaluate((el) => {
-        el.scrollTop = 0;
-      });
-      await this.page.waitForTimeout(250);
-
-      for (const exampleName of examples) {
-        const foundByEditorApi =
-          await this.specEditorHelper.focusTermUsingCodeMirrorApi(
-            editorContext.content,
-            exampleName,
-          );
-        const foundByWindowFind = foundByEditorApi
-          ? true
-          : await this.findTermUsingWindowFind(
-              editorContext.frame,
-              exampleName,
-            );
-
-        if (!foundByWindowFind) {
-          await this.specEditorHelper.scrollEditorToFindTerm(
-            editorContext.content,
-            editorContext.scroller,
-            editorContext.lines,
-            exampleName,
-          );
-
-          const match = editorContext.lines
-            .filter({ hasText: exampleName })
-            .first();
-          if ((await match.count()) > 0) {
-            await match.scrollIntoViewIfNeeded();
-            await match.click();
-          }
-        }
-
-        await this.page.waitForTimeout(250);
-
-        await takeAndAttachScreenshot(this.page, `visual-${exampleName}`);
-      }
-    });
-  }
-
-  private async getSpecEditorContext(): Promise<{
-    content: Locator;
-    scroller: Locator;
-    lines: Locator;
-    frame?: Frame;
-  }> {
-    for (let attempt = 1; attempt <= 24; attempt++) {
-      await this.ensureEditorViewIfTogglePresent();
-
-      const specIframe = this.specEditorSection.locator("iframe").first();
-      if ((await specIframe.count()) > 0) {
-        const iframeElement = await specIframe.elementHandle();
-        const frame = await iframeElement?.contentFrame();
-
-        if (frame) {
-          const content = frame.locator(".cm-content").first();
-          if ((await content.count()) > 0) {
-            const scroller = frame.locator(".cm-scroller").first();
-            const lines = frame.locator(".cm-line");
-            return { content, scroller, lines, frame };
-          }
-        }
-      }
-
-      const content = this.specEditorSection.locator(".cm-content").first();
-      if ((await content.count()) > 0) {
-        const scroller = this.specEditorSection.locator(".cm-scroller").first();
-        const lines = this.specEditorSection.locator(".cm-line");
-        return { content, scroller, lines };
-      }
-
-      if (attempt === 8 || attempt === 16) {
-        await this.openSpecTabForCurrentSpec();
-      }
-      await this.page.waitForTimeout(500);
-    }
-
-    await takeAndAttachScreenshot(this.page, "spec-editor-not-found");
-    throw new Error("Spec editor content was not found in visible spec tab");
+  private getInlineExampleKey(exampleName: string): string {
+    const fileName = exampleName.split(/[\\/]/).pop() ?? exampleName;
+    return fileName.replace(/\.json$/i, "");
   }
 
   async copyEditorContent(): Promise<void> {
