@@ -1,6 +1,7 @@
 import { test, expect } from "../../../utils/eyesFixture";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { SpecificationRenamePage } from "../../../page-objects/specification-rename-page";
+import { shouldUseFileWatcherWorkaround } from "../../../utils/fileWatcherWorkaround";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -67,9 +68,14 @@ test.describe("Specification rename", () => {
 
       specPage = await openSpecNoReload(page, eyes, testInfo, RENAMED_SPECS.openapi);
       await specPage.editSpecFile("title: Updated Order BFF", "title: Order BFF");
-      await expect
-        .poll(() => specPage.getEditorDocumentText())
-        .toContain("title: Order BFF");
+      specPage = await reloadSpecIfFileWatcherWorkaroundEnabled(
+        page,
+        eyes,
+        testInfo,
+        specPage,
+        RENAMED_SPECS.openapi,
+      );
+      await specPage.expectEditorToContainText("title: Order BFF");
     },
   );
 
@@ -106,9 +112,14 @@ test.describe("Specification rename", () => {
 
       specPage = await openSpecNoReload(page, eyes, testInfo, RENAMED_SPECS.asyncapi);
       await specPage.editSpecFile("title: Updated Product audits API", "title: Product audits API");
-      await expect
-          .poll(() => specPage.getEditorDocumentText())
-          .toContain("title: Product audits API");
+      specPage = await reloadSpecIfFileWatcherWorkaroundEnabled(
+        page,
+        eyes,
+        testInfo,
+        specPage,
+        RENAMED_SPECS.asyncapi,
+      );
+      await specPage.expectEditorToContainText("title: Product audits API");
     },
   );
 
@@ -133,9 +144,14 @@ test.describe("Specification rename", () => {
 
       specPage = await openSpecNoReload(page, eyes, testInfo, RENAMED_SPECS.wsdl);
       await specPage.editSpecFile('<wsdl:service name="UpdatedInventoryService">', '<wsdl:service name="InventoryService">');
-      await expect
-          .poll(() => specPage.getEditorDocumentText())
-          .toContain("InventoryService");
+      specPage = await reloadSpecIfFileWatcherWorkaroundEnabled(
+        page,
+        eyes,
+        testInfo,
+        specPage,
+        RENAMED_SPECS.wsdl,
+      );
+      await specPage.expectEditorToContainText("InventoryService");
     },
   );
 
@@ -177,8 +193,8 @@ async function renameAndAssertFilesystem(
   await renamePage.confirmConfigUpdate(CONFIG);
 
   const renamedSpec = `${path.dirname(specName)}/${newBaseName}${path.extname(specName)}`;
-  expect(fs.existsSync(specPath(specName))).toBe(false);
-  expect(fs.existsSync(specPath(renamedSpec))).toBe(true);
+  await expect.poll(() => fs.existsSync(specPath(specName))).toBe(false);
+  await expect.poll(() => fs.existsSync(specPath(renamedSpec))).toBe(true);
 }
 
 async function openSpecNoReload(page: any, eyes: any, testInfo: any, specName: string) {
@@ -187,6 +203,24 @@ async function openSpecNoReload(page: any, eyes: any, testInfo: any, specName: s
   await specPage.sideBar.selectSpec(specName);
   await specPage.openSpecTab();
   return specPage;
+}
+
+async function reloadSpecIfFileWatcherWorkaroundEnabled(
+  page: any,
+  eyes: any,
+  testInfo: any,
+  specPage: ServiceSpecConfigPage,
+  specName: string,
+) {
+  if (!shouldUseFileWatcherWorkaround()) {
+    return specPage;
+  }
+
+  await test.step("Reload and reopen renamed spec because file watcher workaround flag is enabled", async () => {
+    await page.reload();
+  });
+
+  return openSpecNoReload(page, eyes, testInfo, specName);
 }
 
 async function assertConfigUpdated(source: string, destination: string) {
