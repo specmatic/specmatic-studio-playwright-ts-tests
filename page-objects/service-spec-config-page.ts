@@ -560,31 +560,6 @@ export class ServiceSpecConfigPage extends BasePage {
     );
   }
 
-  async expectEditorToContainText(text: string) {
-    await test.step(`Verify editor contains '${text}'`, async () => {
-      await expect(this.editorContent).toBeVisible({ timeout: 10000 });
-
-      const foundByApi =
-        await this.specEditorHelper.focusTermUsingCodeMirrorApi(
-          this.editorContent,
-          text,
-        );
-
-      if (!foundByApi) {
-        await this.specEditorHelper.scrollEditorToFindTerm(
-          this.editorContent,
-          this.editorScroller,
-          this.editorLines,
-          text,
-        );
-      }
-
-      await expect(this.editorLines.filter({ hasText: text }).first()).toBeVisible({
-        timeout: 10000,
-      });
-    });
-  }
-
   async replaceEditorDocumentText(updatedContent: string) {
     await test.step("Replace full editor content", async () => {
       await expect(this.editorContent).toBeVisible({ timeout: 10000 });

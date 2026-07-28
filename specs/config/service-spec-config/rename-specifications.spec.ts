@@ -65,14 +65,11 @@ test.describe("Specification rename", () => {
       await expect(validate).toBeVisible({ timeout: 30000 });
       await validate.click();
 
-      await replaceFixtureAndAssertReloadedEditorText(
-        page,
-        eyes,
-        testInfo,
-        RENAMED_SPECS.openapi,
-        "title: Updated Order BFF",
-        "title: Order BFF",
-      );
+      specPage = await openSpecNoReload(page, eyes, testInfo, RENAMED_SPECS.openapi);
+      await specPage.editSpecFile("title: Updated Order BFF", "title: Order BFF");
+      await expect
+        .poll(() => specPage.getEditorDocumentText())
+        .toContain("title: Order BFF");
     },
   );
 
@@ -107,14 +104,11 @@ test.describe("Specification rename", () => {
       await expect(validate).toBeVisible({ timeout: 30000 });
       await validate.click();
 
-      await replaceFixtureAndAssertReloadedEditorText(
-        page,
-        eyes,
-        testInfo,
-        RENAMED_SPECS.asyncapi,
-        "title: Updated Product audits API",
-        "title: Product audits API",
-      );
+      specPage = await openSpecNoReload(page, eyes, testInfo, RENAMED_SPECS.asyncapi);
+      await specPage.editSpecFile("title: Updated Product audits API", "title: Product audits API");
+      await expect
+          .poll(() => specPage.getEditorDocumentText())
+          .toContain("title: Product audits API");
     },
   );
 
@@ -137,14 +131,11 @@ test.describe("Specification rename", () => {
         })
         .first();
 
-      await replaceFixtureAndAssertReloadedEditorText(
-        page,
-        eyes,
-        testInfo,
-        RENAMED_SPECS.wsdl,
-        '<wsdl:service name="UpdatedInventoryService">',
-        '<wsdl:service name="InventoryService">',
-      );
+      specPage = await openSpecNoReload(page, eyes, testInfo, RENAMED_SPECS.wsdl);
+      await specPage.editSpecFile('<wsdl:service name="UpdatedInventoryService">', '<wsdl:service name="InventoryService">');
+      await expect
+          .poll(() => specPage.getEditorDocumentText())
+          .toContain("InventoryService");
     },
   );
 
@@ -186,8 +177,8 @@ async function renameAndAssertFilesystem(
   await renamePage.confirmConfigUpdate(CONFIG);
 
   const renamedSpec = `${path.dirname(specName)}/${newBaseName}${path.extname(specName)}`;
-  await expect.poll(() => fs.existsSync(specPath(specName))).toBe(false);
-  await expect.poll(() => fs.existsSync(specPath(renamedSpec))).toBe(true);
+  expect(fs.existsSync(specPath(specName))).toBe(false);
+  expect(fs.existsSync(specPath(renamedSpec))).toBe(true);
 }
 
 async function openSpecNoReload(page: any, eyes: any, testInfo: any, specName: string) {
@@ -196,28 +187,6 @@ async function openSpecNoReload(page: any, eyes: any, testInfo: any, specName: s
   await specPage.sideBar.selectSpec(specName);
   await specPage.openSpecTab();
   return specPage;
-}
-
-async function reloadAndOpenSpec(page: any, eyes: any, testInfo: any, specName: string) {
-  const specPage = new ServiceSpecConfigPage(page, testInfo, eyes, specName);
-  await page.reload();
-  await specPage.openSideBar();
-  await specPage.sideBar.selectSpec(specName);
-  await specPage.openSpecTab();
-  return specPage;
-}
-
-async function replaceFixtureAndAssertReloadedEditorText(
-  page: any,
-  eyes: any,
-  testInfo: any,
-  specName: string,
-  searchText: string,
-  replaceText: string,
-) {
-  replaceSpecFixtureText(specName, searchText, replaceText);
-  const specPage = await reloadAndOpenSpec(page, eyes, testInfo, specName);
-  await specPage.expectEditorToContainText(replaceText);
 }
 
 async function assertConfigUpdated(source: string, destination: string) {
@@ -231,15 +200,6 @@ function specPath(relativePath: string) {
 
 function readFixture(relativePath: string) {
   return fs.readFileSync(specPath(relativePath), "utf-8");
-}
-
-function replaceSpecFixtureText(relativePath: string, searchText: string, replaceText: string) {
-  const content = readFixture(relativePath);
-  if (!content.includes(searchText)) {
-    throw new Error(`Text '${searchText}' not found in spec file: ${relativePath}`);
-  }
-
-  fs.writeFileSync(specPath(relativePath), content.replace(searchText, replaceText), "utf-8");
 }
 
 function restoreRenamedSpecs() {
