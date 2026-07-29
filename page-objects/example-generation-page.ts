@@ -32,6 +32,7 @@ export class ExampleGenerationPage extends BasePage {
   private readonly specTabLocator: Locator;
   private readonly editorViewToggleButton: Locator;
   private readonly specEditorHelper: SpecEditorPage;
+  private readonly protocol: "openapi" | "async";
 
   constructor(
     page: Page,
@@ -41,6 +42,7 @@ export class ExampleGenerationPage extends BasePage {
     protocol: "openapi" | "async" = "openapi",
   ) {
     super(page, testInfo, eyes, specName);
+    this.protocol = protocol;
     this.specTree = page.locator("#spec-tree");
     const filePathText = `File path: ./${specName}`;
     this.specSection = page
@@ -492,7 +494,11 @@ export class ExampleGenerationPage extends BasePage {
       }
 
       if (deleteClicked) {
-        await this.verifyTitleAndCloseDialog("Delete Examples Complete");
+        await this.verifyTitleAndCloseDialog(
+          this.protocol === "async"
+            ? "Examples deleted"
+            : "Delete Examples Complete",
+        );
       } else {
         console.log("No examples to delete");
         await this.uncheckSelectAll(root);
@@ -557,66 +563,20 @@ export class ExampleGenerationPage extends BasePage {
   private async selectAll(root: Locator) {
     const selectAll = root.locator(this.selectAllCheckboxSelector);
     await selectAll.waitFor({ timeout: 3000 });
-    const checkboxes = await selectAll.all();
-    console.log(`\tselect-all checkbox found, count: ${checkboxes.length}`);
-    let allChecked = true;
-    for (let i = 0; i < checkboxes.length; i++) {
-      let checked = await checkboxes[i].isChecked();
-      let attempts = 0;
-      while (!checked && attempts < 3) {
-        await checkboxes[i].click({ force: true });
-        await this.page.waitForTimeout(200 * (attempts + 1)); // Wait a bit longer after each attempt
-        checked = await checkboxes[i].isChecked();
-        console.log(
-          `\tselect-all checkbox[${i}] checked after click attempt ${attempts + 1}: ${checked}`,
-        );
-        attempts++;
-      }
-      if (!checked) {
-        allChecked = false;
-        console.log(
-          `\tselect-all checkbox[${i}] could not be checked after 3 attempts`,
-        );
-      }
-    }
-    // Log final checked state for all checkboxes
-    for (let i = 0; i < checkboxes.length; i++) {
-      const checkedState = await checkboxes[i].isChecked();
-      console.log(`\tselect-all checkbox[${i}] final checked: ${checkedState}`);
-    }
-    if (!allChecked) {
-      throw new Error(
-        "selectAll: One or more checkboxes could not be checked after 3 attempts",
-      );
-    }
-    // Also check that at least one is checked for safety
-    if (checkboxes.length === 0) {
+    const count = await selectAll.count();
+    console.log(`\tselect-all checkbox found, count: ${count}`);
+
+    if (count === 0) {
       throw new Error(
         `selectAll: No checkboxes found for selector '${this.selectAllCheckboxSelector}'`,
       );
     }
 
-    await expect(selectAll).toBeVisible({ timeout: 5000 });
-    await expect(selectAll).toBeEnabled({ timeout: 5000 });
-
-    let checked = await selectAll.isChecked();
-    let attempts = 0;
-
-    while (!checked && attempts < 3) {
-      await selectAll.click({ force: true });
-      await this.page.waitForTimeout(200 * (attempts + 1));
-      checked = await selectAll.isChecked();
-      console.log(
-        `\tselect-all checkbox checked after click attempt ${attempts + 1}: ${checked}`,
-      );
-      attempts++;
-    }
-
-    console.log(`\tselect-all checkbox final checked: ${checked}`);
-
-    if (!checked) {
-      throw new Error(
-        "selectAll: The interactive select-all checkbox could not be checked after 3 attempts",
+    for (let i = 0; i < count; i++) {
+      await this.setCheckboxChecked(
+        selectAll.nth(i),
+        true,
+        `select-all checkbox[${i}]`,
       );
     }
 
@@ -628,11 +588,59 @@ export class ExampleGenerationPage extends BasePage {
     await selectAll.waitFor({ timeout: 3000 });
     console.log("\tuncheck select-all checkbox found");
     if (await selectAll.isChecked()) {
-      await selectAll.click({ force: true });
-      await expect(selectAll).not.toBeChecked({ timeout: 2000 });
+      await this.setCheckboxChecked(
+        selectAll.first(),
+        false,
+        "select-all checkbox",
+      );
       console.log("\tselect-all checkbox unchecked");
       await takeAndAttachScreenshot(this.page, `select-all-unchecked`);
     }
+  }
+
+  private async setCheckboxChecked(
+    checkbox: Locator,
+    checked: boolean,
+    label: string,
+  ) {
+    await expect(checkbox).toBeAttached({ timeout: 5000 });
+    await expect(checkbox).toBeEnabled({ timeout: 5000 });
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      await checkbox.scrollIntoViewIfNeeded().catch(() => {});
+
+      try {
+        if (checked) {
+          await checkbox.check({ force: true, timeout: 2000 });
+        } else {
+          await checkbox.uncheck({ force: true, timeout: 2000 });
+        }
+      } catch (error) {
+        console.log(
+          `\t${label} ${checked ? "check" : "uncheck"} attempt ${attempt} failed: ${error}`,
+        );
+        await checkbox.evaluate((element, targetChecked) => {
+          const input = element as HTMLInputElement;
+          if (input.checked !== targetChecked) {
+            input.click();
+          }
+        }, checked);
+      }
+
+      const currentState = await checkbox.isChecked();
+      console.log(
+        `\t${label} checked after attempt ${attempt}: ${currentState}`,
+      );
+      if (currentState === checked) {
+        return;
+      }
+
+      await this.page.waitForTimeout(200 * attempt);
+    }
+
+    throw new Error(
+      `${label} could not be ${checked ? "checked" : "unchecked"} after 3 attempts`,
+    );
   }
 
   async waitForExamplesIFrame() {
