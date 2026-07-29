@@ -45,6 +45,12 @@ export class BasePage {
     });
   }
 
+  async openSideBar() {
+      await test.step("Open sidebar", async () => {
+          await this.sideBar.ensureSidebarOpen();
+      });
+  }
+
   protected async gotoHome() {
     console.log("\tNavigating to home page: '/'");
     await this.page.goto("/");
