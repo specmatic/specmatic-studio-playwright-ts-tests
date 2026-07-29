@@ -33,7 +33,13 @@ export class ExampleGenerationPage extends BasePage {
   private readonly editorViewToggleButton: Locator;
   private readonly specEditorHelper: SpecEditorPage;
 
-  constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
+  constructor(
+    page: Page,
+    testInfo: TestInfo,
+    eyes: any,
+    specName: string,
+    protocol: "openapi" | "async" = "openapi",
+  ) {
     super(page, testInfo, eyes, specName);
     this.specTree = page.locator("#spec-tree");
     const filePathText = `File path: ./${specName}`;
@@ -54,7 +60,7 @@ export class ExampleGenerationPage extends BasePage {
       'li.tab[data-type="example"]',
     );
     this.exampleDiv = this.specSection.locator(
-      'div.example[data-protocol="openapi"]',
+      `div.example[data-protocol="${protocol}"]`,
     );
     this.examplesRoot = this.exampleDiv;
     this.validExamplesTable = this.specSection.locator("#valid-examples-table");

@@ -1,4 +1,5 @@
 import { test, expect } from "../../../utils/eyesFixture";
+import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { SpecificationRenamePage } from "../../../page-objects/specification-rename-page";
 import { shouldUseFileWatcherWorkaround } from "../../../utils/fileWatcherWorkaround";
@@ -58,6 +59,9 @@ test.describe("Specification rename", () => {
       .first();
 
       await section.locator('li.tab[data-type="example"]').click();
+      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, RENAMED_SPECS.openapi);
+      await examplePage.deleteGeneratedExamples();
+
       const generate = section.getByRole("button", { name: "Generate" }).first();
       await expect(generate).toBeVisible();
       await generate.click();
@@ -101,6 +105,8 @@ test.describe("Specification rename", () => {
       await section.locator('li.tab[data-type="example"]').click();
       const examples = section.locator('div.example[data-protocol="async"]');
       await expect(examples).toBeVisible({ timeout: 15000 });
+      const examplePage = new ExampleGenerationPage(page, testInfo, eyes, RENAMED_SPECS.asyncapi, "async");
+      await examplePage.deleteGeneratedExamples();
 
       const generate = section.getByRole("button", { name: "Generate" }).first();
       await expect(generate).toBeVisible();
@@ -239,10 +245,6 @@ function readFixture(relativePath: string) {
 function restoreRenamedSpecs() {
   for (const [protocol, source] of Object.entries(SPECS)) {
     const destination = RENAMED_SPECS[protocol as keyof typeof RENAMED_SPECS];
-    fs.rmSync(
-      specPath(`${path.dirname(destination)}/${path.basename(destination, path.extname(destination))}_examples`),
-      { recursive: true, force: true },
-    );
     if (!fs.existsSync(specPath(source)) && fs.existsSync(specPath(destination))) {
       fs.renameSync(specPath(destination), specPath(source));
     }
