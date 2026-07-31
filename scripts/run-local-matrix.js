@@ -17,7 +17,10 @@ const DOCKER_CONTAINERS = ["studio", "order-bff", "order-api", "inventory-api"];
 const MATRIX_GROUPS = [
   {
     name: "OpenAPI Examples",
-    testPath: "specs/openapi/generate-valid-examples",
+    testPath: [
+      "specs/openapi/generate-valid-examples",
+      "specs/openapi/examples",
+    ],
     artifactName: "openapi-examples",
   },
   {
@@ -48,6 +51,11 @@ const MATRIX_GROUPS = [
     testPath: "specs/async/execute-contract-tests",
     artifactName: "async-contract",
   },
+  {
+    name: "AsyncAPI Examples",
+    testPath: "specs/async/examples",
+    artifactName: "async-examples",
+  },
   { name: "Proxy", testPath: "specs/proxy", artifactName: "proxy" },
   { name: "SOAP Spec", testPath: "specs/soap/update-service-spec", artifactName: "soap-spec" },
   { name: "SOAP Mock", testPath: "specs/soap/run-mock-server", artifactName: "soap-mock" },
@@ -65,6 +73,7 @@ let activeChildProcess;
 function parseArguments(argumentsList) {
   const options = {
     excludedGroups: [],
+    groups: [],
     testPaths: [],
     headless: true,
     version: process.env.ENTERPRISE_VERSION || "latest",
@@ -75,7 +84,7 @@ function parseArguments(argumentsList) {
     if (argument === "--version" || argument === "-v") {
       options.version = argumentsList[++index];
     } else if (argument === "--group") {
-      options.group = argumentsList[++index];
+      options.groups.push(argumentsList[++index]);
     } else if (argument === "--test-path") {
       options.testPaths.push(argumentsList[++index]);
     } else if (argument === "--exclude-group" || argument === "--skip-group") {
@@ -102,7 +111,7 @@ function parseArguments(argumentsList) {
   }
 
   if (!options.showHelp) validateVersion(options.version);
-  if (options.group && options.testPaths.length > 0) {
+  if (options.groups.length > 0 && options.testPaths.length > 0) {
     throw new Error("Use either --group or --test-path, not both");
   }
   return options;
@@ -146,15 +155,16 @@ function hasLocalDockerImage(image) {
 
 function findGroup(identifier) {
   const group = MATRIX_GROUPS.find((candidate) =>
-    [candidate.name, candidate.testPath, candidate.artifactName].includes(identifier),
+    [candidate.name, candidate.artifactName].includes(identifier) ||
+    (Array.isArray(candidate.testPath) ? candidate.testPath.includes(identifier) : candidate.testPath === identifier),
   );
 
   if (!group) throw new Error(`Unknown group: ${identifier}`);
   return group;
 }
 
-function selectGroups(groupName, excludedGroupNames) {
-  const includedGroups = groupName ? [findGroup(groupName)] : MATRIX_GROUPS;
+function selectGroups(groupNames, excludedGroupNames) {
+  const includedGroups = groupNames.length ? groupNames.map(findGroup) : MATRIX_GROUPS;
   const excludedGroups = new Set(excludedGroupNames.map(findGroup));
   const selectedGroups = includedGroups.filter((group) => !excludedGroups.has(group));
 
@@ -394,7 +404,8 @@ async function runGroup(group, environment) {
 
   try {
     clearGeneratedOutputs();
-    const testStatus = await runCommand("npx", ["playwright", "test", group.testPath], environment);
+    const testPaths = Array.isArray(group.testPath) ? group.testPath : [group.testPath];
+    const testStatus = await runCommand("npx", ["playwright", "test", ...testPaths], environment);
     testsPassed = testStatus === 0;
   } catch (error) {
     console.error(error.message || error);
@@ -433,11 +444,11 @@ process.on("SIGTERM", () => handleTermination("SIGTERM"));
 async function main() {
   const options = parseArguments(process.argv.slice(2));
   if (options.showHelp) {
-    console.log("Usage: npm run test:matrix:local -- [--version VERSION] [--group GROUP | --test-path PATH ...] [--exclude-group GROUP] [--headless[=true|false]]");
+    console.log("Usage: npm run test:matrix:local -- [--version VERSION] [--group GROUP ... | --test-path PATH ...] [--exclude-group GROUP] [--headless[=true|false]]");
     return;
   }
 
-  const groups = options.testPaths.length > 0 ? options.testPaths.map(createFocusedTestTarget) : selectGroups(options.group, options.excludedGroups);
+  const groups = options.testPaths.length > 0 ? options.testPaths.map(createFocusedTestTarget) : selectGroups(options.groups, options.excludedGroups);
   fs.rmSync(ARTIFACT_ROOT, { recursive: true, force: true });
   fs.mkdirSync(ARTIFACT_ROOT, { recursive: true });
 

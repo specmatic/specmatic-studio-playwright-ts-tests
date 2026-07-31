@@ -1,0 +1,48 @@
+asyncapi: 2.6.0
+info:
+  title: Inline Examples Readonly Async API v2
+  version: "1.0.0"
+servers:
+  kafka:
+    url: localhost:9092
+    protocol: kafka
+channels:
+  orders:
+    publish:
+      operationId: receiveOrder
+      message:
+        $ref: "#/components/messages/Order"
+components:
+  messages:
+    Order:
+      name: Order
+      title: Order message
+      contentType: application/json
+      examples:
+        - name: NewOrder
+          headers:
+            requestId: req-101
+          payload:
+            id: 101
+            status: created
+        - name: CancelledOrder
+          headers:
+            requestId: req-202
+          payload:
+            id: 202
+            status: cancelled
+      headers:
+        type: object
+        required: [requestId]
+        properties:
+          requestId:
+            type: string
+      payload:
+        type: object
+        required: [id, status]
+        properties:
+          id:
+            type: integer
+          status:
+            type: string
+            enum: [created, cancelled]
