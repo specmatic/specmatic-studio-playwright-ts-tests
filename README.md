@@ -63,6 +63,34 @@ To run all Playwright end-to-end tests.
 npx playwright test
 ```
 
+#### Run the GitHub Actions matrix locally, sequentially.
+Compose services start once. Each group runs its suite, Studio restarts between groups, artifacts save under `local-matrix-artifacts/`, and final cleanup removes containers and restores `specmatic-studio-demo/specs` to Git state.
+Version defaults to `latest`. Valid image-tag characters are letters, numbers, `.`, `_`, and `-`:
+
+```bash
+npm run test:matrix:local -- --version 1.22.1-SNAPSHOT
+```
+
+Headless mode is enabled by default. Use `--headless=false` or `--headed` to show the browser:
+```bash
+npm run test:matrix:local -- --headless=false
+```
+
+Run one matrix group:
+```bash
+npm run test:matrix:local -- --group "OpenAPI Examples"
+```
+
+Exclude passing groups when rerunning failures:
+```bash
+npm run test:matrix:local -- --exclude-group "OpenAPI Examples" --exclude-group "OpenAPI Dictionary"
+```
+
+Run one Playwright spec with the local Docker services and a specific Enterprise image:
+```bash
+npm run test:matrix:local -- --test-path specs/openapi/examples/inline-examples-readonly.spec.ts
+```
+
 To run a specific test file:
 ```bash
 npx playwright test tests/example.spec.ts
