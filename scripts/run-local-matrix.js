@@ -17,10 +17,7 @@ const DOCKER_CONTAINERS = ["studio", "order-bff", "order-api", "inventory-api"];
 const MATRIX_GROUPS = [
   {
     name: "OpenAPI Examples",
-    testPath: [
-      "specs/openapi/generate-valid-examples",
-      "specs/openapi/examples",
-    ],
+    testPath: "specs/openapi/examples",
     artifactName: "openapi-examples",
   },
   {

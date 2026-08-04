@@ -75,7 +75,7 @@ The following API specifications are available for testing and mocking:
 
 #### 4.1. Generate Valid Examples from API Spec
 
-**File:** `tests/example-generation/generate-valid-examples.spec.ts`
+**File:** `specs/openapi/examples/generate-valid-examples-for-all-paths.spec.ts`
 
 **Steps:**
   1. User requests generation of valid example requests/responses for a selected API specification from the available list.
