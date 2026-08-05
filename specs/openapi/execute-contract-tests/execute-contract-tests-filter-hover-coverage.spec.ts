@@ -128,18 +128,26 @@ async function verifyFilterTooltipAndCoverageStability({
   await test.step(`Run contract tests again with ${filterType} filter active and verify coverage`, async () => {
     await contractPage.clickRunContractTests();
     await verifyRightSidebarStatus(contractPage, "Done", specName);
-    await contractPage.page.waitForTimeout(3000);
 
-    const coverageAfterFilteredRun =
-      await contractPage.getCoverageHeaderPercentage();
+    let coverageAfterFilteredRun = 0;
+    await expect
+      .poll(
+        async () => {
+          coverageAfterFilteredRun =
+            await contractPage.getCoverageHeaderPercentage();
+          return coverageAfterFilteredRun;
+        },
+        {
+          timeout: 15000,
+          intervals: [500, 1000, 2000],
+          message: `Coverage should remain unchanged after rerun with ${filterType} filter`,
+        },
+      )
+      .toBe(baselineCoverage);
+
     console.log(
       `[filter-hover-coverage] Coverage after rerun with ${filterType} filter: ${coverageAfterFilteredRun}% (baseline: ${baselineCoverage}%)`,
     );
-
-    expect(
-      coverageAfterFilteredRun,
-      `Coverage should remain unchanged after rerun with ${filterType} filter`,
-    ).toBe(baselineCoverage);
   });
 }
 
