@@ -27,7 +27,7 @@ test.describe("OpenAPI inline examples", () => {
       await examplesPage.openInlineExample("CREATE_SUCCESS", "/create-orders");
       await examplesPage.assertInlineDetails(
         ['"customerId"', "7", '"item"', "keyboard", '"id"', "303"],
-        "#/paths/~1create-orders/post",
+        "CREATE_SUCCESS",
       );
 
       await examplesPage.assertInlineMutationActionsHidden();
@@ -37,7 +37,7 @@ test.describe("OpenAPI inline examples", () => {
       await examplesPage.openInlineExample("CREATE_INVALID");
       await examplesPage.assertInlineDetails(
         ['"customerId"', "invalid", '"id"'],
-        "#/paths/~1create-orders/post",
+        "CREATE_INVALID",
       );
 
       await examplesPage.validateInlineExample("CREATE_INVALID", undefined, "red");
