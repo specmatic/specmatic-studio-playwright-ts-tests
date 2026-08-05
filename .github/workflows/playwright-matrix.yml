@@ -76,8 +76,8 @@ jobs:
       matrix:
         group:
           - workflow_name: OpenAPI Examples
-            test_path: specs/openapi/generate-valid-examples
-            artifact_name: generate-valid-examples
+            test_path: specs/openapi/examples
+            artifact_name: openapi-examples
             group_name: OpenAPI Examples
           - workflow_name: OpenAPI Dictionary
             test_path: specs/openapi/dictionary
@@ -111,6 +111,10 @@ jobs:
             test_path: specs/async/execute-contract-tests
             artifact_name: execute-contract-tests-async
             group_name: Async Contract
+          - workflow_name: AsyncAPI Examples
+            test_path: specs/async/examples
+            artifact_name: async-examples
+            group_name: AsyncAPI Examples
           - workflow_name: Proxy
             test_path: specs/proxy
             artifact_name: proxy

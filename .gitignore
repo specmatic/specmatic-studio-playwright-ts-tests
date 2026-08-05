@@ -17,6 +17,7 @@ coverage/
 reports/
 storageState.json
 temp
+local-matrix-artifacts/
 
 # Codex
 .codex/*

@@ -362,6 +362,175 @@ export class ExampleGenerationPage extends BasePage {
     );
   }
 
+  private getAllInlineRows(context?: string): Locator {
+    let rows = this.examplesRoot.locator('tr[data-row-id]:has(td.examples-name-cell span:text-is("Inline"))');
+    if (context) rows = rows.filter({ hasText: context });
+    return rows;
+  }
+
+  private getInlineRows(name: string, context?: string): Locator {
+    if (!name) {
+      return this.getAllInlineRows(context);
+    }
+
+    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const nameCell = this.examplesRoot
+        .locator("td.examples-name-cell")
+        .filter({ hasText: new RegExp(`^\\s*${escapedName}\\s*Inline\\s*$`) });
+
+    let rows = nameCell.locator("xpath=..");
+    if (context) rows = rows.filter({ hasText: context });
+    return rows;
+  }
+
+  async assertInlineExamplesListed(names: string[]): Promise<void> {
+    await test.step(`Verify inline examples are listed: ${names.join(", ")}`, async () => {
+      await this.waitForExamplesIFrame();
+      for (const name of names) {
+        await expect(this.getInlineRows(name).first()).toBeVisible({ timeout: 10000 });
+      }
+    });
+  }
+
+  async assertInlineExampleCount(name: string, expectedCount: number): Promise<void> {
+    await test.step(`Verify ${expectedCount} inline rows for '${name}'`, async () => {
+      await this.waitForExamplesIFrame();
+      await expect(this.getInlineRows(name)).toHaveCount(expectedCount, {
+        timeout: 10000,
+      });
+    });
+  }
+
+  async openInlineExample(name: string, context?: string): Promise<void> {
+    await test.step(`Open inline example '${name}'`, async () => {
+      await this.waitForExamplesIFrame();
+      const rows = this.getInlineRows(name, context);
+      await expect(rows).toHaveCount(1, { timeout: 10000 });
+
+      const row = rows.first();
+      const detailsButton = row.locator('button[data-row-action="details"]');
+      await expect(detailsButton).toBeVisible({ timeout: 5000 });
+
+      await detailsButton.click();
+      await this.waitForDetailsViewToLoad();
+    });
+  }
+
+  async assertInlineDetails(expectedContent: string[], expectedLocation: string): Promise<void> {
+    await test.step("Verify inline example details are read-only", async () => {
+      const root = await this.waitForExamplesIFrame();
+      const editor = root.locator("code-editor");
+      await expect(editor).toBeVisible({ timeout: 8000 });
+      await expect(editor).toHaveAttribute("aria-readonly", "true");
+
+      await expect
+        .poll(() => editor.evaluate((element) => (element as any).readOnly))
+        .toBe(true);
+
+      await expect(editor.locator(".cm-content")).toHaveAttribute(
+        "contenteditable",
+        "false",
+      );
+
+      const content = await this.getEditorContent();
+      for (const fragment of expectedContent) expect(content).toContain(fragment);
+      await expect(root.locator(".examples-detail-file-path")).toContainText(expectedLocation);
+      await expect(root.locator("inline-filename-rename")).toHaveCount(0);
+    });
+  }
+
+  async assertInlineValidationDetails(
+    expectedStatus: "Valid Example" | "Invalid Example",
+    expectErrorHighlight = false,
+  ): Promise<void> {
+    await test.step(`Verify inline validation details show '${expectedStatus}'`, async () => {
+      const root = await this.waitForExamplesIFrame();
+      await expect(root.locator(".examples-detail-summary .expand-info > .pill")).toHaveText(expectedStatus);
+
+      if (expectedStatus === "Invalid Example") {
+        await expect(root.locator(".examples-detail-issues.error")).toBeVisible();
+      }
+
+      if (expectErrorHighlight) {
+        await expect(root.locator(".specmatic-lintRange--error")).not.toHaveCount(0);
+      }
+    });
+  }
+
+  async assertInlineMutationActionsHidden(): Promise<void> {
+    await test.step("Verify unsupported inline-example actions are hidden", async () => {
+      const root = await this.waitForExamplesIFrame();
+      for (const action of ["update", "delete", "rename", "fix", "partialize", "import", "export", "generate", "save"]) {
+        const actionButtons = root.locator(`[data-details-action="${action}"], [data-detail-action="${action}"], [data-action="${action}"], [data-row-action="${action}"]`);
+        for (let index = 0; index < await actionButtons.count(); index += 1) {
+          await expect(actionButtons.nth(index)).toBeHidden();
+        }
+      }
+
+      await expect(root.locator('button[data-details-action="validate"]')).toBeVisible();
+    });
+  }
+
+  async assertInlineRowMutationActionsHidden(name: string, context?: string): Promise<void> {
+    await test.step(`Verify row actions for inline example '${name}'`, async () => {
+      await this.waitForExamplesIFrame();
+      const row = this.getInlineRows(name, context).first();
+      await expect(row).toBeVisible({ timeout: 10000 });
+      await expect(row.locator("inline-filename-rename")).toHaveCount(0);
+      await expect(row.locator('button[data-row-action="details"]')).toBeVisible();
+      await expect(row.locator('button[data-row-action="validate"]')).toBeVisible();
+
+      const actions = await row
+          .locator("button[data-row-action]")
+          .evaluateAll((buttons) =>
+              buttons.map((button) =>
+                  button.getAttribute("data-row-action")
+              )
+          );
+
+      for (const action of ["delete", "update", "rename", "fix", "partialize", "import", "export"]) {
+        expect(actions).not.toContain(action);
+      }
+    });
+  }
+
+  async validateInlineExample(
+    name: string,
+    context?: string,
+    expectedValidationClass = "green",
+  ): Promise<void> {
+    await test.step(`Validate inline example '${name}'`, async () => {
+      await this.goBackFromExample();
+      await this.waitForExamplesIFrame();
+      const rows = this.getInlineRows(name, context);
+      await expect(rows).toHaveCount(1, { timeout: 10000 });
+
+      const validateButton = rows.first().locator('button[data-row-action="validate"]');
+      await expect(validateButton).toBeVisible({ timeout: 5000 });
+
+      await validateButton.click();
+      await expect
+        .poll(() => validateButton.getAttribute("class"), {
+          timeout: 30000,
+          message: `Waiting for inline example '${name}' to validate`,
+        })
+        .toContain(expectedValidationClass);
+    });
+  }
+
+  async assertInlineValidationState(
+    name: string,
+    context?: string,
+    expectedValidationClass = "green",
+  ): Promise<void> {
+    await test.step(`Verify validation state for inline example '${name}'`, async () => {
+      await this.waitForExamplesIFrame();
+      const row = this.getInlineRows(name, context).first();
+      await expect(row).toBeVisible({ timeout: 10000 });
+      await expect(row.locator('button[data-row-action="validate"]')).toHaveClass(new RegExp(expectedValidationClass));
+    });
+  }
+
   private async clickGoBack(endpoint: string, responseCode: number) {
     const root = await this.waitForExamplesIFrame();
     const goBackBtn = root.locator("#back");
