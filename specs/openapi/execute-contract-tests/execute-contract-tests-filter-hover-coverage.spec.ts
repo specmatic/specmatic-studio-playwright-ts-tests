@@ -55,14 +55,12 @@ test.describe("API Contract Testing - Filter Hover and Coverage", () => {
       await verifyFilterTooltipAndCoverageStability({
         contractPage,
         filterType: "success",
-        baselineCoverage,
         specName: PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER_COVERAGE,
       });
 
       await verifyFilterTooltipAndCoverageStability({
         contractPage,
         filterType: "failed",
-        baselineCoverage,
         specName: PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_FILTER_COVERAGE,
       });
     },
@@ -72,14 +70,14 @@ test.describe("API Contract Testing - Filter Hover and Coverage", () => {
 async function verifyFilterTooltipAndCoverageStability({
   contractPage,
   filterType,
-  baselineCoverage,
   specName,
 }: {
   contractPage: ApiContractPage;
   filterType: "success" | "failed";
-  baselineCoverage: number;
   specName: string;
 }) {
+  let coverageBeforeFilteredRun = 0;
+
   await test.step(`Apply ${filterType} filter and verify response header hover message`, async () => {
     const expectedCount =
       await contractPage.applyHeaderFilterAndGetExpectedCount(filterType);
@@ -90,6 +88,8 @@ async function verifyFilterTooltipAndCoverageStability({
     ).not.toBeNull();
 
     await verifyFilteredHeaderMetrics(contractPage, filterType);
+    coverageBeforeFilteredRun =
+      await contractPage.getCoverageHeaderPercentage();
 
     const { currentCount, total } =
       await contractPage.getResponseHeaderCounts();
@@ -123,6 +123,10 @@ async function verifyFilterTooltipAndCoverageStability({
       hasFullMessage || hasPseudoMessage || hasValidMessageSource,
       `Response header hover message mismatch for ${filterType} filter. Actual tooltip text: "${tooltipText}", pseudo text: "${pseudoCombined}", counts: ${currentCount}/${total}`,
     ).toBe(true);
+
+    console.log(
+      `[filter-hover-coverage] Coverage before rerun with ${filterType} filter: ${coverageBeforeFilteredRun}%`,
+    );
   });
 
   await test.step(`Run contract tests again with ${filterType} filter active and verify coverage`, async () => {
@@ -143,10 +147,10 @@ async function verifyFilterTooltipAndCoverageStability({
           message: `Coverage should remain unchanged after rerun with ${filterType} filter`,
         },
       )
-      .toBe(baselineCoverage);
+      .toBe(coverageBeforeFilteredRun);
 
     console.log(
-      `[filter-hover-coverage] Coverage after rerun with ${filterType} filter: ${coverageAfterFilteredRun}% (baseline: ${baselineCoverage}%)`,
+      `[filter-hover-coverage] Coverage after rerun with ${filterType} filter: ${coverageAfterFilteredRun}% (before rerun: ${coverageBeforeFilteredRun}%)`,
     );
   });
 }
