@@ -1,11 +1,16 @@
 import { test, expect } from "../../../utils/eyesFixture";
 import {
   PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO,
+  KAFKA_YAML_SPEC,
   ORDER_BFF_SERVICE_URL,
 } from "../../specNames";
 import { ServiceSpecConfigPage } from "../../../page-objects/service-spec-config-page";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
-import { validateSummaryAndTableCounts } from "../helpers/execute-contract-tests-helper";
+import { MockServerPage } from "../../../page-objects/mock-server-page";
+import {
+  validateSummaryAndTableCounts,
+  withKafkaMockRunning,
+} from "../helpers/execute-contract-tests-helper";
 
 test.describe("Fix Spec Typo - Conditional Update", () => {
   test(
@@ -26,6 +31,12 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
         eyes,
         PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO,
       );
+      const kafkaMockPage = new MockServerPage(
+        page,
+        testInfo,
+        eyes,
+        KAFKA_YAML_SPEC,
+      );
 
       await configPage.navigateToSpec(PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO);
 
@@ -45,15 +56,20 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
       //TODO: RUn Contract Test and Assert Count
       await test.step("Run contract test for spec with fixed typo and assert count", async () => {
         await configPage.verifyEndpointInContractTable("/orders");
-        await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
-        await contractPage.clickRunContractTests();
-        await validateSummaryAndTableCounts(contractPage, {
-          success: 12,
-          failed: 21,
-          total: 41,
-          error: 0,
-          notcovered: 8,
-          excluded: 0,
+        await withKafkaMockRunning(kafkaMockPage, async () => {
+          await contractPage.openContractTestTabViaSidebar(
+            PRODUCT_SEARCH_BFF_SPEC_FIX_TYPO,
+          );
+          await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+          await contractPage.clickRunContractTests();
+          await validateSummaryAndTableCounts(contractPage, {
+            success: 18,
+            failed: 18,
+            total: 42,
+            error: 0,
+            notcovered: 6,
+            excluded: 0,
+          });
         });
       });
     },

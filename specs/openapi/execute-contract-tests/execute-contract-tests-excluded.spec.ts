@@ -1,34 +1,45 @@
 import { test, expect } from "../../../utils/eyesFixture";
 import {
   PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
+  KAFKA_YAML_SPEC,
   ORDER_BFF_SERVICE_URL,
 } from "../../specNames";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
+import { MockServerPage } from "../../../page-objects/mock-server-page";
 import {
   validateSummaryAndTableCounts,
   verifyRightSidebarStatus,
+  withKafkaMockRunning,
 } from "../helpers/execute-contract-tests-helper";
 
 type Counts = Parameters<typeof validateSummaryAndTableCounts>[1];
 
 async function runAndVerifyCounts(
   contractPage: ApiContractPage,
+  kafkaMockPage: MockServerPage,
+  configureContractTests: () => Promise<void>,
   expectedCounts: Counts,
 ) {
-  await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
-  await contractPage.clickRunContractTests();
-  await verifyRightSidebarStatus(
-    contractPage,
-    "Done",
-    PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
-  );
+  await withKafkaMockRunning(kafkaMockPage, async () => {
+    await contractPage.openContractTestTabViaSidebar(
+      PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
+    );
+    await contractPage.enterServiceUrl(ORDER_BFF_SERVICE_URL);
+    await configureContractTests();
+    await contractPage.clickRunContractTests();
+    await verifyRightSidebarStatus(
+      contractPage,
+      "Done",
+      PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
+    );
 
-  const { path } = await contractPage.getAllHeaderTotals();
-  expect(path, "Path header should match unique paths in table").toBe(
-    await contractPage.getUniqueValuesForKey("path"),
-  );
+    const { path } = await contractPage.getAllHeaderTotals();
+    expect(path, "Path header should match unique paths in table").toBe(
+      await contractPage.getUniqueValuesForKey("path"),
+    );
 
-  await validateSummaryAndTableCounts(contractPage, expectedCounts);
+    await validateSummaryAndTableCounts(contractPage, expectedCounts);
+  });
 }
 
 test.describe("API Contract testing with test exclusion and inclusion", () => {
@@ -43,82 +54,115 @@ test.describe("API Contract testing with test exclusion and inclusion", () => {
         eyes,
         PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
       );
-
-      await test.step(`Go to Test page for Service Spec: '${PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED}'`, async () => {
-        await contractPage.openContractTestTabForSpec(
-          testInfo,
-          eyes,
-          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
-        );
-      });
+      const kafkaMockPage = new MockServerPage(
+        page,
+        testInfo,
+        eyes,
+        KAFKA_YAML_SPEC,
+      );
 
       await test.step("Exclude single test and verify counts decrease", async () => {
-        await contractPage.selectTestForExclusionOrInclusion(
-          "/products",
-          "POST",
-          "201",
+        await runAndVerifyCounts(
+          contractPage,
+          kafkaMockPage,
+          async () => {
+            await contractPage.selectTestForExclusionOrInclusion(
+              "/products",
+              "POST",
+              "201",
+            );
+            await contractPage.clickExcludeButton();
+          },
+          {
+            success: 0,
+            failed: 23,
+            total: 26,
+            error: 0,
+            notcovered: 2,
+            excluded: 1,
+          },
         );
-        await contractPage.clickExcludeButton();
-        await runAndVerifyCounts(contractPage, {
-          success: 0,
-          failed: 23,
-          total: 26,
-          error: 0,
-          notcovered: 2,
-          excluded: 1,
-        });
       });
 
       await test.step("Include single test and verify counts are restored", async () => {
-        await contractPage.selectTestForExclusionOrInclusion(
-          "/products",
-          "POST",
-          "201",
+        await runAndVerifyCounts(
+          contractPage,
+          kafkaMockPage,
+          async () => {
+            await contractPage.selectTestForExclusionOrInclusion(
+              "/products",
+              "POST",
+              "201",
+            );
+            await contractPage.clickIncludeButton();
+          },
+          {
+            success: 12,
+            failed: 24,
+            total: 38,
+            error: 0,
+            notcovered: 2,
+            excluded: 0,
+          },
         );
-        await contractPage.clickIncludeButton();
-        await runAndVerifyCounts(contractPage, {
-          success: 12,
-          failed: 24,
-          total: 38,
-          error: 0,
-          notcovered: 2,
-          excluded: 0,
-        });
       });
 
       await test.step("Exclude multiple tests across different endpoints", async () => {
-        await contractPage.selectMultipleTests([
-          { path: "/products", method: "POST", response: "201" },
-          { path: "/findAvailableProducts", method: "GET", response: "200" },
-        ]);
-        await contractPage.clickExcludeButton();
-        await runAndVerifyCounts(contractPage, {
-          success: 0,
-          failed: 18,
-          total: 22,
-          error: 0,
-          notcovered: 2,
-          excluded: 2,
-        });
+        await runAndVerifyCounts(
+          contractPage,
+          kafkaMockPage,
+          async () => {
+            await contractPage.selectMultipleTests([
+              { path: "/products", method: "POST", response: "201" },
+              {
+                path: "/findAvailableProducts",
+                method: "GET",
+                response: "200",
+              },
+            ]);
+            await contractPage.clickExcludeButton();
+          },
+          {
+            success: 0,
+            failed: 18,
+            total: 22,
+            error: 0,
+            notcovered: 2,
+            excluded: 2,
+          },
+        );
       });
 
       await test.step("Include multiple tests and verify all counts are restored", async () => {
-        await contractPage.selectMultipleTests([
-          { path: "/products", method: "POST", response: "201" },
-          { path: "/findAvailableProducts", method: "GET", response: "200" },
-        ]);
-        await contractPage.clickIncludeButton();
-        await runAndVerifyCounts(contractPage, {
-          success: 12,
-          failed: 24,
-          total: 38,
-          error: 0,
-          notcovered: 2,
-          excluded: 0,
-        });
+        await runAndVerifyCounts(
+          contractPage,
+          kafkaMockPage,
+          async () => {
+            await contractPage.selectMultipleTests([
+              { path: "/products", method: "POST", response: "201" },
+              {
+                path: "/findAvailableProducts",
+                method: "GET",
+                response: "200",
+              },
+            ]);
+            await contractPage.clickIncludeButton();
+          },
+          {
+            success: 12,
+            failed: 24,
+            total: 38,
+            error: 0,
+            notcovered: 2,
+            excluded: 0,
+          },
+        );
       });
 
       await test.step("Verify error when mixing inclusive and exclusive operations", async () => {
+        await contractPage.openContractTestTabViaSidebar(
+          PRODUCT_SEARCH_BFF_SPEC_CONTRACT_TESTS_EXCLUDED,
+        );
         await contractPage.selectTestForExclusionOrInclusion(
           "/products",
           "POST",

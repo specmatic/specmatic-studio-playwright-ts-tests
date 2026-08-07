@@ -1,6 +1,7 @@
 import { expect, test } from "../../../utils/eyesFixture";
 import { ApiContractPage } from "../../../page-objects/api-contract-page";
-import { PRODUCT_SEARCH_BFF_SPEC } from "../../specNames";
+import { MockServerPage } from "../../../page-objects/mock-server-page";
+import { KAFKA_YAML_SPEC } from "../../specNames";
 
 export async function validateSummaryAndTableCounts(
   contractPage: ApiContractPage,
@@ -26,6 +27,38 @@ export async function validateSummaryAndTableCounts(
       headerTotals,
       "Business Check: Header counts must match expected values",
     ).toStrictEqual(expected);
+  });
+}
+
+export async function withKafkaMockRunning(
+  kafkaMockPage: MockServerPage,
+  runContractTestsAndAssertCounts: () => Promise<void>,
+) {
+  await startKafkaMock(kafkaMockPage);
+
+  try {
+    await runContractTestsAndAssertCounts();
+  } finally {
+    await stopKafkaMock(kafkaMockPage);
+  }
+}
+
+async function startKafkaMock(kafkaMockPage: MockServerPage) {
+  await test.step(`Start Kafka mock for contract tests: '${KAFKA_YAML_SPEC}'`, async () => {
+    await kafkaMockPage.openRunMockServerTab(KAFKA_YAML_SPEC);
+    await kafkaMockPage.ensureInMemoryBrokerChecked();
+    await kafkaMockPage.fillMockPort(9092);
+    await kafkaMockPage.startMockServer();
+    await kafkaMockPage.assertAsyncMockStarted(
+      "Kafka mock broker: localhost:9092",
+    );
+  });
+}
+
+async function stopKafkaMock(kafkaMockPage: MockServerPage) {
+  await test.step(`Stop Kafka mock after contract tests: '${KAFKA_YAML_SPEC}'`, async () => {
+    await kafkaMockPage.openMockTabViaSidebar(KAFKA_YAML_SPEC);
+    await kafkaMockPage.stopMockServer();
   });
 }
 
