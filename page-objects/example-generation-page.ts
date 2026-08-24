@@ -362,21 +362,12 @@ export class ExampleGenerationPage extends BasePage {
     );
   }
 
-  private getAllInlineRows(context?: string): Locator {
-    let rows = this.examplesRoot.locator('tr[data-row-id]:has(td.examples-name-cell span:text-is("Inline"))');
-    if (context) rows = rows.filter({ hasText: context });
-    return rows;
-  }
-
   private getInlineRows(name: string, context?: string): Locator {
-    if (!name) {
-      return this.getAllInlineRows(context);
-    }
-
     const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const nameCell = this.examplesRoot
-        .locator("td.examples-name-cell")
-        .filter({ hasText: new RegExp(`^\\s*${escapedName}\\s*Inline\\s*$`) });
+      .locator("td.examples-name-cell")
+      .filter({ hasText: new RegExp(`(^|\\s)${escapedName}(?=\\s|$)`) })
+      .filter({ hasText: /(^|\s)Inline(\s|$)/ });
 
     let rows = nameCell.locator("xpath=..");
     if (context) rows = rows.filter({ hasText: context });
@@ -416,26 +407,45 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async assertInlineDetails(expectedContent: string[], expectedLocation: string): Promise<void> {
-    await test.step("Verify inline example details are read-only", async () => {
+  async assertInlineDetailsEditable(expectedContent: string[], expectedLocation: string): Promise<void> {
+    await test.step("Verify inline example details are editable", async () => {
       const root = await this.waitForExamplesIFrame();
       const editor = root.locator("code-editor");
-      await expect(editor).toBeVisible({ timeout: 8000 });
-      await expect(editor).toHaveAttribute("aria-readonly", "true");
 
+      await expect(editor).toBeVisible({ timeout: 8000 });
       await expect
         .poll(() => editor.evaluate((element) => (element as any).readOnly))
-        .toBe(true);
+        .toBe(false);
 
-      await expect(editor.locator(".cm-content")).toHaveAttribute(
-        "contenteditable",
-        "false",
-      );
-
+      await expect(editor.locator(".cm-content")).toHaveAttribute("contenteditable", "true");
       const content = await this.getEditorContent();
+
       for (const fragment of expectedContent) expect(content).toContain(fragment);
       await expect(root.locator(".examples-detail-file-path")).toContainText(expectedLocation);
-      await expect(root.locator("inline-filename-rename")).toHaveCount(0);
+
+      await expect(
+        root.locator("inline-filename-rename.examples-details__filename-rename"),
+      ).toBeVisible();
+
+      await expect(
+        root.locator('button[data-details-action="validate"]'),
+      ).toBeVisible();
+    });
+  }
+
+  async assertInlineFixActionVisible(): Promise<void> {
+    await test.step("Verify inline example auto-fix action is available", async () => {
+      const root = await this.waitForExamplesIFrame();
+      const fixButton = root.locator('button[data-details-action="fix"]');
+      await expect(fixButton).toBeVisible();
+      await expect(fixButton).toBeEnabled();
+    });
+  }
+
+  async assertInlineFixActionHidden(): Promise<void> {
+    await test.step("Verify inline example auto-fix action is hidden", async () => {
+      const root = await this.waitForExamplesIFrame();
+      await expect(root.locator('button[data-details-action="fix"]')).toHaveCount(0);
     });
   }
 
@@ -457,51 +467,18 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
-  async assertInlineMutationActionsHidden(): Promise<void> {
-    await test.step("Verify unsupported inline-example actions are hidden", async () => {
-      const root = await this.waitForExamplesIFrame();
-      for (const action of ["update", "delete", "rename", "fix", "partialize", "import", "export", "generate", "save"]) {
-        const actionButtons = root.locator(`[data-details-action="${action}"], [data-detail-action="${action}"], [data-action="${action}"], [data-row-action="${action}"]`);
-        for (let index = 0; index < await actionButtons.count(); index += 1) {
-          await expect(actionButtons.nth(index)).toBeHidden();
-        }
-      }
-
-      await expect(root.locator('button[data-details-action="validate"]')).toBeVisible();
-    });
-  }
-
-  async assertInlineRowMutationActionsHidden(name: string, context?: string): Promise<void> {
-    await test.step(`Verify row actions for inline example '${name}'`, async () => {
-      await this.waitForExamplesIFrame();
-      const row = this.getInlineRows(name, context).first();
-      await expect(row).toBeVisible({ timeout: 10000 });
-      await expect(row.locator("inline-filename-rename")).toHaveCount(0);
-      await expect(row.locator('button[data-row-action="details"]')).toBeVisible();
-      await expect(row.locator('button[data-row-action="validate"]')).toBeVisible();
-
-      const actions = await row
-          .locator("button[data-row-action]")
-          .evaluateAll((buttons) =>
-              buttons.map((button) =>
-                  button.getAttribute("data-row-action")
-              )
-          );
-
-      for (const action of ["delete", "update", "rename", "fix", "partialize", "import", "export"]) {
-        expect(actions).not.toContain(action);
-      }
-    });
-  }
-
   async validateInlineExample(
     name: string,
     context?: string,
     expectedValidationClass = "green",
   ): Promise<void> {
     await test.step(`Validate inline example '${name}'`, async () => {
-      await this.goBackFromExample();
-      await this.waitForExamplesIFrame();
+      const root = await this.waitForExamplesIFrame();
+      const goBackButton = root.locator("#back");
+      if (await goBackButton.isVisible().catch(() => false)) {
+        await this.goBackFromExample();
+      }
+
       const rows = this.getInlineRows(name, context);
       await expect(rows).toHaveCount(1, { timeout: 10000 });
 
@@ -726,6 +703,25 @@ export class ExampleGenerationPage extends BasePage {
         this.page,
         `deleted-generated-example-${path}-${responseCode}`,
       );
+    });
+  }
+
+  async deleteInlineExample(name: string, context?: string): Promise<void> {
+    await test.step(`Delete inline example '${name}'`, async () => {
+      const root = await this.waitForExamplesIFrame();
+      const row = this.getInlineRows(name, context).first();
+      await expect(row).toBeVisible({ timeout: 5000 });
+
+      const rowCheckbox = row.locator('input[type="checkbox"]').first();
+      await expect(rowCheckbox).toBeVisible({ timeout: 3000 });
+      await rowCheckbox.check({ force: true });
+
+      const bulkDeleteBtn = root.locator(this.bulkDeleteBtnSelector);
+      await expect(bulkDeleteBtn).toBeVisible({ timeout: 3000 });
+      await bulkDeleteBtn.click();
+
+      await this.verifyTitleAndCloseDialog(this.protocol === "async" ? "Examples deleted" : "Delete Examples Complete");
+      await expect(this.getInlineRows(name, context)).toHaveCount(0, { timeout: 5000});
     });
   }
 
@@ -1630,6 +1626,25 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+  async renameInlineExample(name: string, newName: string, context?: string): Promise<void> {
+    await test.step(`Rename inline example to '${newName}'`, async () => {
+      await this.waitForExamplesIFrame();
+      const row = this.getInlineRows(name, context).first();
+      await expect(row).toBeVisible({ timeout: 5000 });
+
+      const renameControl = row.locator("inline-filename-rename").first();
+      await expect(renameControl).toBeVisible({ timeout: 3000 });
+
+      await renameControl.locator(".ifr__action").click();
+      const input = renameControl.locator(".ifr__input--basename");
+      await expect(input).toBeVisible({ timeout: 3000 });
+
+      await input.fill(newName);
+      await input.press("Enter");
+      await expect(this.getInlineRows(newName, context)).toHaveCount(1, { timeout: 10000 });
+    });
+  }
+
   async getRenameError(
     path: string,
     responseCode: number,
@@ -1869,6 +1884,15 @@ export class ExampleGenerationPage extends BasePage {
       });
       await this.page.waitForTimeout(300);
       await takeAndAttachScreenshot(this.page, "editor-content-pasted");
+    });
+  }
+
+  async goBackFromExampleIfVisible(): Promise<void> {
+    await test.step("Go back to examples list if visible", async () => {
+      const root = await this.waitForExamplesIFrame();
+      const goBackBtn = root.locator("#back");
+      if (!await goBackBtn.isVisible()) return;
+      await this.goBackFromExample();
     });
   }
 
