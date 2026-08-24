@@ -1298,7 +1298,6 @@ export class ExampleGenerationPage extends BasePage {
       await autoFixBtn.click();
       await takeAndAttachScreenshot(this.page, `clicked-auto-fix`, this.eyes);
       await this.verifyTitleAndCloseDialog("Fixed Example");
-      await this.goBackFromExample();
     });
   }
 
