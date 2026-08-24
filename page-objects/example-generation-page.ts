@@ -1887,6 +1887,15 @@ export class ExampleGenerationPage extends BasePage {
     });
   }
 
+  async goBackFromExampleIfVisible(): Promise<void> {
+    await test.step("Go back to examples list if visible", async () => {
+      const root = await this.waitForExamplesIFrame();
+      const goBackBtn = root.locator("#back");
+      if (!await goBackBtn.isVisible()) return;
+      await this.goBackFromExample();
+    });
+  }
+
   async goBackFromExample(): Promise<void> {
     await test.step("Go back to examples list", async () => {
       const root = await this.waitForExamplesIFrame();

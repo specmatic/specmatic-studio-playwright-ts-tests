@@ -57,7 +57,7 @@ test.describe("OpenAPI inline examples", () => {
       await examplesPage.assertInlineFixActionVisible();
 
       await examplesPage.fixExampleWithAutoFix();
-      await examplesPage.goBackFromExample();
+      await examplesPage.goBackFromExampleIfVisible();
       await examplesPage.assertInlineValidationState("CREATE_INVALID");
       await expect
         .poll(() => readSpecFile(), { timeout: 15000 })
