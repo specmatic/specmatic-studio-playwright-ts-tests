@@ -1,0 +1,59 @@
+openapi: 3.0.0
+info:
+  title: Example Conversion API
+  version: "1.0.0"
+paths:
+  /orders:
+    post:
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, status]
+              properties:
+                id:
+                  type: integer
+                status:
+                  type: string
+                  enum: [created, cancelled]
+            examples:
+              InlineCopy:
+                value:
+                  id: 401
+                  status: created
+              InlineMove:
+                value:
+                  id: 402
+                  status: cancelled
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, status]
+                properties:
+                  id:
+                    type: integer
+                  status:
+                    type: string
+                    enum: [created, cancelled]
+              examples:
+                InlineCopy:
+                  value:
+                    id: 401
+                    status: created
+                InlineMove:
+                  value:
+                    id: 402
+                    status: cancelled
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

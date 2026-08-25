@@ -1,0 +1,55 @@
+asyncapi: 3.0.0
+info:
+  title: Example Conversion Async API V3
+  version: "1.0.0"
+servers:
+  kafka:
+    host: localhost:9092
+    protocol: kafka
+channels:
+  orders:
+    address: orders
+    messages:
+      order.message:
+        $ref: "#/components/messages/Order"
+operations:
+  receiveOrder:
+    action: receive
+    channel:
+      $ref: "#/channels/orders"
+    messages:
+      - $ref: "#/channels/orders/messages/order.message"
+components:
+  messages:
+    Order:
+      name: Order
+      title: Order message
+      contentType: application/json
+      examples:
+        - name: InlineCopy
+          headers:
+            requestId: req-601
+          payload:
+            id: 601
+            status: created
+        - name: InlineMove
+          headers:
+            requestId: req-602
+          payload:
+            id: 602
+            status: cancelled
+      headers:
+        type: object
+        required: [requestId]
+        properties:
+          requestId:
+            type: string
+      payload:
+        type: object
+        required: [id, status]
+        properties:
+          id:
+            type: integer
+          status:
+            type: string
+            enum: [created, cancelled]

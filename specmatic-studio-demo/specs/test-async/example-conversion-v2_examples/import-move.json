@@ -1,0 +1,8 @@
+{
+  "name": "ImportMove",
+  "receive": {
+    "topic": "orders",
+    "headers": { "requestId": "req-704" },
+    "payload": { "id": 704, "status": "cancelled" }
+  }
+}

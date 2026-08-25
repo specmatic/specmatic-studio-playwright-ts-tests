@@ -12,6 +12,7 @@ import { BasePage } from "./base-page";
 import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
 import { SpecEditorPage } from "./spec-editor-page";
 
+export type ExampleConversionMode = "COPY" | "MOVE" | "SKIP";
 export class ExampleGenerationPage extends BasePage {
   readonly openApiTabPage: OpenAPISpecTabPage;
   protected readonly specTree: Locator;
@@ -372,6 +373,103 @@ export class ExampleGenerationPage extends BasePage {
     let rows = nameCell.locator("xpath=..");
     if (context) rows = rows.filter({ hasText: context });
     return rows;
+  }
+
+  private getExampleRows(name: string, origin?: "Inline" | "External"): Locator {
+    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    let nameCell = this.examplesRoot
+      .locator("td.examples-name-cell")
+      .filter({ hasText: new RegExp(`(^|\\s)${escapedName}(?=\\s|$)`) });
+
+    if (origin) {
+      nameCell = nameCell.filter({ hasText: new RegExp(`(^|\\s)${origin}(\\s|$)`) });
+    }
+
+    return nameCell.locator("xpath=..");
+  }
+
+  private conversionDialog(): Locator {
+    return this.page.locator(".example-conversion-overlay").first();
+  }
+
+  private conversionRow(name: string): Locator {
+    const displayName = name.replace(/\.json$/, "");
+    const escapedName = displayName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const asyncDisplayName = displayName.replace(/(^|-)([a-z])/g, (_, __, letter) => letter.toUpperCase());
+    const escapedAsyncDisplayName = asyncDisplayName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return this.conversionDialog()
+      .locator("[data-example-row]")
+      .filter({
+        has: this.page
+          .locator("[data-example-name]")
+          .filter({ hasText: new RegExp(`^(?:${escapedName}|${escapedAsyncDisplayName})$`) }),
+      })
+      .first();
+  }
+
+  async assertExternalExampleCount(name: string, expectedCount: number): Promise<void> {
+    await test.step(`Verify ${expectedCount} external rows for '${name}'`, async () => {
+      await this.waitForExamplesIFrame();
+      await expect(this.getExampleRows(name, "External")).toHaveCount(expectedCount, { timeout: 10000 });
+    });
+  }
+
+  async selectExampleForConversion(name: string, origin: "Inline" | "External"): Promise<void> {
+    await test.step(`Select ${origin.toLowerCase()} example '${name}' for conversion`, async () => {
+      await this.waitForExamplesIFrame();
+      const row = this.getExampleRows(name, origin).first();
+      await expect(row).toBeVisible({ timeout: 10000 });
+      await this.setCheckboxChecked(row.locator('input[type="checkbox"]').first(), true, `${origin} example '${name}' checkbox`);
+    });
+  }
+
+  async openExampleConversionDialog(action: "import" | "export"): Promise<void> {
+    await test.step(`Open example ${action} confirmation dialog`, async () => {
+      const root = await this.waitForExamplesIFrame();
+      const button = root.locator(`button[data-action="${action}"]`).first();
+      await expect(button).toBeVisible({ timeout: 5000 });
+      await expect(button).toBeEnabled({ timeout: 5000 });
+      await button.click();
+      await expect(this.conversionDialog()).toBeVisible({ timeout: 5000 });
+      await expect(this.conversionDialog().locator("[data-example-row]").first()).toBeVisible({ timeout: 5000 });
+    });
+  }
+
+  async assertExampleConversionRow(name: string, severity: "error" | "warning" | "success", reason: string | RegExp): Promise<void> {
+    await test.step(`Verify ${severity} conversion state for '${name}'`, async () => {
+      const row = this.conversionRow(name);
+      await expect(row).toBeVisible({ timeout: 5000 });
+      await expect(row).toHaveClass(new RegExp(`example-conversion-dialog__row--${severity}`));
+      await expect(row.locator("[data-example-issues]")).toContainText(reason);
+    });
+  }
+
+  async assertExampleConversionModes(name: string, modes: ExampleConversionMode[]): Promise<void> {
+    await test.step(`Verify conversion modes for '${name}'`, async () => {
+      const select = this.conversionRow(name).locator("select[data-example-mode]");
+      await expect(select).toBeVisible({ timeout: 5000 });
+      await expect(select.locator("option")).toHaveCount(modes.length);
+      expect(await select.locator("option").evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value))).toEqual(modes);
+    });
+  }
+
+  async chooseExampleConversionMode(name: string, mode: ExampleConversionMode): Promise<void> {
+    await test.step(`Choose ${mode} for converted example '${name}'`, async () => {
+      await this.conversionRow(name).locator("select[data-example-mode]").selectOption(mode);
+    });
+  }
+
+  async confirmExampleConversion(): Promise<void> {
+    await test.step("Confirm example conversion", async () => {
+      const dialog = this.conversionDialog();
+      await dialog.locator('[data-dialog-action="continue"]').click();
+      await expect(dialog).toBeHidden({ timeout: 15000 });
+      const { alert } = await this.getAlertContainerFrameAndLocator();
+      await expect(alert).toBeVisible({ timeout: 15000 });
+      await alert.locator(".examples-alert-close").click();
+      await expect(alert).toBeHidden({ timeout: 5000 });
+      await this.waitForExamplesIFrame();
+    });
   }
 
   async assertInlineExamplesListed(names: string[]): Promise<void> {
