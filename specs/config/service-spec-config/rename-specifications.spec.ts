@@ -166,14 +166,31 @@ test.describe("Specification rename", () => {
     { tag: ["@config", "@renameSpecification", "@runSuite"] },
     async ({ page, eyes }, testInfo) => {
       await renameAndAssertFilesystem(page, SPECS.openapi, "openapi-renamed");
+      await assertConfigUpdated(SPECS.openapi, RENAMED_SPECS.openapi);
+
       await renameAndAssertFilesystem(page, SPECS.asyncapi, "asyncapi-renamed", true);
+      await assertConfigUpdated(SPECS.asyncapi, RENAMED_SPECS.asyncapi);
+
       await renameAndAssertFilesystem(page, SPECS.wsdl, "inventory-renamed", false);
+      await assertConfigUpdated(SPECS.wsdl, RENAMED_SPECS.wsdl);
 
       const configPage = await openSpecNoReload(page, eyes, testInfo, CONFIG);
+      const previousExecutionLog = await configPage.executionLog.innerText().catch(() => "");
       await configPage.clickRunSuite();
+
+      await expect
+        .poll(() => configPage.executionLog.innerText().catch(() => ""), {
+          timeout: 10000,
+          message: "Run Suite did not produce a new execution log",
+        })
+      .not.toBe(previousExecutionLog);
 
       await configPage.waitForExecutionToComplete(500, 30000);
       await expect(configPage.executionProgressDropdown).toHaveAttribute("data-state", "success");
+      await expect(configPage.executionLog).toContainText(
+        "All configured tests completed",
+        { timeout: 10000 },
+      );
     },
   );
 });

@@ -1,0 +1,8 @@
+{
+  "name": "ImportCopy",
+  "receive": {
+    "topic": "orders",
+    "headers": { "requestId": "req-603" },
+    "payload": { "id": 603, "status": "created" }
+  }
+}

@@ -1,0 +1,48 @@
+asyncapi: 2.6.0
+info:
+  title: Example Conversion Async API V2
+  version: "1.0.0"
+servers:
+  kafka:
+    url: localhost:9092
+    protocol: kafka
+channels:
+  orders:
+    publish:
+      operationId: receiveOrder
+      message:
+        $ref: "#/components/messages/Order"
+components:
+  messages:
+    Order:
+      name: Order
+      title: Order message
+      contentType: application/json
+      examples:
+        - name: InlineCopy
+          headers:
+            requestId: req-701
+          payload:
+            id: 701
+            status: created
+        - name: InlineMove
+          headers:
+            requestId: req-702
+          payload:
+            id: 702
+            status: cancelled
+      headers:
+        type: object
+        required: [requestId]
+        properties:
+          requestId:
+            type: string
+      payload:
+        type: object
+        required: [id, status]
+        properties:
+          id:
+            type: integer
+          status:
+            type: string
+            enum: [created, cancelled]

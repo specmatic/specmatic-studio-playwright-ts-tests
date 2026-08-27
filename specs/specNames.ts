@@ -41,6 +41,12 @@ export const INLINE_EXAMPLES_READONLY_ASYNC_SPEC =
   "test-async/inline-examples-readonly.yaml";
 export const INLINE_EXAMPLES_READONLY_ASYNC_V2_SPEC =
   "test-async/inline-examples-readonly-v2.yaml";
+export const EXAMPLE_CONVERSION_OPENAPI_SPEC =
+  "test-openapi/examples/example-conversion.yaml";
+export const EXAMPLE_CONVERSION_ASYNC_V3_SPEC =
+  "test-async/example-conversion-v3.yaml";
+export const EXAMPLE_CONVERSION_ASYNC_V2_SPEC =
+  "test-async/example-conversion-v2.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_BACKWARD_COMPATIBILITY =
   "test-openapi/bcc/product_search_bff_v5_backward_compatibility.yaml";
 export const PRODUCT_SEARCH_BFF_SPEC_BACKWARD_INCOMPATIBLE =
