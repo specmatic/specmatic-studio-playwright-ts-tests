@@ -82,8 +82,22 @@ export async function generateMoreThenValidateAndInline(
     );
 
     await examplePage.validateAllExamples();
-    await examplePage.inlineExamples();
-
     return exampleEntries;
+  });
+}
+
+export async function convertGeneratedExamplesToInline(examplePage: ExampleGenerationPage, generatedExampleNames: string[]): Promise<void> {
+  await test.step("Convert generated examples to inline examples", async () => {
+    for (const name of generatedExampleNames) {
+      await examplePage.selectExampleForConversion(name, "External");
+    }
+
+    await examplePage.openExampleConversionDialog("import");
+    for (const name of generatedExampleNames) {
+      await examplePage.assertExampleConversionModes(name, ["COPY", "MOVE"]);
+      await examplePage.chooseExampleConversionMode(name, "MOVE");
+    }
+
+    await examplePage.confirmExampleConversion();
   });
 }

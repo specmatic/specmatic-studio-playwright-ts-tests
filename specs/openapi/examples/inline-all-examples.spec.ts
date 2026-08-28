@@ -3,7 +3,7 @@ import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL } from "../../specNames";
 import { ExampleGenerationPage } from "../../../page-objects/example-generation-page";
 import {
   navigateToUpdatedSpec,
-  verifyAndCloseInlineSuccessDialog,
+  convertGeneratedExamplesToInline,
 } from "../helpers/inline-examples-helper";
 
 const SPEC = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_INLINE_ALL;
@@ -17,7 +17,6 @@ test.describe("Inline examples", () => {
         "@inlineExamples",
         "@inlineAllExamples",
         "@eyes",
-        "@expected-failure",
       ],
     },
     async ({ page, eyes }, testInfo) => {
@@ -45,8 +44,7 @@ test.describe("Inline examples", () => {
       const generatedExampleNames =
         await examplePage.getGeneratedExampleNames();
 
-      await examplePage.inlineExamples();
-      await verifyAndCloseInlineSuccessDialog(examplePage, SPEC);
+      await convertGeneratedExamplesToInline(examplePage, generatedExampleNames);
 
       await test.step("Verify inlined examples appear in the updated spec file", async () => {
         const updatedSpecPage = await navigateToUpdatedSpec(

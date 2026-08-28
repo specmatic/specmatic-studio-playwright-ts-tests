@@ -2,9 +2,9 @@ import { test } from "../../../utils/eyesFixture";
 import { PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED } from "../../specNames";
 import {
   generateMoreThenValidateAndInline,
+  convertGeneratedExamplesToInline,
   navigateToUpdatedSpec,
   setupExampleGenerationPage,
-  verifyAndCloseInlineSuccessDialog,
 } from "../helpers/inline-examples-helper";
 
 const SPEC = PRODUCT_SEARCH_BFF_SPEC_EXAMPLES_VALIDATE_INLINED;
@@ -27,7 +27,6 @@ test.describe("Validate generated spec after inlining GET examples", () => {
         "@inlineExamples",
         "@validateInlinedExamplesForMultiplePaths",
         "@eyes",
-        "@expected-failure",
       ],
     },
     async ({ page, eyes }, testInfo) => {
@@ -47,7 +46,7 @@ test.describe("Validate generated spec after inlining GET examples", () => {
         PATHS_AND_CODES,
       );
 
-      await verifyAndCloseInlineSuccessDialog(examplePage, SPEC);
+      await convertGeneratedExamplesToInline(examplePage, generatedExampleNames);
 
       await test.step("Verify inlined examples appear in the updated spec file", async () => {
         const updatedSpecPage = await navigateToUpdatedSpec(
