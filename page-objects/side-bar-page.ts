@@ -70,7 +70,7 @@ export class SideBarPage {
         }
       }
 
-      await expect(specLocator).toBeVisible({ timeout: 5000 });
+      await this.waitForVirtualizedSpec(specLocator);
       await specLocator.scrollIntoViewIfNeeded();
       await this.page.waitForTimeout(200);
 
@@ -78,7 +78,7 @@ export class SideBarPage {
       let lastClickError: unknown;
       for (let attempt = 1; attempt <= 4; attempt++) {
         try {
-          await expect(specLocator).toBeVisible({ timeout: 5000 });
+          await this.waitForVirtualizedSpec(specLocator);
           await specLocator.click({ timeout: 5000 });
           clickSuccessful = true;
           break;
@@ -96,6 +96,35 @@ export class SideBarPage {
       await this.closeSidebar();
     });
     return specLocator;
+  }
+
+  private async waitForVirtualizedSpec(specLocator: Locator): Promise<void> {
+    const tree = this.page.locator("#spec-tree");
+    await tree.evaluate((element) => { element.scrollTop = 0; });
+    const visible = await expect
+      .poll(
+        async () => {
+          if (await specLocator.isVisible().catch(() => false)) return true;
+          await tree.evaluate((element) => {
+            const nextScrollTop = element.scrollTop + Math.max(element.clientHeight * 0.8, 100);
+            element.scrollTop = Math.min(nextScrollTop, element.scrollHeight);
+          });
+
+          return specLocator.isVisible().catch(() => false);
+        },
+        {
+          timeout: 15000,
+          intervals: [100, 250, 500, 1000],
+          message: "Waiting for specification to become visible in the sidebar",
+        },
+      )
+      .toBe(true)
+      .then(() => true)
+      .catch(() => false);
+
+    if (!visible) {
+      await expect(specLocator).toBeVisible({ timeout: 5000 });
+    }
   }
 
   /**

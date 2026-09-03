@@ -3,6 +3,7 @@ import { Locator, type TestInfo, Page, expect, test } from "@playwright/test";
 import { BasePage } from "./base-page";
 import { PRODUCT_SEARCH_BFF_SPEC } from "../specs/specNames";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
+import { StudioNotifications } from "./studio-notifications";
 
 export class MockServerPage extends BasePage {
   private readonly openApiTabPage: OpenAPISpecTabPage;
@@ -49,8 +50,7 @@ export class MockServerPage extends BasePage {
   // Drill-down back button
   private readonly drillDownBackButton: Locator;
 
-  private readonly alertContainer: Locator;
-  private readonly alertMessage: Locator;
+  private readonly notifications: StudioNotifications;
 
   private readonly sidebarProcessBar: (specName: string) => Locator;
 
@@ -143,8 +143,7 @@ export class MockServerPage extends BasePage {
       .getByRole("button", { name: "Go Back" })
       .first();
 
-    this.alertContainer = page.locator("#alert-container");
-    this.alertMessage = this.alertContainer.locator(".alert-msg.error");
+    this.notifications = new StudioNotifications(page);
 
     this.sidebarProcessBar = (specName: string) =>
       page.locator(
@@ -498,16 +497,10 @@ export class MockServerPage extends BasePage {
   }
 
   async getErrorMessage(): Promise<{ title: string; detail: string }> {
-    await this.alertMessage.waitFor({ state: "visible", timeout: 5000 });
-
-    const titleLocator = this.alertMessage.locator("p");
-    const detailLocator = this.alertMessage.locator("pre");
-
-    await expect(titleLocator).toBeVisible({ timeout: 5000 });
-    await expect(detailLocator).toBeVisible({ timeout: 5000 });
-
-    const title = await titleLocator.innerText();
-    const detail = await detailLocator.innerText();
+    const { title, message: detail } = await this.notifications.read(
+      { type: "error" },
+      5000,
+    );
 
     await takeAndAttachScreenshot(
       this.page,
@@ -524,9 +517,7 @@ export class MockServerPage extends BasePage {
   }
 
   async dismissAlert() {
-    const closeButton = this.alertMessage.locator("button");
-    await closeButton.click();
-    await this.alertMessage.waitFor({ state: "hidden", timeout: 5000 });
+    await this.notifications.close({ type: "error" }, 5000);
     await takeAndAttachScreenshot(this.page, "invalid dialog dismissed");
   }
 

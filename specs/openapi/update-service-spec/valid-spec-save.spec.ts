@@ -33,7 +33,7 @@ test.describe("Saving Valid Spec", () => {
         await configPage.editSpec(validEdit);
         await configPage.clickSaveOpenApi();
 
-        await expect(configPage.alertMsg).not.toBeVisible();
+        expect(await configPage.notifications.isVisible({ type: "error" })).toBe(false);
       });
     },
   );

@@ -2,6 +2,7 @@ import { Locator, Page, expect, test, type TestInfo } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { SideBarPage } from "./side-bar-page";
+import { StudioNotifications } from "./studio-notifications";
 
 export class SpecmaticStudioPage extends BasePage {
   readonly leftSidebar: Locator;
@@ -11,8 +12,7 @@ export class SpecmaticStudioPage extends BasePage {
   private readonly recordSpecBtn: Locator;
   private readonly startProxyBtn: Locator;
   private readonly stopProxyBtn: Locator;
-  private readonly proxyStartedAlert: Locator;
-  private readonly proxyErrorAlert: Locator;
+  readonly notifications: StudioNotifications;
   private readonly proxyInfoBox: Locator;
   private readonly proxyTable: Locator;
   private readonly proxyTableRows: Locator;
@@ -34,10 +34,7 @@ export class SpecmaticStudioPage extends BasePage {
     });
     this.startProxyBtn = page.locator("#startProxy");
     this.stopProxyBtn = page.locator("#stopProxy");
-    this.proxyStartedAlert = page.locator(
-      "#alert-container .alert-msg.success",
-    );
-    this.proxyErrorAlert = page.locator("#alert-container .alert-msg.error");
+    this.notifications = new StudioNotifications(page);
     this.proxyInfoBox = page.locator("#proxy .info-message-box");
     this.proxyTable = page.locator("table#proxyTable");
     this.proxyTableRows = this.proxyTable.locator("tbody tr");
@@ -101,11 +98,9 @@ export class SpecmaticStudioPage extends BasePage {
   }
 
   async assertProxyStartedAlert(expectedText: string) {
-    await expect(this.proxyStartedAlert).toBeVisible({ timeout: 10000 });
-    await expect(this.proxyStartedAlert.locator("p")).toHaveText(expectedText);
+    await this.notifications.assert({ type: "success", title: expectedText }, 10000);
     await takeAndAttachScreenshot(this.page, "proxy-started-alert", this.eyes);
-    await this.proxyStartedAlert.locator("button").click();
-    await expect(this.proxyStartedAlert).toBeHidden({ timeout: 5000 });
+    await this.notifications.close({ type: "success", title: expectedText }, 5000);
   }
 
   async getProxyUrl(): Promise<string> {
@@ -229,8 +224,8 @@ export class SpecmaticStudioPage extends BasePage {
         stopBtn
           .waitFor({ state: "visible", timeout: 10000 })
           .then(() => "started" as const),
-        this.proxyErrorAlert
-          .waitFor({ state: "visible", timeout: 10000 })
+        this.notifications
+          .waitFor({ type: "error" }, 10000)
           .then(() => "error" as const),
       ]);
 
@@ -240,20 +235,15 @@ export class SpecmaticStudioPage extends BasePage {
     let outcome = await tryStartReplay();
 
     if (outcome === "error") {
-      const errorTitle =
-        (await this.proxyErrorAlert.locator("p").textContent())?.trim() ?? "";
-      const errorDetails =
-        (await this.proxyErrorAlert.locator("pre").textContent())?.trim() ?? "";
-      const dismissButton = this.proxyErrorAlert.locator("button").first();
+      const error = await this.notifications.read({ type: "error" }, 1000);
+      const errorTitle = error.title;
+      const errorDetails = error.message;
 
       if (
         errorDetails.includes("ConcurrentModificationException") &&
-        (await dismissButton.isVisible().catch(() => false))
+        (await this.notifications.isVisible({ type: "error" }))
       ) {
-        await dismissButton.click();
-        await expect(this.proxyErrorAlert)
-          .toBeHidden({ timeout: 5000 })
-          .catch(() => {});
+        await this.notifications.dismiss({ type: "error" }, 5000);
         await this.page.waitForTimeout(1000);
         outcome = await tryStartReplay();
       }

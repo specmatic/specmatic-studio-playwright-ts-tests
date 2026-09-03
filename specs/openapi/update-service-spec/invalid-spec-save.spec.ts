@@ -38,10 +38,13 @@ test.describe("InValid Spec save and Error Dialog Display", () => {
         });
 
         await test.step("Assert 'Failed to save' dialog", async () => {
-          await expect(configPage.alertMsg).toBeVisible();
-          const alertText = await configPage.getAlertText();
-          await configPage.dismissAlert();
-          expect(alertText).toContain("Failed to save");
+          const { title } = await configPage.notifications.assert({
+            type: "error",
+            title: /Failed to save/i,
+          });
+
+          await configPage.dismissAlert("error");
+          expect(title).toContain("Failed to save");
         });
 
         await test.step("Assert validation error details", async () => {

@@ -11,6 +11,7 @@ import { Edit } from "../utils/types/json-edit.types";
 import { BasePage } from "./base-page";
 import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
 import { SpecEditorPage } from "./spec-editor-page";
+import { StudioNotifications } from "./studio-notifications";
 
 export type ExampleConversionMode = "COPY" | "MOVE" | "SKIP";
 export class ExampleGenerationPage extends BasePage {
@@ -33,6 +34,7 @@ export class ExampleGenerationPage extends BasePage {
   private readonly specTabLocator: Locator;
   private readonly editorViewToggleButton: Locator;
   private readonly specEditorHelper: SpecEditorPage;
+  private readonly notifications: StudioNotifications;
   private readonly protocol: "openapi" | "async";
 
   constructor(
@@ -81,6 +83,7 @@ export class ExampleGenerationPage extends BasePage {
     this.inlineBtnSelector = 'button[data-action="import"]';
     this.bulkFixBtnSelector = 'button[data-action="fix"]';
     this.specEditorHelper = new SpecEditorPage(page);
+    this.notifications = new StudioNotifications(page);
   }
 
   private async openExampleGenerationTab() {
@@ -327,6 +330,7 @@ export class ExampleGenerationPage extends BasePage {
     targetNewlyGenerated = false,
   ) {
     const root = await this.waitForExamplesIFrame();
+    const detailsTargetSelector = 'td.examples-name-cell[data-details-id], button[data-row-action="details"]';
     let viewDetailsButton: Locator;
 
     if (targetNewlyGenerated) {
@@ -334,24 +338,24 @@ export class ExampleGenerationPage extends BasePage {
         root,
         endpoint,
         responseCode,
-        'button[data-row-action="details"]',
+        detailsTargetSelector,
         true,
       );
       await expect(row).toBeAttached({ timeout: 5000 });
-      viewDetailsButton = row.locator('button[data-row-action="details"]');
+      viewDetailsButton = row.locator(detailsTargetSelector).first();
     } else {
       const row = await this.getRowWithVisibleControl(
         root,
         endpoint,
         responseCode,
-        'button[data-row-action="details"]',
+        detailsTargetSelector,
         true,
       );
-      viewDetailsButton = row.locator('button[data-row-action="details"]');
+      viewDetailsButton = row.locator(detailsTargetSelector).first();
       await expect(viewDetailsButton).toBeVisible({ timeout: 4000 });
     }
 
-    await viewDetailsButton.click({ force: true });
+    await viewDetailsButton.click();
 
     await this.waitForDetailsViewToLoad();
     await this.page.waitForTimeout(1000);
@@ -366,9 +370,8 @@ export class ExampleGenerationPage extends BasePage {
   private getInlineRows(name: string, context?: string): Locator {
     const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const nameCell = this.examplesRoot
-      .locator("td.examples-name-cell")
-      .filter({ hasText: new RegExp(`(^|\\s)${escapedName}(?=\\s|$)`) })
-      .filter({ hasText: /(^|\s)Inline(\s|$)/ });
+      .locator("td.examples-name-cell:has(.examples-origin-pill--inline)")
+      .filter({ hasText: new RegExp(`(^|\\s)${escapedName}(?=\\s|$)`) });
 
     let rows = nameCell.locator("xpath=..");
     if (context) rows = rows.filter({ hasText: context });
@@ -376,16 +379,12 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private getExampleRows(name: string, origin?: "Inline" | "External"): Locator {
+    const originSelector = origin ? `:has(.examples-origin-pill--${origin.toLowerCase()})` : "";
     const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    let nameCell = this.examplesRoot
-      .locator("td.examples-name-cell")
-      .filter({ hasText: new RegExp(`(^|\\s)${escapedName}(?=\\s|$)`) });
-
-    if (origin) {
-      nameCell = nameCell.filter({ hasText: new RegExp(`(^|\\s)${origin}(\\s|$)`) });
-    }
-
-    return nameCell.locator("xpath=..");
+    return this.examplesRoot
+      .locator(`td.examples-name-cell${originSelector}`)
+      .filter({ hasText: new RegExp(`(^|\\s)${escapedName}(?=\\s|$)`) })
+      .locator("xpath=..");
   }
 
   private conversionDialog(): Locator {
@@ -464,10 +463,7 @@ export class ExampleGenerationPage extends BasePage {
       const dialog = this.conversionDialog();
       await dialog.locator('[data-dialog-action="continue"]').click();
       await expect(dialog).toBeHidden({ timeout: 15000 });
-      const { alert } = await this.getAlertContainerFrameAndLocator();
-      await expect(alert).toBeVisible({ timeout: 15000 });
-      await alert.locator(".examples-alert-close").click();
-      await expect(alert).toBeHidden({ timeout: 5000 });
+      await this.notifications.close({}, 15000);
       await this.waitForExamplesIFrame();
     });
   }
@@ -497,10 +493,10 @@ export class ExampleGenerationPage extends BasePage {
       await expect(rows).toHaveCount(1, { timeout: 10000 });
 
       const row = rows.first();
-      const detailsButton = row.locator('button[data-row-action="details"]');
-      await expect(detailsButton).toBeVisible({ timeout: 5000 });
+      const detailsTarget = row.locator('td.examples-name-cell[data-details-id], button[data-row-action="details"]');
+      await expect(detailsTarget).toBeVisible({ timeout: 5000 });
 
-      await detailsButton.click();
+      await detailsTarget.click();
       await this.waitForDetailsViewToLoad();
     });
   }
@@ -649,11 +645,7 @@ export class ExampleGenerationPage extends BasePage {
       `before-closing-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
 
-    const { alert } = await this.getAlertContainerFrameAndLocator();
-    await expect(alert).toBeVisible({ timeout: 15000 });
-
-    const title = await this.getDialogTitle(alert);
-    const message = await this.getDialogMessage(alert);
+    const { title } = await this.notifications.read({}, 15000);
     expect
       .soft(
         this.dialogTitleMatches(title, expectedTitle),
@@ -661,7 +653,7 @@ export class ExampleGenerationPage extends BasePage {
       )
       .toBeTruthy();
 
-    await alert.locator(".examples-alert-close").click();
+    await this.notifications.close({ title }, 5000);
     console.log(
       `\t\tClicked close button on dialog with title: '${expectedTitle}' Vs Actual: '${title}'`,
     );
@@ -670,36 +662,6 @@ export class ExampleGenerationPage extends BasePage {
       this.page,
       `after-closing-dialog-${expectedTitle.replace(/\s+/g, "-").toLowerCase()}`,
     );
-    await expect(alert).toBeHidden({ timeout: 5000 });
-  }
-
-  private async getAlertContainerFrameAndLocator(): Promise<{
-    alert: Locator;
-  }> {
-    const root = await this.waitForExamplesIFrame();
-    const alert = root.locator(".examples-alerts .examples-alert").first();
-    return { alert };
-  }
-
-  private async getDialogTitle(alert: Locator): Promise<string> {
-    const dialogTitle = await alert
-      .locator(".examples-alert-content strong")
-      .first()
-      .innerText();
-    console.log("\t\tActual dialog title:", dialogTitle);
-    return dialogTitle;
-  }
-
-  private async getDialogMessage(alert: Locator): Promise<string> {
-    let dialogMessage = "";
-    const messageLocator = alert.locator(
-      ".examples-alert-message, .examples-alert-detail",
-    );
-    if ((await messageLocator.count()) > 0) {
-      dialogMessage = (await messageLocator.first().innerText()).trim();
-    }
-    console.log("\t\tActual dialog message:", dialogMessage);
-    return dialogMessage;
   }
 
   private async saveAndValidate(withVisualValidation = true) {
@@ -1017,46 +979,31 @@ export class ExampleGenerationPage extends BasePage {
       ).toBeGreaterThan(0);
 
       await this.selectAll(root);
+      await this.notifications.startWatch({ title: "Example validations complete" });
       await this.clickBulkValidateButton();
 
-      await this.waitForProcessingToComplete(
-        root,
-        this.bulkValidateBtnSelector,
-      );
-      await expect
-        .poll(
-          async () => await this.getNumberOfExamplesValidated(),
-          {
+      try {
+        await this.waitForProcessingToComplete(root, this.bulkValidateBtnSelector);
+        await expect.poll(async () => await this.getNumberOfExamplesValidated(), {
             timeout: 30000,
             intervals: [500, 1000, 2000],
-            message:
-              "Waiting for all generated examples to move into validated state",
+            message: "Waiting for all generated examples to move into validated state",
           },
-        )
-        .toBe(generatedExamplesBeforeValidation);
-
-      const dialogDetails = await this.getDialogTitleAndMessageIfPresent(3000);
-      if (dialogDetails) {
-        const [actualTitle] = dialogDetails;
-        expect
-          .soft(
-            this.dialogTitleMatches(
-              actualTitle,
-              "Example Validations Complete",
-            ),
+        ).toBe(generatedExamplesBeforeValidation);
+      } finally {
+        const dialogDetails = await this.notifications.stopWatch();
+        if (dialogDetails?.seen) {
+          const actualTitle = dialogDetails.title;
+          expect.soft(
+            this.dialogTitleMatches(actualTitle, "Example Validations Complete"),
             `Expected validation completion dialog but found '${actualTitle}'`,
-          )
-          .toBeTruthy();
-      } else {
-        console.log(
-          "\tValidation completion dialog did not appear; proceeding based on validated row state",
-        );
+          ).toBeTruthy();
+        } else {
+          console.log("\tValidation completion dialog did not appear; proceeding based on validated row state");
+        }
       }
-      await takeAndAttachScreenshot(
-        this.page,
-        `validate-examples-for-all-paths`,
-        this.eyes,
-      );
+
+      await takeAndAttachScreenshot(this.page, `validate-examples-for-all-paths`, this.eyes);
     });
   }
 
@@ -1187,10 +1134,8 @@ export class ExampleGenerationPage extends BasePage {
   async getDialogTitleAndMessage(): Promise<[string, string]> {
     return await test.step(`Get dialog title and message`, async () => {
       console.log(`\tGetting dialog title and message`);
-      const { alert } = await this.getAlertContainerFrameAndLocator();
       await takeAndAttachScreenshot(this.page, `dialog-title-and-message`);
-      const title = await this.getDialogTitle(alert);
-      const message = await this.getDialogMessage(alert);
+      const { title, message } = await this.notifications.read();
       return [title, message];
     });
   }
@@ -1200,17 +1145,8 @@ export class ExampleGenerationPage extends BasePage {
   ): Promise<[string, string] | null> {
     return await test.step(`Get dialog title and message if present`, async () => {
       console.log(`\tGetting dialog title and message if present`);
-      const { alert } = await this.getAlertContainerFrameAndLocator();
-      const dialogContent = alert.locator(
-        ".examples-alert-content strong, .examples-alert-message, .examples-alert-detail",
-      );
-      const isDialogVisible = await dialogContent
-        .first()
-        .waitFor({ state: "visible", timeout })
-        .then(() => true)
-        .catch(() => false);
-
-      if (!isDialogVisible) {
+      const details = await this.notifications.tryRead({}, timeout);
+      if (!details) {
         console.warn(
           `\tDialog content did not appear within ${timeout}ms, continuing without blocking the test`,
         );
@@ -1219,17 +1155,12 @@ export class ExampleGenerationPage extends BasePage {
       }
 
       await takeAndAttachScreenshot(this.page, `dialog-title-and-message`);
-      const title = await this.getDialogTitle(alert);
-      const message = await this.getDialogMessage(alert);
-
-      const closeButton = alert.locator(".examples-alert-close").first();
-      if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await closeButton.click();
+      if (await this.notifications.isVisible({ title: details.title })) {
+        await this.notifications.close({ title: details.title }, 5000);
         await this.page.waitForTimeout(1000);
-        await expect(alert).toBeHidden({ timeout: 5000 });
       }
 
-      return [title, message];
+      return [details.title, details.message];
     });
   }
 
@@ -1305,21 +1236,11 @@ export class ExampleGenerationPage extends BasePage {
         this.eyes,
       );
 
-      const alert = root
-        .locator(".examples-alerts .examples-alert.success")
-        .first();
-      await expect(alert).toBeVisible({ timeout: 5000 });
-
-      const title = (await alert.locator("strong").first().innerText()).trim();
-      const message = (
-        await alert.locator(".examples-alert-message").first().innerText()
-      ).trim();
+      const { title, message } = await this.notifications.read({ type: "success" }, 5000);
       expect(title).toBe("Converted to partial");
       expect(message).toBe(`Example name: ${exampleName}`);
 
-      const closeButton = alert.locator(".examples-alert-close").first();
-      await closeButton.click();
-      await expect(alert).toBeHidden({ timeout: 5000 });
+      await this.notifications.close({ type: "success", title }, 5000);
     });
   }
 

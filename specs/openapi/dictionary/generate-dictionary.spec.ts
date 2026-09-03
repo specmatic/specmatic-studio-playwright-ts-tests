@@ -98,7 +98,7 @@ async function generateDictionaryAndReadContents(
     context.dictionarySpecName,
   );
   await context.sourceSpecPage.dismissAlert();
-  await expect(page.locator("#alert-container")).toBeEmpty();
+  expect(await context.sourceSpecPage.notifications.count()).toBe(0);
 
   const dictionaryPage = await openDictionarySpec(
     context,

@@ -25,8 +25,8 @@ test.describe("Specmatic Config", () => {
 
       await test.step("Click Run Suite and Assert the Status", async () => {
         await configPage.clickRunSuite();
-        await assertErrorDialog(configPage, "Failed to execute");
-        await configPage.dismissAlert();
+        await assertErrorDialog(configPage, "Execution failed");
+        await configPage.dismissAlert("error");
         await configPage.rightSidebar.close();
         await assertExecutionDropDown(configPage, page, "error", "Failed");
         await expect(configPage.executionLog).toContainText(
@@ -47,8 +47,8 @@ test.describe("Specmatic Config", () => {
         await assertExecutionDropDown(configPage, page, "running", "Running");
         await takeAndAttachScreenshot(page, "suite-status-running", eyes);
         await configPage.waitForExecutionToComplete();
-        await assertErrorDialog(configPage, "Failed to execute");
-        await configPage.dismissAlert();
+        await assertErrorDialog(configPage, "Execution failed");
+        await configPage.dismissAlert("error");
         await assertExecutionDropDown(configPage, page, "error", "Failed");
         await expect(configPage.executionLog).toContainText(
           "Starting mock: kafka.yaml (specification dependent port)",
@@ -120,9 +120,9 @@ async function assertErrorDialog(
   expectedTitle: string,
   expectedDesc?: string,
 ) {
-  await expect(configPage.alertContainer).toBeVisible();
-  await expect(configPage.alertTitle).toHaveText(expectedTitle);
-  if (expectedDesc) {
-    await expect(configPage.alertDescription).toContainText(expectedDesc);
-  }
+  await configPage.notifications.assert({
+    type: "error",
+    title: expectedTitle,
+    ...(expectedDesc ? { message: expectedDesc } : {}),
+  });
 }

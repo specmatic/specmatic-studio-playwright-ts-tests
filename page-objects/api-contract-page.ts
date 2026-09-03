@@ -2,6 +2,7 @@ import { test, Locator, expect, type TestInfo, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { OpenAPISpecTabPage } from "./openapi-spec-tab-page";
+import { StudioNotifications } from "./studio-notifications";
 
 export class ApiContractPage extends BasePage {
   private readonly openApiTabPage: OpenAPISpecTabPage;
@@ -72,7 +73,7 @@ export class ApiContractPage extends BasePage {
 
   private readonly sidebarProcessBar: (specName: string) => Locator;
 
-  readonly infoDialog: Locator;
+  readonly notifications: StudioNotifications;
 
   constructor(page: Page, testInfo: TestInfo, eyes: any, specName: string) {
     super(page, testInfo, eyes, specName);
@@ -130,7 +131,7 @@ export class ApiContractPage extends BasePage {
       .locator('th[data-key="response"]')
       .first();
     this.uniqueContainer = this.specSection.locator("#unique-container");
-    this.excludeButton = page.getByRole("button", { name: /exclude/i });
+    this.excludeButton = this.specSection.locator("button.filter").filter({ hasText: "Exclude" });
     this.rowLocator = (path: string, method: string, response: string) =>
       page.locator(
         `table#test > tbody > tr:has(td[data-key="path"][data-value="${path}"]):has(td[data-key="method"][data-value="${method}"]):has(td[data-key="response"][data-value="${response}"])`,
@@ -166,7 +167,9 @@ export class ApiContractPage extends BasePage {
 
     //Table Locators
     this.tableHeader = (key: string) =>
-      page.locator(`table#test thead th[data-key="${key}"]`);
+      this.specSection
+        .locator(`table#test:visible thead th[data-key="${key}"]`)
+        .first();
     this.tableRows = page.locator("table#test > tbody > tr");
 
     //Header Locators
@@ -229,7 +232,7 @@ export class ApiContractPage extends BasePage {
       .locator("button.clear")
       .filter({ hasText: "Include" });
 
-    this.infoDialog = this.page.locator("#alert-container .alert-msg.info");
+    this.notifications = new StudioNotifications(this.page);
 
     this.asyncRunButton = page
       .locator(`[id$="${this.specName}"] #async-run-test`)
@@ -366,19 +369,6 @@ export class ApiContractPage extends BasePage {
       );
     });
   }
-
-  // async waitforDialogToDismiss(status: string | RegExp) {
-  //   await this.infoDialog
-  //     .waitFor({ state: "visible", timeout: 5000 })
-  //     .then(() => true)
-  //     .catch(() => false);
-
-  //   await expect.soft(this.infoDialog).toContainText(status, {
-  //     timeout: 10000,
-  //   });
-
-  //   await this.infoDialog.waitFor({ state: "hidden", timeout: 5000 });
-  // }
 
   private async waitForTestCompletion() {
     await this.waitForTestsToStartRunning();
@@ -806,14 +796,9 @@ export class ApiContractPage extends BasePage {
   async verifyAddToSpecificationSuccessDialog(
     expectedText:
       | string
-      | RegExp = /updated openapi specification with new response/i,
+      | RegExp = /specification updated/i,
   ) {
-    const successAlert = this.page
-      .locator("#alert-container .alert-msg.success p")
-      .first();
-    await expect(successAlert).toBeVisible({ timeout: 10000 });
-    await expect(successAlert).toContainText(expectedText);
-
+    await this.notifications.assert({ type: "success", title: expectedText }, 10000);
     await takeAndAttachScreenshot(
       this.page,
       "add-to-specification-success-dialog",
@@ -1195,19 +1180,11 @@ export class ApiContractPage extends BasePage {
     });
   }
 
-  async verifyExecutionHaltedDialog(
-    expectedText: string | RegExp = /execution halted by user/i,
-  ) {
-    const haltedAlert = this.page
-      .locator("#alert-container .alert-msg.info p")
-      .first();
-
-    await expect(haltedAlert).toBeVisible({ timeout: 10000 });
-    await expect(haltedAlert).toContainText(expectedText);
-
+  async verifyExecutionStopped() {
+    await expect(this._runButton).toHaveAttribute("data-running", "false", { timeout: 10000 });
     await takeAndAttachScreenshot(
       this.page,
-      "execution-halted-dialog-visible",
+      "execution-stopped",
       this.eyes,
     );
   }

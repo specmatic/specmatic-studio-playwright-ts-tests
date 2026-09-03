@@ -117,7 +117,7 @@ export async function generateDictionaryAndOpenIt(
     context.dictionarySpecName,
   );
   await context.sourceSpecPage.dismissAlert();
-  await expect(page.locator("#alert-container")).toBeEmpty();
+  expect(await context.sourceSpecPage.notifications.count()).toBe(0);
 
   return openDictionarySpec(context, page, testInfo, eyes);
 }
