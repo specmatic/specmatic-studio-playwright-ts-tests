@@ -139,16 +139,12 @@ export class BasePage {
     }
 
     if (dataType === "mock") {
-      await this.waitForAnyVisible(
-        [
-          '.tab-pane[data-type="mock"][data-active="true"] table#mock',
-          '[data-type="mock"] table#mock',
-          "table#mock",
-          '[data-type="mock"] .header ol.counts',
-        ],
-        timeout,
-      );
-      await this.waitForTableStructure("table#mock");
+      await this.page
+        .locator('.screen[data-active] #mockPort')
+        .waitFor({ state: "visible", timeout });
+      await this.page
+        .locator('.screen[data-active] button[data-type="mock"]')
+        .waitFor({ state: "visible", timeout });
       return;
     }
 
