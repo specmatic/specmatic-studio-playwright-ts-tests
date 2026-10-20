@@ -88,6 +88,17 @@ export class ExampleGenerationPage extends BasePage {
     return this.openApiTabPage.openExampleGenerationTab();
   }
 
+  protected override async waitForTabContentReady(
+    dataType: string | null,
+  ): Promise<void> {
+    if (dataType === "example") {
+      await this.waitForExamplesIFrame();
+      return;
+    }
+
+    await super.waitForTabContentReady(dataType);
+  }
+
   private normalizeExamplePath(endpoint: string): string {
     return endpoint.replace(/\(([^:()]+):[^()]+\)/g, "{$1}");
   }

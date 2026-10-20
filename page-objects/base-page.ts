@@ -121,7 +121,7 @@ export class BasePage {
     });
   }
 
-  private async waitForTabContentReady(dataType: string | null): Promise<void> {
+  protected async waitForTabContentReady(dataType: string | null): Promise<void> {
     const timeout = 15000;
 
     if (dataType === "test") {
