@@ -7,7 +7,7 @@ import { ApiContractPage } from "../../../page-objects/api-contract-page";
 
 test.describe("API Contract Testing - Stop Execution", () => {
   test(
-    "Run contract tests and stop immediately, then verify halt dialog and summary header counts",
+    "Run contract tests and stop immediately, then verify stopped state and summary header counts",
     { tag: ["@test", "@runContractTests", "@stop", "@eyes"] },
     async ({ page, eyes }, testInfo) => {
       const contractPage = new ApiContractPage(
@@ -33,10 +33,8 @@ test.describe("API Contract Testing - Stop Execution", () => {
         await contractPage.clickRunAndStopContractTestsImmediately();
       });
 
-      await test.step("Verify execution halted by user dialog", async () => {
-        await contractPage.verifyExecutionHaltedDialog(
-          "Execution halted by user",
-        );
+      await test.step("Verify execution stopped", async () => {
+        await contractPage.verifyExecutionStopped();
       });
 
       await test.step("Verify summary header counts after stop", async () => {

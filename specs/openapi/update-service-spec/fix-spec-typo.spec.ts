@@ -40,7 +40,7 @@ test.describe("Fix Spec Typo - Conditional Update", () => {
         const toastText = await configPage.getAlertMessageText();
         expect(toastText).toBe("Changes are backward compatible");
         await configPage.dismissAlert();
-        await expect(page.locator("#alert-container")).toBeEmpty();
+        expect(await configPage.notifications.count()).toBe(0);
       });
       //TODO: RUn Contract Test and Assert Count
       await test.step("Run contract test for spec with fixed typo and assert count", async () => {

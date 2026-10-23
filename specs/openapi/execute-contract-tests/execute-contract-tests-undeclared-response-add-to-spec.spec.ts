@@ -72,7 +72,7 @@ test.describe("API Contract Testing - Undeclared Response Add To Spec", () => {
 
         await contractPage.clickAddToSpecificationInResponse();
         await contractPage.verifyAddToSpecificationSuccessDialog(
-          "Updated OpenAPI Specification with new response",
+          "Specification updated",
         );
 
         console.log(

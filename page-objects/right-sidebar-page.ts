@@ -1,5 +1,6 @@
 import { Locator, expect, Page } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
+import { StudioNotifications } from "./studio-notifications";
 
 export class RightSidebarPage {
   private readonly toggle: Locator;
@@ -13,8 +14,7 @@ export class RightSidebarPage {
   readonly exportUpgradeMessage: Locator;
   readonly keepV2Button: Locator;
   readonly upgradeToV3Button: Locator;
-  readonly exportSuccessAlert: Locator;
-  readonly exportSuccessTitle: Locator;
+  readonly notifications: StudioNotifications;
 
   constructor(page: Page, eyes?: any) {
     this.page = page;
@@ -30,10 +30,7 @@ export class RightSidebarPage {
     this.exportUpgradeMessage = page.locator("#exportUpgradeMessage");
     this.keepV2Button = page.locator("#declineExportUpgradeBtn");
     this.upgradeToV3Button = page.locator("#confirmExportUpgradeBtn");
-    this.exportSuccessAlert = page.locator(
-      "#alert-container .alert-msg.success, .alert-msg.success",
-    );
-    this.exportSuccessTitle = this.exportSuccessAlert.locator("p").first();
+    this.notifications = new StudioNotifications(page);
   }
 
   async open(): Promise<void> {
@@ -76,9 +73,7 @@ export class RightSidebarPage {
         return "dialog";
       }
 
-      const exportSucceeded = await this.exportSuccessTitle
-        .isVisible()
-        .catch(() => false);
+      const exportSucceeded = await this.notifications.isVisible({ type: "success" });
       if (exportSucceeded) {
         return "exported";
       }
@@ -117,9 +112,9 @@ export class RightSidebarPage {
   }
 
   async assertExportSuccessToast(): Promise<void> {
-    await expect(this.exportSuccessAlert).toBeVisible({ timeout: 10000 });
-    await expect(this.exportSuccessTitle).toContainText(
-      /exported specmatic config/i,
+    await this.notifications.assert(
+      { type: "success", title: /exported specmatic config/i },
+      10000,
     );
     await takeAndAttachScreenshot(this.page, "export-config-success-toast");
   }

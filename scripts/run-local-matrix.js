@@ -139,7 +139,7 @@ function validateVersion(version) {
 }
 
 function resolveEnterpriseImage(version) {
-  const versionedImage = `specmatic/enterprise:${version}`;
+  const versionedImage = `specmatic/enterprise-snapshots:${version}`;
   if (hasLocalDockerImage(versionedImage)) return versionedImage;
   if (version.endsWith("-SNAPSHOT")) return "specmatic/enterprise-snapshot";
   return versionedImage;

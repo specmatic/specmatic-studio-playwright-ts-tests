@@ -35,7 +35,12 @@ test.describe("Specmatic Config V2", () => {
       );
 
       const configPage = createConfigPage(page, eyes, testInfo);
-      await installUnexpectedStubFailureDialogWatcher(page);
+      await configPage.notifications.startWatch({
+        type: "error",
+        title: "Failed to start the stub server",
+        messageIncludes: "Specification not found",
+      });
+
       const dialogState = await runBaseV2Suite(configPage, page, eyes);
       await runMockBackedV2Suite({
         page,
@@ -105,7 +110,7 @@ async function runBaseV2Suite(
       "run-suite-v2-failed",
     );
 
-    return await finalizeUnexpectedStubFailureDialogWatch(page, configPage, eyes);
+    return await finalizeUnexpectedStubFailureDialogWatch(configPage, page, eyes);
   });
 }
 
@@ -151,108 +156,39 @@ async function runSuite(configPage: ServiceSpecConfigPage) {
   });
 }
 
-async function installUnexpectedStubFailureDialogWatcher(page: Page) {
-  await test.step("Watch for unexpected stub-server dialog", async () => {
-    await page.evaluate(() => {
-      const watchKey = "__specmaticUnexpectedStubDialogWatch";
-
-      const readMatchingDialog = () => {
-        const dialogs = Array.from(
-          document.querySelectorAll(".alert-msg.error"),
-        );
-
-        for (const dialog of dialogs) {
-          const title = dialog.querySelector("p")?.textContent?.trim() ?? "";
-          const description =
-            dialog.querySelector("pre")?.textContent?.trim() ?? "";
-
-          if (
-            title === "Failed to start the stub server" &&
-            description.includes("Specification not found")
-          ) {
-            return { seen: true, title, description };
-          }
-        }
-
-        return { seen: false, title: "", description: "" };
-      };
-
-      const existingWatch = (window as any)[watchKey];
-      if (existingWatch?.observer) {
-        existingWatch.observer.disconnect();
-      }
-
-      const initialState = readMatchingDialog();
-      const state = {
-        seen: initialState.seen,
-        title: initialState.title,
-        description: initialState.description,
-      };
-
-      const observer = new MutationObserver(() => {
-        if (state.seen) {
-          return;
-        }
-
-        const currentState = readMatchingDialog();
-        if (currentState.seen) {
-          state.seen = true;
-          state.title = currentState.title;
-          state.description = currentState.description;
-        }
-      });
-
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      });
-
-      (window as any)[watchKey] = { state, observer };
-    });
-  });
-}
-
 async function finalizeUnexpectedStubFailureDialogWatch(
-  page: Page,
   configPage: ServiceSpecConfigPage,
+  page: Page,
   eyes: any,
 ) {
   return await test.step("Capture unexpected stub-server dialog state for the base run", async () => {
-    const dialogState = await page.evaluate(() => {
-      const watch = (window as any).__specmaticUnexpectedStubDialogWatch;
-      if (!watch) {
-        return null;
-      }
-
-      watch.observer?.disconnect();
-      return watch.state;
+    const dialogState = await configPage.notifications.stopWatch();
+    const visibleUnexpectedDialog = await configPage.notifications.isVisible({
+      type: "error",
+      title: "Failed to start the stub server",
+      message: /Specification not found/,
     });
 
-      const visibleUnexpectedDialog = await configPage.alertContainer
-        .isVisible()
-        .catch(() => false);
-
-      if (visibleUnexpectedDialog) {
-        await takeAndAttachScreenshot(
-          page,
-          "run-suite-v2-unexpected-dialog",
-          eyes,
-        );
-        await configPage.dismissAlert();
-      }
+    if (visibleUnexpectedDialog) {
+      await takeAndAttachScreenshot(
+        page,
+        "run-suite-v2-unexpected-dialog",
+        eyes,
+      );
+      await configPage.dismissAlert("error");
+    }
 
     return dialogState;
   });
 }
 
 async function assertUnexpectedStubFailureDialogNeverAppeared(
-  dialogState: { seen: boolean; title: string; description: string } | null,
+  dialogState: { seen: boolean; title: string; message: string } | null,
 ) {
   await test.step("Assert unexpected stub-server dialog never appeared", async () => {
     if (dialogState?.seen) {
       throw new Error(
-        `Unexpected stub-server dialog appeared during the base run: ${dialogState.title} :: ${dialogState.description}`,
+        `Unexpected stub-server dialog appeared during the base run: ${dialogState.title} :: ${dialogState.message}`,
       );
     }
   });

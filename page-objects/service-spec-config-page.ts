@@ -3,6 +3,7 @@ import { Locator, expect, type TestInfo, Page, test } from "@playwright/test";
 import { takeAndAttachScreenshot } from "../utils/screenshotUtils";
 import { BasePage } from "./base-page";
 import { SpecEditorPage } from "./spec-editor-page";
+import { StudioNotifications, type NotificationType } from "./studio-notifications";
 
 export interface Edit {
   current: {
@@ -39,22 +40,17 @@ export class ServiceSpecConfigPage extends BasePage {
   readonly editorContent: Locator;
   readonly editorScroller: Locator;
   readonly editorLines: Locator;
-  readonly alertMsg: Locator;
   readonly validationErrorBtn: Locator;
   readonly errorContent: Locator;
   private readonly bccTestButton: Locator;
   private readonly dictionaryGenerateButton: Locator;
-  private readonly alertMessage: Locator;
-  private readonly alertDismissButton: Locator;
+  readonly notifications: StudioNotifications;
   private readonly bccErrorToggle: Locator;
   private readonly bccErrorContent: Locator;
   private readonly runSuitebtn: Locator;
   readonly executionProgressDropdown: Locator;
   private readonly saveSpecBtn: Locator;
   readonly executionLog: Locator;
-  readonly alertContainer: Locator;
-  readonly alertTitle: Locator;
-  readonly alertDescription: Locator;
   private readonly editorViewToggleButton: Locator;
   private readonly specEditorHelper: SpecEditorPage;
 
@@ -83,7 +79,7 @@ export class ServiceSpecConfigPage extends BasePage {
     this.contractTestTab = this.specSection
       .locator('li.tab[data-type="test"]')
       .first();
-    this.alertMsg = page.locator(".alert-msg p");
+    this.notifications = new StudioNotifications(page);
     this.validationErrorBtn = page
       .locator(`[id*="${specName}"]`)
       .locator("button.bcc-errors-btn");
@@ -97,8 +93,6 @@ export class ServiceSpecConfigPage extends BasePage {
         'button.dictGen[data-busy-label="Generating dictionary..."]:has-text("Generate Dictionary")',
       )
       .first();
-    this.alertMessage = this.page.locator(".alert-msg");
-    this.alertDismissButton = this.alertMessage.locator("button");
     this.bccErrorToggle = this.specSection.locator(".bcc-errors-btn");
     this.bccErrorContent = this.specSection.locator(".bcc-errors-content");
     this.runSuitebtn = this.specSection.locator(".executeBtn");
@@ -110,9 +104,6 @@ export class ServiceSpecConfigPage extends BasePage {
     this.executionLog = this.executionProgressDropdown.locator(
       ".execution-progress-log",
     );
-    this.alertContainer = page.locator(".alert-msg.error");
-    this.alertTitle = this.alertContainer.locator("p");
-    this.alertDescription = this.alertContainer.locator("pre");
     this.editorViewToggleButton = this.specSection
       .locator("#editor-view-toggle-btn")
       .first();
@@ -380,17 +371,17 @@ export class ServiceSpecConfigPage extends BasePage {
     await test.step("Save spec and verify success dialog", async () => {
       await this.clickSaveOpenApi();
 
-      const saveAlert = this.page.locator(
-        "#alert-container .alert-msg.success",
+      await this.notifications.assert(
+        { type: "success", message: /Contents saved/i },
+        10000,
       );
-      await expect(saveAlert).toContainText(/Contents saved/i, {
-        timeout: 10000,
-      });
 
       await takeAndAttachScreenshot(this.page, "spec-saved-successfully");
 
-      await saveAlert.locator("button").click();
-      await expect(saveAlert).toBeHidden({ timeout: 5000 });
+      await this.notifications.close(
+        { type: "success", message: /Contents saved/i },
+        5000,
+      );
     });
   }
 
@@ -450,7 +441,7 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async getAlertText() {
-    return await this.alertMsg.innerText();
+    return (await this.notifications.read()).title;
   }
 
   async expandAndGetValidationError() {
@@ -465,7 +456,7 @@ export class ServiceSpecConfigPage extends BasePage {
 
   async runBackwardCompatibilityTest() {
     await this.bccTestButton.click();
-    await this.alertMessage.waitFor({ state: "visible", timeout: 5000 });
+    await this.notifications.waitFor({}, 5000);
     await takeAndAttachScreenshot(
       this.page,
       "backward compatability passed",
@@ -474,11 +465,11 @@ export class ServiceSpecConfigPage extends BasePage {
   }
 
   async getAlertMessageText(): Promise<string> {
-    return (await this.alertMessage.locator("pre").innerText()).trim();
+    return (await this.notifications.read()).message;
   }
 
   async getAlertTitleText(): Promise<string> {
-    return (await this.alertMessage.locator("p").innerText()).trim();
+    return (await this.notifications.read()).title;
   }
 
   async getBackwardCompatibilityResult(): Promise<BackwardCompatibilityResult> {
@@ -493,26 +484,8 @@ export class ServiceSpecConfigPage extends BasePage {
     };
   }
 
-  async dismissAlert() {
-    const visibleAlert = this.page
-      .locator("#alert-container .alert-msg:visible")
-      .first();
-    const isVisible = await visibleAlert.isVisible().catch(() => false);
-
-    if (!isVisible) {
-      return;
-    }
-
-    const dismissButton = visibleAlert.locator("button").first();
-    const buttonVisible = await dismissButton.isVisible().catch(() => false);
-
-    if (buttonVisible) {
-      await dismissButton.click();
-    }
-
-    await expect(visibleAlert)
-      .toBeHidden({ timeout: 5000 })
-      .catch(() => {});
+  async dismissAlert(type?: NotificationType) {
+    await this.notifications.dismiss(type ? { type } : {}, 5000);
     await takeAndAttachScreenshot(this.page, "dismissing alert");
   }
 
@@ -526,11 +499,7 @@ export class ServiceSpecConfigPage extends BasePage {
       });
       await this.dictionaryGenerateButton.scrollIntoViewIfNeeded();
       await this.dictionaryGenerateButton.click({ force: true });
-      await expect(
-        this.page.locator("#alert-container .alert-msg.success"),
-      ).toBeVisible({
-        timeout: 10000,
-      });
+      await this.notifications.waitFor({ type: "success" }, 10000);
       await takeAndAttachScreenshot(
         this.page,
         "dictionary-generated",
@@ -541,14 +510,14 @@ export class ServiceSpecConfigPage extends BasePage {
 
   async assertGeneratedDictionaryDialog(expectedDictionaryPath: string) {
     await test.step("Assert generated dictionary dialog", async () => {
-      await expect(
-        this.page.locator("#alert-container .alert-msg.success p"),
-      ).toHaveText("Generated Dictionary", {
-        timeout: 10000,
-      });
-      await expect(
-        this.page.locator("#alert-container .alert-msg.success pre"),
-      ).toHaveText(expectedDictionaryPath);
+      await this.notifications.assert(
+        {
+          type: "success",
+          title: "Generated Dictionary",
+          message: expectedDictionaryPath,
+        },
+        10000,
+      );
     });
   }
 
@@ -892,18 +861,17 @@ export class ServiceSpecConfigPage extends BasePage {
     await test.step("Click Save button after editing spec", async () => {
       await this.saveSpecBtn.waitFor({ state: "visible", timeout: 5000 });
       await this.saveSpecBtn.click();
-      const saveAlert = this.page.locator(
-        "#alert-container .alert-msg.success",
+      await this.notifications.assert(
+        { type: "success", message: /Contents saved/i },
+        10000,
       );
-      await expect(saveAlert).toContainText(/Contents saved/i, {
-        timeout: 10000,
-      });
 
       await takeAndAttachScreenshot(this.page, "spec-saved-successfully");
 
-      await saveAlert.locator("button").click();
-
-      await expect(saveAlert).toBeHidden({ timeout: 5000 });
+      await this.notifications.close(
+        { type: "success", message: /Contents saved/i },
+        5000,
+      );
     });
   }
 
