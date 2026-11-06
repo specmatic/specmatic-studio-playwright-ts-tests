@@ -337,7 +337,8 @@ export class ExampleGenerationPage extends BasePage {
     withVisualValidation = true,
     targetNewlyGenerated = false,
   ) {
-    const root = await this.waitForExamplesIFrame();
+    await this.examplesRoot.waitFor({ state: "visible", timeout: 10000 });
+    const root = this.examplesRoot;
     let viewDetailsButton: Locator;
 
     if (targetNewlyGenerated) {
@@ -365,7 +366,6 @@ export class ExampleGenerationPage extends BasePage {
     await viewDetailsButton.click({ force: true });
 
     await this.waitForDetailsViewToLoad();
-    await this.page.waitForTimeout(1000);
 
     await takeAndAttachScreenshot(
       this.page,
@@ -2021,27 +2021,9 @@ export class ExampleGenerationPage extends BasePage {
   }
 
   private async waitForDetailsViewToLoad(): Promise<void> {
-    const root = await this.waitForExamplesIFrame();
-    await Promise.race([
-      root
-        .locator("code-editor .cm-content")
-        .first()
-        .waitFor({ state: "visible", timeout: 8000 }),
-      root
-        .locator("#examples")
-        .first()
-        .waitFor({ state: "visible", timeout: 8000 }),
-      root
-        .locator(".examples-detail-issues, .pill")
-        .first()
-        .waitFor({ state: "visible", timeout: 8000 }),
-    ]).catch(() => {
-      // If none of the expected content appears, continue anyway
-      // as different examples might have different viewer types
-      console.log(
-        "Details view content selectors not found, proceeding with timeout",
-      );
-    });
+    await this.examplesRoot
+      .locator("#back")
+      .waitFor({ state: "visible", timeout: 10000 });
   }
 
   private async waitForExamplesListToLoad(): Promise<void> {
