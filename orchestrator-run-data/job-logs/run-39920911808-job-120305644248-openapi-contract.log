@@ -1,0 +1,7 @@
+2026-10-23T08:08:39.5637529Z   1) [chromium] › specs/openapi/execute-contract-tests/execute-contract-tests-filter-hover-coverage.spec.ts:8:7 › API Contract Testing - Filter Hover and Coverage › Verify response hover message and coverage stability for success and failed filters @test @filterTest @hover @eyes › Run contract tests again with failed filter active and verify coverage
+2026-10-23T08:08:39.5639631Z     Error: Coverage should remain unchanged after rerun with failed filter
+2026-10-23T08:08:39.5641442Z     Expected: 36
+2026-10-23T08:08:39.5641914Z     Received: 45
+2026-10-23T08:08:39.5653180Z     test-results/specs-openapi-execute-cont-f2d95--success-and-failed-filters-chromium/test-failed-1.png
+2026-10-23T08:08:39.5660915Z   1 failed
+2026-10-23T08:08:39.5662733Z     [chromium] › specs/openapi/execute-contract-tests/execute-contract-tests-filter-hover-coverage.spec.ts:8:7 › API Contract Testing - Filter Hover and Coverage › Verify response hover message and coverage stability for success and failed filters @test @filterTest @hover @eyes

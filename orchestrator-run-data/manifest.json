@@ -1,0 +1,1103 @@
+{
+  "schema_version": 1,
+  "repository": "specmatic/specmatic-studio-playwright-ts-tests",
+  "workflow": ".github/workflows/playwright-matrix.yml",
+  "branch": "main",
+  "time_window": {
+    "start": "2026-10-14T00:00:00Z",
+    "end": "2026-11-11T23:59:59Z",
+    "duration_days": 28
+  },
+  "collected_at": "2026-11-11",
+  "failed_workflow_run_count": 17,
+  "runs": [
+    {
+      "run_id": 43035775772,
+      "run_number": 427,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #915 retry 1",
+      "created_at": "2026-11-11T14:09:33Z",
+      "updated_at": "2026-11-11T14:19:51Z",
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "head_commit_message": "Refactor validation error assertion in spec",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 43034071408,
+      "run_number": 426,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #915",
+      "created_at": "2026-11-11T13:58:54Z",
+      "updated_at": "2026-11-11T14:08:08Z",
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "head_commit_message": "Refactor validation error assertion in spec",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 43019002912,
+      "run_number": 425,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #913",
+      "created_at": "2026-11-11T12:17:06Z",
+      "updated_at": "2026-11-11T12:25:08Z",
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "head_commit_message": "Refactor validation error assertion in spec",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43019002912",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 42988009025,
+      "run_number": 424,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #911",
+      "created_at": "2026-11-11T08:33:40Z",
+      "updated_at": "2026-11-11T08:41:12Z",
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "head_commit_message": "Refactor validation error assertion in spec",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42988009025",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 42982295196,
+      "run_number": 423,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #909",
+      "created_at": "2026-11-11T07:49:18Z",
+      "updated_at": "2026-11-11T07:59:04Z",
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "head_commit_message": "Refactor validation error assertion in spec",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42982295196",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 42969321797,
+      "run_number": 421,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #907",
+      "created_at": "2026-11-11T05:59:39Z",
+      "updated_at": "2026-11-11T06:30:50Z",
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "head_commit_message": "Merge pull request #53 from specmatic/codex/fix-example-details-readiness\n\nfix(playwright): wait for example details readiness",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42969321797",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 42963396029,
+      "run_number": 420,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #905",
+      "created_at": "2026-11-11T05:05:11Z",
+      "updated_at": "2026-11-11T05:12:51Z",
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "head_commit_message": "Merge pull request #53 from specmatic/codex/fix-example-details-readiness\n\nfix(playwright): wait for example details readiness",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42963396029",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 42951311002,
+      "run_number": 419,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #904",
+      "created_at": "2026-11-11T03:13:33Z",
+      "updated_at": "2026-11-11T03:21:08Z",
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "head_commit_message": "Merge pull request #53 from specmatic/codex/fix-example-details-readiness\n\nfix(playwright): wait for example details readiness",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42951311002",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 42887080257,
+      "run_number": 417,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #900",
+      "created_at": "2026-11-10T19:37:12Z",
+      "updated_at": "2026-11-10T19:45:12Z",
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "head_commit_message": "Merge pull request #53 from specmatic/codex/fix-example-details-readiness\n\nfix(playwright): wait for example details readiness",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42887080257",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 42825422408,
+      "run_number": 416,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #898",
+      "created_at": "2026-11-10T13:32:20Z",
+      "updated_at": "2026-11-10T14:00:50Z",
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "head_commit_message": "Merge pull request #53 from specmatic/codex/fix-example-details-readiness\n\nfix(playwright): wait for example details readiness",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42825422408",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 42820625220,
+      "run_number": 415,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #895",
+      "created_at": "2026-11-10T13:00:40Z",
+      "updated_at": "2026-11-10T13:54:02Z",
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "head_commit_message": "Merge pull request #53 from specmatic/codex/fix-example-details-readiness\n\nfix(playwright): wait for example details readiness",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42820625220",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 42256607175,
+      "run_number": 413,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #893",
+      "created_at": "2026-11-06T16:53:52Z",
+      "updated_at": "2026-11-06T17:03:17Z",
+      "head_sha": "0cf4d7853ae67e50c4ffc36c47cd7e7bfa8c4d07",
+      "head_commit_message": "Merge pull request #52 from specmatic/codex/mock-tab-readiness-controls\n\nWait for mock controls before tab readiness",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42256607175",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 41974568090,
+      "run_number": 407,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #883",
+      "created_at": "2026-11-05T05:31:45Z",
+      "updated_at": "2026-11-05T05:39:47Z",
+      "head_sha": "0cf4d7853ae67e50c4ffc36c47cd7e7bfa8c4d07",
+      "head_commit_message": "Merge pull request #52 from specmatic/codex/mock-tab-readiness-controls\n\nWait for mock controls before tab readiness",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/41974568090",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 39920911808,
+      "run_number": 398,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #865",
+      "created_at": "2026-10-23T07:54:21Z",
+      "updated_at": "2026-10-23T08:08:59Z",
+      "head_sha": "0cf4d7853ae67e50c4ffc36c47cd7e7bfa8c4d07",
+      "head_commit_message": "Merge pull request #52 from specmatic/codex/mock-tab-readiness-controls\n\nWait for mock controls before tab readiness",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/39920911808",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 39423684138,
+      "run_number": 391,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #855",
+      "created_at": "2026-10-20T12:37:21Z",
+      "updated_at": "2026-10-20T12:45:34Z",
+      "head_sha": "4fedb05eeffef863d755b30875b12eee050256f2",
+      "head_commit_message": "Fix failing tests to use the new inlining method for openAPI\n\n- Instead of bulk inline, the new way is to select all and inline",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/39423684138",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 39262304822,
+      "run_number": 389,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #853",
+      "created_at": "2026-10-19T13:41:33Z",
+      "updated_at": "2026-10-19T13:49:03Z",
+      "head_sha": "4fedb05eeffef863d755b30875b12eee050256f2",
+      "head_commit_message": "Fix failing tests to use the new inlining method for openAPI\n\n- Instead of bulk inline, the new way is to select all and inline",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/39262304822",
+      "artifact_count": 0
+    },
+    {
+      "run_id": 38704016488,
+      "run_number": 385,
+      "display_title": "Studio Matrix Playwright Tests - Orchestrator #847",
+      "created_at": "2026-10-15T08:12:27Z",
+      "updated_at": "2026-10-15T08:20:46Z",
+      "head_sha": "4fedb05eeffef863d755b30875b12eee050256f2",
+      "head_commit_message": "Fix failing tests to use the new inlining method for openAPI\n\n- Instead of bulk inline, the new way is to select all and inline",
+      "conclusion": "failure",
+      "html_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/38704016488",
+      "artifact_count": 0
+    }
+  ],
+  "failed_jobs": [
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574084741,
+      "job_name": "Async Mock",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Async Mock",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574084741-async-mock.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574084749,
+      "job_name": "Async Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Async Spec",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574084749-async-spec.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574084793,
+      "job_name": "SOAP Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for SOAP Spec",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574084793-soap-spec.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574084822,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Spec",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574084822-openapi-spec.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574084847,
+      "job_name": "OpenAPI Contract",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Contract",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574084847-openapi-contract.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574084897,
+      "job_name": "OpenAPI Mock",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Mock",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574084897-openapi-mock.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574084901,
+      "job_name": "OpenAPI Examples",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Examples",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574084901-openapi-examples.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574084988,
+      "job_name": "AsyncAPI Examples",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for AsyncAPI Examples",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574084988-asyncapi-examples.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574084994,
+      "job_name": "OpenAPI Dictionary",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Dictionary",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574084994-openapi-dictionary.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574085038,
+      "job_name": "SOAP Contract",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for SOAP Contract",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574085038-soap-contract.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574085076,
+      "job_name": "Config",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Config",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574085076-config.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574085233,
+      "job_name": "Proxy",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Proxy",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574085233-proxy.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574085254,
+      "job_name": "SOAP Mock",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for SOAP Mock",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574085254-soap-mock.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130574085256,
+      "job_name": "Async Contract",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Async Contract",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130574085256-async-contract.log"
+    },
+    {
+      "run_id": 43035775772,
+      "workflow_run_number": 427,
+      "orchestrator_build": "915",
+      "job_id": 130579772983,
+      "job_name": "Playwright Matrix Summary",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Generate single matrix summary table"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T14:09:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43035775772",
+      "excerpt_path": "job-logs/run-43035775772-job-130579772983-playwright-matrix-summary.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236266,
+      "job_name": "OpenAPI Dictionary",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Dictionary",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236266-openapi-dictionary.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236694,
+      "job_name": "Proxy",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Proxy",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236694-proxy.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236717,
+      "job_name": "SOAP Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for SOAP Spec",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236717-soap-spec.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236776,
+      "job_name": "SOAP Mock",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for SOAP Mock",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236776-soap-mock.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236782,
+      "job_name": "OpenAPI Mock",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Mock",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236782-openapi-mock.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236825,
+      "job_name": "SOAP Contract",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for SOAP Contract",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236825-soap-contract.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236868,
+      "job_name": "AsyncAPI Examples",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for AsyncAPI Examples",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236868-asyncapi-examples.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236872,
+      "job_name": "Async Contract",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Async Contract",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236872-async-contract.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236881,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Spec",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236881-openapi-spec.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236886,
+      "job_name": "Async Mock",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Async Mock",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236886-async-mock.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236889,
+      "job_name": "Async Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Async Spec",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236889-async-spec.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236922,
+      "job_name": "Config",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for Config",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236922-config.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568236972,
+      "job_name": "OpenAPI Contract",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Contract",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568236972-openapi-contract.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130568237659,
+      "job_name": "OpenAPI Examples",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Install dependencies and set up environment for OpenAPI Examples",
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130568237659-openapi-examples.log"
+    },
+    {
+      "run_id": 43034071408,
+      "workflow_run_number": 426,
+      "orchestrator_build": "915",
+      "job_id": 130573223684,
+      "job_name": "Playwright Matrix Summary",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Generate single matrix summary table"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T13:58:54Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43034071408",
+      "excerpt_path": "job-logs/run-43034071408-job-130573223684-playwright-matrix-summary.log"
+    },
+    {
+      "run_id": 43019002912,
+      "workflow_run_number": 425,
+      "orchestrator_build": "913",
+      "job_id": 130517181134,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T12:17:06Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43019002912",
+      "excerpt_path": "job-logs/run-43019002912-job-130517181134-openapi-spec.log"
+    },
+    {
+      "run_id": 43019002912,
+      "workflow_run_number": 425,
+      "orchestrator_build": "913",
+      "job_id": 130517181765,
+      "job_name": "AsyncAPI Examples",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T12:17:06Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43019002912",
+      "excerpt_path": "job-logs/run-43019002912-job-130517181765-asyncapi-examples.log"
+    },
+    {
+      "run_id": 42988009025,
+      "workflow_run_number": 424,
+      "orchestrator_build": "911",
+      "job_id": 130413749324,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T08:33:40Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42988009025",
+      "excerpt_path": "job-logs/run-42988009025-job-130413749324-openapi-spec.log"
+    },
+    {
+      "run_id": 42982295196,
+      "workflow_run_number": 423,
+      "orchestrator_build": "909",
+      "job_id": 130395283251,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "842949eb51af8c0ad78fc3e06704e6031bb7f98a",
+      "created_at": "2026-11-11T07:49:18Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42982295196",
+      "excerpt_path": "job-logs/run-42982295196-job-130395283251-openapi-spec.log"
+    },
+    {
+      "run_id": 42969321797,
+      "workflow_run_number": 421,
+      "orchestrator_build": "907",
+      "job_id": 130364215204,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "created_at": "2026-11-11T05:59:39Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42969321797",
+      "excerpt_path": "job-logs/run-42969321797-job-130364215204-openapi-spec.log"
+    },
+    {
+      "run_id": 42963396029,
+      "workflow_run_number": 420,
+      "orchestrator_build": "905",
+      "job_id": 130334958538,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "created_at": "2026-11-11T05:05:11Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42963396029",
+      "excerpt_path": "job-logs/run-42963396029-job-130334958538-openapi-spec.log"
+    },
+    {
+      "run_id": 42951311002,
+      "workflow_run_number": 419,
+      "orchestrator_build": "904",
+      "job_id": 130296014256,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "created_at": "2026-11-11T03:13:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42951311002",
+      "excerpt_path": "job-logs/run-42951311002-job-130296014256-openapi-spec.log"
+    },
+    {
+      "run_id": 42887080257,
+      "workflow_run_number": 417,
+      "orchestrator_build": "900",
+      "job_id": 130078140619,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "created_at": "2026-11-10T19:37:12Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42887080257",
+      "excerpt_path": "job-logs/run-42887080257-job-130078140619-openapi-spec.log"
+    },
+    {
+      "run_id": 42825422408,
+      "workflow_run_number": 416,
+      "orchestrator_build": "898",
+      "job_id": 129861360304,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "created_at": "2026-11-10T13:32:20Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42825422408",
+      "excerpt_path": "job-logs/run-42825422408-job-129861360304-openapi-spec.log"
+    },
+    {
+      "run_id": 42820625220,
+      "workflow_run_number": 415,
+      "orchestrator_build": "895",
+      "job_id": 129844964397,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "844aa7b083ccb5903619043366a65cfad485f15e",
+      "created_at": "2026-11-10T13:00:40Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42820625220",
+      "excerpt_path": "job-logs/run-42820625220-job-129844964397-openapi-spec.log"
+    },
+    {
+      "run_id": 42256607175,
+      "workflow_run_number": 413,
+      "orchestrator_build": "893",
+      "job_id": 128025369881,
+      "job_name": "OpenAPI Spec",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "0cf4d7853ae67e50c4ffc36c47cd7e7bfa8c4d07",
+      "created_at": "2026-11-06T16:53:52Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42256607175",
+      "excerpt_path": "job-logs/run-42256607175-job-128025369881-openapi-spec.log"
+    },
+    {
+      "run_id": 41974568090,
+      "workflow_run_number": 407,
+      "orchestrator_build": "883",
+      "job_id": 127070331131,
+      "job_name": "OpenAPI Examples",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "0cf4d7853ae67e50c4ffc36c47cd7e7bfa8c4d07",
+      "created_at": "2026-11-05T05:31:45Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/41974568090",
+      "excerpt_path": "job-logs/run-41974568090-job-127070331131-openapi-examples.log"
+    },
+    {
+      "run_id": 39920911808,
+      "workflow_run_number": 398,
+      "orchestrator_build": "865",
+      "job_id": 120305644248,
+      "job_name": "OpenAPI Contract",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "0cf4d7853ae67e50c4ffc36c47cd7e7bfa8c4d07",
+      "created_at": "2026-10-23T07:54:21Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/39920911808",
+      "excerpt_path": "job-logs/run-39920911808-job-120305644248-openapi-contract.log"
+    },
+    {
+      "run_id": 39423684138,
+      "workflow_run_number": 391,
+      "orchestrator_build": "855",
+      "job_id": 118630737656,
+      "job_name": "AsyncAPI Examples",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "4fedb05eeffef863d755b30875b12eee050256f2",
+      "created_at": "2026-10-20T12:37:21Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/39423684138",
+      "excerpt_path": "job-logs/run-39423684138-job-118630737656-asyncapi-examples.log"
+    },
+    {
+      "run_id": 39262304822,
+      "workflow_run_number": 389,
+      "orchestrator_build": "853",
+      "job_id": 118092859187,
+      "job_name": "OpenAPI Mock",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "4fedb05eeffef863d755b30875b12eee050256f2",
+      "created_at": "2026-10-19T13:41:33Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/39262304822",
+      "excerpt_path": "job-logs/run-39262304822-job-118092859187-openapi-mock.log"
+    },
+    {
+      "run_id": 38704016488,
+      "workflow_run_number": 385,
+      "orchestrator_build": "847",
+      "job_id": 116318831386,
+      "job_name": "AsyncAPI Examples",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Fail job if there are test failures"
+      ],
+      "head_sha": "4fedb05eeffef863d755b30875b12eee050256f2",
+      "created_at": "2026-10-15T08:12:27Z",
+      "workflow_url": "https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/38704016488",
+      "excerpt_path": "job-logs/run-38704016488-job-116318831386-asyncapi-examples.log"
+    }
+  ],
+  "downloaded_artifacts": [
+    {
+      "run_id": 43019002912,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13854591076,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-43019002912",
+      "size_bytes": 18650774,
+      "sha256": "918ee77571fd09303b69edf65a7a70fb538850c40bb5021395fe87d17bfe86c2",
+      "local_path": "artifacts/43019002912-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 43019002912,
+      "job_name": "AsyncAPI Examples",
+      "artifact_id": 13853798102,
+      "artifact_name": "test-artifacts-async-examples-run-43019002912",
+      "size_bytes": 1838929,
+      "sha256": "20f58707fae4070efd5a47e8310022b62e9badf6172c2aabbe55cf6e62d09d92",
+      "local_path": "artifacts/43019002912-asyncapi-examples.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 42988009025,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13840038826,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-42988009025",
+      "size_bytes": 18475154,
+      "sha256": "4a4a8753f5c7bc725dbaee8e85f61b4b03cc073a4e66ec2fd126bddfbb324e39",
+      "local_path": "artifacts/42988009025-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 42982295196,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13837283847,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-42982295196",
+      "size_bytes": 18511386,
+      "sha256": "cbf2b30d6999d48aefd6ae84efc97681bbb004d94d0d7a257026117aba8b8eb4",
+      "local_path": "artifacts/42982295196-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 42969321797,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13833569883,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-42969321797",
+      "size_bytes": 18507569,
+      "sha256": "5e0b3aa6ad4e36fc7d846d16bd1a82e614fc859436071a0e82cd52837589fbc4",
+      "local_path": "artifacts/42969321797-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 42963396029,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13829914470,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-42963396029",
+      "size_bytes": 19011215,
+      "sha256": "9ed678cdfdb5a954db015a4c298583885f9444fb2fd593559e28154dce7925e2",
+      "local_path": "artifacts/42963396029-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 42951311002,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13825685164,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-42951311002",
+      "size_bytes": 18689774,
+      "sha256": "20ad89b4502fc0cf267f009b72db5b8591c4a8e522388aab01ccbd7352343be4",
+      "local_path": "artifacts/42951311002-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 42887080257,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13797545592,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-42887080257",
+      "size_bytes": 18851716,
+      "sha256": "1420d68ad53ac8ac4eee845b074881cbdef125367e5ce66095c3d3f2288f2c65",
+      "local_path": "artifacts/42887080257-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 42825422408,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13769279897,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-42825422408",
+      "size_bytes": 18510292,
+      "sha256": "296ba2756fca2dcacb8813d7556c5f80fd9739f0049f872c5b4a0ed45d072f21",
+      "local_path": "artifacts/42825422408-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 42820625220,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13768734013,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-42820625220",
+      "size_bytes": 18971459,
+      "sha256": "185b090d9f80406b1ec3368e4c4d10e586e7dc9e59ce5dac8682df98a56ba6bc",
+      "local_path": "artifacts/42820625220-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 42256607175,
+      "job_name": "OpenAPI Spec",
+      "artifact_id": 13522947557,
+      "artifact_name": "test-artifacts-openapi-update-service-spec-run-42256607175",
+      "size_bytes": 18617823,
+      "sha256": "3f5e73660115339191ee45d262c2d0f2b6080a37ae08ef304229274a0a4801a6",
+      "local_path": "artifacts/42256607175-openapi-spec.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 41974568090,
+      "job_name": "OpenAPI Examples",
+      "artifact_id": 13390769527,
+      "artifact_name": "test-artifacts-openapi-examples-run-41974568090",
+      "size_bytes": 37358442,
+      "sha256": "7ffb72af5062443e709522df8a512e6566deab20e98fe493e787827ec02606e9",
+      "local_path": "artifacts/41974568090-openapi-examples.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 39920911808,
+      "job_name": "OpenAPI Contract",
+      "artifact_id": 12487897237,
+      "artifact_name": "test-artifacts-execute-contract-tests-run-39920911808",
+      "size_bytes": 14523253,
+      "sha256": "815aa1123e3a70da26f8f9469e23f1c5577e5a146b5482dfa30120c9d8538708",
+      "local_path": "artifacts/39920911808-openapi-contract.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 39423684138,
+      "job_name": "AsyncAPI Examples",
+      "artifact_id": 12264284114,
+      "artifact_name": "test-artifacts-async-examples-run-39423684138",
+      "size_bytes": 1838320,
+      "sha256": "187ea58189a3eec1d6e9f861ce1e3d56b7e48bf6e9d3fd9408afecb853d33d4a",
+      "local_path": "artifacts/39423684138-asyncapi-examples.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 39262304822,
+      "job_name": "OpenAPI Mock",
+      "artifact_id": 12190793021,
+      "artifact_name": "test-artifacts-run-mock-server-run-39262304822",
+      "size_bytes": 3637986,
+      "sha256": "ca4930707af2be844c5be91db6927dabd1793f94cb3705cab5e399109a1fbbd6",
+      "local_path": "artifacts/39262304822-openapi-mock.zip",
+      "downloaded": true
+    },
+    {
+      "run_id": 38704016488,
+      "job_name": "AsyncAPI Examples",
+      "artifact_id": 11957373464,
+      "artifact_name": "test-artifacts-async-examples-run-38704016488",
+      "size_bytes": 1943038,
+      "sha256": "e1ade3f5d9670e6acf43c401566bc82ead319316fdec037f727a1c625fa9387f",
+      "local_path": "artifacts/38704016488-asyncapi-examples.zip",
+      "downloaded": true
+    }
+  ],
+  "artifact_note": "Artifacts are the uploaded outputs for failed matrix jobs. The two Orchestrator #915 attempts failed during apt dependency setup, before Playwright ran; they produced no matrix artifacts. See matching job log excerpts and workflow URLs.",
+  "failure_report": "failure-causes.md"
+}

@@ -1,0 +1,6 @@
+2026-10-20T12:39:11.8139403Z   1) [chromium] › specs/async/examples/inline-examples-readonly-v2.spec.ts:12:7 › AsyncAPI 2.x inline examples › lists all inline examples in the examples table @async @async2 @examples @inlineExamples › Go to Example Generation page for Service Spec: 'test-async/inline-examples-readonly-v2.yaml' › Open tab: open-generate-examples-tab
+2026-10-20T12:39:11.8144373Z     Error: Waiting for visible selector from: .screen[data-active] .example[data-protocol="openapi"] table.examples-protocol-table, .screen[data-active] .example[data-protocol="openapi"] .examples-empty, .screen[data-active] .example[data-protocol="openapi"] #examples, .screen[data-active] table.examples-protocol-table, .screen[data-active] #valid-examples-table, .screen[data-active] #invalid-examples-table, .screen[data-active] table
+2026-10-20T12:39:11.8147538Z     Received: false
+2026-10-20T12:39:11.8171204Z     test-results/specs-async-examples-inlin-2fa90-mples-in-the-examples-table-chromium/test-failed-1.png
+2026-10-20T12:39:11.8179308Z   1 failed
+2026-10-20T12:39:11.8180489Z     [chromium] › specs/async/examples/inline-examples-readonly-v2.spec.ts:12:7 › AsyncAPI 2.x inline examples › lists all inline examples in the examples table @async @async2 @examples @inlineExamples

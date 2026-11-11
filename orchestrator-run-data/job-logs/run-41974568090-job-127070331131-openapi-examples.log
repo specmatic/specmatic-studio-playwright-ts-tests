@@ -1,0 +1,6 @@
+2026-11-05T05:39:28.2156547Z   1) [chromium] › specs/openapi/examples/convert-example-to-partial.spec.ts:11:7 › Example Generation › Convert generated example to partial for 'test-openapi/examples/product_search_bff_v5_convert_to_partial.yaml' @examples @convertToPartial @eyes › Go to Example Generation page for Service Spec: 'test-openapi/examples/product_search_bff_v5_convert_to_partial.yaml' › Open tab: open-generate-examples-tab
+2026-11-05T05:39:28.2160184Z     Error: Waiting for examples list or details view to become visible
+2026-11-05T05:39:28.2162745Z     Received: false
+2026-11-05T05:39:28.2183322Z     test-results/specs-openapi-examples-con-a5f03-v5-convert-to-partial-yaml--chromium/test-failed-1.png
+2026-11-05T05:39:28.2191435Z   1 failed
+2026-11-05T05:39:28.2192853Z     [chromium] › specs/openapi/examples/convert-example-to-partial.spec.ts:11:7 › Example Generation › Convert generated example to partial for 'test-openapi/examples/product_search_bff_v5_convert_to_partial.yaml' @examples @convertToPartial @eyes

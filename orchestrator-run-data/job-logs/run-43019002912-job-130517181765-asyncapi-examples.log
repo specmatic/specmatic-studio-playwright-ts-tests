@@ -1,0 +1,7 @@
+2026-11-11T12:18:54.3200069Z   1) [chromium] › specs/async/examples/inline-examples-readonly-v2.spec.ts:12:7 › AsyncAPI 2.x inline examples › lists all inline examples in the examples table @async @async2 @examples @inlineExamples › Verify inline examples are listed: NewOrder, CancelledOrder
+2026-11-11T12:18:54.3202897Z     Error: expect(locator).toBeVisible() failed
+2026-11-11T12:18:54.3207355Z     Expected: visible
+2026-11-11T12:18:54.3208263Z     Error: element(s) not found
+2026-11-11T12:18:54.3233471Z     test-results/specs-async-examples-inlin-2fa90-mples-in-the-examples-table-chromium/test-failed-1.png
+2026-11-11T12:18:54.3241572Z   1 failed
+2026-11-11T12:18:54.3242700Z     [chromium] › specs/async/examples/inline-examples-readonly-v2.spec.ts:12:7 › AsyncAPI 2.x inline examples › lists all inline examples in the examples table @async @async2 @examples @inlineExamples

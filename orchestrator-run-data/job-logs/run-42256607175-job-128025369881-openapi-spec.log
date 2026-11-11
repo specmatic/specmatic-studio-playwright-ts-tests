@@ -1,0 +1,7 @@
+2026-11-06T16:56:48.2962534Z   1) [chromium] › specs/openapi/update-service-spec/invalid-spec-save.spec.ts:9:7 › InValid Spec save and Error Dialog Display › Save Invalid Spec and Assert Error @spec @invalidSpecChange @eyes › Edit Spec and Save › Assert validation error details
+2026-11-06T16:56:48.2964844Z     Error: Unexpected validation error text:
+2026-11-06T16:56:48.2967351Z     Expected: true
+2026-11-06T16:56:48.2968213Z     Received: false
+2026-11-06T16:56:48.2977286Z     test-results/specs-openapi-update-servi-38f07-valid-Spec-and-Assert-Error-chromium/test-failed-1.png
+2026-11-06T16:56:48.2985367Z   1 failed
+2026-11-06T16:56:48.2986735Z     [chromium] › specs/openapi/update-service-spec/invalid-spec-save.spec.ts:9:7 › InValid Spec save and Error Dialog Display › Save Invalid Spec and Assert Error @spec @invalidSpecChange @eyes

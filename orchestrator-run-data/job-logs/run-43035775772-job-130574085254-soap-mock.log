@@ -1,0 +1,10 @@
+2026-11-11T14:18:18.5452797Z W: Failed to fetch mirror+file:/etc/apt/apt-mirrors.txt/dists/noble-updates/InRelease  Temporary failure resolving 'azure.archive.ubuntu.com'
+2026-11-11T14:18:18.5454169Z W: Failed to fetch mirror+file:/etc/apt/apt-mirrors.txt/dists/noble-backports/InRelease  Temporary failure resolving 'azure.archive.ubuntu.com'
+2026-11-11T14:18:18.5455441Z W: Failed to fetch mirror+file:/etc/apt/apt-mirrors.txt/dists/noble-security/InRelease  Temporary failure resolving 'azure.archive.ubuntu.com'
+2026-11-11T14:19:40.0588886Z   Temporary failure resolving 'azure.archive.ubuntu.com'
+2026-11-11T14:19:40.0649425Z E: Failed to fetch mirror+file:/etc/apt/apt-mirrors.txt/pool/main/libx/libxml2/libxml2-utils_2.9.14%2bdfsg-1.3ubuntu3.10_amd64.deb  Temporary failure resolving 'azure.archive.ubuntu.com'
+2026-11-11T14:19:40.0652279Z E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?
+2026-11-11T14:19:40.2369669Z Error: ENOENT: no such file or directory, open '/home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/playwright-report/failed-tests-summary.md'
+2026-11-11T14:19:40.4740402Z   echo "JUnit report not found at $REPORT_PATH"
+2026-11-11T14:19:40.4746357Z   echo "No tests were recorded in $REPORT_PATH. Treating this as a setup failure."
+2026-11-11T14:19:40.4820498Z JUnit report not found at playwright-report/junit-report.xml

@@ -1,0 +1,6 @@
+2026-10-19T13:43:29.1240642Z   1) [chromium] › specs/openapi/run-mock-server/run-mock-server-negative.spec.ts:18:7 › Mock Server - Negative Scenarios › Should show error when starting mock on an already used port @apiMocking @usedPort @eyes
+2026-10-19T13:43:29.1244326Z     Error: Waiting for visible selector from: .tab-pane[data-type="mock"][data-active="true"] table#mock, [data-type="mock"] table#mock, table#mock, [data-type="mock"] .header ol.counts
+2026-10-19T13:43:29.1249357Z     Received: false
+2026-10-19T13:43:29.1283388Z     test-results/specs-openapi-run-mock-ser-03f69-ock-on-an-already-used-port-chromium/test-failed-1.png
+2026-10-19T13:43:29.1301184Z   1 failed
+2026-10-19T13:43:29.1303963Z     [chromium] › specs/openapi/run-mock-server/run-mock-server-negative.spec.ts:18:7 › Mock Server - Negative Scenarios › Should show error when starting mock on an already used port @apiMocking @usedPort @eyes

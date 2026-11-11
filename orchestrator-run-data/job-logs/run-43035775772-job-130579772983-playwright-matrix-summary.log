@@ -1,0 +1,12 @@
+2026-11-11T14:19:47.0325930Z Complete job name: Playwright Matrix Summary
+2026-11-11T14:19:48.0374365Z ##[group]Run actions/download-artifact@v4
+2026-11-11T14:19:48.0376003Z   path: matrix-artifacts
+2026-11-11T14:19:48.0376703Z   pattern: test-artifacts-*-run-43035775772
+2026-11-11T14:19:48.3727138Z Found 0 artifact(s)
+2026-11-11T14:19:48.3729251Z Filtering artifacts by pattern 'test-artifacts-*-run-43035775772'
+2026-11-11T14:19:48.3745038Z Total of 0 artifact(s) downloaded
+2026-11-11T14:19:48.3750697Z Download artifact has finished successfully
+2026-11-11T14:19:48.3924735Z ##[group]Run timeout "${CMD_TIMEOUT_SHORT}" node utils/generate-matrix-summary.js
+2026-11-11T14:19:48.3927582Z timeout "${CMD_TIMEOUT_SHORT}" node utils/generate-matrix-summary.js
+2026-11-11T14:19:48.5583867Z No per-run summary JSON files found under /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/matrix-artifacts
+2026-11-11T14:19:48.8382356Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
