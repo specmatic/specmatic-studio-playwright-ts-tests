@@ -47,12 +47,10 @@ test.describe("InValid Spec save and Error Dialog Display", () => {
         await test.step("Assert validation error details", async () => {
           await expect(configPage.validationErrorBtn).toBeVisible();
           const errorDetail = await configPage.expandAndGetValidationError();
-          expect(
-            /could not parse contract|implicit keys need to be on a single line/i.test(
-              errorDetail,
-            ),
-            `Unexpected validation error text: ${errorDetail}`,
-          ).toBe(true);
+
+          expect(errorDetail).toMatch(
+            /could not parse contract|implicit keys need to be on a single line/i,
+          );
         });
       });
     },
