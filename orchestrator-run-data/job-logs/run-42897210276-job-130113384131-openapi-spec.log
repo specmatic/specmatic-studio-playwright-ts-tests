@@ -1,0 +1,1075 @@
+OpenAPI Spec	UNKNOWN STEP	﻿2026-11-10T20:38:08.0868347Z Current runner version: '2.338.2'
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0892068Z ##[group]Runner Image Provisioner
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0893149Z Hosted Compute Agent
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0893925Z Version: 20261028.624
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0894834Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0895792Z Build Date: 2026-10-28T21:51:42Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0896625Z Worker ID: {95952b96-5dc7-4794-83ba-2f1f21afcdcd}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0897591Z Region: eastus2
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0898385Z Cloud: Azure
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0899288Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0900707Z ##[group]Operating System
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0901875Z Ubuntu
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0902649Z 24.04.5
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0903404Z LTS
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0904134Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0904927Z ##[group]Runner Image
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0905758Z Image: ubuntu-24.04
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0906551Z Version: 20261101.360.1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0908004Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0910007Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0911567Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0913096Z ##[group]GITHUB_TOKEN Permissions
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0915135Z Actions: write
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0915970Z Contents: read
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0916760Z Metadata: read
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0917540Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0919729Z Secret source: Actions
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0921234Z Cache mode: write
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.0922205Z Prepare workflow directory
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.1229922Z Prepare all required actions
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.1270101Z Getting action download info
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.3459958Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.5623080Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.6859667Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:08.9341555Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.1929275Z Complete job name: OpenAPI Spec
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2785813Z ##[group]Run actions/checkout@v4
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2786802Z with:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2787604Z   repository: specmatic/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2795466Z   token: ***
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2796060Z   ssh-strict: true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2796655Z   ssh-user: git
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2797274Z   persist-credentials: true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2797950Z   clean: true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2798576Z   sparse-checkout-cone-mode: true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2799359Z   fetch-depth: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2799952Z   fetch-tags: false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2800561Z   show-progress: true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2801282Z   lfs: false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2801861Z   submodules: false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2802482Z   set-safe-directory: true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2803239Z   allow-unsafe-pr-checkout: false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2804140Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2804695Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2805379Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2806449Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2807349Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2808592Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.2809492Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5332243Z Syncing repository: specmatic/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5333806Z ##[group]Getting Git version info
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5334495Z Working directory is '/home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests'
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5335357Z [command]/usr/bin/git version
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5376015Z git version 2.56.0
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5391565Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5402219Z Temporarily overriding HOME='/home/runner/work/_temp/2501fe92-2721-4d58-a0d6-8d4c6e01b725' before making global git config changes
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5403794Z Adding repository directory to the temporary git global config as a safe directory
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5407773Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5446998Z Deleting the contents of '/home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests'
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5449960Z ##[group]Initializing the repository
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5453584Z [command]/usr/bin/git init /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5522589Z hint: Using 'master' as the name for the initial branch. This default branch name
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5523491Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5524314Z hint: to use in all of your new repositories, which will suppress this warning,
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5524813Z hint: call:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5525130Z hint:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5525569Z hint: 	git config --global init.defaultBranch <name>
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5525985Z hint:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5526395Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5526974Z hint: 'development'. The just-created branch can be renamed via this command:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5527433Z hint:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5527758Z hint: 	git branch -m <name>
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5528112Z hint:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5528533Z hint: Disable this message with "git config set advice.defaultBranchName false"
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5536060Z Initialized empty Git repository in /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/.git/
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5544260Z [command]/usr/bin/git remote add origin https://github.com/specmatic/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5582203Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5583088Z ##[group]Disabling automatic garbage collection
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5585935Z [command]/usr/bin/git config --local gc.auto 0
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5613348Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5614135Z ##[group]Setting up auth
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5618467Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.5649071Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.6078215Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.6106809Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.6333871Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.6363068Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.6560315Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.6594667Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.6595268Z ##[group]Fetching the repository
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:09.6603340Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +844aa7b083ccb5903619043366a65cfad485f15e:refs/remotes/origin/main
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2148721Z From https://github.com/specmatic/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2149709Z  * [new ref]         844aa7b083ccb5903619043366a65cfad485f15e -> origin/main
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2153032Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2154060Z ##[group]Determining the checkout info
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2155753Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2160720Z [command]/usr/bin/git sparse-checkout disable
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2283272Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2309940Z ##[group]Checking out the ref
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2313658Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2631300Z Switched to a new branch 'main'
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2635292Z branch 'main' set up to track 'origin/main'.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2640463Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2675814Z [command]/usr/bin/git log -1 --format=%H
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2696420Z 844aa7b083ccb5903619043366a65cfad485f15e
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2967411Z ##[group]Run actions/setup-node@v4
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2967818Z with:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2968126Z   node-version: lts/*
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2968462Z   always-auth: false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2968782Z   check-latest: false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2971243Z   token: ***
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2971556Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2971874Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2972213Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2972564Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2972914Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2973315Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.2973702Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.4099190Z Attempt to resolve LTS alias from manifest...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.6090468Z (node:2139) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:10.6091346Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:11.4158325Z Attempting to download 26...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:11.4162812Z Acquiring 26.13.0 - x64 from https://github.com/actions/node-versions/releases/download/26.13.0-41378513395/node-26.13.0-linux-x64.tar.gz
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:11.7768882Z Extracting ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:11.7865981Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/b60d554e-85d4-4dcf-a2d0-984964912813 -f /home/runner/work/_temp/4ef3b38e-cd89-43e9-adc6-b28d78eca8be
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:12.9280587Z Adding to the cache ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.6237688Z ##[group]Environment details
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8165854Z node: v26.13.0
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8166283Z npm: 11.20.0
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8171753Z yarn: 1.22.22
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8172565Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8350037Z ##[group]Run which google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8350442Z [36;1mwhich google-chrome[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8350753Z [36;1mgoogle-chrome --version[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8372687Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8372992Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8373243Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8373528Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8373796Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8374078Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8374429Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8374760Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:17.8444090Z /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5079843Z Google Chrome 156.0.8078.79 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5244183Z ##[group]Run timeout "${CMD_TIMEOUT_MEDIUM}" npm ci
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5244642Z [36;1mtimeout "${CMD_TIMEOUT_MEDIUM}" npm ci[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5245042Z [36;1mtimeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get update[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5245499Z [36;1mtimeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get install -y libxml2-utils[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5246017Z [36;1m# Install only Linux deps; browser binary comes from the runner image.[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5246547Z [36;1mtimeout "${CMD_TIMEOUT_LONG}" npx playwright install-deps chromium[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5246966Z [36;1mmkdir -p ~/.specmatic[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5247373Z [36;1mecho "***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5247678Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5247987Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5248281Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5248573Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5248876Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5249195Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5249754Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5250090Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5250520Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5250930Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5251605Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5252018Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5252398Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5252777Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5253168Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5253569Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5253967Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5254369Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5254760Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5255172Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5255600Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5256003Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5256402Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5256809Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5257210Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5257465Z [36;1m***[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5257794Z [36;1m***" > ~/.specmatic/specmatic-license.txt[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5276621Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5276928Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5277208Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5277491Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5277763Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5278050Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5278400Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:20.5278732Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:21.6112186Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:21.6475065Z npm warn deprecated glob@8.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:21.9643490Z npm warn deprecated @xmldom/xmldom@0.8.10: this version has critical issues, please update to the latest version
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:22.2318751Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.0991299Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.0992167Z added 246 packages, and audited 247 packages in 4s
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.0992508Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.0996417Z 47 packages are looking for funding
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1001665Z   run `npm fund` for details
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1265867Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1266602Z 23 vulnerabilities (2 low, 5 moderate, 15 high, 1 critical)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1266945Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1267209Z To address all issues, run:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1267512Z   npm audit fix
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1267666Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1267816Z Run `npm audit` for details.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1274783Z npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1275473Z npm warn install-scripts   sharp@0.34.5 (install: node install/check.js || npm run build)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1275956Z npm warn install-scripts
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.1276860Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.2259943Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.2533007Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.2636448Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.2646007Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.2697152Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.2705504Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.3180251Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [760 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.3373306Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [690 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.4096773Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1444 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.4157541Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [315 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.4192405Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1711 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.4252497Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [344 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.4273945Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1879 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.4403582Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [429 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.4434022Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [50.7 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.4435039Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.4994633Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1161 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.5039183Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [234 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.5495621Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1228 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.5540069Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.5556369Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1729 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.5621403Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [396 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.5640662Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [45.4 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:24.5649534Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:29.9992705Z Fetched 13.1 MB in 1s (12.1 MB/s)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:30.8924731Z Reading package lists...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:30.9272739Z Reading package lists...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.1338936Z Building dependency tree...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.1344806Z Reading state information...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.2794249Z The following NEW packages will be installed:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.2794843Z   libxml2-utils
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.2956641Z 0 upgraded, 1 newly installed, 0 to remove and 39 not upgraded.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.2957172Z Need to get 39.4 kB of archives.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.2957629Z After this operation, 189 kB of additional disk space will be used.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.2958106Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.4167747Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libxml2-utils amd64 2.9.14+dfsg-1.3ubuntu3.10 [39.4 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6438064Z Fetched 39.4 kB in 0s (293 kB/s)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6634173Z Selecting previously unselected package libxml2-utils.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6860382Z (Reading database ... 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6861964Z (Reading database ... 5%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6862949Z (Reading database ... 10%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6863607Z (Reading database ... 15%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6864323Z (Reading database ... 20%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6865105Z (Reading database ... 25%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6865590Z (Reading database ... 30%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6866169Z (Reading database ... 35%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6867142Z (Reading database ... 40%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6867951Z (Reading database ... 45%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6891397Z (Reading database ... 50%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.6908445Z (Reading database ... 55%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:31.8719857Z (Reading database ... 60%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:32.0313426Z (Reading database ... 65%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:32.6211805Z (Reading database ... 70%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:32.7358903Z (Reading database ... 75%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.0262177Z (Reading database ... 80%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.2306238Z (Reading database ... 85%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.3801184Z (Reading database ... 90%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.4978731Z (Reading database ... 95%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.4979709Z (Reading database ... 100%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.4980333Z (Reading database ... 215960 files and directories currently installed.)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.5021497Z Preparing to unpack .../libxml2-utils_2.9.14+dfsg-1.3ubuntu3.10_amd64.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.5629286Z Unpacking libxml2-utils (2.9.14+dfsg-1.3ubuntu3.10) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.7047645Z Setting up libxml2-utils (2.9.14+dfsg-1.3ubuntu3.10) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.7403816Z Processing triggers for man-db (2.12.0-4build2) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:33.7589227Z Not building database; man-db/auto-update is not 'true'.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3614043Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3614652Z Running kernel seems to be up-to-date.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3614914Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3615086Z No services need to be restarted.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3615288Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3615451Z No containers need to be restarted.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3615641Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3615826Z No user sessions are running outdated binaries.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3616076Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:34.3616349Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:35.6601397Z Installing dependencies...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:35.6682058Z Switching to root user to install dependencies...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:35.7233280Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:35.7469464Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:35.7491891Z Hit:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:35.7492725Z Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:35.7493493Z Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:35.7494120Z Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:36.9570264Z Reading package lists...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:36.9818012Z Reading package lists...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.1920709Z Building dependency tree...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.1926062Z Reading state information...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3224785Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3225407Z libasound2t64 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3225882Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3226335Z libatk-bridge2.0-0t64 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3226772Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3227169Z libatk1.0-0t64 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3227657Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3228305Z libatspi2.0-0t64 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3228718Z libcairo2 is already the newest version (1.18.0-3build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3229116Z libcairo2 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3229528Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3229936Z libcups2t64 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3230694Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3231364Z libdbus-1-3 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3231781Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3232183Z libdrm2 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3232586Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3232983Z libgbm1 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3233395Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3233806Z libglib2.0-0t64 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3234238Z libnspr4 is already the newest version (2:4.35-1.1build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3234649Z libnspr4 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3235043Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3235432Z libnss3 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3235845Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3236446Z libpango-1.0-0 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3236870Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3237268Z libx11-6 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3237663Z libxcb1 is already the newest version (1.15-1ubuntu2).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3238046Z libxcb1 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3238461Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3238875Z libxcomposite1 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3239283Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3239669Z libxdamage1 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3240051Z libxext6 is already the newest version (2:1.3.4-1build2).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3240428Z libxext6 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3240809Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3241371Z libxfixes3 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3241785Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3242184Z libxkbcommon0 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3242592Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3242987Z libxrandr2 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3243371Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3243885Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3244406Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3244811Z libfontconfig1 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3245236Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3245660Z libfreetype6 set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3246060Z fonts-liberation is already the newest version (1:2.1.5-3).
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3246472Z fonts-liberation set to manually installed.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3246883Z The following additional packages will be installed:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3247257Z   xfonts-encodings xfonts-utils
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3247566Z Recommended packages:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3247874Z   fonts-ipafont-mincho fonts-tlwg-loma
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3374441Z The following NEW packages will be installed:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3375128Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3378897Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3379293Z   xfonts-utils
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3548118Z 0 upgraded, 9 newly installed, 0 to remove and 39 not upgraded.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3548778Z Need to get 21.1 MB of archives.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3549448Z After this operation, 79.5 MB of additional disk space will be used.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.3550160Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.4529131Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.6235179Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.8488104Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:37.9311908Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.0874610Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.3669505Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.4610637Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.5433838Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.6326471Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.8633444Z Fetched 21.1 MB in 1s (16.3 MB/s)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9588638Z Selecting previously unselected package fonts-ipafont-gothic.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9631296Z (Reading database ... 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9631925Z (Reading database ... 5%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9632373Z (Reading database ... 10%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9632798Z (Reading database ... 15%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9633221Z (Reading database ... 20%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9633725Z (Reading database ... 25%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9634138Z (Reading database ... 30%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9634534Z (Reading database ... 35%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9634938Z (Reading database ... 40%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9635326Z (Reading database ... 45%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9635728Z (Reading database ... 50%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9643990Z (Reading database ... 55%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9680809Z (Reading database ... 60%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9718660Z (Reading database ... 65%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9733288Z (Reading database ... 70%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9752528Z (Reading database ... 75%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9844097Z (Reading database ... 80%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:38.9875229Z (Reading database ... 85%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.0035725Z (Reading database ... 90%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.0244591Z (Reading database ... 95%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.0245073Z (Reading database ... 100%
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.0245718Z (Reading database ... 215968 files and directories currently installed.)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.0283400Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.0417328Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.3614991Z Selecting previously unselected package fonts-freefont-ttf.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.3738538Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.3749940Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.4974620Z Selecting previously unselected package fonts-tlwg-loma-otf.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.5097827Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.5104417Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.5312029Z Selecting previously unselected package fonts-unifont.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.5429988Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.5437415Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.8065636Z Selecting previously unselected package fonts-wqy-zenhei.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.8189403Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:39.8281363Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.3801513Z Selecting previously unselected package xfonts-encodings.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.3927549Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.3934128Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.4211174Z Selecting previously unselected package xfonts-utils.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.4333755Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.4339217Z Unpacking xfonts-utils (1:7.7+6build3) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.4643248Z Selecting previously unselected package xfonts-cyrillic.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.4766101Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.4782909Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.5099233Z Selecting previously unselected package xfonts-scalable.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.5221686Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.5229390Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.5851590Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.5957061Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.5982574Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.5999510Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.6015770Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.6072527Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.6086291Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.6100620Z Setting up xfonts-utils (1:7.7+6build3) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.6136148Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.6388705Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.6619255Z Processing triggers for man-db (2.12.0-4build2) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.6633937Z Not building database; man-db/auto-update is not 'true'.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:40.6645035Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1902652Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1903407Z Running kernel seems to be up-to-date.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1903757Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1903996Z No services need to be restarted.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1904305Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1904537Z No containers need to be restarted.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1904797Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1905052Z No user sessions are running outdated binaries.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1905373Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:41.1905757Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2611392Z ##[group]Run echo "Triggered by orchestrator run Orchestrator #901"
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2611912Z [36;1mecho "Triggered by orchestrator run Orchestrator #901"[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2628717Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2628998Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2629249Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2629532Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2629798Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2630077Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2630412Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.2630747Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.3111687Z Triggered by orchestrator run Orchestrator #901
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4399765Z ##[group]Run timeout "${CMD_TIMEOUT_LONG}" docker pull specmatic/enterprise:latest
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4400509Z [36;1mtimeout "${CMD_TIMEOUT_LONG}" docker pull specmatic/enterprise:latest[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4422976Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4423271Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4423539Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4423827Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4424102Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4424394Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4424749Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:42.4425093Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.3088139Z latest: Pulling from specmatic/enterprise
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7874949Z 5f468a8bbdfe: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7875535Z 7a4877cecca8: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7875920Z f4265a56de30: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7876384Z 82087d46dc9d: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7877218Z f53829540a90: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7877801Z dc2b2c4d05a6: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7878335Z 386404bbcc5e: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7878862Z 81aee3040b67: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7879267Z 53abc9c20665: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7879620Z 62bd281d8922: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7880067Z d9a2781856a5: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7880413Z 0d0c73a9a3fd: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7880832Z 5fc8ab229e50: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7881364Z 24789d51a42d: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7881700Z 1d266d36b423: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7882119Z edd96309b0d2: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7882466Z b3e3b04743f6: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7882878Z 242aeedd14a3: Pulling fs layer
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7883206Z d9a2781856a5: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7883572Z 82087d46dc9d: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7883900Z f53829540a90: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7884194Z 0d0c73a9a3fd: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7884843Z dc2b2c4d05a6: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7885228Z 5fc8ab229e50: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7885526Z 386404bbcc5e: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7885814Z 81aee3040b67: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7886188Z 53abc9c20665: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7886476Z 24789d51a42d: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7886848Z 62bd281d8922: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7887147Z 1d266d36b423: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7887432Z edd96309b0d2: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7887821Z 242aeedd14a3: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.7888134Z b3e3b04743f6: Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.8617216Z f4265a56de30: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.8617916Z f4265a56de30: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.8747697Z 7a4877cecca8: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.8748538Z 7a4877cecca8: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.8782011Z 5f468a8bbdfe: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.8782571Z 5f468a8bbdfe: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.9653429Z dc2b2c4d05a6: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.9654371Z dc2b2c4d05a6: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.9655338Z 82087d46dc9d: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.9656096Z f53829540a90: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:43.9656569Z f53829540a90: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0210074Z 81aee3040b67: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0210772Z 81aee3040b67: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0218519Z 386404bbcc5e: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0220620Z 386404bbcc5e: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0234448Z 53abc9c20665: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0235425Z 53abc9c20665: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0266181Z 5f468a8bbdfe: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0703731Z 0d0c73a9a3fd: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0704261Z 0d0c73a9a3fd: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0713567Z d9a2781856a5: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0717338Z d9a2781856a5: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0797602Z 62bd281d8922: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.0798133Z 62bd281d8922: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.1307904Z 24789d51a42d: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.1308902Z 24789d51a42d: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.1827206Z edd96309b0d2: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.1827815Z edd96309b0d2: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.2562350Z b3e3b04743f6: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.2562980Z b3e3b04743f6: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.3076792Z 242aeedd14a3: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.3077491Z 242aeedd14a3: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.6169204Z 5fc8ab229e50: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.6171821Z 5fc8ab229e50: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.7583698Z 1d266d36b423: Verifying Checksum
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:44.7584233Z 1d266d36b423: Download complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:46.2391865Z 7a4877cecca8: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.0073647Z f4265a56de30: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.0293531Z 82087d46dc9d: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.0445329Z f53829540a90: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.0595996Z dc2b2c4d05a6: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.0701319Z 386404bbcc5e: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.2208471Z 81aee3040b67: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.2307317Z 53abc9c20665: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.2495083Z 62bd281d8922: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.2886663Z d9a2781856a5: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:48.2947981Z 0d0c73a9a3fd: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:51.6904459Z 5fc8ab229e50: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:51.7021811Z 24789d51a42d: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4210912Z 1d266d36b423: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4335881Z edd96309b0d2: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4418686Z b3e3b04743f6: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4520677Z 242aeedd14a3: Pull complete
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4551219Z Digest: sha256:f106d2af31a8781d3eb4b2db3e01c094fa80d5a1c1293fe0d3f3f59dc335ae14
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4560792Z Status: Downloaded newer image for specmatic/enterprise:latest
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4567541Z docker.io/specmatic/enterprise:latest
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4634993Z ##[group]Run mkdir -p playwright-report
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4635801Z [36;1mmkdir -p playwright-report[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4636420Z [36;1mmkdir -p studio-logs[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4637044Z [36;1mtimeout "${CMD_TIMEOUT_LONG}" npx playwright test specs/openapi/update-service-spec[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4654841Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4655291Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4655852Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4656341Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4656780Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4657420Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4657984Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4659055Z   APPLITOOLS_API_KEY: ***
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4659548Z   GROUP_NAME: OpenAPI Spec
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4660056Z   ORCHESTRATOR_DISABLE_VISUAL: true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4660642Z   SPECMATIC_PRELOADED_DOCKER_IMAGE: false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:53.4661342Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:54.1367285Z (node:3330) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:54.1368629Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:54.2543992Z ◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:54.2998796Z ◇ injected env (8) from env/.env.ci // tip: ⌘ suppress logs { quiet: true }
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:54.2999609Z [env] Loaded /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/env/.env.ci
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:55.4215595Z [WebServer]  inventory-api Pulling 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:55.4216561Z [WebServer]  order-bff Pulling 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:55.4217260Z [WebServer]  order-api Pulling 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:55.4217923Z [WebServer]  studio Pulling 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:55.7139649Z [WebServer]  studio Pulled 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1130492Z [WebServer]  881fc932939e Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1131965Z [WebServer]  d6885d20d310 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1135597Z [WebServer]  f771e1601fb1 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1136543Z [WebServer]  26a1de7ecd2d Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1137047Z [WebServer]  de7014a208c2 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1137588Z [WebServer]  26a1de7ecd2d Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1138120Z [WebServer]  de7014a208c2 Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1141359Z [WebServer]  881fc932939e Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1142221Z [WebServer]  bab8ed2e7888 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1143287Z [WebServer]  496d37bd6267 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1144097Z [WebServer]  de8603fefbc9 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1144880Z [WebServer]  107463c81a1e Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1145635Z [WebServer]  bab8ed2e7888 Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1146258Z [WebServer]  496d37bd6267 Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1146590Z [WebServer]  de8603fefbc9 Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1147016Z [WebServer]  107463c81a1e Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1204908Z [WebServer]  881fc932939e Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1205521Z [WebServer]  5bfaa716f705 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1211738Z [WebServer]  373fe2918567 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1212316Z [WebServer]  d94713a16fa1 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1212763Z [WebServer]  507b7967b4a6 Pulling fs layer 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1213107Z [WebServer]  d94713a16fa1 Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1213446Z [WebServer]  5bfaa716f705 Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1213762Z [WebServer]  373fe2918567 Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1214070Z [WebServer]  507b7967b4a6 Waiting 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1682006Z [WebServer]  881fc932939e Downloading [>                                                  ]  48.55kB/3.854MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1683068Z [WebServer]  881fc932939e Downloading [>                                                  ]  48.55kB/3.854MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1684595Z [WebServer]  881fc932939e Downloading [>                                                  ]  48.55kB/3.854MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1704506Z [WebServer]  f771e1601fb1 Downloading [>                                                  ]  81.28kB/7.781MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.1870832Z [WebServer]  d6885d20d310 Downloading [>                                                  ]  528.4kB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2002311Z [WebServer]  881fc932939e Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2013825Z [WebServer]  881fc932939e Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2015575Z [WebServer]  881fc932939e Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2016298Z [WebServer]  881fc932939e Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2017347Z [WebServer]  881fc932939e Extracting [>                                                  ]  65.54kB/3.854MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2018067Z [WebServer]  881fc932939e Extracting [>                                                  ]  65.54kB/3.854MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2019046Z [WebServer]  881fc932939e Extracting [>                                                  ]  65.54kB/3.854MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2113707Z [WebServer]  f771e1601fb1 Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2114540Z [WebServer]  f771e1601fb1 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2508175Z [WebServer]  26a1de7ecd2d Downloading [==================================================>]      93B/93B
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2509976Z [WebServer]  26a1de7ecd2d Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2511155Z [WebServer]  26a1de7ecd2d Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2780607Z [WebServer]  881fc932939e Extracting [==================================================>]  3.854MB/3.854MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2782032Z [WebServer]  881fc932939e Extracting [==================================================>]  3.854MB/3.854MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2783141Z [WebServer]  881fc932939e Extracting [==================================================>]  3.854MB/3.854MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2794018Z [WebServer]  de7014a208c2 Downloading [>                                                  ]  275.8kB/27.28MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2958079Z [WebServer]  881fc932939e Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2959095Z [WebServer]  881fc932939e Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2959783Z [WebServer]  881fc932939e Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.2979040Z [WebServer]  d6885d20d310 Downloading [==>                                                ]  7.384MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.3227712Z [WebServer]  bab8ed2e7888 Downloading [>                                                  ]  529.2kB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.3828808Z [WebServer]  de7014a208c2 Downloading [==============>                                    ]  7.719MB/27.28MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.3991331Z [WebServer]  d6885d20d310 Downloading [=====>                                             ]  19.07MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.4319317Z [WebServer]  bab8ed2e7888 Downloading [==>                                                ]  6.341MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.4829361Z [WebServer]  de7014a208c2 Downloading [=============================>                     ]  16.27MB/27.28MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.4995597Z [WebServer]  d6885d20d310 Downloading [==============>                                    ]  53.21MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.5241993Z [WebServer]  de7014a208c2 Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.5242868Z [WebServer]  de7014a208c2 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.5324506Z [WebServer]  bab8ed2e7888 Downloading [=======>                                           ]  21.23MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.5840741Z [WebServer]  496d37bd6267 Downloading [>                                                  ]  81.32kB/7.78MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.5997731Z [WebServer]  d6885d20d310 Downloading [=======================>                           ]  86.27MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.6281475Z [WebServer]  496d37bd6267 Downloading [==================================================>]   7.78MB/7.78MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.6282588Z [WebServer]  496d37bd6267 Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.6289701Z [WebServer]  496d37bd6267 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.6329914Z [WebServer]  bab8ed2e7888 Downloading [====================>                              ]  61.24MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.6777715Z [WebServer]  de8603fefbc9 Downloading [==================================================>]      93B/93B
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.6783421Z [WebServer]  de8603fefbc9 Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.6784052Z [WebServer]  de8603fefbc9 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.7007569Z [WebServer]  d6885d20d310 Downloading [===============================>                   ]  115.1MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.7347756Z [WebServer]  bab8ed2e7888 Downloading [==================================>                ]  102.9MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.7519705Z [WebServer]  107463c81a1e Downloading [>                                                  ]  490.9kB/47.65MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.8022991Z [WebServer]  d6885d20d310 Downloading [=========================================>         ]  150.9MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.8359425Z [WebServer]  bab8ed2e7888 Downloading [=============================================>     ]  135.5MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.8533394Z [WebServer]  107463c81a1e Downloading [==================>                                ]   17.2MB/47.65MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.8819810Z [WebServer]  bab8ed2e7888 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.9004400Z [WebServer]  d6885d20d310 Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.9005112Z [WebServer]  d6885d20d310 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.9215097Z [WebServer]  bab8ed2e7888 Extracting [>                                                  ]  557.1kB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.9371813Z [WebServer]  d6885d20d310 Extracting [>                                                  ]  557.1kB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.9549974Z [WebServer]  107463c81a1e Downloading [==================================>                ]  32.93MB/47.65MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.9601891Z [WebServer]  373fe2918567 Downloading [>                                                  ]  81.32kB/7.78MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:56.9602977Z [WebServer]  5bfaa716f705 Downloading [>                                                  ]  533.3kB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0042726Z [WebServer]  373fe2918567 Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0043853Z [WebServer]  373fe2918567 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0231300Z [WebServer]  bab8ed2e7888 Extracting [====>                                              ]  13.93MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0386209Z [WebServer]  107463c81a1e Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0392376Z [WebServer]  107463c81a1e Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0423741Z [WebServer]  d6885d20d310 Extracting [===>                                               ]  12.81MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0568331Z [WebServer]  d94713a16fa1 Downloading [==================================================>]      93B/93B
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0569968Z [WebServer]  d94713a16fa1 Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0570797Z [WebServer]  d94713a16fa1 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.0602605Z [WebServer]  5bfaa716f705 Downloading [=========>                                         ]   29.4MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.1099768Z [WebServer]  507b7967b4a6 Downloading [>                                                  ]  401.3kB/39.38MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.1240504Z [WebServer]  bab8ed2e7888 Extracting [=========>                                         ]  29.52MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.1508245Z [WebServer]  d6885d20d310 Extracting [========>                                          ]  29.52MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.1663154Z [WebServer]  5bfaa716f705 Downloading [==================>                                ]  60.38MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.2102667Z [WebServer]  507b7967b4a6 Downloading [====================================>              ]  28.66MB/39.38MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.2243849Z [WebServer]  bab8ed2e7888 Extracting [=============>                                     ]  40.67MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.2400247Z [WebServer]  507b7967b4a6 Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.2401232Z [WebServer]  507b7967b4a6 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.2537769Z [WebServer]  d6885d20d310 Extracting [===========>                                       ]  40.67MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.2671336Z [WebServer]  5bfaa716f705 Downloading [==========================>                        ]  86.57MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.3268267Z [WebServer]  bab8ed2e7888 Extracting [===================>                               ]  57.38MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.3540307Z [WebServer]  d6885d20d310 Extracting [===============>                                   ]  57.93MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.3681879Z [WebServer]  5bfaa716f705 Downloading [=====================================>             ]  121.2MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.4288452Z [WebServer]  bab8ed2e7888 Extracting [=======================>                           ]   71.3MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.4551201Z [WebServer]  d6885d20d310 Extracting [====================>                              ]  73.53MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.4695860Z [WebServer]  5bfaa716f705 Downloading [===============================================>   ]  155.8MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.4863175Z [WebServer]  5bfaa716f705 Verifying Checksum 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.4864901Z [WebServer]  5bfaa716f705 Download complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.5460540Z [WebServer]  bab8ed2e7888 Extracting [=========================>                         ]  76.32MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.5568910Z [WebServer]  5bfaa716f705 Extracting [>                                                  ]  557.1kB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.6344450Z [WebServer]  d6885d20d310 Extracting [========================>                          ]  87.46MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.6550669Z [WebServer]  bab8ed2e7888 Extracting [============================>                      ]  86.34MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.6580360Z [WebServer]  5bfaa716f705 Extracting [=====>                                             ]   19.5MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.7446221Z [WebServer]  d6885d20d310 Extracting [==========================>                        ]  96.93MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.7594379Z [WebServer]  5bfaa716f705 Extracting [==========>                                        ]  33.42MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.7612301Z [WebServer]  bab8ed2e7888 Extracting [===============================>                   ]  94.14MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.8544325Z [WebServer]  d6885d20d310 Extracting [============================>                      ]  102.5MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.8609667Z [WebServer]  5bfaa716f705 Extracting [==============>                                    ]  47.35MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.8649662Z [WebServer]  bab8ed2e7888 Extracting [=================================>                 ]  101.4MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.9619161Z [WebServer]  5bfaa716f705 Extracting [===================>                               ]  62.39MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.9621997Z [WebServer]  d6885d20d310 Extracting [==============================>                    ]  109.2MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:57.9657867Z [WebServer]  bab8ed2e7888 Extracting [====================================>              ]  107.5MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.0621636Z [WebServer]  5bfaa716f705 Extracting [=======================>                           ]  76.32MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.0639021Z [WebServer]  d6885d20d310 Extracting [===============================>                   ]  115.9MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.0684725Z [WebServer]  bab8ed2e7888 Extracting [======================================>            ]  113.6MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.1693514Z [WebServer]  d6885d20d310 Extracting [==================================>                ]  123.7MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.1694771Z [WebServer]  bab8ed2e7888 Extracting [========================================>          ]  119.8MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.2395939Z [WebServer]  5bfaa716f705 Extracting [=========================>                         ]     83MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.2754896Z [WebServer]  bab8ed2e7888 Extracting [==========================================>        ]  125.9MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.2792465Z [WebServer]  d6885d20d310 Extracting [====================================>              ]  131.5MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.3463487Z [WebServer]  5bfaa716f705 Extracting [============================>                      ]  91.91MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.3796041Z [WebServer]  bab8ed2e7888 Extracting [============================================>      ]  131.5MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.3830741Z [WebServer]  d6885d20d310 Extracting [=====================================>             ]  137.6MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.4586059Z [WebServer]  5bfaa716f705 Extracting [=============================>                     ]  97.48MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.4798816Z [WebServer]  bab8ed2e7888 Extracting [=============================================>     ]  136.5MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.4839360Z [WebServer]  d6885d20d310 Extracting [=======================================>           ]  144.8MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.5632228Z [WebServer]  5bfaa716f705 Extracting [===============================>                   ]  103.1MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.5840854Z [WebServer]  bab8ed2e7888 Extracting [===============================================>   ]  143.2MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.5851735Z [WebServer]  d6885d20d310 Extracting [=========================================>         ]    151MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.6656063Z [WebServer]  5bfaa716f705 Extracting [=================================>                 ]  109.2MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.6932991Z [WebServer]  d6885d20d310 Extracting [==========================================>        ]    156MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.7003460Z [WebServer]  bab8ed2e7888 Extracting [==================================================>]  149.2MB/149.2MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.7694892Z [WebServer]  5bfaa716f705 Extracting [===================================>               ]  115.9MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.8086418Z [WebServer]  d6885d20d310 Extracting [============================================>      ]    161MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.8727016Z [WebServer]  5bfaa716f705 Extracting [======================================>            ]  124.2MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.9108869Z [WebServer]  d6885d20d310 Extracting [==============================================>    ]  167.7MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:58.9736361Z [WebServer]  5bfaa716f705 Extracting [========================================>          ]    132MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:59.0148446Z [WebServer]  d6885d20d310 Extracting [================================================>  ]    176MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:59.0763716Z [WebServer]  5bfaa716f705 Extracting [==========================================>        ]  139.3MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:59.1172935Z [WebServer]  d6885d20d310 Extracting [==================================================>]  181.5MB/181.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:59.1777965Z [WebServer]  5bfaa716f705 Extracting [=============================================>     ]  147.1MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:59.2815978Z [WebServer]  5bfaa716f705 Extracting [================================================>  ]  156.5MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:38:59.3585512Z [WebServer]  5bfaa716f705 Extracting [==================================================>]  162.5MB/162.5MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.2961301Z [WebServer]  5bfaa716f705 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.2961924Z [WebServer]  d6885d20d310 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.2984422Z [WebServer]  bab8ed2e7888 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.2985726Z [WebServer]  373fe2918567 Extracting [>                                                  ]   98.3kB/7.78MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.2998169Z [WebServer]  f771e1601fb1 Extracting [>                                                  ]   98.3kB/7.781MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.3019264Z [WebServer]  496d37bd6267 Extracting [>                                                  ]   98.3kB/7.78MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.4000081Z [WebServer]  373fe2918567 Extracting [==============================>                    ]  4.817MB/7.78MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.4001599Z [WebServer]  f771e1601fb1 Extracting [================================>                  ]  5.112MB/7.781MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.4031478Z [WebServer]  496d37bd6267 Extracting [===========================>                       ]  4.227MB/7.78MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.4586566Z [WebServer]  f771e1601fb1 Extracting [==================================================>]  7.781MB/7.781MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.4624232Z [WebServer]  373fe2918567 Extracting [==================================================>]   7.78MB/7.78MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.4724144Z [WebServer]  496d37bd6267 Extracting [==================================================>]   7.78MB/7.78MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8210672Z [WebServer]  496d37bd6267 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8251626Z [WebServer]  de8603fefbc9 Extracting [==================================================>]      93B/93B
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8256302Z [WebServer]  de8603fefbc9 Extracting [==================================================>]      93B/93B
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8289748Z [WebServer]  f771e1601fb1 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8290733Z [WebServer]  373fe2918567 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8299921Z [WebServer]  d94713a16fa1 Extracting [==================================================>]      93B/93B
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8301148Z [WebServer]  d94713a16fa1 Extracting [==================================================>]      93B/93B
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8312305Z [WebServer]  26a1de7ecd2d Extracting [==================================================>]      93B/93B
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8317494Z [WebServer]  26a1de7ecd2d Extracting [==================================================>]      93B/93B
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8342028Z [WebServer]  de8603fefbc9 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8410578Z [WebServer]  d94713a16fa1 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8413747Z [WebServer]  107463c81a1e Extracting [>                                                  ]  491.5kB/47.65MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8420939Z [WebServer]  26a1de7ecd2d Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8456838Z [WebServer]  de7014a208c2 Extracting [>                                                  ]  294.9kB/27.28MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.8475132Z [WebServer]  507b7967b4a6 Extracting [>                                                  ]    426kB/39.38MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.9427228Z [WebServer]  107463c81a1e Extracting [==============>                                    ]  14.25MB/47.65MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.9471523Z [WebServer]  de7014a208c2 Extracting [=======================>                           ]  12.68MB/27.28MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:05.9484970Z [WebServer]  507b7967b4a6 Extracting [=====================>                             ]  17.04MB/39.38MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.0432191Z [WebServer]  107463c81a1e Extracting [=============================>                     ]  28.51MB/47.65MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.0475707Z [WebServer]  de7014a208c2 Extracting [============================================>      ]  24.18MB/27.28MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.0491698Z [WebServer]  507b7967b4a6 Extracting [============================================>      ]  35.36MB/39.38MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.0714772Z [WebServer]  de7014a208c2 Extracting [==================================================>]  27.28MB/27.28MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.0772760Z [WebServer]  507b7967b4a6 Extracting [==================================================>]  39.38MB/39.38MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.1262700Z [WebServer]  107463c81a1e Extracting [==================================================>]  47.65MB/47.65MB
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.8279480Z [WebServer]  107463c81a1e Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.8283496Z [WebServer]  507b7967b4a6 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.8290850Z [WebServer]  de7014a208c2 Pull complete 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.8341663Z [WebServer]  order-api Pulled 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.8354049Z [WebServer]  order-bff Pulled 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.8359944Z [WebServer]  inventory-api Pulled 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.9068411Z [WebServer]  Network specmatic-studio-playwright-ts-tests_default  Creating
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.9363489Z [WebServer]  Network specmatic-studio-playwright-ts-tests_default  Created
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.9367251Z [WebServer]  Container studio  Creating
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:06.9368147Z [WebServer]  Container inventory-api  Creating
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.0513057Z [WebServer]  Container studio  Created
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.0513647Z [WebServer]  Container inventory-api  Created
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.0514071Z [WebServer]  Container order-api  Creating
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.1343222Z [WebServer]  Container order-api  Created
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.1343876Z [WebServer]  Container order-bff  Creating
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.1630271Z [WebServer]  Container order-bff  Created
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.1638914Z [WebServer]  Container inventory-api  Starting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.1639599Z [WebServer]  Container studio  Starting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.3863047Z [WebServer]  Container inventory-api  Started
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.3869160Z [WebServer]  Container inventory-api  Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:07.3988964Z [WebServer]  Container studio  Started
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:12.5029745Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:12.5031198Z Running 9 tests using 1 worker
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:12.8880019Z [WebServer]  Container inventory-api  Healthy
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:12.8880661Z [WebServer]  Container order-api  Starting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:12.9694460Z (node:3964) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:12.9701855Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:13.0074168Z ◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:13.0087461Z ◇ injected env (0) from env/.env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:13.0089017Z [env] Loaded /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/env/.env.ci
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:13.0235885Z [WebServer]  Container order-api  Started
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:13.0238545Z [WebServer]  Container order-api  Waiting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:18.5254626Z [WebServer]  Container order-api  Healthy
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:18.5255310Z [WebServer]  Container order-bff  Starting
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:18.7874937Z [WebServer]  Container order-bff  Started
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:23.8733005Z 	[Applitools] Test 'Backward Compatibility Test' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:24.4169834Z [33mYou are using "1.46.5" and there is a newer version "1.52.0" of the "@applitools/eyes-playwright" SDK.[39m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:26.5955311Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:27.1077600Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:29.2223811Z 	Closing sidebar if open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:30.3689748Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_compatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:34.9762633Z [Applitools] eyes.close() called at: 2026-11-10T20:39:34.975Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:34.9763653Z [Applitools] eyes.close() completed at: 2026-11-10T20:39:34.975Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:34.9764874Z Test 'Backward Compatibility Test' - Eyes results: [1mnull[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:35.2812792Z [33mYou are using "1.46.5" and there is a newer version "1.52.0" of the "@applitools/eyes-playwright" SDK.[39m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:35.2814299Z ·	[Applitools] Test 'Show multiple backward incompatible rows and navigate from each row to the right line' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:36.6092729Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:36.7152305Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:38.3402950Z 	Closing sidebar if open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:39.5765285Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_incompatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:47.3115241Z [Applitools] eyes.close() called at: 2026-11-10T20:39:47.311Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:47.3116025Z [Applitools] eyes.close() completed at: 2026-11-10T20:39:47.311Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:47.3118989Z Test 'Show multiple backward incompatible rows and navigate from each row to the right line' - Eyes results: [1mnull[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:47.4253871Z ·	[Applitools] Test 'Show an all-pass backward compatibility summary for the untouched spec' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:48.7907001Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:48.9021222Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:50.5190092Z 	Closing sidebar if open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:51.7453761Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_incompatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:53.4246441Z [Applitools] eyes.close() called at: 2026-11-10T20:39:53.424Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:53.4247259Z [Applitools] eyes.close() completed at: 2026-11-10T20:39:53.424Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:53.4248602Z Test 'Show an all-pass backward compatibility summary for the untouched spec' - Eyes results: [1mnull[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:53.5509279Z ·	[Applitools] Test 'Show a failure summary and allow jumping to the failing line' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:54.9201793Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:55.0330870Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:56.6578463Z 	Closing sidebar if open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:39:57.8962177Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_incompatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:02.7092528Z [Applitools] eyes.close() called at: 2026-11-10T20:40:02.708Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:02.7093183Z [Applitools] eyes.close() completed at: 2026-11-10T20:40:02.709Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:02.7094158Z Test 'Show a failure summary and allow jumping to the failing line' - Eyes results: [1mnull[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:02.8495511Z ·	[Applitools] Test 'Fix /ordres typo to /orders when it exists' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:04.0454276Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:04.1483204Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:05.7680919Z 	Closing sidebar if open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:06.9272384Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_fix_typo.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:10.4549066Z Saved new spec
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:11.6420804Z [Applitools] eyes.close() called at: 2026-11-10T20:40:11.641Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:11.6421822Z [Applitools] eyes.close() completed at: 2026-11-10T20:40:11.641Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:11.6422953Z Test 'Fix /ordres typo to /orders when it exists' - Eyes results: [1mnull[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:11.8602015Z ·	[Applitools] Test 'Save Invalid Spec and Assert Error' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:13.0228129Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:13.1304849Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:14.7529815Z 	Closing sidebar if open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:15.9079475Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_save_invalid_spec.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:16.5692843Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_save_invalid_spec.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:17.9588489Z 	Scrolled editor to reveal all lines (CodeMirror lazy-load workaround)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:19.9288042Z 	Scrolled Save button into view
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:21.1549308Z [Applitools] eyes.close() called at: 2026-11-10T20:40:21.154Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:21.1550116Z [Applitools] eyes.close() completed at: 2026-11-10T20:40:21.154Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:21.1550910Z Test 'Save Invalid Spec and Assert Error' - Eyes results: [1mnull[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:21.7488309Z (node:7027) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:21.7491711Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:21.7828406Z F◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:21.7840350Z ◇ injected env (0) from env/.env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:21.7841964Z [env] Loaded /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/env/.env.ci
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:22.2072593Z 	[Applitools] Test 'Group: Compatible then Incompatible — Edit-based changes' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:23.2201175Z [33mYou are using "1.46.5" and there is a newer version "1.52.0" of the "@applitools/eyes-playwright" SDK.[39m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:23.5467052Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:23.6792018Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:25.3181112Z 	Closing sidebar if open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:26.4937494Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_incompatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:43.4056092Z [Applitools] eyes.close() called at: 2026-11-10T20:40:43.405Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:43.4056932Z [Applitools] eyes.close() completed at: 2026-11-10T20:40:43.405Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:43.4061212Z Test 'Group: Compatible then Incompatible — Edit-based changes' - Eyes results: [1mnull[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:43.5273657Z ·	[Applitools] Test 'Update Service Specification' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:43.5289504Z [33mYou are using "1.46.5" and there is a newer version "1.52.0" of the "@applitools/eyes-playwright" SDK.[39m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:44.6420278Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:44.7478622Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:46.3712772Z 	Closing sidebar if open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:47.5052778Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_update.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:48.1833513Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_update.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:49.6077951Z 	Scrolled editor to reveal all lines (CodeMirror lazy-load workaround)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:52.0350881Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_update.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:53.4443882Z 	Scrolled editor to reveal all lines (CodeMirror lazy-load workaround)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:56.0274720Z 	Scrolled Save button into view
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:56.9224695Z [Applitools] eyes.close() called at: 2026-11-10T20:40:56.922Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:56.9225578Z [Applitools] eyes.close() completed at: 2026-11-10T20:40:56.922Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:56.9226790Z Test 'Update Service Specification' - Eyes results: [1mnull[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:57.0313342Z ·	[Applitools] Test 'Save Valid Spec' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:58.1960030Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:58.2987486Z 	Ensuring sidebar is open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:40:59.9275845Z 	Closing sidebar if open
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:01.1041789Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_save_valid.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:01.8186890Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_save_valid.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:03.2395342Z 	Scrolled editor to reveal all lines (CodeMirror lazy-load workaround)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:05.2437373Z 	Scrolled Save button into view
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.5495226Z [Applitools] eyes.close() called at: 2026-11-10T20:41:09.549Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.5495835Z [Applitools] eyes.close() completed at: 2026-11-10T20:41:09.549Z
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.5496755Z Test 'Save Valid Spec' - Eyes results: [1mnull[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7403763Z ·Running global teardown...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7404239Z Fetching Applitools batch results for all tests...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7405558Z Applitools batch results: TestResultsSummaryData { _summary: undefined, _core: undefined }
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7413692Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7420280Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7430055Z   1) [chromium] › specs/openapi/update-service-spec/invalid-spec-save.spec.ts:9:7 › InValid Spec save and Error Dialog Display › Save Invalid Spec and Assert Error @spec @invalidSpecChange @eyes › Edit Spec and Save › Assert validation error details 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7431520Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7431980Z     Error: Unexpected validation error text: 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7432305Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7432995Z     [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7433588Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7433847Z     Expected: [32mtrue[39m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7434339Z     Received: [31mfalse[39m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7434608Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7434774Z       53 |             ),
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7435335Z       54 |             `Unexpected validation error text: ${errorDetail}`,
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7435927Z     > 55 |           ).toBe(true);
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7436359Z          |             ^
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7436757Z       56 |         });
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7437151Z       57 |       });
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7437534Z       58 |     },
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7438663Z         at /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/specs/openapi/update-service-spec/invalid-spec-save.spec.ts:55:13
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7440426Z         at /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/specs/openapi/update-service-spec/invalid-spec-save.spec.ts:47:9
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7441936Z         at /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/specs/openapi/update-service-spec/invalid-spec-save.spec.ts:27:7
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7442726Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7443365Z     attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7444460Z     test-results/specs-openapi-update-servi-38f07-valid-Spec-and-Assert-Error-chromium/test-failed-1.png
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7445639Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7446098Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7446719Z     attachment #11: browser-and-network.log (text/plain) ───────────────────────────────────────────
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7447437Z     [LOG] Spec editor module loaded
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7447871Z     [LOG] Mermaid Loaded
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7448568Z     [INFO] Wunderbaum<'wb_1'> Load source took 0.022 seconds (transfer: 0.017s, processing: 0.005s)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7449851Z     [REQUESTFAILED] POST https://www.google-analytics.com/g/collect?v=2&tid=G-DZJQMQZ82G&gtm=45je6b90v9116991441za208zd9116991441xf1&_p=1794343212064&gcd=1...
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7451406Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7451848Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7452855Z     Error Context: test-results/specs-openapi-update-servi-38f07-valid-Spec-and-Assert-Error-chromium/error-context.md
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7453583Z 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7453958Z   1 failed
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7455338Z     [chromium] › specs/openapi/update-service-spec/invalid-spec-save.spec.ts:9:7 › InValid Spec save and Error Dialog Display › Save Invalid Spec and Assert Error @spec @invalidSpecChange @eyes 
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:09.7456411Z   8 passed (2.3m)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0332146Z ##[error]Process completed with exit code 1.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0389860Z ##[group]Run mkdir -p docker-logs-workdir
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0390362Z [36;1mmkdir -p docker-logs-workdir[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0390766Z [36;1mfor cname in studio order-bff order-api inventory-api; do[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0391744Z [36;1m  if docker ps -a -q -f name="^/${cname}$" | grep .; then[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0392291Z [36;1m    timeout "${CMD_TIMEOUT_SHORT}" docker logs "$cname" > "docker-logs-workdir/${cname}.log" 2>&1 || true[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0392938Z [36;1m  fi[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0393224Z [36;1mdone[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0413415Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0413709Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0413984Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0414344Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0414618Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0414964Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0415314Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0415681Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0634948Z 8368c1a04cd0
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.0945114Z dc0d58baca9f
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1221753Z 3ec330e4a3f0
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1495180Z 2806d041d896
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1680742Z ##[group]Run timeout "${CMD_TIMEOUT_SHORT}" node utils/generate-failed-test-screenshots-summary.js
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1681612Z [36;1mtimeout "${CMD_TIMEOUT_SHORT}" node utils/generate-failed-test-screenshots-summary.js[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1698664Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1698954Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1699201Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1699475Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1699743Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1700036Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1700375Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1700726Z   PLAYWRIGHT_RUN_NAME: OpenAPI Spec
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.1701175Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2610818Z Summary written to /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/playwright-report/failed-tests-summary.md
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2737449Z ##[group]Run rm -rf temp
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2737770Z [36;1mrm -rf temp[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2738075Z [36;1mrm -f playwright-report/test-results.json[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2755432Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2755726Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2755971Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2756257Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2756535Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2756820Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2757169Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2757525Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2876486Z ##[group]Run actions/upload-artifact@v4
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2876805Z with:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2877147Z   name: test-artifacts-openapi-update-service-spec-run-42897210276
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2877627Z   path: docker-logs-workdir
+OpenAPI Spec	UNKNOWN STEP	playwright-report
+OpenAPI Spec	UNKNOWN STEP	studio-logs
+OpenAPI Spec	UNKNOWN STEP	test-results
+OpenAPI Spec	UNKNOWN STEP	
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2878024Z   retention-days: 30
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2878290Z   if-no-files-found: warn
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2878569Z   compression-level: 6
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2878833Z   overwrite: false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2879087Z   include-hidden-files: false
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2879368Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2879606Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2879874Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2880142Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2880418Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2880748Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.2881325Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.4270606Z (node:9205) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.4272321Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.4477720Z Multiple search paths detected. Calculating the least common ancestor of all paths
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.4480942Z The least common ancestor is /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests. This will be the root directory of the artifact
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.4482564Z With the provided path, there will be 94 files uploaded
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.4483680Z Artifact name is valid!
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.4484301Z Root directory input is valid!
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.6627433Z Beginning upload of artifact content to blob storage
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:10.9361145Z (node:9205) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.1836676Z Uploaded bytes 8388608
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.3934931Z Uploaded bytes 16777216
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.4344820Z Uploaded bytes 18323709
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.4529419Z Finished uploading artifact content to blob storage!
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.4531527Z SHA256 digest of uploaded artifact zip is fcdf04424c2e46a53250bc331c84bd3cef4572f67ce04bfcb3b32332ec4c9408
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.4532736Z Finalizing artifact upload
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8292505Z Artifact test-artifacts-openapi-update-service-spec-run-42897210276.zip successfully finalized. Artifact ID 13801411724
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8294800Z Artifact test-artifacts-openapi-update-service-spec-run-42897210276 has been successfully uploaded! Final size is 18323709 bytes. Artifact ID is 13801411724
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8301086Z Artifact download URL: https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/42897210276/artifacts/13801411724
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8509180Z ##[group]Run REPORT_PATH="playwright-report/junit-report.xml"
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8509706Z [36;1mREPORT_PATH="playwright-report/junit-report.xml"[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8510087Z [36;1mPLAYWRIGHT_OUTCOME="failure"[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8510402Z [36;1mif [ ! -f "$REPORT_PATH" ]; then[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8510755Z [36;1m  echo "JUnit report not found at $REPORT_PATH"[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8511308Z [36;1m  exit 1[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8511561Z [36;1mfi[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8511920Z [36;1mTOTAL=$(xmllint --xpath 'string(sum(//testsuite/@tests))' "$REPORT_PATH")[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8512459Z [36;1mFAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8512972Z [36;1mERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8513517Z [36;1mif [ "$PLAYWRIGHT_OUTCOME" != "success" ] && [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8514178Z [36;1m  echo "Playwright step failed before recording test failures. This usually means setup/global setup failed."[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8514679Z [36;1m  exit 1[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8514929Z [36;1mfi[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8515180Z [36;1mif [ "$TOTAL" = "0" ]; then[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8515593Z [36;1m  echo "No tests were recorded in $REPORT_PATH. Treating this as a setup failure."[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8515990Z [36;1m  exit 1[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8516234Z [36;1mfi[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8516514Z [36;1mif [ "$FAILURES" != "0" ] || [ "$ERRORS" != "0" ]; then[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8517014Z [36;1m  echo "Test failures or errors detected across all suites: failures=$FAILURES, errors=$ERRORS"[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8517449Z [36;1m  exit 1[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8517696Z [36;1mfi[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8517996Z [36;1mecho "No test failures or errors detected. tests=$TOTAL"[0m
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8535230Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8535542Z env:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8535806Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8536280Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8536554Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8536843Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8537194Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8537534Z ##[endgroup]
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8652178Z Test failures or errors detected across all suites: failures=1, errors=0
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8655274Z ##[error]Process completed with exit code 1.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.8739302Z Post job cleanup.
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9452062Z [command]/usr/bin/git version
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9484555Z git version 2.56.0
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9513068Z Temporarily overriding HOME='/home/runner/work/_temp/31e5465d-023f-4cf1-8ad9-d0b828bc753b' before making global git config changes
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9514343Z Adding repository directory to the temporary git global config as a safe directory
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9517933Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9548937Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9576925Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9773087Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9796665Z http.https://github.com/.extraheader
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9805118Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:11.9834295Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:12.0024858Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:12.0051645Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:12.0366094Z Cleaning up orphan processes
+OpenAPI Spec	UNKNOWN STEP	2026-11-10T20:41:12.0870514Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

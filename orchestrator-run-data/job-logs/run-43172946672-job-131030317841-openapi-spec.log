@@ -1,0 +1,1094 @@
+OpenAPI Spec	Set up job	﻿2026-11-12T07:07:33.7985619Z Current runner version: '2.338.2'
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8014617Z ##[group]Runner Image Provisioner
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8015888Z Hosted Compute Agent
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8016943Z Version: 20261028.624
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8018020Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8019395Z Build Date: 2026-10-28T21:51:42Z
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8020556Z Worker ID: {2e2e4105-cb9f-4806-9842-32b24198592c}
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8021707Z Region: westus
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8022569Z Cloud: Azure
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8023496Z ##[endgroup]
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8025427Z ##[group]Operating System
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8026479Z Ubuntu
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8027467Z 24.04.5
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8028351Z LTS
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8029388Z ##[endgroup]
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8030407Z ##[group]Runner Image
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8031397Z Image: ubuntu-24.04
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8032288Z Version: 20261101.360.1
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8033853Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8036169Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8037580Z ##[endgroup]
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8039554Z ##[group]GITHUB_TOKEN Permissions
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8041931Z Actions: write
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8042923Z Contents: read
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8043861Z Metadata: read
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8044836Z ##[endgroup]
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8047285Z Secret source: Actions
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8049162Z Cache mode: write
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8050326Z Prepare workflow directory
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8519270Z Prepare all required actions
+OpenAPI Spec	Set up job	2026-11-12T07:07:33.8569818Z Getting action download info
+OpenAPI Spec	Set up job	2026-11-12T07:07:34.2333507Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+OpenAPI Spec	Set up job	2026-11-12T07:07:34.3576725Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+OpenAPI Spec	Set up job	2026-11-12T07:07:34.4471984Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+OpenAPI Spec	Set up job	2026-11-12T07:07:34.8136225Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+OpenAPI Spec	Set up job	2026-11-12T07:07:35.0370454Z Complete job name: OpenAPI Spec
+OpenAPI Spec	Run actions/checkout@v4	﻿2026-11-12T07:07:35.1425547Z ##[group]Run actions/checkout@v4
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1426818Z with:
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1427740Z   repository: specmatic/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1432698Z   token: ***
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1433443Z   ssh-strict: true
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1434186Z   ssh-user: git
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1434921Z   persist-credentials: true
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1435700Z   clean: true
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1436436Z   sparse-checkout-cone-mode: true
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1437262Z   fetch-depth: 1
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1437974Z   fetch-tags: false
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1438856Z   show-progress: true
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1439677Z   lfs: false
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1440410Z   submodules: false
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1441142Z   set-safe-directory: true
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1441975Z   allow-unsafe-pr-checkout: false
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1443076Z env:
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1443813Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1444607Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1445392Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1446249Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1447164Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.1448066Z ##[endgroup]
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4481084Z Syncing repository: specmatic/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4483696Z ##[group]Getting Git version info
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4485204Z Working directory is '/home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests'
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4487131Z [command]/usr/bin/git version
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4575082Z git version 2.56.0
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4597907Z ##[endgroup]
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4613671Z Temporarily overriding HOME='/home/runner/work/_temp/60fe4070-066c-4f61-bb40-6667d517236b' before making global git config changes
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4616853Z Adding repository directory to the temporary git global config as a safe directory
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4621438Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4672149Z Deleting the contents of '/home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests'
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4675913Z ##[group]Initializing the repository
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4680695Z [command]/usr/bin/git init /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4803524Z hint: Using 'master' as the name for the initial branch. This default branch name
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4805375Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4806721Z hint: to use in all of your new repositories, which will suppress this warning,
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4807876Z hint: call:
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4808919Z hint:
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4809855Z hint: 	git config --global init.defaultBranch <name>
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4810826Z hint:
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4811768Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4813118Z hint: 'development'. The just-created branch can be renamed via this command:
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4814223Z hint:
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4815020Z hint: 	git branch -m <name>
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4815824Z hint:
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4816794Z hint: Disable this message with "git config set advice.defaultBranchName false"
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4819950Z Initialized empty Git repository in /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/.git/
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4831395Z [command]/usr/bin/git remote add origin https://github.com/specmatic/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4882150Z ##[endgroup]
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4883428Z ##[group]Disabling automatic garbage collection
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4885930Z [command]/usr/bin/git config --local gc.auto 0
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4921728Z ##[endgroup]
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4922980Z ##[group]Setting up auth
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4928412Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.4965083Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.5404553Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.5440053Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.5682872Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.5720657Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.5961382Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.6004074Z ##[endgroup]
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.6005476Z ##[group]Fetching the repository
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:35.6016382Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +842949eb51af8c0ad78fc3e06704e6031bb7f98a:refs/remotes/origin/main
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.0885930Z From https://github.com/specmatic/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.0888329Z  * [new ref]         842949eb51af8c0ad78fc3e06704e6031bb7f98a -> origin/main
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.0892950Z ##[endgroup]
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.0895091Z ##[group]Determining the checkout info
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.0897248Z ##[endgroup]
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.0902172Z [command]/usr/bin/git sparse-checkout disable
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.0955423Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.0997678Z ##[group]Checking out the ref
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.1010108Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.1222950Z Switched to a new branch 'main'
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.1227918Z branch 'main' set up to track 'origin/main'.
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.1235917Z ##[endgroup]
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.1282891Z [command]/usr/bin/git log -1 --format=%H
+OpenAPI Spec	Run actions/checkout@v4	2026-11-12T07:07:36.1308710Z 842949eb51af8c0ad78fc3e06704e6031bb7f98a
+OpenAPI Spec	Run actions/setup-node@v4	﻿2026-11-12T07:07:36.1665226Z ##[group]Run actions/setup-node@v4
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1666107Z with:
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1666748Z   node-version: lts/*
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1667427Z   always-auth: false
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1668115Z   check-latest: false
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1672879Z   token: ***
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1673832Z env:
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1674492Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1675212Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1675950Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1676675Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1677511Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.1678353Z ##[endgroup]
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.3187058Z Attempt to resolve LTS alias from manifest...
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.3392942Z (node:2356) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:36.3394631Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:37.1704241Z Attempting to download 26...
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:37.1715603Z Acquiring 26.13.1 - x64 from https://github.com/actions/node-versions/releases/download/26.13.1-43134154182/node-26.13.1-linux-x64.tar.gz
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:37.6363427Z Extracting ...
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:37.6558093Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/7190b678-dcb4-4bff-ba24-8cecd70916be -f /home/runner/work/_temp/996467ca-8df7-4819-8a45-d52703120b84
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:39.0672246Z Adding to the cache ...
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:40.8716148Z ##[group]Environment details
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:41.1277143Z node: v26.13.1
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:41.1278221Z npm: 11.20.0
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:41.1279271Z yarn: 1.22.22
+OpenAPI Spec	Run actions/setup-node@v4	2026-11-12T07:07:41.1280561Z ##[endgroup]
+OpenAPI Spec	Verify system Chrome	﻿2026-11-12T07:07:41.1501498Z ##[group]Run which google-chrome
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1502031Z [36;1mwhich google-chrome[0m
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1502453Z [36;1mgoogle-chrome --version[0m
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1529303Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1529702Z env:
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1530011Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1530351Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1530678Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1531011Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1531462Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1531856Z ##[endgroup]
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:41.1619940Z /usr/bin/google-chrome
+OpenAPI Spec	Verify system Chrome	2026-11-12T07:07:43.1957270Z Google Chrome 156.0.8078.79 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	﻿2026-11-12T07:07:43.2126646Z ##[group]Run timeout "${CMD_TIMEOUT_MEDIUM}" npm ci
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2127263Z [36;1mtimeout "${CMD_TIMEOUT_MEDIUM}" npm ci[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2127747Z [36;1mtimeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get update[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2128351Z [36;1mtimeout "${CMD_TIMEOUT_MEDIUM}" sudo apt-get install -y libxml2-utils[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2129710Z [36;1m# Install only Linux deps; browser binary comes from the runner image.[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2130350Z [36;1mtimeout "${CMD_TIMEOUT_LONG}" npx playwright install-deps chromium[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2130857Z [36;1mmkdir -p ~/.specmatic[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2131573Z [36;1mecho "***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2131940Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2132274Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2132655Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2133044Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2133343Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2133713Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2134447Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2134795Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2135334Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2135829Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2136356Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2136831Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2137326Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2137842Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2138318Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2139302Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2139799Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2140307Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2140766Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2141241Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2141732Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2142222Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2142713Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2143218Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2143698Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2143990Z [36;1m***[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2144381Z [36;1m***" > ~/.specmatic/specmatic-license.txt[0m
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2165198Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2165583Z env:
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2165873Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2166208Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2166520Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2166852Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2167259Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:43.2167653Z ##[endgroup]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:44.7701067Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:44.7939714Z npm warn deprecated glob@8.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:45.2796178Z npm warn deprecated @xmldom/xmldom@0.8.10: this version has critical issues, please update to the latest version
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:45.7070629Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.5773310Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.5774335Z added 246 packages, and audited 247 packages in 4s
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.5774959Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.5775833Z 47 packages are looking for funding
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.5776856Z   run `npm fund` for details
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6192199Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6193864Z 23 vulnerabilities (2 low, 5 moderate, 15 high, 1 critical)
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6194994Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6195778Z To address all issues, run:
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6196777Z   npm audit fix
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6197484Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6198095Z Run `npm audit` for details.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6203927Z npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6205927Z npm warn install-scripts   sharp@0.34.5 (install: node install/check.js || npm run build)
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6207382Z npm warn install-scripts
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.6209337Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.7769661Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.7974293Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.8122505Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.8132863Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.8166502Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.8195199Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.8999745Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [764 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.9260386Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [694 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:47.9314009Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.6 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.0350941Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1449 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.0455015Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [315 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.0471592Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1711 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.0562559Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [344 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.0620769Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1883 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.0787682Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [430 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.0839988Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [50.7 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.0841752Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.1863233Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1193 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.1922180Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [238 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.2373906Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1228 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.2431918Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.2451721Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1788 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.2533162Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [411 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.2557042Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [45.4 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:48.2567026Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:51.9149087Z Fetched 13.2 MB in 1s (9300 kB/s)
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.1979611Z Reading package lists...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.2390011Z Reading package lists...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.5022440Z Building dependency tree...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.5030922Z Reading state information...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.7149735Z The following NEW packages will be installed:
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.7156013Z   libxml2-utils
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.7377389Z 0 upgraded, 1 newly installed, 0 to remove and 48 not upgraded.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.7379017Z Need to get 39.4 kB of archives.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.7380155Z After this operation, 189 kB of additional disk space will be used.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.7381407Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:53.8154759Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libxml2-utils amd64 2.9.14+dfsg-1.3ubuntu3.10 [39.4 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.0939928Z Fetched 39.4 kB in 0s (431 kB/s)
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1181754Z Selecting previously unselected package libxml2-utils.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1503219Z (Reading database ... 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1504216Z (Reading database ... 5%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1505001Z (Reading database ... 10%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1505706Z (Reading database ... 15%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1506476Z (Reading database ... 20%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1507166Z (Reading database ... 25%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1507743Z (Reading database ... 30%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1508330Z (Reading database ... 35%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1509113Z (Reading database ... 40%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1509475Z (Reading database ... 45%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1509812Z (Reading database ... 50%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.1656292Z (Reading database ... 55%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.3469553Z (Reading database ... 60%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.4911853Z (Reading database ... 65%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.7000813Z (Reading database ... 70%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:54.9093546Z (Reading database ... 75%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.0419628Z (Reading database ... 80%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.2481580Z (Reading database ... 85%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.4571224Z (Reading database ... 90%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.6030828Z (Reading database ... 95%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.6031767Z (Reading database ... 100%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.6035196Z (Reading database ... 215960 files and directories currently installed.)
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.6077518Z Preparing to unpack .../libxml2-utils_2.9.14+dfsg-1.3ubuntu3.10_amd64.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.6105427Z Unpacking libxml2-utils (2.9.14+dfsg-1.3ubuntu3.10) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.6560854Z Setting up libxml2-utils (2.9.14+dfsg-1.3ubuntu3.10) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.6586135Z Processing triggers for man-db (2.12.0-4build2) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:55.6609213Z Not building database; man-db/auto-update is not 'true'.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3601538Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3603095Z Running kernel seems to be up-to-date.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3603772Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3604363Z No services need to be restarted.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3604776Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3605102Z No containers need to be restarted.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3605648Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3606227Z No user sessions are running outdated binaries.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3606702Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:56.3607364Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:58.1119747Z Installing dependencies...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:58.1197604Z Switching to root user to install dependencies...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:58.1910311Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:58.2237689Z Hit:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:58.2249775Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:58.2262070Z Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:58.2263939Z Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:58.2273583Z Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:59.9089022Z Reading package lists...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:07:59.9396611Z Reading package lists...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.2043850Z Building dependency tree...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.2051552Z Reading state information...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3711163Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3712213Z libasound2t64 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3712976Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3713708Z libatk-bridge2.0-0t64 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3714414Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3715053Z libatk1.0-0t64 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3715713Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3716376Z libatspi2.0-0t64 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3717009Z libcairo2 is already the newest version (1.18.0-3build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3717626Z libcairo2 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3718336Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3719693Z libcups2t64 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3720853Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3721471Z libdbus-1-3 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3722335Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3723270Z libdrm2 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3723884Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3724481Z libgbm1 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3725099Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3725736Z libglib2.0-0t64 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3726359Z libnspr4 is already the newest version (2:4.35-1.1build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3726956Z libnspr4 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3727551Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3728351Z libnss3 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3729304Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3729945Z libpango-1.0-0 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3730563Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3731146Z libx11-6 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3731713Z libxcb1 is already the newest version (1.15-1ubuntu2).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3732271Z libxcb1 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3732884Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3733508Z libxcomposite1 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3734126Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3734721Z libxdamage1 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3735306Z libxext6 is already the newest version (2:1.3.4-1build2).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3735823Z libxext6 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3736308Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3736810Z libxfixes3 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3737317Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3737808Z libxkbcommon0 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3738310Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3738967Z libxrandr2 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3739486Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3740143Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3740823Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3741354Z libfontconfig1 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3741895Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3742445Z libfreetype6 set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3743104Z fonts-liberation is already the newest version (1:2.1.5-3).
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3743931Z fonts-liberation set to manually installed.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3744473Z The following additional packages will be installed:
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3744946Z   xfonts-encodings xfonts-utils
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3745343Z Recommended packages:
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3745708Z   fonts-ipafont-mincho fonts-tlwg-loma
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3925121Z The following NEW packages will be installed:
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3925826Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3933335Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.3933904Z   xfonts-utils
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.4141582Z 0 upgraded, 9 newly installed, 0 to remove and 48 not upgraded.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.4142558Z Need to get 21.1 MB of archives.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.4143470Z After this operation, 79.5 MB of additional disk space will be used.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.4144105Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.4898026Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:00.9406280Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:01.6902208Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:01.7530885Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:02.1812779Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.1261945Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.2495993Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.3145513Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.3854112Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.6773235Z Fetched 21.1 MB in 3s (7041 kB/s)
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.6997062Z Selecting previously unselected package fonts-ipafont-gothic.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7048842Z (Reading database ... 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7049615Z (Reading database ... 5%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7050266Z (Reading database ... 10%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7050954Z (Reading database ... 15%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7051611Z (Reading database ... 20%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7052234Z (Reading database ... 25%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7052870Z (Reading database ... 30%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7053519Z (Reading database ... 35%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7054166Z (Reading database ... 40%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7054782Z (Reading database ... 45%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7055402Z (Reading database ... 50%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7071218Z (Reading database ... 55%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7121293Z (Reading database ... 60%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7170802Z (Reading database ... 65%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7189305Z (Reading database ... 70%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7213805Z (Reading database ... 75%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7340538Z (Reading database ... 80%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7381877Z (Reading database ... 85%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7606058Z (Reading database ... 90%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7902632Z (Reading database ... 95%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7903268Z (Reading database ... 100%
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7903945Z (Reading database ... 215968 files and directories currently installed.)
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.7948087Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:03.8038660Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.0434248Z Selecting previously unselected package fonts-freefont-ttf.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.0580138Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.0589588Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.1484613Z Selecting previously unselected package fonts-tlwg-loma-otf.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.1628018Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.1635806Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.1897511Z Selecting previously unselected package fonts-unifont.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.2040692Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.2049496Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.3201713Z Selecting previously unselected package fonts-wqy-zenhei.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.3348342Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.3472994Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.8444168Z Selecting previously unselected package xfonts-encodings.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.8591865Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.8601498Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.8933585Z Selecting previously unselected package xfonts-utils.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.9079147Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.9089598Z Unpacking xfonts-utils (1:7.7+6build3) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.9535589Z Selecting previously unselected package xfonts-cyrillic.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.9682060Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:04.9691064Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.0076217Z Selecting previously unselected package xfonts-scalable.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.0221353Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.0231192Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.0739876Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.0887665Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.0910203Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.0932816Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.0953307Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.1023697Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.1054050Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.1080130Z Setting up xfonts-utils (1:7.7+6build3) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.1129393Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.1442992Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.1740195Z Processing triggers for man-db (2.12.0-4build2) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.1757040Z Not building database; man-db/auto-update is not 'true'.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.1771746Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8660866Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8661777Z Running kernel seems to be up-to-date.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8662199Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8662459Z No services need to be restarted.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8662746Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8662972Z No containers need to be restarted.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8663259Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8663529Z No user sessions are running outdated binaries.
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8663864Z 
+OpenAPI Spec	Install dependencies and set up environment for OpenAPI Spec	2026-11-12T07:08:05.8664264Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+OpenAPI Spec	Print orchestrator info	﻿2026-11-12T07:08:07.1591178Z ##[group]Run echo "Triggered by orchestrator run Orchestrator #917"
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1591816Z [36;1mecho "Triggered by orchestrator run Orchestrator #917"[0m
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1611686Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1612026Z env:
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1612303Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1612621Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1612927Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1613259Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1613658Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1614056Z ##[endgroup]
+OpenAPI Spec	Print orchestrator info	2026-11-12T07:08:07.1660097Z Triggered by orchestrator run Orchestrator #917
+OpenAPI Spec	Pull latest Specmatic Docker image	﻿2026-11-12T07:08:07.1715902Z ##[group]Run timeout "${CMD_TIMEOUT_LONG}" docker pull specmatic/enterprise:latest
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:07.1716614Z [36;1mtimeout "${CMD_TIMEOUT_LONG}" docker pull specmatic/enterprise:latest[0m
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:07.1735883Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:07.1736254Z env:
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:07.1736551Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:07.1736881Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:07.1737201Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:07.1737544Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:07.1737960Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:07.1738360Z ##[endgroup]
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.1539265Z latest: Pulling from specmatic/enterprise
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4205038Z 254c1c13ac73: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4206667Z 7a4877cecca8: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4207814Z f4265a56de30: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4209535Z 82087d46dc9d: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4210445Z f53829540a90: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4211442Z dc2b2c4d05a6: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4212173Z 386404bbcc5e: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4212856Z 7751c9de7461: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4213499Z 53abc9c20665: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4214127Z 62bd281d8922: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4214753Z 5e1edf88ac61: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4215392Z 1d56d65231b4: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4216017Z 419acb3d81ed: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4216663Z 2a0822e01c7a: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4217169Z f048b16e5aec: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4217566Z 6dc9f33ec4c2: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4217960Z b5cfa4466901: Pulling fs layer
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4218312Z 2a0822e01c7a: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4218971Z f048b16e5aec: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4219294Z 62bd281d8922: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4219925Z 6dc9f33ec4c2: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4220229Z 5e1edf88ac61: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4220536Z 1d56d65231b4: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4220856Z b5cfa4466901: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4221564Z 419acb3d81ed: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4222068Z f53829540a90: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4222467Z 7751c9de7461: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4222851Z 53abc9c20665: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4223235Z dc2b2c4d05a6: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4223610Z 386404bbcc5e: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.4223998Z 82087d46dc9d: Waiting
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.6534238Z f4265a56de30: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.6608939Z 7a4877cecca8: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.6610195Z 7a4877cecca8: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.6773168Z 254c1c13ac73: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.6773954Z 254c1c13ac73: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.7296643Z 254c1c13ac73: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.8737731Z 82087d46dc9d: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.8738995Z 82087d46dc9d: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.8854845Z f53829540a90: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.8856067Z f53829540a90: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.9043894Z dc2b2c4d05a6: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:08.9045280Z dc2b2c4d05a6: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.0937466Z 386404bbcc5e: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.0938443Z 386404bbcc5e: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.1140565Z 7751c9de7461: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.1141390Z 7751c9de7461: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.1160410Z 53abc9c20665: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.1161755Z 53abc9c20665: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.3049650Z 62bd281d8922: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.3050592Z 62bd281d8922: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.3302564Z 5e1edf88ac61: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.3303460Z 5e1edf88ac61: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.3312422Z 1d56d65231b4: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.3313460Z 1d56d65231b4: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.5502425Z 2a0822e01c7a: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.5503685Z 2a0822e01c7a: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.7730712Z 6dc9f33ec4c2: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.7732205Z 6dc9f33ec4c2: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.9486796Z 419acb3d81ed: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.9487694Z 419acb3d81ed: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:09.9915028Z b5cfa4466901: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:10.0473140Z 7a4877cecca8: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:10.5220279Z f048b16e5aec: Verifying Checksum
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:10.5221072Z f048b16e5aec: Download complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:10.7919646Z f4265a56de30: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:10.9505257Z 82087d46dc9d: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:10.9680714Z f53829540a90: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:10.9841052Z dc2b2c4d05a6: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:10.9947682Z 386404bbcc5e: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:11.0084911Z 7751c9de7461: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:11.0223584Z 53abc9c20665: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:11.0448054Z 62bd281d8922: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:11.0974265Z 5e1edf88ac61: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:11.1087456Z 1d56d65231b4: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:13.6027099Z 419acb3d81ed: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:13.6164684Z 2a0822e01c7a: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:14.9985460Z f048b16e5aec: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:15.0098162Z 6dc9f33ec4c2: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:15.0245433Z b5cfa4466901: Pull complete
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:15.0286228Z Digest: sha256:15bbd7fb11f58c6c2de051792111f356f14cee77f824feac28f09a9401166c63
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:15.0298736Z Status: Downloaded newer image for specmatic/enterprise:latest
+OpenAPI Spec	Pull latest Specmatic Docker image	2026-11-12T07:08:15.0307625Z docker.io/specmatic/enterprise:latest
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	﻿2026-11-12T07:08:15.0374824Z ##[group]Run mkdir -p playwright-report
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0375312Z [36;1mmkdir -p playwright-report[0m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0376062Z [36;1mmkdir -p studio-logs[0m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0376617Z [36;1mtimeout "${CMD_TIMEOUT_LONG}" npx playwright test specs/openapi/update-service-spec[0m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0396962Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0397310Z env:
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0397592Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0397915Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0398230Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0398857Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0399288Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0400181Z   APPLITOOLS_API_KEY: ***
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0400530Z   GROUP_NAME: OpenAPI Spec
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0400874Z   ORCHESTRATOR_DISABLE_VISUAL: true
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0401257Z   SPECMATIC_PRELOADED_DOCKER_IMAGE: false
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.0401623Z ##[endgroup]
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.9230684Z (node:3526) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:15.9232834Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:16.0935781Z ◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:16.1548117Z ◇ injected env (8) from env/.env.ci // tip: ⌘ enable debugging { debug: true }
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:16.1550302Z [env] Loaded /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/env/.env.ci
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:17.1273636Z [WebServer]  studio Pulling 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:17.1275369Z [WebServer]  order-bff Pulling 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:17.1275858Z [WebServer]  inventory-api Pulling 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:17.1276575Z [WebServer]  order-api Pulling 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:17.8001028Z [WebServer]  studio Pulled 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2390464Z [WebServer]  881fc932939e Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2391422Z [WebServer]  bab8ed2e7888 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2392358Z [WebServer]  496d37bd6267 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2394333Z [WebServer]  de8603fefbc9 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2394902Z [WebServer]  107463c81a1e Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2395667Z [WebServer]  de8603fefbc9 Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2396344Z [WebServer]  107463c81a1e Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2420427Z [WebServer]  881fc932939e Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2420966Z [WebServer]  d6885d20d310 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2421430Z [WebServer]  f771e1601fb1 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2430815Z [WebServer]  26a1de7ecd2d Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2431526Z [WebServer]  de7014a208c2 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2432181Z [WebServer]  d6885d20d310 Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2432904Z [WebServer]  f771e1601fb1 Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2433654Z [WebServer]  26a1de7ecd2d Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2434324Z [WebServer]  de7014a208c2 Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2603206Z [WebServer]  881fc932939e Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2604129Z [WebServer]  5bfaa716f705 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2604946Z [WebServer]  373fe2918567 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2605691Z [WebServer]  d94713a16fa1 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2606521Z [WebServer]  507b7967b4a6 Pulling fs layer 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2607109Z [WebServer]  373fe2918567 Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2607825Z [WebServer]  5bfaa716f705 Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2608278Z [WebServer]  d94713a16fa1 Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.2609032Z [WebServer]  507b7967b4a6 Waiting 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4574184Z [WebServer]  496d37bd6267 Downloading [>                                                  ]  81.32kB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4579072Z [WebServer]  bab8ed2e7888 Downloading [>                                                  ]    534kB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4621860Z [WebServer]  881fc932939e Downloading [>                                                  ]  48.55kB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4624966Z [WebServer]  881fc932939e Downloading [>                                                  ]  48.55kB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4626896Z [WebServer]  881fc932939e Downloading [>                                                  ]  48.55kB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4778435Z [WebServer]  881fc932939e Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4780941Z [WebServer]  881fc932939e Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4782432Z [WebServer]  881fc932939e Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4783856Z [WebServer]  881fc932939e Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4787248Z [WebServer]  881fc932939e Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4810017Z [WebServer]  881fc932939e Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4854041Z [WebServer]  496d37bd6267 Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4859684Z [WebServer]  496d37bd6267 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4869093Z [WebServer]  881fc932939e Extracting [>                                                  ]  65.54kB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4871659Z [WebServer]  881fc932939e Extracting [>                                                  ]  65.54kB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.4873730Z [WebServer]  881fc932939e Extracting [>                                                  ]  65.54kB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.5593295Z [WebServer]  bab8ed2e7888 Downloading [=========>                                         ]  27.71MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.5829878Z [WebServer]  881fc932939e Extracting [===================================>               ]  2.753MB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.5831503Z [WebServer]  881fc932939e Extracting [===================================>               ]  2.753MB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.5832933Z [WebServer]  881fc932939e Extracting [===================================>               ]  2.753MB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.5989871Z [WebServer]  881fc932939e Extracting [==================================================>]  3.854MB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.6000955Z [WebServer]  881fc932939e Extracting [==================================================>]  3.854MB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.6003140Z [WebServer]  881fc932939e Extracting [==================================================>]  3.854MB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.6005147Z [WebServer]  881fc932939e Extracting [==================================================>]  3.854MB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.6006935Z [WebServer]  881fc932939e Extracting [==================================================>]  3.854MB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.6008843Z [WebServer]  881fc932939e Extracting [==================================================>]  3.854MB/3.854MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.6267983Z [WebServer]  881fc932939e Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.6269103Z [WebServer]  881fc932939e Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.6269645Z [WebServer]  881fc932939e Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.6602873Z [WebServer]  bab8ed2e7888 Downloading [==================>                                ]  56.57MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.7033285Z [WebServer]  107463c81a1e Downloading [>                                                  ]  491.5kB/47.65MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.7035114Z [WebServer]  de8603fefbc9 Downloading [==================================================>]      93B/93B
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.7036390Z [WebServer]  de8603fefbc9 Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.7038933Z [WebServer]  de8603fefbc9 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.7624558Z [WebServer]  bab8ed2e7888 Downloading [============================>                      ]  84.94MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.8033783Z [WebServer]  107463c81a1e Downloading [===============================>                   ]   30.1MB/47.65MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.8638277Z [WebServer]  bab8ed2e7888 Downloading [======================================>            ]  113.9MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.8650962Z [WebServer]  107463c81a1e Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.8652398Z [WebServer]  107463c81a1e Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.9298362Z [WebServer]  d6885d20d310 Downloading [>                                                  ]  540.6kB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.9638012Z [WebServer]  bab8ed2e7888 Downloading [=================================================> ]  147.5MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.9669213Z [WebServer]  bab8ed2e7888 Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:18.9677062Z [WebServer]  bab8ed2e7888 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.0060393Z [WebServer]  bab8ed2e7888 Extracting [>                                                  ]  557.1kB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.0298350Z [WebServer]  d6885d20d310 Downloading [=========>                                         ]  33.08MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.0869670Z [WebServer]  f771e1601fb1 Downloading [>                                                  ]  81.92kB/7.781MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.1072934Z [WebServer]  bab8ed2e7888 Extracting [=====>                                             ]  15.04MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.1130012Z [WebServer]  f771e1601fb1 Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.1132150Z [WebServer]  f771e1601fb1 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.1310381Z [WebServer]  d6885d20d310 Downloading [=================>                                 ]   62.4MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.1905782Z [WebServer]  26a1de7ecd2d Downloading [==================================================>]      93B/93B
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.1907031Z [WebServer]  26a1de7ecd2d Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.1907888Z [WebServer]  26a1de7ecd2d Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.2074887Z [WebServer]  bab8ed2e7888 Extracting [==========>                                        ]  30.64MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.2317298Z [WebServer]  d6885d20d310 Downloading [=========================>                         ]  92.86MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.3095005Z [WebServer]  bab8ed2e7888 Extracting [===============>                                   ]  46.79MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.3338591Z [WebServer]  d6885d20d310 Downloading [=================================>                 ]  120.6MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.3376106Z [WebServer]  de7014a208c2 Downloading [>                                                  ]    277kB/27.28MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.4097224Z [WebServer]  bab8ed2e7888 Extracting [====================>                              ]  61.28MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.4144414Z [WebServer]  5bfaa716f705 Downloading [>                                                  ]  528.4kB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.4355033Z [WebServer]  d6885d20d310 Downloading [========================================>          ]  145.6MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.4424340Z [WebServer]  de7014a208c2 Downloading [===========>                                       ]  6.336MB/27.28MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.5106313Z [WebServer]  bab8ed2e7888 Extracting [=======================>                           ]  69.63MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.5155114Z [WebServer]  5bfaa716f705 Downloading [=======>                                           ]  25.06MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.5363072Z [WebServer]  d6885d20d310 Downloading [==============================================>    ]  169.1MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.5422195Z [WebServer]  de7014a208c2 Downloading [======================>                            ]  12.41MB/27.28MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.5869140Z [WebServer]  d6885d20d310 Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.5870422Z [WebServer]  d6885d20d310 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.6082963Z [WebServer]  de7014a208c2 Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.6084559Z [WebServer]  de7014a208c2 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.6165445Z [WebServer]  5bfaa716f705 Downloading [===============>                                   ]  51.18MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.6407838Z [WebServer]  d6885d20d310 Extracting [>                                                  ]  557.1kB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.7186902Z [WebServer]  5bfaa716f705 Downloading [========================>                          ]  79.44MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.7309388Z [WebServer]  bab8ed2e7888 Extracting [=========================>                         ]  76.32MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.7436519Z [WebServer]  d6885d20d310 Extracting [===>                                               ]  13.93MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.8171684Z [WebServer]  373fe2918567 Downloading [>                                                  ]  86.36kB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.8202195Z [WebServer]  5bfaa716f705 Downloading [================================>                  ]  106.7MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.8307829Z [WebServer]  d94713a16fa1 Downloading [==================================================>]      93B/93B
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.8315307Z [WebServer]  d94713a16fa1 Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.8316810Z [WebServer]  d94713a16fa1 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.8413918Z [WebServer]  bab8ed2e7888 Extracting [===========================>                       ]  83.56MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.8436459Z [WebServer]  d6885d20d310 Extracting [=======>                                           ]  26.18MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.8509871Z [WebServer]  373fe2918567 Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.8511085Z [WebServer]  373fe2918567 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.9202452Z [WebServer]  5bfaa716f705 Downloading [========================================>          ]  132.8MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.9463321Z [WebServer]  d6885d20d310 Extracting [==========>                                        ]  38.44MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:19.9486519Z [WebServer]  bab8ed2e7888 Extracting [=============================>                     ]  88.57MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.0233196Z [WebServer]  5bfaa716f705 Downloading [=================================================> ]  160.5MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.0315774Z [WebServer]  5bfaa716f705 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.0478119Z [WebServer]  d6885d20d310 Extracting [=============>                                     ]  49.02MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.0495222Z [WebServer]  bab8ed2e7888 Extracting [===============================>                   ]  93.03MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.0734998Z [WebServer]  507b7967b4a6 Downloading [>                                                  ]  398.9kB/39.38MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.1007909Z [WebServer]  5bfaa716f705 Extracting [>                                                  ]  557.1kB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.1498314Z [WebServer]  bab8ed2e7888 Extracting [================================>                  ]  97.48MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.1557788Z [WebServer]  d6885d20d310 Extracting [================>                                  ]  60.72MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.1734706Z [WebServer]  507b7967b4a6 Downloading [===================================>               ]  27.75MB/39.38MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.2041899Z [WebServer]  5bfaa716f705 Extracting [==>                                                ]  8.356MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.2186514Z [WebServer]  507b7967b4a6 Verifying Checksum 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.2187448Z [WebServer]  507b7967b4a6 Download complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.2584925Z [WebServer]  d6885d20d310 Extracting [====================>                              ]  72.97MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.2643110Z [WebServer]  bab8ed2e7888 Extracting [==================================>                ]  102.5MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.3056622Z [WebServer]  5bfaa716f705 Extracting [======>                                            ]  20.05MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.3608019Z [WebServer]  d6885d20d310 Extracting [=======================>                           ]   86.9MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.3736812Z [WebServer]  bab8ed2e7888 Extracting [====================================>              ]  108.1MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.4072346Z [WebServer]  5bfaa716f705 Extracting [=========>                                         ]  30.64MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.4803849Z [WebServer]  bab8ed2e7888 Extracting [======================================>            ]  113.6MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.4925783Z [WebServer]  d6885d20d310 Extracting [========================>                          ]  87.46MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.5120819Z [WebServer]  5bfaa716f705 Extracting [=============>                                     ]  43.45MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.5879572Z [WebServer]  bab8ed2e7888 Extracting [=======================================>           ]  118.7MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.5995521Z [WebServer]  d6885d20d310 Extracting [==========================>                        ]  95.26MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.6147616Z [WebServer]  5bfaa716f705 Extracting [=================>                                 ]  57.93MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.7019233Z [WebServer]  bab8ed2e7888 Extracting [=========================================>         ]  124.2MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.7045784Z [WebServer]  d6885d20d310 Extracting [===========================>                       ]  100.3MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.7173883Z [WebServer]  5bfaa716f705 Extracting [=====================>                             ]  69.63MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.8031410Z [WebServer]  bab8ed2e7888 Extracting [==========================================>        ]  128.1MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.8062616Z [WebServer]  d6885d20d310 Extracting [============================>                      ]  104.7MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.9093622Z [WebServer]  bab8ed2e7888 Extracting [============================================>      ]  133.1MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.9107787Z [WebServer]  d6885d20d310 Extracting [==============================>                    ]  110.3MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:20.9655415Z [WebServer]  5bfaa716f705 Extracting [=========================>                         ]     83MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.0132573Z [WebServer]  bab8ed2e7888 Extracting [==============================================>    ]  138.7MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.0134584Z [WebServer]  d6885d20d310 Extracting [================================>                  ]  116.4MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.0787008Z [WebServer]  5bfaa716f705 Extracting [===========================>                       ]   90.8MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.1177550Z [WebServer]  bab8ed2e7888 Extracting [================================================>  ]  143.7MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.1181508Z [WebServer]  d6885d20d310 Extracting [=================================>                 ]    122MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.1903087Z [WebServer]  5bfaa716f705 Extracting [=============================>                     ]  95.81MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.2192869Z [WebServer]  d6885d20d310 Extracting [===================================>               ]  127.6MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.2215460Z [WebServer]  bab8ed2e7888 Extracting [=================================================> ]  148.2MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.2759594Z [WebServer]  bab8ed2e7888 Extracting [==================================================>]  149.2MB/149.2MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.2969574Z [WebServer]  5bfaa716f705 Extracting [==============================>                    ]  100.3MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.3256650Z [WebServer]  d6885d20d310 Extracting [====================================>              ]  132.6MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.4002194Z [WebServer]  5bfaa716f705 Extracting [================================>                  ]  105.8MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.4368786Z [WebServer]  d6885d20d310 Extracting [=====================================>             ]  137.6MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.5015741Z [WebServer]  5bfaa716f705 Extracting [==================================>                ]  110.9MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.5380878Z [WebServer]  d6885d20d310 Extracting [=======================================>           ]  142.6MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.6007166Z [WebServer]  5bfaa716f705 Extracting [====================================>              ]  118.1MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.6424530Z [WebServer]  d6885d20d310 Extracting [=========================================>         ]    151MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.9566030Z [WebServer]  5bfaa716f705 Extracting [=====================================>             ]  121.4MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:21.9789119Z [WebServer]  d6885d20d310 Extracting [=========================================>         ]  152.1MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.0511384Z [WebServer]  5bfaa716f705 Extracting [=======================================>           ]  127.6MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.0837446Z [WebServer]  d6885d20d310 Extracting [===========================================>       ]  157.1MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.1602031Z [WebServer]  5bfaa716f705 Extracting [=========================================>         ]  134.8MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.1844391Z [WebServer]  d6885d20d310 Extracting [============================================>      ]  162.7MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.2689949Z [WebServer]  5bfaa716f705 Extracting [===========================================>       ]  140.9MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.2879802Z [WebServer]  d6885d20d310 Extracting [==============================================>    ]  167.7MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.3715164Z [WebServer]  5bfaa716f705 Extracting [=============================================>     ]  146.5MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.3923237Z [WebServer]  d6885d20d310 Extracting [================================================>  ]  174.4MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.4795788Z [WebServer]  5bfaa716f705 Extracting [==============================================>    ]  151.5MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.4941590Z [WebServer]  d6885d20d310 Extracting [=================================================> ]  180.5MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.5492641Z [WebServer]  d6885d20d310 Extracting [==================================================>]  181.5MB/181.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.5832038Z [WebServer]  5bfaa716f705 Extracting [================================================>  ]  158.2MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:22.6733212Z [WebServer]  5bfaa716f705 Extracting [==================================================>]  162.5MB/162.5MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.7059969Z [WebServer]  bab8ed2e7888 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.7121611Z [WebServer]  496d37bd6267 Extracting [>                                                  ]   98.3kB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.7139147Z [WebServer]  d6885d20d310 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.7140077Z [WebServer]  5bfaa716f705 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.7186434Z [WebServer]  f771e1601fb1 Extracting [>                                                  ]   98.3kB/7.781MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.7205332Z [WebServer]  373fe2918567 Extracting [>                                                  ]   98.3kB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.8127837Z [WebServer]  496d37bd6267 Extracting [====================>                              ]  3.146MB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.8188306Z [WebServer]  f771e1601fb1 Extracting [=====================>                             ]  3.342MB/7.781MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.8205503Z [WebServer]  373fe2918567 Extracting [======================>                            ]  3.441MB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9182781Z [WebServer]  496d37bd6267 Extracting [==============================================>    ]  7.274MB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9189367Z [WebServer]  f771e1601fb1 Extracting [==============================================>    ]  7.274MB/7.781MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9216317Z [WebServer]  373fe2918567 Extracting [=================================================> ]  7.668MB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9263783Z [WebServer]  373fe2918567 Extracting [==================================================>]   7.78MB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9336068Z [WebServer]  496d37bd6267 Extracting [==================================================>]   7.78MB/7.78MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9359797Z [WebServer]  f771e1601fb1 Extracting [==================================================>]  7.781MB/7.781MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9669325Z [WebServer]  496d37bd6267 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9686696Z [WebServer]  de8603fefbc9 Extracting [==================================================>]      93B/93B
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9691954Z [WebServer]  de8603fefbc9 Extracting [==================================================>]      93B/93B
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9835588Z [WebServer]  de8603fefbc9 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9856727Z [WebServer]  373fe2918567 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9861061Z [WebServer]  f771e1601fb1 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9881087Z [WebServer]  d94713a16fa1 Extracting [==================================================>]      93B/93B
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9882852Z [WebServer]  d94713a16fa1 Extracting [==================================================>]      93B/93B
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9893106Z [WebServer]  26a1de7ecd2d Extracting [==================================================>]      93B/93B
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9894973Z [WebServer]  26a1de7ecd2d Extracting [==================================================>]      93B/93B
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9934048Z [WebServer]  107463c81a1e Extracting [>                                                  ]  491.5kB/47.65MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:24.9999341Z [WebServer]  d94713a16fa1 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.0034140Z [WebServer]  26a1de7ecd2d Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.0088957Z [WebServer]  507b7967b4a6 Extracting [>                                                  ]    426kB/39.38MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.0092981Z [WebServer]  de7014a208c2 Extracting [>                                                  ]  294.9kB/27.28MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.0958851Z [WebServer]  107463c81a1e Extracting [============>                                      ]   11.8MB/47.65MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.1095773Z [WebServer]  de7014a208c2 Extracting [===================>                               ]  10.91MB/27.28MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.1126554Z [WebServer]  507b7967b4a6 Extracting [===============>                                   ]  11.93MB/39.38MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.1983694Z [WebServer]  107463c81a1e Extracting [===========================>                       ]  26.05MB/47.65MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.2102933Z [WebServer]  de7014a208c2 Extracting [======================================>            ]  20.94MB/27.28MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.2149846Z [WebServer]  507b7967b4a6 Extracting [===========================>                       ]   21.3MB/39.38MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.2719080Z [WebServer]  de7014a208c2 Extracting [==================================================>]  27.28MB/27.28MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3021893Z [WebServer]  107463c81a1e Extracting [====================================>              ]   34.9MB/47.65MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3067638Z [WebServer]  de7014a208c2 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3175262Z [WebServer]  507b7967b4a6 Extracting [========================================>          ]  31.52MB/39.38MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3181476Z [WebServer]  inventory-api Pulled 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3607613Z [WebServer]  507b7967b4a6 Extracting [==================================================>]  39.38MB/39.38MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3779116Z [WebServer]  507b7967b4a6 Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3826193Z [WebServer]  107463c81a1e Extracting [==================================================>]  47.65MB/47.65MB
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3857415Z [WebServer]  order-api Pulled 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3897441Z [WebServer]  107463c81a1e Pull complete 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.3948223Z [WebServer]  order-bff Pulled 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.4860907Z [WebServer]  Network specmatic-studio-playwright-ts-tests_default  Creating
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5255538Z [WebServer]  Network specmatic-studio-playwright-ts-tests_default  Created
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5261900Z [WebServer]  Container studio  Creating
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5262968Z [WebServer]  Container inventory-api  Creating
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5493637Z [WebServer]  Container inventory-api  Created
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5494593Z [WebServer]  Container studio  Created
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5495400Z [WebServer]  Container order-api  Creating
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5596016Z [WebServer]  Container order-api  Created
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5596983Z [WebServer]  Container order-bff  Creating
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5686322Z [WebServer]  Container order-bff  Created
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5699265Z [WebServer]  Container studio  Starting
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.5700600Z [WebServer]  Container inventory-api  Starting
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.8419099Z [WebServer]  Container studio  Started
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.8431029Z [WebServer]  Container inventory-api  Started
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:25.8432414Z [WebServer]  Container inventory-api  Waiting
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.0895687Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.0896573Z Running 9 tests using 1 worker
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.3518760Z [WebServer]  Container inventory-api  Healthy
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.3521128Z [WebServer]  Container order-api  Starting
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.5270556Z [WebServer]  Container order-api  Started
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.5280528Z [WebServer]  Container order-api  Waiting
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.8290647Z (node:4126) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.8296232Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.9119276Z ◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.9145762Z ◇ injected env (0) from env/.env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:33.9147981Z [env] Loaded /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/env/.env.ci
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:39.0286620Z [WebServer]  Container order-api  Healthy
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:39.0287286Z [WebServer]  Container order-bff  Starting
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:39.1664781Z [WebServer]  Container order-bff  Started
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:41.9473494Z 	[Applitools] Test 'Backward Compatibility Test' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:42.5419936Z [33mYou are using "1.46.5" and there is a newer version "1.52.0" of the "@applitools/eyes-playwright" SDK.[39m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:45.6289906Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:46.1426300Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:48.0339779Z 	Closing sidebar if open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:49.2941680Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_compatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:55.5999818Z [Applitools] eyes.close() called at: 2026-11-12T07:08:55.599Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:55.6002297Z [Applitools] eyes.close() completed at: 2026-11-12T07:08:55.599Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:55.6004392Z Test 'Backward Compatibility Test' - Eyes results: [1mnull[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:55.8523347Z [33mYou are using "1.46.5" and there is a newer version "1.52.0" of the "@applitools/eyes-playwright" SDK.[39m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:55.8544961Z ·	[Applitools] Test 'Show multiple backward incompatible rows and navigate from each row to the right line' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:57.5375239Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:57.6920051Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:08:59.3570182Z 	Closing sidebar if open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:00.6824126Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_incompatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:09.1017937Z [Applitools] eyes.close() called at: 2026-11-12T07:09:09.101Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:09.1019573Z [Applitools] eyes.close() completed at: 2026-11-12T07:09:09.101Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:09.1021594Z Test 'Show multiple backward incompatible rows and navigate from each row to the right line' - Eyes results: [1mnull[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:09.2519105Z ·	[Applitools] Test 'Show an all-pass backward compatibility summary for the untouched spec' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:10.9987866Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:11.1660749Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:12.8078210Z 	Closing sidebar if open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:14.2103637Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_incompatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:16.2988376Z [Applitools] eyes.close() called at: 2026-11-12T07:09:16.298Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:16.2989553Z [Applitools] eyes.close() completed at: 2026-11-12T07:09:16.298Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:16.2992626Z Test 'Show an all-pass backward compatibility summary for the untouched spec' - Eyes results: [1mnull[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:16.4918803Z ·	[Applitools] Test 'Show a failure summary and allow jumping to the failing line' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:18.2370364Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:18.4189634Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:20.0771219Z 	Closing sidebar if open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:21.4798644Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_incompatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:26.7729722Z [Applitools] eyes.close() called at: 2026-11-12T07:09:26.772Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:26.7730957Z [Applitools] eyes.close() completed at: 2026-11-12T07:09:26.772Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:26.7732628Z Test 'Show a failure summary and allow jumping to the failing line' - Eyes results: [1mnull[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:26.9151109Z ·	[Applitools] Test 'Fix /ordres typo to /orders when it exists' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:28.4152144Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:28.5521551Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:30.1902481Z 	Closing sidebar if open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:31.4570544Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_fix_typo.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:35.1663346Z Saved new spec
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:36.4519853Z [Applitools] eyes.close() called at: 2026-11-12T07:09:36.451Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:36.4520962Z [Applitools] eyes.close() completed at: 2026-11-12T07:09:36.451Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:36.4521976Z Test 'Fix /ordres typo to /orders when it exists' - Eyes results: [1mnull[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:36.7386068Z ·	[Applitools] Test 'Save Invalid Spec and Assert Error' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:38.2705771Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:38.4177898Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:40.0536676Z 	Closing sidebar if open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:41.3485050Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_save_invalid_spec.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:42.1374090Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_save_invalid_spec.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:43.6273733Z 	Scrolled editor to reveal all lines (CodeMirror lazy-load workaround)
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:45.7107205Z 	Scrolled Save button into view
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:47.0886923Z [Applitools] eyes.close() called at: 2026-11-12T07:09:47.087Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:47.0888987Z [Applitools] eyes.close() completed at: 2026-11-12T07:09:47.087Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:47.0890977Z Test 'Save Invalid Spec and Assert Error' - Eyes results: [1mnull[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:47.8612976Z (node:7413) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:47.8615838Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:47.9100794Z F◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:47.9115698Z ◇ injected env (0) from env/.env.ci // tip: ⌘ enable debugging { debug: true }
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:47.9117469Z [env] Loaded /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/env/.env.ci
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:48.4620380Z 	[Applitools] Test 'Group: Compatible then Incompatible — Edit-based changes' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=false
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:48.8743390Z [33mYou are using "1.46.5" and there is a newer version "1.52.0" of the "@applitools/eyes-playwright" SDK.[39m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:50.2013608Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:50.3814182Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:52.0715152Z 	Closing sidebar if open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:09:53.3799865Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/bcc/product_search_bff_v5_backward_incompatibility.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:11.3831284Z [Applitools] eyes.close() called at: 2026-11-12T07:10:11.382Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:11.3832535Z [Applitools] eyes.close() completed at: 2026-11-12T07:10:11.382Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:11.3838400Z Test 'Group: Compatible then Incompatible — Edit-based changes' - Eyes results: [1mnull[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:11.5390629Z [33mYou are using "1.46.5" and there is a newer version "1.52.0" of the "@applitools/eyes-playwright" SDK.[39m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:11.5435340Z ·	[Applitools] Test 'Update Service Specification' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:13.0060076Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:13.1508428Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:14.7678755Z 	Closing sidebar if open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:16.0884579Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_update.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:16.8826498Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_update.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:18.3575997Z 	Scrolled editor to reveal all lines (CodeMirror lazy-load workaround)
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:20.9668775Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_update.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:22.4199166Z 	Scrolled editor to reveal all lines (CodeMirror lazy-load workaround)
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:25.1756787Z 	Scrolled Save button into view
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:26.1522129Z [Applitools] eyes.close() called at: 2026-11-12T07:10:26.151Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:26.1523073Z [Applitools] eyes.close() completed at: 2026-11-12T07:10:26.151Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:26.1523956Z Test 'Update Service Specification' - Eyes results: [1mnull[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:26.3161700Z ·	[Applitools] Test 'Save Valid Spec' - Eyes enabled: false because ENABLE_VISUAL=false and hasEyesTag=true
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:27.7453399Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:27.8828961Z 	Ensuring sidebar is open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:29.5000363Z 	Closing sidebar if open
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:30.7547498Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_save_valid.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:31.5457155Z 	Opening tab with locator: locator('.screen').filter({ has: locator('.info span[data-path]:has-text("File path: ./test-openapi/spec-editing/product_search_bff_v5_save_valid.yaml")') }).first().locator('li.tab[data-type="spec"]').first()
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:32.9921840Z 	Scrolled editor to reveal all lines (CodeMirror lazy-load workaround)
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:35.1087465Z 	Scrolled Save button into view
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.5019893Z [Applitools] eyes.close() called at: 2026-11-12T07:10:39.501Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.5020648Z [Applitools] eyes.close() completed at: 2026-11-12T07:10:39.501Z
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.5021935Z Test 'Save Valid Spec' - Eyes results: [1mnull[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6515662Z ·Running global teardown...
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6517079Z Fetching Applitools batch results for all tests...
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6519052Z Applitools batch results: TestResultsSummaryData { _summary: undefined, _core: undefined }
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6529930Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6539167Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6552112Z   1) [chromium] › specs/openapi/update-service-spec/invalid-spec-save.spec.ts:9:7 › InValid Spec save and Error Dialog Display › Save Invalid Spec and Assert Error @spec @invalidSpecChange @eyes › Edit Spec and Save › Assert validation error details 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6553155Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6553655Z     Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoMatch[2m([22m[32mexpected[39m[2m)[22m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6554091Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6554564Z     Expected pattern: [32m/could not parse contract|implicit keys need to be on a single line/i[39m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6555777Z     Received string:  [31m""[39m
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6556127Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6556632Z       49 |           const errorDetail = await configPage.expandAndGetValidationError();
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6557238Z       50 |
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6557911Z     > 51 |           expect(errorDetail).toMatch(
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6558702Z          |                               ^
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6559526Z       52 |             /could not parse contract|implicit keys need to be on a single line/i,
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6560507Z       53 |           );
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6561105Z       54 |         });
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6562552Z         at /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/specs/openapi/update-service-spec/invalid-spec-save.spec.ts:51:31
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6564391Z         at /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/specs/openapi/update-service-spec/invalid-spec-save.spec.ts:47:9
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6567238Z         at /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/specs/openapi/update-service-spec/invalid-spec-save.spec.ts:27:7
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6569209Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6570080Z     attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6571328Z     test-results/specs-openapi-update-servi-38f07-valid-Spec-and-Assert-Error-chromium/test-failed-1.png
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6572977Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6575228Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6576130Z     attachment #11: browser-and-network.log (text/plain) ───────────────────────────────────────────
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6577124Z     [LOG] Spec editor module loaded
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6577719Z     [LOG] Mermaid Loaded
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6578953Z     [INFO] Wunderbaum<'wb_1'> Load source took 0.024 seconds (transfer: 0.017s, processing: 0.007s)
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6580835Z     [REQUESTFAILED] POST https://www.google-analytics.com/g/collect?v=2&tid=G-DZJQMQZ82G&gtm=45je6ba1v9116991441za208zd9116991441xf1&_p=1794467376908&gcd=1...
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6582030Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6582421Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6582965Z     Error Context: test-results/specs-openapi-update-servi-38f07-valid-Spec-and-Assert-Error-chromium/error-context.md
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6583538Z 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6583663Z   1 failed
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6584733Z     [chromium] › specs/openapi/update-service-spec/invalid-spec-save.spec.ts:9:7 › InValid Spec save and Error Dialog Display › Save Invalid Spec and Assert Error @spec @invalidSpecChange @eyes 
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:39.6585642Z   8 passed (2.4m)
+OpenAPI Spec	Run Playwright tests for OpenAPI Spec	2026-11-12T07:10:40.0135879Z ##[error]Process completed with exit code 1.
+OpenAPI Spec	Capture Docker logs	﻿2026-11-12T07:10:40.0195749Z ##[group]Run mkdir -p docker-logs-workdir
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0196244Z [36;1mmkdir -p docker-logs-workdir[0m
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0196716Z [36;1mfor cname in studio order-bff order-api inventory-api; do[0m
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0197287Z [36;1m  if docker ps -a -q -f name="^/${cname}$" | grep .; then[0m
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0197961Z [36;1m    timeout "${CMD_TIMEOUT_SHORT}" docker logs "$cname" > "docker-logs-workdir/${cname}.log" 2>&1 || true[0m
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0199058Z [36;1m  fi[0m
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0199351Z [36;1mdone[0m
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0218880Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0219237Z env:
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0219523Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0219854Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0220170Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0220502Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0220935Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0221334Z ##[endgroup]
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0441455Z 3529cabf2940
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.0815699Z 89bee4870d39
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.1179912Z 7ede03ac5c19
+OpenAPI Spec	Capture Docker logs	2026-11-12T07:10:40.1522539Z d6ef6358ac33
+OpenAPI Spec	Prepare Playwright artifact	﻿2026-11-12T07:10:40.1743964Z ##[group]Run timeout "${CMD_TIMEOUT_SHORT}" node utils/generate-failed-test-screenshots-summary.js
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1744794Z [36;1mtimeout "${CMD_TIMEOUT_SHORT}" node utils/generate-failed-test-screenshots-summary.js[0m
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1764905Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1765278Z env:
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1765572Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1765905Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1766224Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1766565Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1766977Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1767402Z   PLAYWRIGHT_RUN_NAME: OpenAPI Spec
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.1767742Z ##[endgroup]
+OpenAPI Spec	Prepare Playwright artifact	2026-11-12T07:10:40.2931199Z Summary written to /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests/playwright-report/failed-tests-summary.md
+OpenAPI Spec	Remove large local-only files	﻿2026-11-12T07:10:40.3091297Z ##[group]Run rm -rf temp
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3091863Z [36;1mrm -rf temp[0m
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3092407Z [36;1mrm -f playwright-report/test-results.json[0m
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3116814Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3117367Z env:
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3117810Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3118322Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3119076Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3119617Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3120286Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Remove large local-only files	2026-11-12T07:10:40.3120952Z ##[endgroup]
+OpenAPI Spec	Upload Playwright artifact	﻿2026-11-12T07:10:40.3310164Z ##[group]Run actions/upload-artifact@v4
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3310774Z with:
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3311443Z   name: test-artifacts-openapi-update-service-spec-run-43172946672
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3312422Z   path: docker-logs-workdir
+OpenAPI Spec	Upload Playwright artifact	playwright-report
+OpenAPI Spec	Upload Playwright artifact	studio-logs
+OpenAPI Spec	Upload Playwright artifact	test-results
+OpenAPI Spec	Upload Playwright artifact	
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3313210Z   retention-days: 30
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3313736Z   if-no-files-found: warn
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3314311Z   compression-level: 6
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3314790Z   overwrite: false
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3315284Z   include-hidden-files: false
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3315794Z env:
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3316217Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3316711Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3317223Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3317787Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3318430Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.3319269Z ##[endgroup]
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.5213470Z (node:9690) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.5215300Z (Use `node --trace-deprecation ...` to show where the warning was created)
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.5523068Z Multiple search paths detected. Calculating the least common ancestor of all paths
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.5527594Z The least common ancestor is /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests. This will be the root directory of the artifact
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.5529906Z With the provided path, there will be 97 files uploaded
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.5531505Z Artifact name is valid!
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.5532360Z Root directory input is valid!
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:40.9500892Z Beginning upload of artifact content to blob storage
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:41.3183777Z (node:9690) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:42.2323259Z Uploaded bytes 8388608
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:42.5576729Z Uploaded bytes 16777216
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:42.6749297Z Uploaded bytes 18942049
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:42.7476056Z Finished uploading artifact content to blob storage!
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:42.7477830Z SHA256 digest of uploaded artifact zip is 77a821f268b7181478b0e1445e48784b84fc81ba847c0203cc4c51aa921da11e
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:42.7479470Z Finalizing artifact upload
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:43.1516011Z Artifact test-artifacts-openapi-update-service-spec-run-43172946672.zip successfully finalized. Artifact ID 13923226251
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:43.1518897Z Artifact test-artifacts-openapi-update-service-spec-run-43172946672 has been successfully uploaded! Final size is 18942049 bytes. Artifact ID is 13923226251
+OpenAPI Spec	Upload Playwright artifact	2026-11-12T07:10:43.1520783Z Artifact download URL: https://github.com/specmatic/specmatic-studio-playwright-ts-tests/actions/runs/43172946672/artifacts/13923226251
+OpenAPI Spec	Fail job if there are test failures	﻿2026-11-12T07:10:43.1730866Z ##[group]Run REPORT_PATH="playwright-report/junit-report.xml"
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1731534Z [36;1mREPORT_PATH="playwright-report/junit-report.xml"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1731992Z [36;1mPLAYWRIGHT_OUTCOME="failure"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1732397Z [36;1mif [ ! -f "$REPORT_PATH" ]; then[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1732828Z [36;1m  echo "JUnit report not found at $REPORT_PATH"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1733241Z [36;1m  exit 1[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1733536Z [36;1mfi[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1733986Z [36;1mTOTAL=$(xmllint --xpath 'string(sum(//testsuite/@tests))' "$REPORT_PATH")[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1734671Z [36;1mFAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1735349Z [36;1mERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1736049Z [36;1mif [ "$PLAYWRIGHT_OUTCOME" != "success" ] && [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1736882Z [36;1m  echo "Playwright step failed before recording test failures. This usually means setup/global setup failed."[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1737560Z [36;1m  exit 1[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1737856Z [36;1mfi[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1738146Z [36;1mif [ "$TOTAL" = "0" ]; then[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1739003Z [36;1m  echo "No tests were recorded in $REPORT_PATH. Treating this as a setup failure."[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1739548Z [36;1m  exit 1[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1739838Z [36;1mfi[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1740184Z [36;1mif [ "$FAILURES" != "0" ] || [ "$ERRORS" != "0" ]; then[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1740820Z [36;1m  echo "Test failures or errors detected across all suites: failures=$FAILURES, errors=$ERRORS"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1741386Z [36;1m  exit 1[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1741667Z [36;1mfi[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1742024Z [36;1mecho "No test failures or errors detected. tests=$TOTAL"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1762008Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1762363Z env:
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1762652Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1763002Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1763340Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1763690Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1764100Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1764512Z ##[endgroup]
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1906855Z Test failures or errors detected across all suites: failures=1, errors=0
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1910809Z ##[error]Process completed with exit code 1.
+OpenAPI Spec	Post Run actions/checkout@v4	﻿2026-11-12T07:10:43.2020320Z Post job cleanup.
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.2921486Z [command]/usr/bin/git version
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.2963806Z git version 2.56.0
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3004148Z Temporarily overriding HOME='/home/runner/work/_temp/3109b413-2f23-4585-8081-3ce4449167c3' before making global git config changes
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3006070Z Adding repository directory to the temporary git global config as a safe directory
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3011280Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/specmatic-studio-playwright-ts-tests/specmatic-studio-playwright-ts-tests
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3054157Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3094892Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3402421Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3459938Z http.https://github.com/.extraheader
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3474755Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3520683Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3839592Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+OpenAPI Spec	Post Run actions/checkout@v4	2026-11-12T07:10:43.3883177Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+OpenAPI Spec	Complete job	﻿2026-11-12T07:10:43.4386486Z Cleaning up orphan processes
+OpenAPI Spec	Complete job	2026-11-12T07:10:43.5000490Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

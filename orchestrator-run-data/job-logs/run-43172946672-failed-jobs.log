@@ -1,0 +1,33 @@
+OpenAPI Spec	Fail job if there are test failures	﻿2026-11-12T07:10:43.1730866Z ##[group]Run REPORT_PATH="playwright-report/junit-report.xml"
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1731534Z [36;1mREPORT_PATH="playwright-report/junit-report.xml"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1731992Z [36;1mPLAYWRIGHT_OUTCOME="failure"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1732397Z [36;1mif [ ! -f "$REPORT_PATH" ]; then[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1732828Z [36;1m  echo "JUnit report not found at $REPORT_PATH"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1733241Z [36;1m  exit 1[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1733536Z [36;1mfi[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1733986Z [36;1mTOTAL=$(xmllint --xpath 'string(sum(//testsuite/@tests))' "$REPORT_PATH")[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1734671Z [36;1mFAILURES=$(xmllint --xpath 'string(sum(//testsuite/@failures))' "$REPORT_PATH")[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1735349Z [36;1mERRORS=$(xmllint --xpath 'string(sum(//testsuite/@errors))' "$REPORT_PATH")[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1736049Z [36;1mif [ "$PLAYWRIGHT_OUTCOME" != "success" ] && [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1736882Z [36;1m  echo "Playwright step failed before recording test failures. This usually means setup/global setup failed."[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1737560Z [36;1m  exit 1[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1737856Z [36;1mfi[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1738146Z [36;1mif [ "$TOTAL" = "0" ]; then[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1739003Z [36;1m  echo "No tests were recorded in $REPORT_PATH. Treating this as a setup failure."[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1739548Z [36;1m  exit 1[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1739838Z [36;1mfi[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1740184Z [36;1mif [ "$FAILURES" != "0" ] || [ "$ERRORS" != "0" ]; then[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1740820Z [36;1m  echo "Test failures or errors detected across all suites: failures=$FAILURES, errors=$ERRORS"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1741386Z [36;1m  exit 1[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1741667Z [36;1mfi[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1742024Z [36;1mecho "No test failures or errors detected. tests=$TOTAL"[0m
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1762008Z shell: /usr/bin/bash -e {0}
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1762363Z env:
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1762652Z   CMD_TIMEOUT_SHORT: 300
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1763002Z   CMD_TIMEOUT_MEDIUM: 600
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1763340Z   CMD_TIMEOUT_LONG: 1800
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1763690Z   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1764100Z   CHROME_EXECUTABLE_PATH: /usr/bin/google-chrome
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1764512Z ##[endgroup]
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1906855Z Test failures or errors detected across all suites: failures=1, errors=0
+OpenAPI Spec	Fail job if there are test failures	2026-11-12T07:10:43.1910809Z ##[error]Process completed with exit code 1.
