@@ -69,6 +69,41 @@ Use the real sidebar toggle control, then assert its accessible/ARIA state or th
 
 Scope the drill-down locator to the active mock result view. Name the expected scenario/path and assert its request and response blocks, rather than trusting a global count and sampling only first/last entries. If all rows matter, assert all expected scenario titles and statuses; if only representative cases matter, make the sampled cases explicit.
 
+## Assertions that lose useful failure context
+
+The repository does not use the exact `assert(message.contains("x")).is(true)` spelling, but it has the same shape: compute a boolean predicate, then assert only `true`. Playwright reports `Expected: true / Received: false`; it cannot show which substring, element, state, or value was wrong unless the test separately reconstructs that detail.
+
+| Assertion pattern | Code reference | Why the failure is weak or misleading | Better assertion |
+|---|---|---|---|
+| Assert `logText.includes(line)` as a boolean | [`run-suite-v2-config.spec.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/config/service-spec-config/run-suite-v2-config.spec.ts#L283), [`run-suite-v3-config.spec.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/config/service-spec-config/run-suite-v3-config.spec.ts#L179), and [`run-suite-mock-flow-helper.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/config/service-spec-config/run-suite-mock-flow-helper.ts#L246) | A custom message names the expected line, but the assertion still throws only a boolean mismatch; it omits the actual log text. In the v2/v3 helpers a failed locator read is additionally converted to an empty string and checked softly. The mock-flow helper first retries a combined `every()` predicate, then catches it and repeats as per-line booleans. | Prefer `await expect(configPage.executionLog).toContainText(line)` for each line. That retains Playwright retry behavior and shows expected/received text. If the log is not a stable locator, use `expect.poll(() => readLog()).toContain(line)` and do not catch the timeout into `""`. This pattern is not linked to a specific cause in the current orchestrator failure table. |
+| Assert `Array.isArray(value)` as `true` | [`dictionary-to-examples.spec.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/openapi/dictionary/dictionary-to-examples.spec.ts#L198) | If `body` is undefined, an object, or the wrong shape, the failure says only “expected true, received false”; it does not identify the bad field or actual value. | Assert the shape directly: `expect(endpointExample).toMatchObject({ "http-response": { body: expect.any(Array) } })`. The structural diff points to the missing/wrong nested field. This is an assertion-quality issue, not a cause currently recorded in the orchestrator report. |
+| Collapse several required editor sections into one boolean | [`dictionary-to-examples.spec.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/openapi/dictionary/dictionary-to-examples.spec.ts#L88) and [`examples-dictionary-generate-more.spec.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/openapi/dictionary/examples-dictionary-generate-more.spec.ts#L60) | The polling message says the dictionary is not ready, but does not report which of `ProductBase:`, `pageSize:`, `QUERY:`, or `type:` is absent. A single conjunctive predicate hides partial-loading details. | Poll for each required section separately with `expect.poll(() => loadedContent).toContain(section)` and a message naming the missing section, or return the missing-section list in the poll result. No direct orchestrator failure cause is tied to these assertions in the current archive. |
+| Combine tooltip presence with unrelated “sane count” checks | [`execute-contract-tests-filter-hover-coverage.spec.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/openapi/execute-contract-tests/execute-contract-tests-filter-hover-coverage.spec.ts#L105) | `hasFullMessage || hasPseudoMessage || hasValidMessageSource` passes when neither tooltip source contains the expected message, as long as the numeric counts look reasonable. This is a false-positive oracle: the test can pass while the user-facing tooltip is absent or wrong. The detailed custom error message does not help because the valid-count alternative prevents failure. | Assert the user-visible tooltip content directly. If it is rendered with CSS pseudo-content, read and assert the exact computed `::before`/`::after` text in a separate branch. Remove the counts-only alternative; counts are a separate behavior and cannot prove the tooltip works. No corresponding cause appears in the current orchestrator failure table. |
+| Convert locator visibility to booleans, then assert those booleans | [`run-mock-server.spec.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/openapi/run-mock-server/run-mock-server.spec.ts#L103), [`run-soap-mock-server.spec.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/soap/run-mock-server/run-soap-mock-server.spec.ts#L97), and [`MockServerPage.getDrillDownState()`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/page-objects/mock-server-page.ts#L386) | “Expected true / received false” loses the selector and current DOM state. The messages in some cases say which block failed, but Playwright cannot add its richer locator/visibility diagnostics after state has been reduced to `boolean`. | Assert `await expect(requestBlock).toBeVisible()` and `await expect(responseBlock).toBeVisible()` on the locators themselves. For all-success checks, assert each expected row’s status text or report the names/statuses of failed rows instead of returning one boolean. This is a general quality issue, not the cause of the archived #901 SOAP Mock URL failure. |
+
+### Assertion rewrite example
+
+Weak form (used in the v2/v3 execution-log helpers):
+
+```ts
+expect(logText.includes(line), `Execution log should contain: ${line}`).toBe(true);
+```
+
+Prefer a matcher that retains the values being compared:
+
+```ts
+await expect(configPage.executionLog).toContainText(line);
+```
+
+For a computed value that has no direct Playwright locator, make the failure expose the actual and expected values rather than reducing the predicate to a boolean:
+
+```ts
+const missing = expectedSections.filter((section) => !loadedContent.includes(section));
+expect(missing, `Dictionary editor is missing sections; loaded content was:\n${loadedContent}`).toEqual([]);
+```
+
+The tooltip assertion is more serious than poor diagnostics: because its fallback is logically unrelated to tooltip correctness, it can let a real UI regression pass. Split the tooltip and count checks into independent assertions.
+
 ## Other patterns to review
 
 - [`rename-generated-examples.spec.ts`](https://github.com/specmatic/specmatic-studio-playwright-ts-tests/blob/codex/orchestrator-gate-analysis-ci-skip/specs/openapi/examples/rename-generated-examples.spec.ts#L35) uses immediate `fs.existsSync()` checks after UI-driven mutations at lines 44–45 and 106–107. Poll the filesystem condition when the operation is asynchronous, as the same test already does for the UI file list.
