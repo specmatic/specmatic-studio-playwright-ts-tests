@@ -1,5 +1,7 @@
 # Playwright test code smells and rewrite opportunities
 
+See the [cross-workflow prioritized follow-up list](https://github.com/specmatic/enterprise/blob/codex/main-ci-failure-analysis/build-run-data/prioritized-follow-ups.md) for ranked actions and direct failed-build links.
+
 This is an analysis-only review of the Playwright test code, grounded in the failures catalogued in [orchestrator-run-data/failure-causes.md](failure-causes.md). The main theme is that some tests read transient UI state immediately or hide failed waits, making it hard to distinguish a timing race from a real Studio regression. The failure reports contain both kinds of clues; a test rewrite should make product failures clearer, not make them pass by weakening expectations.
 
 ## Highest-priority findings

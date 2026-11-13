@@ -1,5 +1,7 @@
 # Orchestrator gate failure causes
 
+See the [cross-workflow prioritized follow-up list](https://github.com/specmatic/enterprise/blob/codex/main-ci-failure-analysis/build-run-data/prioritized-follow-ups.md) for ranked actions and direct failed-build links.
+
 Window: **2026-10-13 15:38 through 2026-11-12 15:38 UTC** (30 days), branch `main`. The refreshed inventory contains **19 failed workflow runs and 49 failed jobs**; 19 uploaded artifacts for failed matrix jobs are available. Affected build numbers below are the Orchestrator build suffixes; linked artifacts are downloaded into [artifacts/](artifacts/). Workflow run metadata and per-job excerpts are in [manifest.json](manifest.json) and [job-logs/](job-logs/).
 
 | Failure cause | Affected orchestrator builds | Last seen | Potential fix applied | Evidence and status |
